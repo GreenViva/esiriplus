@@ -1,0 +1,54 @@
+# Built application files
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle
+.gradle/
+build/
+/captures
+
+# Local configuration
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Keystore files (do NOT commit signing keys)
+*.jks
+*.keystore
+
+# Google Services (contains API keys — reconstructed from CI secrets)
+app/google-services.json
+
+# Environment files
+.env
+.env.local
+
+# Native build
+.externalNativeBuild
+.cxx
+
+# Log files
+*.log
+
+# Supabase local config
+supabase/.env.local
+
+# Claude Code
+.claude/

@@ -1,0 +1,74 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+complexity:
+  LongMethod:
+    threshold: 60
+    ignoreAnnotated:
+      - "Composable"
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+    ignoreDefaultParameters: true
+    ignoreAnnotated:
+      - "Composable"
+  TooManyFunctions:
+    thresholdInFiles: 25
+    thresholdInClasses: 20
+    thresholdInInterfaces: 15
+    thresholdInObjects: 15
+    thresholdInEnums: 10
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - "Composable"
+  TopLevelPropertyNaming:
+    constantPattern: "[A-Z][A-Za-z0-9]*"
+
+style:
+  ForbiddenComment:
+    active: false
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreHashCodeFunction: true
+    ignoreEnums: true
+    ignoreRanges: true
+    ignoreNamedArgument: true
+    ignoreAnnotated:
+      - "Composable"
+  MaxLineLength:
+    maxLineLength: 120
+    excludeCommentStatements: true
+    excludeRawStrings: true
+  NewLineAtEndOfFile:
+    active: true
+  WildcardImport:
+    active: true
+    excludeImports:
+      - "kotlinx.coroutines.flow.*"
+  UnusedPrivateMember:
+    allowedNames: "(_|ignored|expected|serialVersionUID)"
+    ignoreAnnotated:
+      - "Preview"
+      - "Composable"
+      - "Inject"
+  UnusedPrivateProperty:
+    allowedNames: "(_|ignored|expected|serialVersionUID)"
+    ignoreAnnotated:
+      - "Inject"
+  UnusedParameter:
+    ignoreAnnotated:
+      - "Composable"
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    exceptionNames:
+      - "ArrayIndexOutOfBoundsException"
+      - "Error"
+      - "IllegalMonitorStateException"
+      - "IndexOutOfBoundsException"
+      - "NullPointerException"
