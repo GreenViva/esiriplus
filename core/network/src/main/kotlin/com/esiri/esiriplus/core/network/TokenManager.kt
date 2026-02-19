@@ -1,42 +1,38 @@
 package com.esiri.esiriplus.core.network
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import com.esiri.esiriplus.core.network.security.EncryptedTokenStorage
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_tokens")
-
 @Singleton
 class TokenManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val encryptedTokenStorage: EncryptedTokenStorage,
 ) {
-    private val accessTokenKey = stringPreferencesKey("access_token")
-    private val refreshTokenKey = stringPreferencesKey("refresh_token")
+    private val _accessToken = MutableStateFlow(encryptedTokenStorage.getAccessToken())
+    val accessToken: StateFlow<String?> = _accessToken.asStateFlow()
 
-    val accessToken: Flow<String?> = context.tokenDataStore.data.map { prefs ->
-        prefs[accessTokenKey]
+    private val _refreshToken = MutableStateFlow(encryptedTokenStorage.getRefreshToken())
+    val refreshToken: StateFlow<String?> = _refreshToken.asStateFlow()
+
+    fun getAccessTokenSync(): String? = encryptedTokenStorage.getAccessToken()
+
+    fun getRefreshTokenSync(): String? = encryptedTokenStorage.getRefreshToken()
+
+    fun isTokenExpiringSoon(thresholdMinutes: Int = 5): Boolean =
+        encryptedTokenStorage.isTokenExpiringSoon(thresholdMinutes)
+
+    fun saveTokens(accessToken: String, refreshToken: String, expiresAtMillis: Long) {
+        encryptedTokenStorage.saveTokens(accessToken, refreshToken, expiresAtMillis)
+        _accessToken.value = accessToken
+        _refreshToken.value = refreshToken
     }
 
-    val refreshToken: Flow<String?> = context.tokenDataStore.data.map { prefs ->
-        prefs[refreshTokenKey]
-    }
-
-    suspend fun saveTokens(accessToken: String, refreshToken: String) {
-        context.tokenDataStore.edit { prefs ->
-            prefs[accessTokenKey] = accessToken
-            prefs[refreshTokenKey] = refreshToken
-        }
-    }
-
-    suspend fun clearTokens() {
-        context.tokenDataStore.edit { it.clear() }
+    fun clearTokens() {
+        encryptedTokenStorage.clearTokens()
+        _accessToken.value = null
+        _refreshToken.value = null
     }
 }

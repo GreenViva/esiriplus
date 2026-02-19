@@ -1,5 +1,6 @@
 plugins {
     id("esiriplus.android.library")
+    id("esiriplus.android.hilt")
 }
 
 android {

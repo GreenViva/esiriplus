@@ -36,17 +36,30 @@ dependencies {
     implementation(libs.supabase.auth)
     implementation(libs.supabase.functions)
     implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.realtime)
 
-    // Ktor
-    implementation(libs.ktor.client.android)
+    // Ktor (OkHttp engine for Supabase)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.json)
 
+    // OkHttp
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.moshi)
+
+    // Moshi
+    implementation(libs.moshi)
+    ksp(libs.moshi.kotlin.codegen)
+
+    // Security
+    implementation(libs.security.crypto)
+
     // Serialization
     implementation(libs.kotlinx.serialization.json)
-
-    // DataStore
-    implementation(libs.datastore.preferences)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
@@ -56,4 +69,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.okhttp.mockwebserver)
 }

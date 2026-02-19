@@ -1,33 +1,49 @@
 package com.esiri.esiriplus.core.network
 
-import com.esiri.esiriplus.core.network.model.NetworkResult
+import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.safeApiCall
-import io.github.jan.supabase.SupabaseClient
-import kotlinx.coroutines.flow.firstOrNull
+import io.github.jan.supabase.functions.Functions
+import io.github.jan.supabase.functions.invoke
+import io.ktor.client.call.body
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class EdgeFunctionClient @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
-    private val tokenManager: TokenManager,
 ) {
-    val client: SupabaseClient
-        get() = supabaseClientProvider.client
+    private val functions: Functions
+        get() = supabaseClientProvider.client.pluginManager.getPlugin(Functions)
 
-    @Suppress("UnusedParameter", "UnusedPrivateProperty")
     suspend fun invoke(
         functionName: String,
         body: JsonObject? = null,
-    ): NetworkResult<String> = safeApiCall {
-        @Suppress("UNUSED_VARIABLE")
-        val token = tokenManager.accessToken.firstOrNull()
-        // TODO: Wire up Supabase Functions.invoke() with auth token injection
-        // val functions = client.functions
-        // functions.invoke(functionName, body, headers = ...)
-        throw NotImplementedError(
-            "Edge function invocation not yet wired — implement with supabase-kt Functions plugin",
+    ): ApiResult<String> = safeApiCall {
+        val response = functions.invoke(
+            function = functionName,
+            body = body ?: buildJsonObject {},
+            headers = Headers.build {
+                append(HttpHeaders.ContentType, "application/json")
+            },
         )
+        response.body<String>()
+    }
+
+    suspend inline fun <reified T> invokeAndDecode(
+        functionName: String,
+        body: JsonObject? = null,
+    ): ApiResult<T> = safeApiCall {
+        val response = functions.invoke(
+            function = functionName,
+            body = body ?: buildJsonObject {},
+            headers = Headers.build {
+                append(HttpHeaders.ContentType, "application/json")
+            },
+        )
+        response.body<T>()
     }
 }
