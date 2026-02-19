@@ -50,6 +50,7 @@ object DatabaseModule {
             .addMigrations(*DatabaseMigrations.ALL_MIGRATIONS)
 
         if (BuildConfig.DEBUG) {
+            @Suppress("DEPRECATION")
             builder.fallbackToDestructiveMigration()
         }
 

@@ -29,7 +29,7 @@ class DatabaseCallback(
                 INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder)
                 VALUES (?, ?, ?, ?, ?, ?, 1, ?)
                 """.trimIndent(),
-                arrayOf(
+                arrayOf<Any>(
                     tier.id,
                     tier.category,
                     tier.displayName,
