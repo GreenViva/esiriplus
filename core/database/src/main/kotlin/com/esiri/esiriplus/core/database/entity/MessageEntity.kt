@@ -4,26 +4,30 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.Instant
 
 @Entity(
     tableName = "messages",
     foreignKeys = [
         ForeignKey(
             entity = ConsultationEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["consultationId"],
             childColumns = ["consultationId"],
             onDelete = ForeignKey.CASCADE,
         ),
     ],
-    indices = [Index("consultationId"), Index("senderId")],
+    indices = [
+        Index("consultationId", "createdAt"),
+    ],
 )
 data class MessageEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val messageId: String,
     val consultationId: String,
+    val senderType: String,
     val senderId: String,
-    val content: String,
+    val messageText: String,
     val messageType: String,
+    val attachmentUrl: String? = null,
     val isRead: Boolean = false,
-    val createdAt: Instant,
+    val synced: Boolean = false,
+    val createdAt: Long,
 )

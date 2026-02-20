@@ -70,7 +70,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AuditLogEntity::class,
         ProviderEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(

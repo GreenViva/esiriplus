@@ -1,17 +1,41 @@
 package com.esiri.esiriplus.core.database.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.Instant
 
-@Entity(tableName = "consultations")
-data class ConsultationEntity(
-    @PrimaryKey val id: String,
-    val patientId: String,
-    val doctorId: String?,
-    val serviceType: String,
-    val status: String,
-    val notes: String?,
-    val createdAt: Instant,
-    val updatedAt: Instant?,
+@Entity(
+    tableName = "consultations",
+    foreignKeys = [
+        ForeignKey(
+            entity = PatientSessionEntity::class,
+            parentColumns = ["sessionId"],
+            childColumns = ["patientSessionId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [
+        Index("patientSessionId"),
+        Index("doctorId"),
+        Index("status", "createdAt"),
+    ],
 )
+data class ConsultationEntity(
+    @PrimaryKey val consultationId: String,
+    val patientSessionId: String,
+    val doctorId: String,
+    val status: String,
+    val serviceType: String,
+    val consultationFee: Int,
+    val sessionStartTime: Long? = null,
+    val sessionEndTime: Long? = null,
+    val sessionDurationMinutes: Int = DEFAULT_SESSION_DURATION,
+    val requestExpiresAt: Long,
+    val createdAt: Long,
+    val updatedAt: Long,
+) {
+    companion object {
+        const val DEFAULT_SESSION_DURATION = 15
+    }
+}

@@ -9,11 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
-    @Query("SELECT * FROM messages WHERE consultationId = :consultationId ORDER BY createdAt ASC")
-    fun getMessagesForConsultation(consultationId: String): Flow<List<MessageEntity>>
-
-    @Query("SELECT * FROM messages WHERE id = :id")
-    suspend fun getById(id: String): MessageEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: MessageEntity)
@@ -21,6 +16,21 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(messages: List<MessageEntity>)
 
-    @Query("UPDATE messages SET isRead = 1 WHERE consultationId = :consultationId AND senderId != :currentUserId")
-    suspend fun markAsRead(consultationId: String, currentUserId: String)
+    @Query("SELECT * FROM messages WHERE consultationId = :consultationId ORDER BY createdAt ASC")
+    fun getByConsultationId(consultationId: String): Flow<List<MessageEntity>>
+
+    @Query("SELECT * FROM messages WHERE messageId = :id")
+    suspend fun getById(id: String): MessageEntity?
+
+    @Query("UPDATE messages SET isRead = 1 WHERE messageId = :messageId")
+    suspend fun markAsRead(messageId: String)
+
+    @Query("UPDATE messages SET synced = 1 WHERE messageId = :messageId")
+    suspend fun markAsSynced(messageId: String)
+
+    @Query("SELECT * FROM messages WHERE synced = 0")
+    suspend fun getUnsyncedMessages(): List<MessageEntity>
+
+    @Query("DELETE FROM messages")
+    suspend fun clearAll()
 }

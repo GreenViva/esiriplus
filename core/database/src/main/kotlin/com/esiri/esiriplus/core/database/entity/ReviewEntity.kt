@@ -11,7 +11,7 @@ import java.time.Instant
     foreignKeys = [
         ForeignKey(
             entity = ConsultationEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["consultationId"],
             childColumns = ["consultationId"],
             onDelete = ForeignKey.CASCADE,
         ),
