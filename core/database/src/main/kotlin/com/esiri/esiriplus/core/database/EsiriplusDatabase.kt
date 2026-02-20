@@ -16,6 +16,7 @@ import com.esiri.esiriplus.core.database.dao.MedicalRecordDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
+import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.database.dao.PaymentDao
 import com.esiri.esiriplus.core.database.dao.PrescriptionDao
 import com.esiri.esiriplus.core.database.dao.ProviderDao
@@ -35,6 +36,7 @@ import com.esiri.esiriplus.core.database.entity.MedicalRecordEntity
 import com.esiri.esiriplus.core.database.entity.MessageEntity
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
 import com.esiri.esiriplus.core.database.entity.PatientProfileEntity
+import com.esiri.esiriplus.core.database.entity.PatientSessionEntity
 import com.esiri.esiriplus.core.database.entity.PaymentEntity
 import com.esiri.esiriplus.core.database.entity.PrescriptionEntity
 import com.esiri.esiriplus.core.database.entity.ProviderEntity
@@ -55,6 +57,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AppConfigEntity::class,
         DoctorProfileEntity::class,
         PatientProfileEntity::class,
+        PatientSessionEntity::class,
         MessageEntity::class,
         AttachmentEntity::class,
         NotificationEntity::class,
@@ -67,7 +70,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AuditLogEntity::class,
         ProviderEntity::class,
     ],
-    version = 1,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(
@@ -85,6 +88,7 @@ abstract class EsiriplusDatabase : RoomDatabase() {
     abstract fun appConfigDao(): AppConfigDao
     abstract fun doctorProfileDao(): DoctorProfileDao
     abstract fun patientProfileDao(): PatientProfileDao
+    abstract fun patientSessionDao(): PatientSessionDao
     abstract fun messageDao(): MessageDao
     abstract fun attachmentDao(): AttachmentDao
     abstract fun notificationDao(): NotificationDao

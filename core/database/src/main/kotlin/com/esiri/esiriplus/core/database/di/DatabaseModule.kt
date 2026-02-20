@@ -15,6 +15,7 @@ import com.esiri.esiriplus.core.database.dao.MedicalRecordDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
+import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.database.dao.PaymentDao
 import com.esiri.esiriplus.core.database.dao.PrescriptionDao
 import com.esiri.esiriplus.core.database.dao.ProviderDao
@@ -68,6 +69,7 @@ object DatabaseModule {
     @Provides fun provideAppConfigDao(db: EsiriplusDatabase): AppConfigDao = db.appConfigDao()
     @Provides fun provideDoctorProfileDao(db: EsiriplusDatabase): DoctorProfileDao = db.doctorProfileDao()
     @Provides fun providePatientProfileDao(db: EsiriplusDatabase): PatientProfileDao = db.patientProfileDao()
+    @Provides fun providePatientSessionDao(db: EsiriplusDatabase): PatientSessionDao = db.patientSessionDao()
     @Provides fun provideMessageDao(db: EsiriplusDatabase): MessageDao = db.messageDao()
     @Provides fun provideAttachmentDao(db: EsiriplusDatabase): AttachmentDao = db.attachmentDao()
     @Provides fun provideNotificationDao(db: EsiriplusDatabase): NotificationDao = db.notificationDao()

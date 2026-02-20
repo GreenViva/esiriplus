@@ -41,9 +41,10 @@ class DateConvertersTest {
 
     @Test
     fun `round trip preserves value`() {
-        val original = Instant.now()
-        val millis = converter.dateToTimestamp(original)
-        val restored = converter.fromTimestamp(millis)
+        val millis = System.currentTimeMillis()
+        val original = Instant.ofEpochMilli(millis)
+        val converted = converter.dateToTimestamp(original)
+        val restored = converter.fromTimestamp(converted)
         assertEquals(original, restored)
     }
 }

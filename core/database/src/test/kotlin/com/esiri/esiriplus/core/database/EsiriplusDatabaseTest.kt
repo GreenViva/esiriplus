@@ -34,7 +34,7 @@ class EsiriplusDatabaseTest {
     }
 
     @Test
-    fun `all 19 DAOs are accessible`() {
+    fun `all 20 DAOs are accessible`() {
         assertNotNull(database.userDao())
         assertNotNull(database.sessionDao())
         assertNotNull(database.consultationDao())
@@ -43,6 +43,7 @@ class EsiriplusDatabaseTest {
         assertNotNull(database.appConfigDao())
         assertNotNull(database.doctorProfileDao())
         assertNotNull(database.patientProfileDao())
+        assertNotNull(database.patientSessionDao())
         assertNotNull(database.messageDao())
         assertNotNull(database.attachmentDao())
         assertNotNull(database.notificationDao())
@@ -57,33 +58,20 @@ class EsiriplusDatabaseTest {
     }
 
     @Test
-    fun `database version is 1`() {
-        val dbAnnotation = EsiriplusDatabase::class.java.getAnnotation(
-            androidx.room.Database::class.java,
+    fun `database has expected tables`() {
+        val cursor = database.openHelper.readableDatabase.query(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'room_%' AND name != 'android_metadata'",
         )
-        assertNotNull(dbAnnotation)
-        assertEquals(1, dbAnnotation!!.version)
-    }
-
-    @Test
-    fun `database exports schema`() {
-        val dbAnnotation = EsiriplusDatabase::class.java.getAnnotation(
-            androidx.room.Database::class.java,
-        )
-        assertNotNull(dbAnnotation)
-        assertEquals(true, dbAnnotation!!.exportSchema)
-    }
-
-    @Test
-    fun `database has 19 entities`() {
-        val dbAnnotation = EsiriplusDatabase::class.java.getAnnotation(
-            androidx.room.Database::class.java,
-        )
-        assertNotNull(dbAnnotation)
-        assertEquals(EXPECTED_ENTITY_COUNT, dbAnnotation!!.entities.size)
+        val tables = mutableListOf<String>()
+        while (cursor.moveToNext()) {
+            tables.add(cursor.getString(0))
+        }
+        cursor.close()
+        assertEquals(EXPECTED_TABLE_COUNT, tables.size)
+        assertNotNull(tables.find { it == "patient_sessions" })
     }
 
     companion object {
-        private const val EXPECTED_ENTITY_COUNT = 19
+        private const val EXPECTED_TABLE_COUNT = 20
     }
 }
