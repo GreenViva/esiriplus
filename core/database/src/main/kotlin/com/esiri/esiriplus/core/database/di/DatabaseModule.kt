@@ -10,6 +10,8 @@ import com.esiri.esiriplus.core.database.dao.AttachmentDao
 import com.esiri.esiriplus.core.database.dao.AuditLogDao
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DiagnosisDao
+import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
+import com.esiri.esiriplus.core.database.dao.DoctorCredentialsDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.database.dao.MedicalRecordDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
@@ -68,6 +70,8 @@ object DatabaseModule {
     @Provides fun provideServiceTierDao(db: EsiriplusDatabase): ServiceTierDao = db.serviceTierDao()
     @Provides fun provideAppConfigDao(db: EsiriplusDatabase): AppConfigDao = db.appConfigDao()
     @Provides fun provideDoctorProfileDao(db: EsiriplusDatabase): DoctorProfileDao = db.doctorProfileDao()
+    @Provides fun provideDoctorAvailabilityDao(db: EsiriplusDatabase): DoctorAvailabilityDao = db.doctorAvailabilityDao()
+    @Provides fun provideDoctorCredentialsDao(db: EsiriplusDatabase): DoctorCredentialsDao = db.doctorCredentialsDao()
     @Provides fun providePatientProfileDao(db: EsiriplusDatabase): PatientProfileDao = db.patientProfileDao()
     @Provides fun providePatientSessionDao(db: EsiriplusDatabase): PatientSessionDao = db.patientSessionDao()
     @Provides fun provideMessageDao(db: EsiriplusDatabase): MessageDao = db.messageDao()

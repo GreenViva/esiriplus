@@ -34,7 +34,7 @@ class EsiriplusDatabaseTest {
     }
 
     @Test
-    fun `all 20 DAOs are accessible`() {
+    fun `all 22 DAOs are accessible`() {
         assertNotNull(database.userDao())
         assertNotNull(database.sessionDao())
         assertNotNull(database.consultationDao())
@@ -42,6 +42,8 @@ class EsiriplusDatabaseTest {
         assertNotNull(database.serviceTierDao())
         assertNotNull(database.appConfigDao())
         assertNotNull(database.doctorProfileDao())
+        assertNotNull(database.doctorAvailabilityDao())
+        assertNotNull(database.doctorCredentialsDao())
         assertNotNull(database.patientProfileDao())
         assertNotNull(database.patientSessionDao())
         assertNotNull(database.messageDao())
@@ -69,9 +71,11 @@ class EsiriplusDatabaseTest {
         cursor.close()
         assertEquals(EXPECTED_TABLE_COUNT, tables.size)
         assertNotNull(tables.find { it == "patient_sessions" })
+        assertNotNull(tables.find { it == "doctor_availability" })
+        assertNotNull(tables.find { it == "doctor_credentials" })
     }
 
     companion object {
-        private const val EXPECTED_TABLE_COUNT = 20
+        private const val EXPECTED_TABLE_COUNT = 22
     }
 }

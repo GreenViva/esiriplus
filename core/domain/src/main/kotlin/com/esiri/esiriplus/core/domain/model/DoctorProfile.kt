@@ -1,18 +1,7 @@
-package com.esiri.esiriplus.core.database.entity
+package com.esiri.esiriplus.core.domain.model
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-
-@Entity(
-    tableName = "doctor_profiles",
-    indices = [
-        Index("isVerified", "isAvailable", "specialty"),
-        Index("averageRating"),
-    ],
-)
-data class DoctorProfileEntity(
-    @PrimaryKey val doctorId: String,
+data class DoctorProfile(
+    val doctorId: String,
     val fullName: String,
     val email: String,
     val phone: String,

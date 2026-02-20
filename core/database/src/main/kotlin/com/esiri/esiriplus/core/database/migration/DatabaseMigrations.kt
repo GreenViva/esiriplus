@@ -200,10 +200,78 @@ object DatabaseMigrations {
         }
     }
 
+    @Suppress("LongMethod")
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Drop old doctor_profiles (schema changed completely)
+            db.execSQL("DROP TABLE IF EXISTS `doctor_profiles`")
+
+            // Create new doctor_profiles with richer schema
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_profiles` (
+                    `doctorId` TEXT NOT NULL,
+                    `fullName` TEXT NOT NULL,
+                    `email` TEXT NOT NULL,
+                    `phone` TEXT NOT NULL,
+                    `specialty` TEXT NOT NULL,
+                    `languages` TEXT NOT NULL,
+                    `bio` TEXT NOT NULL,
+                    `licenseNumber` TEXT NOT NULL,
+                    `yearsExperience` INTEGER NOT NULL,
+                    `profilePhotoUrl` TEXT DEFAULT NULL,
+                    `averageRating` REAL NOT NULL DEFAULT 0.0,
+                    `totalRatings` INTEGER NOT NULL DEFAULT 0,
+                    `isVerified` INTEGER NOT NULL DEFAULT 0,
+                    `isAvailable` INTEGER NOT NULL DEFAULT 0,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`doctorId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_profiles_isVerified_isAvailable_specialty` ON `doctor_profiles` (`isVerified`, `isAvailable`, `specialty`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_profiles_averageRating` ON `doctor_profiles` (`averageRating`)")
+
+            // Create doctor_availability
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_availability` (
+                    `availabilityId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `isAvailable` INTEGER NOT NULL,
+                    `availabilitySchedule` TEXT NOT NULL,
+                    `lastUpdated` INTEGER NOT NULL,
+                    PRIMARY KEY(`availabilityId`),
+                    FOREIGN KEY(`doctorId`) REFERENCES `doctor_profiles`(`doctorId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_availability_doctorId` ON `doctor_availability` (`doctorId`)")
+
+            // Create doctor_credentials
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_credentials` (
+                    `credentialId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `documentUrl` TEXT NOT NULL,
+                    `documentType` TEXT NOT NULL,
+                    `verifiedAt` INTEGER DEFAULT NULL,
+                    PRIMARY KEY(`credentialId`),
+                    FOREIGN KEY(`doctorId`) REFERENCES `doctor_profiles`(`doctorId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_credentials_doctorId` ON `doctor_credentials` (`doctorId`)")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
         MIGRATION_3_4,
         MIGRATION_4_5,
+        MIGRATION_5_6,
     )
 }

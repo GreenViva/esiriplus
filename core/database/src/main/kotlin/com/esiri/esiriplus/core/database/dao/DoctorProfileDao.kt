@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.core.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -9,15 +10,37 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DoctorProfileDao {
-    @Query("SELECT * FROM doctor_profiles WHERE userId = :userId")
-    fun getByUserId(userId: String): Flow<DoctorProfileEntity?>
 
-    @Query("SELECT * FROM doctor_profiles WHERE id = :id")
-    suspend fun getById(id: String): DoctorProfileEntity?
+    @Query("SELECT * FROM doctor_profiles")
+    fun getAll(): Flow<List<DoctorProfileEntity>>
 
-    @Query("SELECT * FROM doctor_profiles WHERE isAvailable = 1")
+    @Query("SELECT * FROM doctor_profiles WHERE doctorId = :doctorId")
+    suspend fun getById(doctorId: String): DoctorProfileEntity?
+
+    @Query("SELECT * FROM doctor_profiles WHERE specialty = :specialty")
+    fun getBySpecialty(specialty: String): Flow<List<DoctorProfileEntity>>
+
+    @Query("SELECT * FROM doctor_profiles WHERE isVerified = 1 AND isAvailable = 1")
     fun getAvailableDoctors(): Flow<List<DoctorProfileEntity>>
+
+    @Query("SELECT * FROM doctor_profiles WHERE averageRating >= :minRating")
+    fun getByRatingRange(minRating: Double): Flow<List<DoctorProfileEntity>>
+
+    @Query("UPDATE doctor_profiles SET isAvailable = :isAvailable, updatedAt = :updatedAt WHERE doctorId = :doctorId")
+    suspend fun updateAvailability(doctorId: String, isAvailable: Boolean, updatedAt: Long)
+
+    @Query("UPDATE doctor_profiles SET averageRating = :averageRating, totalRatings = :totalRatings, updatedAt = :updatedAt WHERE doctorId = :doctorId")
+    suspend fun updateRating(doctorId: String, averageRating: Double, totalRatings: Int, updatedAt: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(profile: DoctorProfileEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(profiles: List<DoctorProfileEntity>)
+
+    @Delete
+    suspend fun delete(profile: DoctorProfileEntity)
+
+    @Query("DELETE FROM doctor_profiles")
+    suspend fun clearAll()
 }

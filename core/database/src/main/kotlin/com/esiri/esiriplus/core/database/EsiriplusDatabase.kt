@@ -11,6 +11,8 @@ import com.esiri.esiriplus.core.database.dao.AttachmentDao
 import com.esiri.esiriplus.core.database.dao.AuditLogDao
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DiagnosisDao
+import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
+import com.esiri.esiriplus.core.database.dao.DoctorCredentialsDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.database.dao.MedicalRecordDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
@@ -31,6 +33,8 @@ import com.esiri.esiriplus.core.database.entity.AttachmentEntity
 import com.esiri.esiriplus.core.database.entity.AuditLogEntity
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.database.entity.DiagnosisEntity
+import com.esiri.esiriplus.core.database.entity.DoctorAvailabilityEntity
+import com.esiri.esiriplus.core.database.entity.DoctorCredentialsEntity
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.database.entity.MedicalRecordEntity
 import com.esiri.esiriplus.core.database.entity.MessageEntity
@@ -56,6 +60,8 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         ServiceTierEntity::class,
         AppConfigEntity::class,
         DoctorProfileEntity::class,
+        DoctorAvailabilityEntity::class,
+        DoctorCredentialsEntity::class,
         PatientProfileEntity::class,
         PatientSessionEntity::class,
         MessageEntity::class,
@@ -70,7 +76,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AuditLogEntity::class,
         ProviderEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(
@@ -87,6 +93,8 @@ abstract class EsiriplusDatabase : RoomDatabase() {
     abstract fun serviceTierDao(): ServiceTierDao
     abstract fun appConfigDao(): AppConfigDao
     abstract fun doctorProfileDao(): DoctorProfileDao
+    abstract fun doctorAvailabilityDao(): DoctorAvailabilityDao
+    abstract fun doctorCredentialsDao(): DoctorCredentialsDao
     abstract fun patientProfileDao(): PatientProfileDao
     abstract fun patientSessionDao(): PatientSessionDao
     abstract fun messageDao(): MessageDao
