@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.esiri.esiriplus.core.database.encryption.DatabaseEncryption
+import com.esiri.esiriplus.core.database.init.DatabaseEncryptionException
 
 class DatabaseCallback(
     private val context: Context,
@@ -58,7 +59,7 @@ class DatabaseCallback(
         if (isEncrypted) {
             Log.d(TAG, "Database encryption verified successfully")
         } else {
-            Log.w(TAG, "Database encryption verification failed")
+            throw DatabaseEncryptionException("Database encryption verification failed")
         }
     }
 

@@ -8,6 +8,6 @@ import javax.inject.Inject
 class CreatePatientSessionUseCase @Inject constructor(
     private val authRepository: AuthRepository,
 ) {
-    suspend operator fun invoke(phone: String, fullName: String): Result<Session> =
-        authRepository.createPatientSession(phone, fullName)
+    suspend operator fun invoke(): Result<Session> =
+        authRepository.createPatientSession()
 }

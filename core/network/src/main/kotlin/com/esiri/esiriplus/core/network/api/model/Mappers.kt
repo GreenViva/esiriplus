@@ -2,8 +2,6 @@ package com.esiri.esiriplus.core.network.api.model
 
 import com.esiri.esiriplus.core.domain.model.Consultation
 import com.esiri.esiriplus.core.domain.model.ConsultationStatus
-import com.esiri.esiriplus.core.domain.model.Payment
-import com.esiri.esiriplus.core.domain.model.PaymentStatus
 import com.esiri.esiriplus.core.domain.model.ServiceType
 import com.esiri.esiriplus.core.domain.model.User
 import com.esiri.esiriplus.core.domain.model.UserRole
@@ -22,16 +20,17 @@ fun ConsultationApiModel.toDomain(): Consultation = Consultation(
     updatedAt = updatedAt?.let { Instant.parse(it) },
 )
 
-fun PaymentApiModel.toDomain(): Payment = Payment(
-    id = id,
-    consultationId = consultationId,
-    amount = amount,
-    currency = currency,
-    status = PaymentStatus.entries.find { it.name.equals(status, ignoreCase = true) }
-        ?: PaymentStatus.PENDING,
-    mpesaReceiptNumber = mpesaReceiptNumber,
-    createdAt = Instant.parse(createdAt),
-)
+// TODO: Update when Payment API is redesigned
+// fun PaymentApiModel.toDomain(): Payment = Payment(
+//     id = id,
+//     consultationId = consultationId,
+//     amount = amount,
+//     currency = currency,
+//     status = PaymentStatus.entries.find { it.name.equals(status, ignoreCase = true) }
+//         ?: PaymentStatus.PENDING,
+//     mpesaReceiptNumber = mpesaReceiptNumber,
+//     createdAt = Instant.parse(createdAt),
+// )
 
 fun UserApiModel.toDomain(): User = User(
     id = id,

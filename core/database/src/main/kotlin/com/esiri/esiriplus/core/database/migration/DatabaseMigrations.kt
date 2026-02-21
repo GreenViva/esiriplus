@@ -267,11 +267,204 @@ object DatabaseMigrations {
         }
     }
 
+    @Suppress("LongMethod")
+    val MIGRATION_6_7 = object : Migration(6, 7) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Drop old payments table (schema changed completely)
+            db.execSQL("DROP TABLE IF EXISTS `payments`")
+
+            // Create new payments with FK to patient_sessions
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `payments` (
+                    `paymentId` TEXT NOT NULL,
+                    `patientSessionId` TEXT NOT NULL,
+                    `amount` INTEGER NOT NULL,
+                    `paymentMethod` TEXT NOT NULL,
+                    `transactionId` TEXT DEFAULT NULL,
+                    `phoneNumber` TEXT NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `failureReason` TEXT DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    `synced` INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY(`paymentId`),
+                    FOREIGN KEY(`patientSessionId`) REFERENCES `patient_sessions`(`sessionId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_payments_patientSessionId_createdAt` ON `payments` (`patientSessionId`, `createdAt`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_payments_status` ON `payments` (`status`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_payments_transactionId` ON `payments` (`transactionId`)")
+
+            // Create service_access_payments
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `service_access_payments` (
+                    `paymentId` TEXT NOT NULL,
+                    `serviceType` TEXT NOT NULL,
+                    `amount` INTEGER NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`paymentId`)
+                )
+                """.trimIndent(),
+            )
+
+            // Create call_recharge_payments with FK to consultations
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `call_recharge_payments` (
+                    `paymentId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `amount` INTEGER NOT NULL DEFAULT 2500,
+                    `additionalMinutes` INTEGER NOT NULL DEFAULT 3,
+                    `status` TEXT NOT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`paymentId`),
+                    FOREIGN KEY(`consultationId`) REFERENCES `consultations`(`consultationId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_call_recharge_payments_consultationId` ON `call_recharge_payments` (`consultationId`)")
+        }
+    }
+
+    val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Create doctor_ratings with FKs and UNIQUE constraint on consultationId
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_ratings` (
+                    `ratingId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `patientSessionId` TEXT NOT NULL,
+                    `rating` INTEGER NOT NULL,
+                    `comment` TEXT DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    `synced` INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY(`ratingId`),
+                    FOREIGN KEY(`doctorId`) REFERENCES `doctor_profiles`(`doctorId`) ON DELETE CASCADE,
+                    FOREIGN KEY(`consultationId`) REFERENCES `consultations`(`consultationId`) ON DELETE CASCADE,
+                    FOREIGN KEY(`patientSessionId`) REFERENCES `patient_sessions`(`sessionId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_ratings_doctorId` ON `doctor_ratings` (`doctorId`)")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_doctor_ratings_consultationId` ON `doctor_ratings` (`consultationId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_ratings_patientSessionId` ON `doctor_ratings` (`patientSessionId`)")
+
+            // Create doctor_earnings with FKs
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_earnings` (
+                    `earningId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `amount` INTEGER NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `paidAt` INTEGER DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`earningId`),
+                    FOREIGN KEY(`doctorId`) REFERENCES `doctor_profiles`(`doctorId`) ON DELETE CASCADE,
+                    FOREIGN KEY(`consultationId`) REFERENCES `consultations`(`consultationId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_earnings_doctorId_status` ON `doctor_earnings` (`doctorId`, `status`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_earnings_consultationId` ON `doctor_earnings` (`consultationId`)")
+        }
+    }
+
+    @Suppress("LongMethod")
+    val MIGRATION_8_9 = object : Migration(8, 9) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Drop old notifications table (schema changed completely)
+            db.execSQL("DROP TABLE IF EXISTS `notifications`")
+
+            // Create new notifications with readAt instead of isRead
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `notifications` (
+                    `notificationId` TEXT NOT NULL,
+                    `userId` TEXT NOT NULL,
+                    `title` TEXT NOT NULL,
+                    `body` TEXT NOT NULL,
+                    `type` TEXT NOT NULL,
+                    `data` TEXT NOT NULL,
+                    `readAt` INTEGER DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`notificationId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_notifications_userId` ON `notifications` (`userId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_notifications_type` ON `notifications` (`type`)")
+
+            // Create video_calls with FK to consultations
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `video_calls` (
+                    `callId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `startedAt` INTEGER NOT NULL,
+                    `endedAt` INTEGER DEFAULT NULL,
+                    `durationSeconds` INTEGER NOT NULL,
+                    `callQuality` TEXT NOT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`callId`),
+                    FOREIGN KEY(`consultationId`) REFERENCES `consultations`(`consultationId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_video_calls_consultationId` ON `video_calls` (`consultationId`)")
+
+            // Create patient_reports with FKs to consultations and patient_sessions
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `patient_reports` (
+                    `reportId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `patientSessionId` TEXT NOT NULL,
+                    `reportUrl` TEXT NOT NULL,
+                    `localFilePath` TEXT DEFAULT NULL,
+                    `generatedAt` INTEGER NOT NULL,
+                    `downloadedAt` INTEGER DEFAULT NULL,
+                    `fileSizeBytes` INTEGER NOT NULL,
+                    `isDownloaded` INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY(`reportId`),
+                    FOREIGN KEY(`consultationId`) REFERENCES `consultations`(`consultationId`) ON DELETE CASCADE,
+                    FOREIGN KEY(`patientSessionId`) REFERENCES `patient_sessions`(`sessionId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_patient_reports_consultationId` ON `patient_reports` (`consultationId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_patient_reports_patientSessionId` ON `patient_reports` (`patientSessionId`)")
+
+            // Create typing_indicators with composite PK
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `typing_indicators` (
+                    `consultationId` TEXT NOT NULL,
+                    `userId` TEXT NOT NULL,
+                    `isTyping` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`consultationId`, `userId`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
         MIGRATION_3_4,
         MIGRATION_4_5,
         MIGRATION_5_6,
+        MIGRATION_6_7,
+        MIGRATION_7_8,
+        MIGRATION_8_9,
     )
 }

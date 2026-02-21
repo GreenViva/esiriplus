@@ -5,7 +5,7 @@ data class DoctorProfile(
     val fullName: String,
     val email: String,
     val phone: String,
-    val specialty: String,
+    val specialty: ServiceType,
     val languages: List<String>,
     val bio: String,
     val licenseNumber: String,

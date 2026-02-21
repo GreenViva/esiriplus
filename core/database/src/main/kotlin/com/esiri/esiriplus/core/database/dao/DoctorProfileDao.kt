@@ -5,7 +5,9 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
+import com.esiri.esiriplus.core.database.relation.DoctorWithCredentials
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -43,4 +45,8 @@ interface DoctorProfileDao {
 
     @Query("DELETE FROM doctor_profiles")
     suspend fun clearAll()
+
+    @Transaction
+    @Query("SELECT * FROM doctor_profiles WHERE doctorId = :doctorId")
+    fun getDoctorWithCredentials(doctorId: String): Flow<DoctorWithCredentials?>
 }

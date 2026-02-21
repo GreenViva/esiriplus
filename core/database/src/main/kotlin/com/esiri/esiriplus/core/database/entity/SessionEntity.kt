@@ -11,4 +11,5 @@ data class SessionEntity(
     val refreshToken: String,
     val expiresAt: Instant,
     val userId: String,
+    val createdAt: Instant = Instant.now(),
 )

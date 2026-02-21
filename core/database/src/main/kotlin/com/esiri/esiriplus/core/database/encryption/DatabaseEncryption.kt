@@ -19,6 +19,7 @@ object DatabaseEncryption {
     private const val KEY_PASSPHRASE = "db_passphrase"
 
     fun createOpenHelperFactory(context: Context): SupportOpenHelperFactory {
+        System.loadLibrary("sqlcipher")
         val passphrase = getOrCreatePassphrase(context)
         return SupportOpenHelperFactory(passphrase.toByteArray())
     }
@@ -68,6 +69,33 @@ object DatabaseEncryption {
 
         keyGenerator.init(keySpec)
         keyGenerator.generateKey()
+    }
+
+    /**
+     * Returns the existing passphrase without creating one if it doesn't exist.
+     * Used by [DatabaseVersionChecker] to open the encrypted DB file before Room.
+     */
+    fun getPassphrase(context: Context): String? {
+        return try {
+            val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+            if (!keyStore.containsAlias(DB_KEY_ALIAS)) return null
+
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            val prefs = EncryptedSharedPreferences.create(
+                context,
+                PREFS_FILE,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+
+            prefs.getString(KEY_PASSPHRASE, null)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            null
+        }
     }
 
     fun verifyEncryption(context: Context): Boolean =

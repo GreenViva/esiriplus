@@ -1,6 +1,8 @@
 package com.esiri.esiriplus.core.network.interceptor
 
+import com.esiri.esiriplus.core.network.SessionInvalidator
 import com.esiri.esiriplus.core.network.TokenManager
+import dagger.Lazy
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -18,6 +20,8 @@ class TokenRefreshAuthenticatorTest {
     private lateinit var mockWebServer: MockWebServer
     private lateinit var tokenManager: TokenManager
     private lateinit var tokenRefresher: TokenRefresher
+    private lateinit var sessionInvalidator: SessionInvalidator
+    private lateinit var lazySessionInvalidator: Lazy<SessionInvalidator>
 
     @Before
     fun setUp() {
@@ -25,6 +29,11 @@ class TokenRefreshAuthenticatorTest {
         mockWebServer.start()
         tokenManager = mockk(relaxed = true)
         tokenRefresher = mockk()
+        sessionInvalidator = mockk(relaxed = true)
+        @Suppress("ObjectLiteralToLambda")
+        lazySessionInvalidator = object : Lazy<SessionInvalidator> {
+            override fun get(): SessionInvalidator = sessionInvalidator
+        }
     }
 
     @After
@@ -73,7 +82,7 @@ class TokenRefreshAuthenticatorTest {
         ).execute()
 
         assertEquals(401, response.code)
-        verify { tokenManager.clearTokens() }
+        verify { sessionInvalidator.invalidate() }
     }
 
     @Test
@@ -92,7 +101,7 @@ class TokenRefreshAuthenticatorTest {
         ).execute()
 
         assertEquals(401, response.code)
-        verify { tokenManager.clearTokens() }
+        verify { sessionInvalidator.invalidate() }
     }
 
     @Test
@@ -119,6 +128,6 @@ class TokenRefreshAuthenticatorTest {
 
     private fun createClient(): OkHttpClient =
         OkHttpClient.Builder()
-            .authenticator(TokenRefreshAuthenticator(tokenManager, tokenRefresher))
+            .authenticator(TokenRefreshAuthenticator(tokenManager, tokenRefresher, lazySessionInvalidator))
             .build()
 }

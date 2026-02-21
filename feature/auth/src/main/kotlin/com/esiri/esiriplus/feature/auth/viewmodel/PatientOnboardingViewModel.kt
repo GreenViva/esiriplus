@@ -39,11 +39,11 @@ class PatientOnboardingViewModel @Inject constructor(
         _uiState.update { it.copy(phone = phone, error = null) }
     }
 
-    fun createSession(onSuccess: () -> Unit) {
+    fun createSession(onSuccess: (patientId: String) -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            when (val result = createPatientSession(uiState.value.phone, uiState.value.fullName)) {
-                is Result.Success -> onSuccess()
+            when (val result = createPatientSession()) {
+                is Result.Success -> onSuccess(result.data.user.id)
                 is Result.Error -> _uiState.update {
                     it.copy(isLoading = false, error = result.message ?: "An error occurred")
                 }

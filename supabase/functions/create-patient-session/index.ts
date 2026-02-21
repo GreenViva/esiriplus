@@ -20,6 +20,20 @@ const JWT_SECRET    = Deno.env.get("JWT_SECRET") ?? Deno.env.get("SUPABASE_JWT_S
 const SESSION_TTL_H = 24;
 const REFRESH_TTL_D = 7;
 
+// Format: ESR-XXXX-XXXX (A-Z sans O/I, 2-9 → 32^8 ≈ 1 trillion combinations)
+function generatePatientId(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const randomBytes = new Uint8Array(8);
+  crypto.getRandomValues(randomBytes);
+  const part1 = Array.from(randomBytes.slice(0, 4))
+    .map((b) => chars[b % chars.length])
+    .join("");
+  const part2 = Array.from(randomBytes.slice(4, 8))
+    .map((b) => chars[b % chars.length])
+    .join("");
+  return `ESR-${part1}-${part2}`;
+}
+
 function generateSecureToken(): string {
   const uuidPart    = crypto.randomUUID().replace(/-/g, "");
   const randomBytes = new Uint8Array(32);
@@ -117,12 +131,30 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // 4. Calculate expiry
+    // 4. Generate friendly Patient ID with collision check
+    let patientId: string;
+    let patientIdHash: string;
+    let pidCollision = true;
+
+    do {
+      patientId     = generatePatientId();
+      patientIdHash = await sha256Hex(patientId);
+
+      const { data: existing } = await supabase
+        .from("patient_sessions")
+        .select("session_id")
+        .eq("patient_id_hash", patientIdHash)
+        .single();
+
+      pidCollision = !!existing;
+    } while (pidCollision);
+
+    // 5. Calculate expiry
     const now            = new Date();
     const expiresAt      = new Date(now.getTime() + SESSION_TTL_H * 60 * 60 * 1000);
     const refreshExpires = new Date(now.getTime() + REFRESH_TTL_D * 24 * 60 * 60 * 1000);
 
-    // 5. Insert session — hashes only, never plaintext
+    // 6. Insert session — hashes only, never plaintext
     const { data: session, error: insertErr } = await supabase
       .from("patient_sessions")
       .insert({
@@ -130,6 +162,8 @@ Deno.serve(async (req: Request) => {
         session_token_bcrypt: sessionTokenBcrypt,
         refresh_token_hash:   refreshTokenHash,
         refresh_token_bcrypt: refreshTokenBcrypt,
+        patient_id:           patientId,
+        patient_id_hash:      patientIdHash,
         is_active:            true,
         expires_at:           expiresAt.toISOString(),
         refresh_expires_at:   refreshExpires.toISOString(),
@@ -147,7 +181,7 @@ Deno.serve(async (req: Request) => {
       throw new Error(`DB insert failed: ${insertErr?.message}`);
     }
 
-    // 6. Issue JWT
+    // 7. Issue JWT
     const nowSecs = Math.floor(Date.now() / 1000);
     const jwt = await signJWT({
       session_id:    session.session_id,
@@ -157,20 +191,21 @@ Deno.serve(async (req: Request) => {
       exp:           nowSecs + SESSION_TTL_H * 60 * 60,
     });
 
-    // 7. Audit log
+    // 8. Audit log
     await logEvent({
       function_name: "create-patient-session",
       level:         "info",
       session_id:    session.session_id,
       action:        "session_created",
-      metadata:      { expires_at: expiresAt.toISOString(), legacy_data_linked: legacyDataLinked },
+      metadata:      { patient_id: patientId, expires_at: expiresAt.toISOString(), legacy_data_linked: legacyDataLinked },
       ip_address:    clientIp,
     });
 
-    // 8. Return — raw token sent ONCE, never stored server-side
+    // 9. Return — raw token sent ONCE, never stored server-side
     return successResponse({
       message:            "Session created successfully",
       session_id:         session.session_id,
+      patient_id:         patientId,
       access_token:       jwt,
       refresh_token:      refreshToken,
       token_type:         "Bearer",

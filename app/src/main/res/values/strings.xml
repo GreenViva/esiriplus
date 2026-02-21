@@ -1,3 +1,44 @@
 <resources>
     <string name="app_name">esiriplus</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_subtitle">Your Health, Our Priority</string>
+    <string name="splash_tap_continue">Tap anywhere to continue</string>
+
+    <!-- Language Selection (Page 2) -->
+    <string name="language_select_swahili">Chagua lugha ></string>
+    <string name="language_select_english">Choose your Language ></string>
+
+    <!-- Language Picker -->
+    <string name="language_picker_title">Select Language / Chagua Lugha</string>
+    <string name="language_picker_subtitle">Choose your preferred language for the app</string>
+    <string name="language_picker_recommended">RECOMMENDED</string>
+    <string name="language_picker_other">OTHER LANGUAGES / LUGHA NYINGINE</string>
+    <string name="language_picker_continue">Continue / Endelea ></string>
+    <string name="language_picker_back">Back / Rudi</string>
+    <string name="language_picker_coming_soon">Coming Soon / Inakuja Hivi Karibuni</string>
+
+    <!-- Role Selection -->
+    <string name="role_welcome">Welcome to eSIRI Plus</string>
+    <string name="role_subtitle">How would you like to proceed?</string>
+    <string name="role_for_patients">FOR PATIENTS</string>
+    <string name="role_new_patient">New to the platform?</string>
+    <string name="role_new_patient_sub">Click here to get started</string>
+    <string name="role_have_id">I have my ID</string>
+    <string name="role_have_id_sub">Access my records</string>
+    <string name="role_or">or</string>
+    <string name="role_doctor_portal">DOCTOR PORTAL</string>
+    <string name="role_doctor_sign_in">Sign In</string>
+    <string name="role_doctor_sign_up">Sign Up</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. All rights reserved.</string>
+
+    <!-- Database Error Dialog -->
+    <string name="db_error_update_required_title">Update Required</string>
+    <string name="db_error_update_required_message">Your data was created by a newer version of eSIRI Plus. Please update the app to continue.</string>
+    <string name="db_error_update_button">Update</string>
+    <string name="db_error_failed_title">Database Update Failed</string>
+    <string name="db_error_failed_message">eSIRI Plus could not update its local data. Please restart the app. If the problem persists, reinstall the app.</string>
+    <string name="db_error_ok_button">OK</string>
 </resources>

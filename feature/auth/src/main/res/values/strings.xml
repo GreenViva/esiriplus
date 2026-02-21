@@ -1,0 +1,7 @@
+<resources>
+    <!-- Recovery Questions -->
+    <string name="recovery_questions_title">Recovery Questions</string>
+    <string name="recovery_questions_hint">Set up questions to recover your Patient ID if lost</string>
+    <string name="recovery_questions_warning">Without recovery questions, you won\'t be able to recover your Patient ID if lost</string>
+    <string name="recovery_questions_saved">Recovery questions saved</string>
+</resources>

@@ -5,6 +5,19 @@ import com.esiri.esiriplus.core.domain.model.User
 import com.esiri.esiriplus.core.domain.model.UserRole
 import java.time.Instant
 
+fun PatientSessionResponse.toDomain(): Session = Session(
+    accessToken = accessToken,
+    refreshToken = refreshToken,
+    expiresAt = Instant.parse(expiresAt),
+    user = User(
+        id = patientId,
+        fullName = "",
+        phone = "",
+        role = UserRole.PATIENT,
+        isVerified = false,
+    ),
+)
+
 fun SessionResponse.toDomain(): Session = Session(
     accessToken = accessToken,
     refreshToken = refreshToken,

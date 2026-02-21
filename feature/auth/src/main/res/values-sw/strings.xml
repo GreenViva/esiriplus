@@ -1,0 +1,7 @@
+<resources>
+    <!-- Recovery Questions -->
+    <string name="recovery_questions_title">Maswali ya Kupata Tena</string>
+    <string name="recovery_questions_hint">Weka maswali ya kupata Kitambulisho chako cha Mgonjwa ukipoteza</string>
+    <string name="recovery_questions_warning">Bila maswali ya kupata tena, hutaweza kupata Kitambulisho chako cha Mgonjwa ukipoteza</string>
+    <string name="recovery_questions_saved">Maswali ya kupata tena yamehifadhiwa</string>
+</resources>

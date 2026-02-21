@@ -26,4 +26,7 @@ data class PatientProfileEntity(
     val allergies: String? = null,
     val emergencyContactName: String? = null,
     val emergencyContactPhone: String? = null,
+    val sex: String? = null,
+    val ageGroup: String? = null,
+    val chronicConditions: String? = null,
 )

@@ -34,7 +34,7 @@ class EsiriplusDatabaseTest {
     }
 
     @Test
-    fun `all 22 DAOs are accessible`() {
+    fun `all 29 DAOs are accessible`() {
         assertNotNull(database.userDao())
         assertNotNull(database.sessionDao())
         assertNotNull(database.consultationDao())
@@ -57,6 +57,13 @@ class EsiriplusDatabaseTest {
         assertNotNull(database.medicalRecordDao())
         assertNotNull(database.auditLogDao())
         assertNotNull(database.providerDao())
+        assertNotNull(database.serviceAccessPaymentDao())
+        assertNotNull(database.callRechargePaymentDao())
+        assertNotNull(database.doctorRatingDao())
+        assertNotNull(database.doctorEarningsDao())
+        assertNotNull(database.videoCallDao())
+        assertNotNull(database.patientReportDao())
+        assertNotNull(database.typingIndicatorDao())
     }
 
     @Test
@@ -73,9 +80,16 @@ class EsiriplusDatabaseTest {
         assertNotNull(tables.find { it == "patient_sessions" })
         assertNotNull(tables.find { it == "doctor_availability" })
         assertNotNull(tables.find { it == "doctor_credentials" })
+        assertNotNull(tables.find { it == "service_access_payments" })
+        assertNotNull(tables.find { it == "call_recharge_payments" })
+        assertNotNull(tables.find { it == "doctor_ratings" })
+        assertNotNull(tables.find { it == "doctor_earnings" })
+        assertNotNull(tables.find { it == "video_calls" })
+        assertNotNull(tables.find { it == "patient_reports" })
+        assertNotNull(tables.find { it == "typing_indicators" })
     }
 
     companion object {
-        private const val EXPECTED_TABLE_COUNT = 22
+        private const val EXPECTED_TABLE_COUNT = 29
     }
 }

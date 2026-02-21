@@ -4,10 +4,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreatePatientSessionRequest(
-    val phone: String,
-    @SerialName("full_name") val fullName: String,
-    @SerialName("idempotency_key") val idempotencyKey: String,
+data class PatientSessionResponse(
+    @SerialName("session_id") val sessionId: String,
+    @SerialName("patient_id") val patientId: String,
+    @SerialName("access_token") val accessToken: String,
+    @SerialName("refresh_token") val refreshToken: String,
+    @SerialName("expires_at") val expiresAt: String,
+    @SerialName("expires_in") val expiresIn: Long,
+    @SerialName("refresh_expires_at") val refreshExpiresAt: String? = null,
+    @SerialName("legacy_data_linked") val legacyDataLinked: Boolean = false,
 )
 
 @Serializable
@@ -31,4 +36,23 @@ data class UserDto(
 @Serializable
 data class RefreshTokenRequest(
     @SerialName("refresh_token") val refreshToken: String,
+)
+
+@Serializable
+data class RecoverPatientSessionRequest(
+    val answers: Map<String, String>,
+    @SerialName("idempotency_key") val idempotencyKey: String,
+)
+
+@Serializable
+data class SetupSecurityQuestionsRequest(
+    val answers: Map<String, String>,
+)
+
+@Serializable
+data class SetupRecoveryResponse(
+    @SerialName("patient_id") val patientId: String,
+    val warning: String? = null,
+    @SerialName("questions_set") val questionsSet: Int? = null,
+    @SerialName("already_setup") val alreadySetup: Boolean = false,
 )

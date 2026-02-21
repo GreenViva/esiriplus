@@ -9,6 +9,8 @@
     <!-- Exclude encrypted token storage -->
     <exclude domain="sharedpref" path="esiriplus_encrypted_tokens.xml" />
     <exclude domain="sharedpref" path="esiriplus_db_passphrase.xml" />
+    <exclude domain="sharedpref" path="esiriplus_biometric_prefs.xml" />
+    <exclude domain="sharedpref" path="esiriplus_recovery_rate_limit.xml" />
     <!-- Exclude the encrypted database (cannot be restored without keystore) -->
     <exclude domain="database" path="esiriplus.db" />
     <exclude domain="database" path="esiriplus.db-journal" />

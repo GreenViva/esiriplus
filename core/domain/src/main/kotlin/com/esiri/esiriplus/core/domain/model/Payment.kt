@@ -1,21 +1,26 @@
 package com.esiri.esiriplus.core.domain.model
 
-import java.time.Instant
-
 data class Payment(
-    val id: String,
-    val consultationId: String,
+    val paymentId: String,
+    val patientSessionId: String,
     val amount: Int,
-    val currency: String = "KES",
+    val paymentMethod: PaymentMethod,
+    val transactionId: String? = null,
+    val phoneNumber: String,
     val status: PaymentStatus = PaymentStatus.PENDING,
-    val mpesaReceiptNumber: String? = null,
-    val createdAt: Instant,
+    val failureReason: String? = null,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val synced: Boolean = false,
 )
 
 enum class PaymentStatus {
     PENDING,
-    PROCESSING,
     COMPLETED,
     FAILED,
-    REFUNDED,
+    CANCELLED,
+}
+
+enum class PaymentMethod {
+    MPESA,
 }

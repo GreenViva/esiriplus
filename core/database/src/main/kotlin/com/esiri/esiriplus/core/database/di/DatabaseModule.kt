@@ -12,20 +12,27 @@ import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DiagnosisDao
 import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
 import com.esiri.esiriplus.core.database.dao.DoctorCredentialsDao
+import com.esiri.esiriplus.core.database.dao.DoctorEarningsDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
+import com.esiri.esiriplus.core.database.dao.DoctorRatingDao
 import com.esiri.esiriplus.core.database.dao.MedicalRecordDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
 import com.esiri.esiriplus.core.database.dao.PatientSessionDao
+import com.esiri.esiriplus.core.database.dao.CallRechargePaymentDao
 import com.esiri.esiriplus.core.database.dao.PaymentDao
 import com.esiri.esiriplus.core.database.dao.PrescriptionDao
 import com.esiri.esiriplus.core.database.dao.ProviderDao
 import com.esiri.esiriplus.core.database.dao.ReviewDao
 import com.esiri.esiriplus.core.database.dao.ScheduleDao
+import com.esiri.esiriplus.core.database.dao.ServiceAccessPaymentDao
 import com.esiri.esiriplus.core.database.dao.ServiceTierDao
 import com.esiri.esiriplus.core.database.dao.SessionDao
 import com.esiri.esiriplus.core.database.dao.UserDao
+import com.esiri.esiriplus.core.database.dao.PatientReportDao
+import com.esiri.esiriplus.core.database.dao.TypingIndicatorDao
+import com.esiri.esiriplus.core.database.dao.VideoCallDao
 import com.esiri.esiriplus.core.database.dao.VitalSignDao
 import com.esiri.esiriplus.core.database.encryption.DatabaseEncryption
 import com.esiri.esiriplus.core.database.migration.DatabaseMigrations
@@ -42,19 +49,26 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): EsiriplusDatabase {
+    fun provideDatabaseCallback(@ApplicationContext context: Context): DatabaseCallback =
+        DatabaseCallback(context)
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext context: Context,
+        callback: DatabaseCallback,
+    ): EsiriplusDatabase {
         val builder = Room.databaseBuilder(
             context,
             EsiriplusDatabase::class.java,
             DATABASE_NAME,
         )
             .openHelperFactory(DatabaseEncryption.createOpenHelperFactory(context))
-            .addCallback(DatabaseCallback(context))
+            .addCallback(callback)
             .addMigrations(*DatabaseMigrations.ALL_MIGRATIONS)
 
         if (BuildConfig.DEBUG) {
-            @Suppress("DEPRECATION")
-            builder.fallbackToDestructiveMigration()
+            builder.fallbackToDestructiveMigration(dropAllTables = true)
         }
 
         return builder.build()
@@ -85,6 +99,13 @@ object DatabaseModule {
     @Provides fun provideMedicalRecordDao(db: EsiriplusDatabase): MedicalRecordDao = db.medicalRecordDao()
     @Provides fun provideAuditLogDao(db: EsiriplusDatabase): AuditLogDao = db.auditLogDao()
     @Provides fun provideProviderDao(db: EsiriplusDatabase): ProviderDao = db.providerDao()
+    @Provides fun provideServiceAccessPaymentDao(db: EsiriplusDatabase): ServiceAccessPaymentDao = db.serviceAccessPaymentDao()
+    @Provides fun provideCallRechargePaymentDao(db: EsiriplusDatabase): CallRechargePaymentDao = db.callRechargePaymentDao()
+    @Provides fun provideDoctorRatingDao(db: EsiriplusDatabase): DoctorRatingDao = db.doctorRatingDao()
+    @Provides fun provideDoctorEarningsDao(db: EsiriplusDatabase): DoctorEarningsDao = db.doctorEarningsDao()
+    @Provides fun provideVideoCallDao(db: EsiriplusDatabase): VideoCallDao = db.videoCallDao()
+    @Provides fun providePatientReportDao(db: EsiriplusDatabase): PatientReportDao = db.patientReportDao()
+    @Provides fun provideTypingIndicatorDao(db: EsiriplusDatabase): TypingIndicatorDao = db.typingIndicatorDao()
 
     private const val DATABASE_NAME = "esiriplus.db"
 }

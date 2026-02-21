@@ -21,7 +21,7 @@ import com.esiri.esiriplus.feature.auth.viewmodel.PatientOnboardingViewModel
 
 @Composable
 fun PatientOnboardingScreen(
-    onAuthenticated: () -> Unit,
+    onAuthenticated: (patientId: String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientOnboardingViewModel = hiltViewModel(),
@@ -56,7 +56,7 @@ fun PatientOnboardingScreen(
             CircularProgressIndicator()
         } else {
             Button(
-                onClick = { viewModel.createSession(onAuthenticated) },
+                onClick = { viewModel.createSession { patientId -> onAuthenticated(patientId) } },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.isFormValid,
             ) {

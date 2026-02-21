@@ -13,20 +13,27 @@ import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DiagnosisDao
 import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
 import com.esiri.esiriplus.core.database.dao.DoctorCredentialsDao
+import com.esiri.esiriplus.core.database.dao.DoctorEarningsDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
+import com.esiri.esiriplus.core.database.dao.DoctorRatingDao
 import com.esiri.esiriplus.core.database.dao.MedicalRecordDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
 import com.esiri.esiriplus.core.database.dao.PatientSessionDao
+import com.esiri.esiriplus.core.database.dao.CallRechargePaymentDao
 import com.esiri.esiriplus.core.database.dao.PaymentDao
 import com.esiri.esiriplus.core.database.dao.PrescriptionDao
 import com.esiri.esiriplus.core.database.dao.ProviderDao
 import com.esiri.esiriplus.core.database.dao.ReviewDao
 import com.esiri.esiriplus.core.database.dao.ScheduleDao
+import com.esiri.esiriplus.core.database.dao.ServiceAccessPaymentDao
 import com.esiri.esiriplus.core.database.dao.ServiceTierDao
 import com.esiri.esiriplus.core.database.dao.SessionDao
 import com.esiri.esiriplus.core.database.dao.UserDao
+import com.esiri.esiriplus.core.database.dao.PatientReportDao
+import com.esiri.esiriplus.core.database.dao.TypingIndicatorDao
+import com.esiri.esiriplus.core.database.dao.VideoCallDao
 import com.esiri.esiriplus.core.database.dao.VitalSignDao
 import com.esiri.esiriplus.core.database.entity.AppConfigEntity
 import com.esiri.esiriplus.core.database.entity.AttachmentEntity
@@ -35,20 +42,27 @@ import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.database.entity.DiagnosisEntity
 import com.esiri.esiriplus.core.database.entity.DoctorAvailabilityEntity
 import com.esiri.esiriplus.core.database.entity.DoctorCredentialsEntity
+import com.esiri.esiriplus.core.database.entity.DoctorEarningsEntity
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
+import com.esiri.esiriplus.core.database.entity.DoctorRatingEntity
 import com.esiri.esiriplus.core.database.entity.MedicalRecordEntity
 import com.esiri.esiriplus.core.database.entity.MessageEntity
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
 import com.esiri.esiriplus.core.database.entity.PatientProfileEntity
 import com.esiri.esiriplus.core.database.entity.PatientSessionEntity
+import com.esiri.esiriplus.core.database.entity.CallRechargePaymentEntity
 import com.esiri.esiriplus.core.database.entity.PaymentEntity
 import com.esiri.esiriplus.core.database.entity.PrescriptionEntity
 import com.esiri.esiriplus.core.database.entity.ProviderEntity
 import com.esiri.esiriplus.core.database.entity.ReviewEntity
 import com.esiri.esiriplus.core.database.entity.ScheduleEntity
+import com.esiri.esiriplus.core.database.entity.ServiceAccessPaymentEntity
 import com.esiri.esiriplus.core.database.entity.ServiceTierEntity
 import com.esiri.esiriplus.core.database.entity.SessionEntity
 import com.esiri.esiriplus.core.database.entity.UserEntity
+import com.esiri.esiriplus.core.database.entity.PatientReportEntity
+import com.esiri.esiriplus.core.database.entity.TypingIndicatorEntity
+import com.esiri.esiriplus.core.database.entity.VideoCallEntity
 import com.esiri.esiriplus.core.database.entity.VitalSignEntity
 
 @Database(
@@ -75,8 +89,15 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         MedicalRecordEntity::class,
         AuditLogEntity::class,
         ProviderEntity::class,
+        ServiceAccessPaymentEntity::class,
+        CallRechargePaymentEntity::class,
+        DoctorRatingEntity::class,
+        DoctorEarningsEntity::class,
+        VideoCallEntity::class,
+        PatientReportEntity::class,
+        TypingIndicatorEntity::class,
     ],
-    version = 6,
+    version = 9,
     exportSchema = true,
 )
 @TypeConverters(
@@ -108,4 +129,11 @@ abstract class EsiriplusDatabase : RoomDatabase() {
     abstract fun medicalRecordDao(): MedicalRecordDao
     abstract fun auditLogDao(): AuditLogDao
     abstract fun providerDao(): ProviderDao
+    abstract fun serviceAccessPaymentDao(): ServiceAccessPaymentDao
+    abstract fun callRechargePaymentDao(): CallRechargePaymentDao
+    abstract fun doctorRatingDao(): DoctorRatingDao
+    abstract fun doctorEarningsDao(): DoctorEarningsDao
+    abstract fun videoCallDao(): VideoCallDao
+    abstract fun patientReportDao(): PatientReportDao
+    abstract fun typingIndicatorDao(): TypingIndicatorDao
 }

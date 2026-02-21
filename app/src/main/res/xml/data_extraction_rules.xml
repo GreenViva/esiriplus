@@ -7,6 +7,8 @@
     <cloud-backup>
         <exclude domain="sharedpref" path="esiriplus_encrypted_tokens.xml" />
         <exclude domain="sharedpref" path="esiriplus_db_passphrase.xml" />
+        <exclude domain="sharedpref" path="esiriplus_biometric_prefs.xml" />
+        <exclude domain="sharedpref" path="esiriplus_recovery_rate_limit.xml" />
         <exclude domain="database" path="esiriplus.db" />
         <exclude domain="database" path="esiriplus.db-journal" />
         <exclude domain="database" path="esiriplus.db-wal" />
@@ -15,6 +17,8 @@
     <device-transfer>
         <exclude domain="sharedpref" path="esiriplus_encrypted_tokens.xml" />
         <exclude domain="sharedpref" path="esiriplus_db_passphrase.xml" />
+        <exclude domain="sharedpref" path="esiriplus_biometric_prefs.xml" />
+        <exclude domain="sharedpref" path="esiriplus_recovery_rate_limit.xml" />
         <exclude domain="database" path="esiriplus.db" />
         <exclude domain="database" path="esiriplus.db-journal" />
         <exclude domain="database" path="esiriplus.db-wal" />

@@ -20,7 +20,6 @@ import { LIMITS } from "../_shared/rateLimit.ts";
 import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
 import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
-import { sha256Hex } from "../_shared/bcrypt.ts";
 
 // ── Allowed question keys ─────────────────────────────────────────────────────
 const ALLOWED_QUESTIONS = [
@@ -30,23 +29,6 @@ const ALLOWED_QUESTIONS = [
   "primary_school",
   "favorite_teacher",
 ];
-
-// ── Generate friendly Patient ID ──────────────────────────────────────────────
-// Format: ESR-XXXX-XXXX
-// Characters: A-Z and 2-9 (removed 0,1,O,I to avoid confusion)
-// Combinations: 32^8 = 1,099,511,627,776 (1 trillion+)
-function generatePatientId(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const randomBytes = new Uint8Array(8);
-  crypto.getRandomValues(randomBytes);
-  const part1 = Array.from(randomBytes.slice(0, 4))
-    .map((b) => chars[b % chars.length])
-    .join("");
-  const part2 = Array.from(randomBytes.slice(4, 8))
-    .map((b) => chars[b % chars.length])
-    .join("");
-  return `ESR-${part1}-${part2}`;
-}
 
 // ── PBKDF2 hash for recovery answers ─────────────────────────────────────────
 // Same approach as session token hashing — timing attack resistant
@@ -133,46 +115,32 @@ Deno.serve(async (req: Request) => {
 
     const supabase = getServiceClient();
 
-    // 3. Check if recovery already set up
-    const { data: existing } = await supabase
+    // 3. Check if recovery already set up and get patient_id
+    const { data: sessionData } = await supabase
       .from("patient_sessions")
       .select("recovery_setup, patient_id")
       .eq("session_id", auth.sessionId)
       .single();
 
-    if (existing?.recovery_setup) {
+    if (sessionData?.recovery_setup) {
       // Recovery already set up — return existing patient ID
       return successResponse({
         message: "Recovery already configured",
-        patient_id: existing.patient_id,
+        patient_id: sessionData.patient_id,
         already_setup: true,
       }, 200, origin);
+    }
+
+    const patientId = sessionData?.patient_id;
+    if (!patientId) {
+      throw new ValidationError("Patient ID not found. Session may be invalid.");
     }
 
     // 4. Parse and validate body
     const rawBody = await req.json();
     const body    = validate(rawBody);
 
-    // 5. Generate friendly Patient ID
-    let patientId: string;
-    let patientIdHash: string;
-    let collision = true;
-
-    // Collision check loop (astronomically unlikely but safe)
-    do {
-      patientId     = generatePatientId();
-      patientIdHash = await sha256Hex(patientId);
-
-      const { data: existing } = await supabase
-        .from("patient_sessions")
-        .select("session_id")
-        .eq("patient_id_hash", patientIdHash)
-        .single();
-
-      collision = !!existing;
-    } while (collision);
-
-    // 6. Hash all 5 answers with individual salts
+    // 5. Hash all 5 answers with individual salts
     const questionRecords = [];
 
     for (const questionKey of ALLOWED_QUESTIONS) {
@@ -199,12 +167,10 @@ Deno.serve(async (req: Request) => {
 
     if (questionsErr) throw questionsErr;
 
-    // Update session with patient ID and mark recovery as set up
+    // Mark recovery as set up (patient_id already assigned at session creation)
     const { error: updateErr } = await supabase
       .from("patient_sessions")
       .update({
-        patient_id:        patientId,
-        patient_id_hash:   patientIdHash,
         recovery_setup:    true,
         recovery_setup_at: new Date().toISOString(),
       })

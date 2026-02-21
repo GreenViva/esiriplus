@@ -3,7 +3,6 @@ package com.esiri.esiriplus.core.network
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.safeApiCall
 import io.github.jan.supabase.functions.Functions
-import io.github.jan.supabase.functions.invoke
 import io.ktor.client.call.body
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -14,16 +13,17 @@ import javax.inject.Singleton
 
 @Singleton
 class EdgeFunctionClient @Inject constructor(
-    private val supabaseClientProvider: SupabaseClientProvider,
+    supabaseClientProvider: SupabaseClientProvider,
 ) {
-    private val functions: Functions
-        get() = supabaseClientProvider.client.pluginManager.getPlugin(Functions)
+    @PublishedApi
+    internal val functions: Functions =
+        supabaseClientProvider.client.pluginManager.getPlugin(Functions)
 
     suspend fun invoke(
         functionName: String,
         body: JsonObject? = null,
     ): ApiResult<String> = safeApiCall {
-        val response = functions.invoke(
+        val response = functions(
             function = functionName,
             body = body ?: buildJsonObject {},
             headers = Headers.build {
@@ -37,7 +37,7 @@ class EdgeFunctionClient @Inject constructor(
         functionName: String,
         body: JsonObject? = null,
     ): ApiResult<T> = safeApiCall {
-        val response = functions.invoke(
+        val response = functions(
             function = functionName,
             body = body ?: buildJsonObject {},
             headers = Headers.build {

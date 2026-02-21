@@ -8,6 +8,6 @@ import javax.inject.Inject
 class InitiatePaymentUseCase @Inject constructor(
     private val paymentRepository: PaymentRepository,
 ) {
-    suspend operator fun invoke(consultationId: String, phone: String, amount: Int): Result<Payment> =
-        paymentRepository.initiatePayment(consultationId, phone, amount)
+    suspend operator fun invoke(payment: Payment): Result<Payment> =
+        paymentRepository.createPayment(payment)
 }

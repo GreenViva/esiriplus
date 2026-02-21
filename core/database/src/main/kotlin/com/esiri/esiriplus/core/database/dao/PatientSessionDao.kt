@@ -1,11 +1,14 @@
 package com.esiri.esiriplus.core.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.esiri.esiriplus.core.database.entity.PatientSessionEntity
+import com.esiri.esiriplus.core.database.relation.PatientWithConsultations
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,6 +26,13 @@ interface PatientSessionDao {
     @Query("SELECT * FROM patient_sessions ORDER BY createdAt DESC LIMIT 1")
     fun getSession(): Flow<PatientSessionEntity?>
 
+    @Delete
+    suspend fun delete(session: PatientSessionEntity)
+
     @Query("DELETE FROM patient_sessions")
     suspend fun clearAll()
+
+    @Transaction
+    @Query("SELECT * FROM patient_sessions WHERE sessionId = :sessionId")
+    fun getPatientWithConsultations(sessionId: String): Flow<PatientWithConsultations?>
 }

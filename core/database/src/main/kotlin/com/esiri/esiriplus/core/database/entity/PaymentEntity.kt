@@ -1,16 +1,37 @@
 package com.esiri.esiriplus.core.database.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.Instant
 
-@Entity(tableName = "payments")
+@Entity(
+    tableName = "payments",
+    foreignKeys = [
+        ForeignKey(
+            entity = PatientSessionEntity::class,
+            parentColumns = ["sessionId"],
+            childColumns = ["patientSessionId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [
+        Index("patientSessionId", "createdAt"),
+        Index("status"),
+        Index("transactionId"),
+    ],
+)
 data class PaymentEntity(
-    @PrimaryKey val id: String,
-    val consultationId: String,
+    @PrimaryKey val paymentId: String,
+    val patientSessionId: String,
     val amount: Int,
-    val currency: String,
+    val paymentMethod: String,
+    val transactionId: String? = null,
+    val phoneNumber: String,
     val status: String,
-    val mpesaReceiptNumber: String?,
-    val createdAt: Instant,
+    val failureReason: String? = null,
+    val createdAt: Long,
+    val updatedAt: Long,
+    @ColumnInfo(defaultValue = "0") val synced: Boolean = false,
 )

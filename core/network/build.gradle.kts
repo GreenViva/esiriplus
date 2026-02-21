@@ -8,28 +8,29 @@ android {
     namespace = "com.esiri.esiriplus.core.network"
 
     defaultConfig {
-        buildConfigField("String", "SUPABASE_URL", "\"https://your-project-ref.supabase.co\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-anon-key\"")
+        buildConfigField("String", "SUPABASE_URL", "\"https://nzzvphhqbcscoetzfzkd.supabase.co\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ\"")
     }
 
     buildTypes {
         debug {
-            buildConfigField("String", "SUPABASE_URL", "\"https://your-project-ref.supabase.co\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-anon-key\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://nzzvphhqbcscoetzfzkd.supabase.co\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ\"")
         }
         create("staging") {
-            buildConfigField("String", "SUPABASE_URL", "\"https://your-staging-ref.supabase.co\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-staging-anon-key\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://nzzvphhqbcscoetzfzkd.supabase.co\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ\"")
         }
         release {
-            buildConfigField("String", "SUPABASE_URL", "\"https://your-prod-ref.supabase.co\"")
-            buildConfigField("String", "SUPABASE_ANON_KEY", "\"your-prod-anon-key\"")
+            buildConfigField("String", "SUPABASE_URL", "\"https://nzzvphhqbcscoetzfzkd.supabase.co\"")
+            buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ\"")
         }
     }
 }
 
 dependencies {
     api(project(":core:common"))
+    implementation(project(":core:domain"))
 
     // Supabase
     implementation(platform(libs.supabase.bom))
@@ -47,8 +48,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
 
-    // Retrofit
-    implementation(libs.retrofit)
+    // Retrofit (api because Response<T> is exposed in SupabaseApi and SafeApiCall)
+    api(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
 
     // Moshi

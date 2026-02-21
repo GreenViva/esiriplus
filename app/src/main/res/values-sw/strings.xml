@@ -1,0 +1,42 @@
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_subtitle">Afya Yako, Kipaumbele Chetu</string>
+    <string name="splash_tap_continue">Gusa popote kuendelea</string>
+
+    <!-- Language Selection (Page 2) -->
+    <string name="language_select_swahili">Chagua lugha ></string>
+    <string name="language_select_english">Choose your Language ></string>
+
+    <!-- Language Picker (bilingual by design) -->
+    <string name="language_picker_title">Chagua Lugha / Select Language</string>
+    <string name="language_picker_subtitle">Chagua lugha unayopendelea kwa programu</string>
+    <string name="language_picker_recommended">ZINAZOPENDEKEZWA</string>
+    <string name="language_picker_other">LUGHA NYINGINE</string>
+    <string name="language_picker_continue">Endelea / Continue ></string>
+    <string name="language_picker_back">Rudi / Back</string>
+    <string name="language_picker_coming_soon">Inakuja Hivi Karibuni / Coming Soon</string>
+
+    <!-- Role Selection -->
+    <string name="role_welcome">Karibu eSIRI Plus</string>
+    <string name="role_subtitle">Ungependa kuendelea vipi?</string>
+    <string name="role_for_patients">KWA WAGONJWA</string>
+    <string name="role_new_patient">Mpya kwenye jukwaa?</string>
+    <string name="role_new_patient_sub">Bonyeza hapa kuanza</string>
+    <string name="role_have_id">Nina kitambulisho changu</string>
+    <string name="role_have_id_sub">Fikia rekodi zangu</string>
+    <string name="role_or">au</string>
+    <string name="role_doctor_portal">PORTAL YA DAKTARI</string>
+    <string name="role_doctor_sign_in">Ingia</string>
+    <string name="role_doctor_sign_up">Jisajili</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. Haki zote zimehifadhiwa.</string>
+
+    <!-- Database Error Dialog -->
+    <string name="db_error_update_required_title">Sasisha Inahitajika</string>
+    <string name="db_error_update_required_message">Data yako iliundwa na toleo jipya la eSIRI Plus. Tafadhali sasisha programu ili kuendelea.</string>
+    <string name="db_error_update_button">Sasisha</string>
+    <string name="db_error_failed_title">Kusasisha Data Kumeshindikana</string>
+    <string name="db_error_failed_message">eSIRI Plus imeshindwa kusasisha data yake ya ndani. Tafadhali anzisha upya programu. Tatizo likiendelea, sakinisha upya programu.</string>
+    <string name="db_error_ok_button">Sawa</string>
+</resources>
