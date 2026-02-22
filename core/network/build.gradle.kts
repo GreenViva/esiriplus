@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.supabase.functions)
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.realtime)
+    implementation(libs.supabase.storage)
 
     // Ktor (OkHttp engine for Supabase)
     implementation(libs.ktor.client.okhttp)

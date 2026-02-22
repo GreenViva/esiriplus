@@ -56,3 +56,44 @@ data class SetupRecoveryResponse(
     @SerialName("questions_set") val questionsSet: Int? = null,
     @SerialName("already_setup") val alreadySetup: Boolean = false,
 )
+
+@Serializable
+data class DoctorRegistrationRequest(
+    @SerialName("email") val email: String,
+    @SerialName("password") val password: String,
+    @SerialName("full_name") val fullName: String,
+    @SerialName("country_code") val countryCode: String,
+    @SerialName("phone") val phone: String,
+    @SerialName("specialty") val specialty: String,
+    @SerialName("country") val country: String,
+    @SerialName("languages") val languages: List<String>,
+    @SerialName("license_number") val licenseNumber: String,
+    @SerialName("years_experience") val yearsExperience: Int,
+    @SerialName("bio") val bio: String,
+    @SerialName("services") val services: List<String>,
+    @SerialName("profile_photo_url") val profilePhotoUrl: String? = null,
+    @SerialName("license_document_url") val licenseDocumentUrl: String? = null,
+    @SerialName("certificates_url") val certificatesUrl: String? = null,
+)
+
+@Serializable
+data class DoctorLoginRequest(
+    @SerialName("email") val email: String,
+    @SerialName("password") val password: String,
+)
+
+@Serializable
+data class LookupPatientRequest(
+    @SerialName("patient_id") val patientId: String,
+)
+
+@Serializable
+data class RecoverByIdResponse(
+    @SerialName("session_id") val sessionId: String,
+    @SerialName("access_token") val accessToken: String,
+    @SerialName("refresh_token") val refreshToken: String,
+    @SerialName("expires_at") val expiresAt: String,
+    @SerialName("expires_in") val expiresIn: Long,
+    @SerialName("refresh_expires_at") val refreshExpiresAt: String? = null,
+    val message: String? = null,
+)

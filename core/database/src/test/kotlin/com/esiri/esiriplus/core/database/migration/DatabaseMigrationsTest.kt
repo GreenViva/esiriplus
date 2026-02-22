@@ -8,7 +8,7 @@ class DatabaseMigrationsTest {
 
     @Test
     fun `ALL_MIGRATIONS contains all migrations`() {
-        assertEquals(8, DatabaseMigrations.ALL_MIGRATIONS.size)
+        assertEquals(11, DatabaseMigrations.ALL_MIGRATIONS.size)
         assertEquals(1, DatabaseMigrations.ALL_MIGRATIONS[0].startVersion)
         assertEquals(2, DatabaseMigrations.ALL_MIGRATIONS[0].endVersion)
         assertEquals(2, DatabaseMigrations.ALL_MIGRATIONS[1].startVersion)
@@ -25,6 +25,12 @@ class DatabaseMigrationsTest {
         assertEquals(8, DatabaseMigrations.ALL_MIGRATIONS[6].endVersion)
         assertEquals(8, DatabaseMigrations.ALL_MIGRATIONS[7].startVersion)
         assertEquals(9, DatabaseMigrations.ALL_MIGRATIONS[7].endVersion)
+        assertEquals(9, DatabaseMigrations.ALL_MIGRATIONS[8].startVersion)
+        assertEquals(10, DatabaseMigrations.ALL_MIGRATIONS[8].endVersion)
+        assertEquals(10, DatabaseMigrations.ALL_MIGRATIONS[9].startVersion)
+        assertEquals(11, DatabaseMigrations.ALL_MIGRATIONS[9].endVersion)
+        assertEquals(11, DatabaseMigrations.ALL_MIGRATIONS[10].startVersion)
+        assertEquals(12, DatabaseMigrations.ALL_MIGRATIONS[10].endVersion)
     }
 
     @Test
@@ -92,6 +98,30 @@ class DatabaseMigrationsTest {
     }
 
     @Test
+    fun `MIGRATION_9_10 has correct version range`() {
+        val migration = DatabaseMigrations.MIGRATION_9_10
+        assertNotNull(migration)
+        assertEquals(9, migration.startVersion)
+        assertEquals(10, migration.endVersion)
+    }
+
+    @Test
+    fun `MIGRATION_10_11 has correct version range`() {
+        val migration = DatabaseMigrations.MIGRATION_10_11
+        assertNotNull(migration)
+        assertEquals(10, migration.startVersion)
+        assertEquals(11, migration.endVersion)
+    }
+
+    @Test
+    fun `MIGRATION_11_12 has correct version range`() {
+        val migration = DatabaseMigrations.MIGRATION_11_12
+        assertNotNull(migration)
+        assertEquals(11, migration.startVersion)
+        assertEquals(12, migration.endVersion)
+    }
+
+    @Test
     fun `migration chain is continuous - each endVersion equals next startVersion`() {
         val migrations = DatabaseMigrations.ALL_MIGRATIONS
         for (i in 0 until migrations.size - 1) {
@@ -105,14 +135,14 @@ class DatabaseMigrationsTest {
     }
 
     @Test
-    fun `migration chain covers v1 to v9 with no gaps`() {
+    fun `migration chain covers v1 to v12 with no gaps`() {
         val migrations = DatabaseMigrations.ALL_MIGRATIONS
         assertEquals("Chain should start at version 1", 1, migrations.first().startVersion)
-        assertEquals("Chain should end at version 9", 9, migrations.last().endVersion)
+        assertEquals("Chain should end at version 12", 12, migrations.last().endVersion)
         val coveredVersions = migrations.map { it.startVersion }.toSet() +
             migrations.last().endVersion
-        val expectedVersions = (1..9).toSet()
-        assertEquals("All versions 1-9 should be covered", expectedVersions, coveredVersions)
+        val expectedVersions = (1..12).toSet()
+        assertEquals("All versions 1-12 should be covered", expectedVersions, coveredVersions)
     }
 
     @Test

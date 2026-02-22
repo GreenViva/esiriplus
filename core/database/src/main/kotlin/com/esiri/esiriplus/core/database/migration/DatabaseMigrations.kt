@@ -457,6 +457,101 @@ object DatabaseMigrations {
         }
     }
 
+    @Suppress("LongMethod")
+    val MIGRATION_9_10 = object : Migration(9, 10) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Add new columns to service_tiers
+            db.execSQL("ALTER TABLE service_tiers ADD COLUMN durationMinutes INTEGER NOT NULL DEFAULT 15")
+            db.execSQL("ALTER TABLE service_tiers ADD COLUMN features TEXT NOT NULL DEFAULT ''")
+
+            // Update prices and new fields to match current service catalog
+            db.execSQL("UPDATE service_tiers SET priceAmount = 5000, durationMinutes = 15, description = 'Normal consultations for everyday health concerns', features = 'Basic health advice,Symptom assessment,Health education' WHERE id = 'tier_nurse'")
+            db.execSQL("UPDATE service_tiers SET priceAmount = 7000, durationMinutes = 15, description = 'Daily medical consultations for common ailments', features = 'Medical diagnosis,Treatment recommendations,Prescription guidance' WHERE id = 'tier_clinical_officer'")
+            db.execSQL("UPDATE service_tiers SET priceAmount = 3000, durationMinutes = 5, description = 'Quick medication advice and drug interaction checks', features = 'Medication advice,Drug interaction checks,Dosage guidance' WHERE id = 'tier_pharmacist'")
+            db.execSQL("UPDATE service_tiers SET priceAmount = 10000, durationMinutes = 15, description = 'Comprehensive care with specialist referrals when needed', features = 'Full medical assessment,Treatment planning,Specialist referrals' WHERE id = 'tier_gp'")
+            db.execSQL("UPDATE service_tiers SET priceAmount = 30000, durationMinutes = 15, description = 'Expert consultation in specialized medical fields', features = 'Specialized expertise,Advanced diagnostics,Detailed treatment plans' WHERE id = 'tier_specialist'")
+            db.execSQL("UPDATE service_tiers SET priceAmount = 50000, durationMinutes = 20, description = 'Professional mental health support and counseling', features = 'Mental health support,Professional counseling,Therapy session' WHERE id = 'tier_psychologist'")
+
+            // Insert new Drug Interaction tier
+            db.execSQL(
+                """
+                INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder, durationMinutes, features)
+                VALUES ('tier_drug_interaction', 'DRUG_INTERACTION', 'Drug Interaction', 'Check drug interactions and get safety guidance', 5000, 'TZS', 1, 7, 5, 'Drug interaction checks,Safety alerts,Dosage guidance')
+                """.trimIndent(),
+            )
+        }
+    }
+
+    val MIGRATION_10_11 = object : Migration(10, 11) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN passwordHash TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN services TEXT NOT NULL DEFAULT '[]'")
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN countryCode TEXT NOT NULL DEFAULT '+255'")
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_doctor_profiles_email ON doctor_profiles (email)")
+        }
+    }
+
+    val MIGRATION_11_12 = object : Migration(11, 12) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN country TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN licenseDocumentUrl TEXT DEFAULT NULL")
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN certificatesUrl TEXT DEFAULT NULL")
+
+            // Create a new table without passwordHash, copy data, then swap
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_profiles_new` (
+                    `doctorId` TEXT NOT NULL,
+                    `fullName` TEXT NOT NULL,
+                    `email` TEXT NOT NULL,
+                    `phone` TEXT NOT NULL,
+                    `specialty` TEXT NOT NULL,
+                    `languages` TEXT NOT NULL,
+                    `bio` TEXT NOT NULL,
+                    `licenseNumber` TEXT NOT NULL,
+                    `yearsExperience` INTEGER NOT NULL,
+                    `profilePhotoUrl` TEXT DEFAULT NULL,
+                    `averageRating` REAL NOT NULL DEFAULT 0.0,
+                    `totalRatings` INTEGER NOT NULL DEFAULT 0,
+                    `isVerified` INTEGER NOT NULL DEFAULT 0,
+                    `isAvailable` INTEGER NOT NULL DEFAULT 0,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    `services` TEXT NOT NULL DEFAULT '[]',
+                    `countryCode` TEXT NOT NULL DEFAULT '+255',
+                    `country` TEXT NOT NULL DEFAULT '',
+                    `licenseDocumentUrl` TEXT DEFAULT NULL,
+                    `certificatesUrl` TEXT DEFAULT NULL,
+                    PRIMARY KEY(`doctorId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO `doctor_profiles_new` (
+                    `doctorId`, `fullName`, `email`, `phone`, `specialty`, `languages`,
+                    `bio`, `licenseNumber`, `yearsExperience`, `profilePhotoUrl`,
+                    `averageRating`, `totalRatings`, `isVerified`, `isAvailable`,
+                    `createdAt`, `updatedAt`, `services`, `countryCode`, `country`,
+                    `licenseDocumentUrl`, `certificatesUrl`
+                )
+                SELECT
+                    `doctorId`, `fullName`, `email`, `phone`, `specialty`, `languages`,
+                    `bio`, `licenseNumber`, `yearsExperience`, `profilePhotoUrl`,
+                    `averageRating`, `totalRatings`, `isVerified`, `isAvailable`,
+                    `createdAt`, `updatedAt`, `services`, `countryCode`, `country`,
+                    `licenseDocumentUrl`, `certificatesUrl`
+                FROM `doctor_profiles`
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE `doctor_profiles`")
+            db.execSQL("ALTER TABLE `doctor_profiles_new` RENAME TO `doctor_profiles`")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_profiles_isVerified_isAvailable_specialty` ON `doctor_profiles` (`isVerified`, `isAvailable`, `specialty`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_profiles_averageRating` ON `doctor_profiles` (`averageRating`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_profiles_email` ON `doctor_profiles` (`email`)")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -466,5 +561,8 @@ object DatabaseMigrations {
         MIGRATION_6_7,
         MIGRATION_7_8,
         MIGRATION_8_9,
+        MIGRATION_9_10,
+        MIGRATION_10_11,
+        MIGRATION_11_12,
     )
 }

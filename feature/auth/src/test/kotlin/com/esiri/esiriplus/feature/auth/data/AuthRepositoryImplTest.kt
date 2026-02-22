@@ -1,8 +1,10 @@
 package com.esiri.esiriplus.feature.auth.data
 
+import android.app.Application
 import app.cash.turbine.test
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.database.EsiriplusDatabase
+import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.database.dao.SessionDao
 import com.esiri.esiriplus.core.database.dao.UserDao
 import com.esiri.esiriplus.core.database.entity.SessionEntity
@@ -10,6 +12,7 @@ import com.esiri.esiriplus.core.database.entity.UserEntity
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.storage.FileUploadService
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -28,20 +31,26 @@ import java.time.Instant
 
 class AuthRepositoryImplTest {
 
+    private lateinit var application: Application
     private lateinit var edgeFunctionClient: EdgeFunctionClient
     private lateinit var tokenManager: TokenManager
     private lateinit var sessionDao: SessionDao
     private lateinit var userDao: UserDao
+    private lateinit var doctorProfileDao: DoctorProfileDao
     private lateinit var database: EsiriplusDatabase
+    private lateinit var fileUploadService: FileUploadService
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
+        application = mockk(relaxed = true)
         edgeFunctionClient = mockk(relaxed = true)
         tokenManager = mockk(relaxed = true)
         sessionDao = mockk(relaxed = true)
         userDao = mockk(relaxed = true)
+        doctorProfileDao = mockk(relaxed = true)
         database = mockk(relaxed = true)
+        fileUploadService = mockk(relaxed = true)
     }
 
     @Test
@@ -136,11 +145,14 @@ class AuthRepositoryImplTest {
     }
 
     private fun createRepository() = AuthRepositoryImpl(
+        application = application,
         edgeFunctionClient = edgeFunctionClient,
         tokenManager = tokenManager,
         sessionDao = sessionDao,
         userDao = userDao,
+        doctorProfileDao = doctorProfileDao,
         database = database,
+        fileUploadService = fileUploadService,
         ioDispatcher = testDispatcher,
     )
 }

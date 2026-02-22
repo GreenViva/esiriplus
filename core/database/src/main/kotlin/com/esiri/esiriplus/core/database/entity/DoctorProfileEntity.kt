@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.database.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -9,6 +10,7 @@ import androidx.room.PrimaryKey
     indices = [
         Index("isVerified", "isAvailable", "specialty"),
         Index("averageRating"),
+        Index("email"),
     ],
 )
 data class DoctorProfileEntity(
@@ -28,4 +30,9 @@ data class DoctorProfileEntity(
     val isAvailable: Boolean = false,
     val createdAt: Long,
     val updatedAt: Long,
+    @ColumnInfo(defaultValue = "[]") val services: List<String> = emptyList(),
+    @ColumnInfo(defaultValue = "+255") val countryCode: String = "+255",
+    @ColumnInfo(defaultValue = "") val country: String = "",
+    @ColumnInfo(defaultValue = "NULL") val licenseDocumentUrl: String? = null,
+    @ColumnInfo(defaultValue = "NULL") val certificatesUrl: String? = null,
 )
