@@ -11,5 +11,6 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:common"))
     implementation(project(":core:network"))
+    implementation(project(":core:database"))
     implementation(libs.kotlinx.serialization.json)
 }

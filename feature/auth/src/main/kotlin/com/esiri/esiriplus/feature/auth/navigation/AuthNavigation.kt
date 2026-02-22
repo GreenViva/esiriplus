@@ -9,9 +9,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.esiri.esiriplus.core.common.locale.LanguagePreferences
 import com.esiri.esiriplus.feature.auth.screen.DoctorLoginScreen
+import com.esiri.esiriplus.feature.auth.screen.DoctorRegistrationScreen
+import com.esiri.esiriplus.feature.auth.screen.DoctorTermsScreen
 import com.esiri.esiriplus.feature.auth.screen.TermsScreen
 import com.esiri.esiriplus.feature.auth.screen.LanguagePickerScreen
 import com.esiri.esiriplus.feature.auth.screen.LanguageSelectionScreen
+import com.esiri.esiriplus.feature.auth.screen.AccessRecordsScreen
 import com.esiri.esiriplus.feature.auth.screen.PatientRecoveryScreen
 import com.esiri.esiriplus.feature.auth.screen.PatientSetupScreen
 import com.esiri.esiriplus.feature.auth.screen.RoleSelectionScreen
@@ -29,6 +32,9 @@ import kotlinx.serialization.Serializable
 @Serializable object DoctorLoginRoute
 @Serializable object PatientSetupRoute
 @Serializable object SecurityQuestionsSetupRoute
+@Serializable object DoctorTermsRoute
+@Serializable object DoctorRegistrationRoute
+@Serializable object AccessRecordsRoute
 @Serializable object PatientRecoveryRoute
 
 fun NavGraphBuilder.authGraph(
@@ -75,7 +81,9 @@ fun NavGraphBuilder.authGraph(
             RoleSelectionScreen(
                 onPatientSelected = { navController.navigate(TermsRoute) },
                 onDoctorSelected = { navController.navigate(DoctorLoginRoute) },
+                onDoctorRegister = { navController.navigate(DoctorTermsRoute) },
                 onRecoverPatientId = { navController.navigate(PatientRecoveryRoute) },
+                onHaveMyId = { navController.navigate(AccessRecordsRoute) },
             )
         }
         composable<TermsRoute> {
@@ -86,6 +94,26 @@ fun NavGraphBuilder.authGraph(
                     }
                 },
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable<DoctorTermsRoute> {
+            DoctorTermsScreen(
+                onAgree = {
+                    navController.navigate(DoctorRegistrationRoute) {
+                        popUpTo(DoctorTermsRoute) { inclusive = true }
+                    }
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<DoctorRegistrationRoute> {
+            DoctorRegistrationScreen(
+                onComplete = onDoctorAuthenticated,
+                onNavigateToLogin = {
+                    navController.navigate(DoctorLoginRoute) {
+                        popUpTo(DoctorRegistrationRoute) { inclusive = true }
+                    }
+                },
             )
         }
         composable<PatientSetupRoute> { backStackEntry ->
@@ -123,6 +151,17 @@ fun NavGraphBuilder.authGraph(
             DoctorLoginScreen(
                 onAuthenticated = onDoctorAuthenticated,
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable<AccessRecordsRoute> {
+            AccessRecordsScreen(
+                onAccessGranted = onPatientAuthenticated,
+                onBack = { navController.popBackStack() },
+                onDontHaveId = {
+                    navController.navigate(TermsRoute) {
+                        popUpTo(AccessRecordsRoute) { inclusive = true }
+                    }
+                },
             )
         }
         composable<PatientRecoveryRoute> {

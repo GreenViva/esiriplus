@@ -1,8 +1,10 @@
 package com.esiri.esiriplus.feature.patient.di
 
 import com.esiri.esiriplus.core.domain.repository.ConsultationRepository
+import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
 import com.esiri.esiriplus.core.domain.repository.PaymentRepository
 import com.esiri.esiriplus.feature.patient.data.ConsultationRepositoryImpl
+import com.esiri.esiriplus.feature.patient.data.PatientReportRepositoryImpl
 import com.esiri.esiriplus.feature.patient.data.PaymentRepositoryImpl
 import dagger.Binds
 import dagger.Module
@@ -20,4 +22,8 @@ abstract class PatientModule {
     @Binds
     @Singleton
     abstract fun bindPaymentRepository(impl: PaymentRepositoryImpl): PaymentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPatientReportRepository(impl: PatientReportRepositoryImpl): PatientReportRepository
 }

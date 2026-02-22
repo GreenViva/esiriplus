@@ -21,14 +21,17 @@ class DatabaseCallback(
     override fun onOpen(db: SupportSQLiteDatabase) {
         super.onOpen(db)
         verifyEncryption()
+        // Re-seed reference data in case clearAllTables() was called (e.g. after logout)
+        prepopulateServiceTiers(db)
+        prepopulateAppConfig(db)
     }
 
     private fun prepopulateServiceTiers(db: SupportSQLiteDatabase) {
         SERVICE_TIERS.forEach { tier ->
             db.execSQL(
                 """
-                INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder)
-                VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+                INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder, durationMinutes, features)
+                VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
                 """.trimIndent(),
                 arrayOf<Any>(
                     tier.id,
@@ -38,6 +41,8 @@ class DatabaseCallback(
                     tier.priceAmount,
                     tier.currency,
                     tier.sortOrder,
+                    tier.durationMinutes,
+                    tier.features,
                 ),
             )
         }
@@ -74,6 +79,8 @@ class DatabaseCallback(
             val priceAmount: Int,
             val currency: String,
             val sortOrder: Int,
+            val durationMinutes: Int,
+            val features: String,
         )
 
         private data class AppConfigSeed(
@@ -87,55 +94,78 @@ class DatabaseCallback(
                 id = "tier_nurse",
                 category = "NURSE",
                 displayName = "Nurse",
-                description = "Consultation with a registered nurse",
-                priceAmount = 3000,
+                description = "Normal consultations for everyday health concerns",
+                priceAmount = 5000,
                 currency = "TZS",
                 sortOrder = 1,
+                durationMinutes = 15,
+                features = "Basic health advice,Symptom assessment,Health education",
             ),
             ServiceTierSeed(
                 id = "tier_clinical_officer",
                 category = "CLINICAL_OFFICER",
                 displayName = "Clinical Officer",
-                description = "Consultation with a clinical officer",
-                priceAmount = 5000,
+                description = "Daily medical consultations for common ailments",
+                priceAmount = 7000,
                 currency = "TZS",
                 sortOrder = 2,
+                durationMinutes = 15,
+                features = "Medical diagnosis,Treatment recommendations,Prescription guidance",
             ),
             ServiceTierSeed(
                 id = "tier_pharmacist",
                 category = "PHARMACIST",
                 displayName = "Pharmacist",
-                description = "Consultation with a pharmacist",
-                priceAmount = 5000,
+                description = "Quick medication advice and drug interaction checks",
+                priceAmount = 3000,
                 currency = "TZS",
                 sortOrder = 3,
+                durationMinutes = 5,
+                features = "Medication advice,Drug interaction checks,Dosage guidance",
             ),
             ServiceTierSeed(
                 id = "tier_gp",
                 category = "GP",
                 displayName = "General Practitioner",
-                description = "Consultation with a general practitioner",
+                description = "Comprehensive care with specialist referrals when needed",
                 priceAmount = 10000,
                 currency = "TZS",
                 sortOrder = 4,
+                durationMinutes = 15,
+                features = "Full medical assessment,Treatment planning,Specialist referrals",
             ),
             ServiceTierSeed(
                 id = "tier_specialist",
                 category = "SPECIALIST",
                 displayName = "Specialist",
-                description = "Consultation with a medical specialist",
-                priceAmount = 15000,
+                description = "Expert consultation in specialized medical fields",
+                priceAmount = 30000,
                 currency = "TZS",
                 sortOrder = 5,
+                durationMinutes = 15,
+                features = "Specialized expertise,Advanced diagnostics,Detailed treatment plans",
             ),
             ServiceTierSeed(
                 id = "tier_psychologist",
                 category = "PSYCHOLOGIST",
                 displayName = "Psychologist",
-                description = "Consultation with a psychologist",
-                priceAmount = 12000,
+                description = "Professional mental health support and counseling",
+                priceAmount = 50000,
                 currency = "TZS",
                 sortOrder = 6,
+                durationMinutes = 20,
+                features = "Mental health support,Professional counseling,Therapy session",
+            ),
+            ServiceTierSeed(
+                id = "tier_drug_interaction",
+                category = "DRUG_INTERACTION",
+                displayName = "Drug Interaction",
+                description = "Check drug interactions and get safety guidance",
+                priceAmount = 5000,
+                currency = "TZS",
+                sortOrder = 7,
+                durationMinutes = 5,
+                features = "Drug interaction checks,Safety alerts,Dosage guidance",
             ),
         )
 

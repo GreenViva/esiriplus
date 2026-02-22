@@ -19,6 +19,9 @@ interface DoctorProfileDao {
     @Query("SELECT * FROM doctor_profiles WHERE doctorId = :doctorId")
     suspend fun getById(doctorId: String): DoctorProfileEntity?
 
+    @Query("SELECT * FROM doctor_profiles WHERE email = :email LIMIT 1")
+    suspend fun getByEmail(email: String): DoctorProfileEntity?
+
     @Query("SELECT * FROM doctor_profiles WHERE specialty = :specialty")
     fun getBySpecialty(specialty: String): Flow<List<DoctorProfileEntity>>
 

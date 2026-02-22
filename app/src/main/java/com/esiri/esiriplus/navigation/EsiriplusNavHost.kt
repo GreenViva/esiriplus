@@ -11,6 +11,7 @@ import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.feature.admin.navigation.AdminGraph
 import com.esiri.esiriplus.feature.admin.navigation.adminGraph
 import com.esiri.esiriplus.feature.auth.navigation.AuthGraph
+import com.esiri.esiriplus.feature.auth.navigation.RoleSelectionRoute
 import com.esiri.esiriplus.feature.auth.navigation.authGraph
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorGraph
 import com.esiri.esiriplus.feature.doctor.navigation.doctorGraph
@@ -41,7 +42,7 @@ fun EsiriplusNavHost(
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Unauthenticated, is AuthState.SessionExpired -> {
-                navController.navigate(AuthGraph) {
+                navController.navigate(RoleSelectionRoute) {
                     popUpTo(0) { inclusive = true }
                 }
             }
@@ -58,17 +59,17 @@ fun EsiriplusNavHost(
             navController = navController,
             onPatientAuthenticated = {
                 navController.navigate(PatientGraph) {
-                    popUpTo(AuthGraph) { inclusive = true }
+                    launchSingleTop = true
                 }
             },
             onDoctorAuthenticated = {
                 navController.navigate(DoctorGraph) {
-                    popUpTo(AuthGraph) { inclusive = true }
+                    launchSingleTop = true
                 }
             },
         )
         patientGraph(navController = navController)
-        doctorGraph(navController = navController)
+        doctorGraph(navController = navController, onSignOut = onLogout)
         adminGraph(navController = navController)
     }
 }

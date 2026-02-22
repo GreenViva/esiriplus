@@ -51,7 +51,9 @@ private val IconBg = Color(0xFFF0FDFA)
 fun RoleSelectionScreen(
     onPatientSelected: () -> Unit,
     onDoctorSelected: () -> Unit,
+    onDoctorRegister: () -> Unit,
     onRecoverPatientId: () -> Unit,
+    onHaveMyId: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     GradientBackground(modifier = modifier) {
@@ -122,7 +124,16 @@ fun RoleSelectionScreen(
                 iconRes = R.drawable.ic_key,
                 title = "I have my ID",
                 subtitle = "Access my records",
-                onClick = onRecoverPatientId,
+                onClick = onHaveMyId,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "You must have set up recovery questions to log in with your Patient ID.",
+                fontSize = 12.sp,
+                color = Color.Black,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -189,7 +200,7 @@ fun RoleSelectionScreen(
                     )
                 }
                 Button(
-                    onClick = onDoctorSelected,
+                    onClick = onDoctorRegister,
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),

@@ -24,11 +24,22 @@ fun DatabaseErrorDialog(error: DatabaseInitError) {
                 text = { Text(stringResource(R.string.db_error_update_required_message)) },
                 confirmButton = {
                     TextButton(onClick = {
-                        val intent = Intent(
+                        // Try Play Store first, fall back to package installer settings
+                        val marketIntent = Intent(
                             Intent.ACTION_VIEW,
                             Uri.parse("market://details?id=${context.packageName}"),
                         )
-                        context.startActivity(intent)
+                        val resolvedActivity = marketIntent.resolveActivity(context.packageManager)
+                        if (resolvedActivity != null) {
+                            context.startActivity(marketIntent)
+                        } else {
+                            // No Play Store — open app details so user can uninstall/reinstall
+                            val settingsIntent = Intent(
+                                android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:${context.packageName}"),
+                            )
+                            context.startActivity(settingsIntent)
+                        }
                     }) {
                         Text(stringResource(R.string.db_error_update_button))
                     }

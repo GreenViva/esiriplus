@@ -18,11 +18,15 @@ import kotlinx.serialization.Serializable
 @Serializable data class DoctorVideoCallRoute(val consultationId: String)
 @Serializable data class DoctorReportRoute(val consultationId: String)
 
-fun NavGraphBuilder.doctorGraph(navController: NavController) {
+fun NavGraphBuilder.doctorGraph(
+    navController: NavController,
+    onSignOut: () -> Unit = {},
+) {
     navigation<DoctorGraph>(startDestination = DoctorDashboardRoute) {
         composable<DoctorDashboardRoute> {
             DoctorDashboardScreen(
                 onNavigateToConsultations = { navController.navigate(DoctorConsultationListRoute) },
+                onSignOut = onSignOut,
             )
         }
         composable<DoctorConsultationListRoute> {

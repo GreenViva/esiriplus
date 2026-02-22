@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -62,7 +63,9 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 authState = authState.value,
                                 onLogout = viewModel::onLogout,
-                                modifier = Modifier.padding(innerPadding),
+                                modifier = Modifier
+                                    .padding(innerPadding)
+                                    .imePadding(),
                             )
                         }
                     }

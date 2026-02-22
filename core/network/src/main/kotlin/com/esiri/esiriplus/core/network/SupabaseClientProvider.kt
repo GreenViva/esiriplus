@@ -8,6 +8,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
 import io.ktor.client.engine.okhttp.OkHttp
+import kotlin.time.Duration.Companion.seconds
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +23,8 @@ class SupabaseClientProvider @Inject constructor(
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_ANON_KEY,
         ) {
+            requestTimeout = REQUEST_TIMEOUT_SECONDS.seconds
+
             httpEngine = OkHttp.create {
                 preconfigured = okHttpClient
             }
@@ -32,5 +35,9 @@ class SupabaseClientProvider @Inject constructor(
             install(Realtime)
             install(Storage)
         }
+    }
+
+    private companion object {
+        const val REQUEST_TIMEOUT_SECONDS = 60
     }
 }
