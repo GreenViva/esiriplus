@@ -1,12 +1,14 @@
 package com.esiri.esiriplus.core.network.model
 
+import org.json.JSONObject
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 object ApiErrorMapper {
 
     fun fromHttpCode(code: Int, responseBody: String? = null): ApiResult.Error {
-        val message = when (code) {
+        val parsedMessage = tryParseJsonError(responseBody)
+        val message = parsedMessage ?: when (code) {
             400 -> "Invalid request. Please check your input."
             401 -> "Authentication required. Please log in again."
             403 -> "You don't have permission to perform this action."
@@ -36,7 +38,22 @@ object ApiErrorMapper {
         )
         else -> ApiResult.NetworkError(
             exception = exception,
-            message = exception.message ?: "An unexpected error occurred.",
+            message = "An unexpected error occurred.",
         )
+    }
+
+    /**
+     * Attempts to extract the "error" field from a JSON response body.
+     * Edge functions return `{"error":"...", "code":"..."}`.
+     */
+    private fun tryParseJsonError(body: String?): String? {
+        if (body.isNullOrBlank()) return null
+        return try {
+            val json = JSONObject(body)
+            val error = if (json.has("error")) json.getString("error") else null
+            if (!error.isNullOrBlank()) error else null
+        } catch (_: Exception) {
+            null
+        }
     }
 }
