@@ -806,10 +806,9 @@ private fun Step3Content(
         }
     }
 
-    // Specialist field dropdown when "Specialist" is selected
+    // Free-text specialist field when "Specialist" is selected
     if (uiState.specialty == "Specialist") {
         Spacer(modifier = Modifier.height(16.dp))
-        var fieldExpanded by remember { mutableStateOf(false) }
         Text(
             text = "Specialist Field",
             fontSize = 14.sp,
@@ -817,50 +816,36 @@ private fun Step3Content(
             color = DarkText,
         )
         Spacer(modifier = Modifier.height(8.dp))
-        ExposedDropdownMenuBox(
-            expanded = fieldExpanded,
-            onExpandedChange = { fieldExpanded = it },
-        ) {
-            OutlinedTextField(
-                value = uiState.customSpecialty,
-                onValueChange = {},
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_badge),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = DarkText,
-                    )
-                },
-                placeholder = { Text("Select your specialist field", color = DarkText, fontSize = 14.sp) },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fieldExpanded) },
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = BrandTeal,
-                    unfocusedBorderColor = CardBorder,
-                    focusedContainerColor = FieldBg,
-                    unfocusedContainerColor = FieldBg,
-                ),
-            )
-            ExposedDropdownMenu(
-                expanded = fieldExpanded,
-                onDismissRequest = { fieldExpanded = false },
-            ) {
-                SpecialistFields.forEach { field ->
-                    DropdownMenuItem(
-                        text = { Text(field) },
-                        onClick = {
-                            viewModel.onCustomSpecialtyChanged(field)
-                            fieldExpanded = false
-                        },
-                    )
-                }
-            }
-        }
+        OutlinedTextField(
+            value = uiState.customSpecialty,
+            onValueChange = viewModel::onCustomSpecialtyChanged,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_badge),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = DarkText,
+                )
+            },
+            placeholder = {
+                Text(
+                    "e.g. Dentist, Cardiologist, Dermatologist",
+                    color = SubtitleGray,
+                    fontSize = 14.sp,
+                )
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(10.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = BrandTeal,
+                unfocusedBorderColor = CardBorder,
+                focusedContainerColor = FieldBg,
+                unfocusedContainerColor = FieldBg,
+                focusedTextColor = DarkText,
+                unfocusedTextColor = DarkText,
+            ),
+        )
     }
 }
 

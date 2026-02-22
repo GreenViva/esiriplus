@@ -552,6 +552,29 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_12_13 = object : Migration(12, 13) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE doctor_profiles ADD COLUMN specialistField TEXT DEFAULT NULL")
+        }
+    }
+
+    val MIGRATION_13_14 = object : Migration(13, 14) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Recreate doctor_availability without foreign key to doctor_profiles
+            db.execSQL("DROP TABLE IF EXISTS doctor_availability")
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `doctor_availability` (" +
+                    "`availabilityId` TEXT NOT NULL, " +
+                    "`doctorId` TEXT NOT NULL, " +
+                    "`isAvailable` INTEGER NOT NULL, " +
+                    "`availabilitySchedule` TEXT NOT NULL, " +
+                    "`lastUpdated` INTEGER NOT NULL, " +
+                    "PRIMARY KEY(`availabilityId`))",
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_availability_doctorId` ON `doctor_availability` (`doctorId`)")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -564,5 +587,7 @@ object DatabaseMigrations {
         MIGRATION_9_10,
         MIGRATION_10_11,
         MIGRATION_11_12,
+        MIGRATION_12_13,
+        MIGRATION_13_14,
     )
 }

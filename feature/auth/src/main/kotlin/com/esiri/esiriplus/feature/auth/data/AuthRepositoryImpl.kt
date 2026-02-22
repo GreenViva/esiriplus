@@ -2,6 +2,7 @@ package com.esiri.esiriplus.feature.auth.data
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import com.esiri.esiriplus.core.common.di.IoDispatcher
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.common.util.IdempotencyKeyGenerator
@@ -15,6 +16,7 @@ import com.esiri.esiriplus.core.domain.model.Session
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.SessionInvalidator
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.domain.model.User
 import com.esiri.esiriplus.core.domain.model.UserRole
@@ -32,7 +34,6 @@ import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.toDomainResult
 import com.esiri.esiriplus.core.network.storage.FileUploadService
 import java.time.Instant
-import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -60,6 +61,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val doctorProfileDao: DoctorProfileDao,
     private val database: EsiriplusDatabase,
     private val fileUploadService: FileUploadService,
+    private val supabaseClientProvider: SupabaseClientProvider,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AuthRepository, SessionInvalidator {
 
@@ -109,47 +111,33 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun registerDoctor(registration: DoctorRegistration): Result<Session> {
         return withContext(ioDispatcher) {
             try {
-                // 1. Upload files to Supabase Storage
-                val tempId = UUID.randomUUID().toString()
-                val profilePhotoUrl = uploadFileIfPresent(
-                    registration.profilePhotoUri,
-                    "$tempId/profile-photo",
-                )
-                val licenseDocumentUrl = uploadFileIfPresent(
-                    registration.licenseDocumentUri,
-                    "$tempId/license-document",
-                )
-                val certificatesUrl = uploadFileIfPresent(
-                    registration.certificatesUri,
-                    "$tempId/certificates",
-                )
-
-                // 2. Resolve specialty
-                val specialty = if (registration.specialty == "Specialist" &&
+                // 1. Resolve specialist_field (custom text when "Specialist" is chosen)
+                val specialistField = if (registration.specialty == "Specialist" &&
                     registration.customSpecialty.isNotBlank()
                 ) {
                     registration.customSpecialty
                 } else {
-                    registration.specialty
+                    null
                 }
 
-                // 3. Build DTO and call edge function
+                // 2. Call edge function FIRST (creates account + profile, returns session)
                 val request = DoctorRegistrationRequest(
                     email = registration.email,
                     password = registration.password,
                     fullName = registration.fullName,
                     countryCode = registration.countryCode,
                     phone = registration.phone,
-                    specialty = specialty,
+                    specialty = registration.specialty,
                     country = registration.country,
                     languages = registration.languages,
                     licenseNumber = registration.licenseNumber,
                     yearsExperience = registration.yearsExperience,
                     bio = registration.bio,
                     services = registration.services,
-                    profilePhotoUrl = profilePhotoUrl,
-                    licenseDocumentUrl = licenseDocumentUrl,
-                    certificatesUrl = certificatesUrl,
+                    specialistField = specialistField,
+                    profilePhotoUrl = null,
+                    licenseDocumentUrl = null,
+                    certificatesUrl = null,
                 )
                 val body = json.encodeToString(request)
                     .let { Json.parseToJsonElement(it).jsonObject }
@@ -161,8 +149,55 @@ class AuthRepositoryImpl @Inject constructor(
 
                 when (apiResult) {
                     is ApiResult.Success -> {
-                        val session = saveSessionAndTokens(apiResult.data)
-                        // Cache doctor profile locally
+                        val response = apiResult.data
+                        val session = saveSessionAndTokens(response)
+
+                        // 3. Import auth token so Storage uploads are authenticated
+                        try {
+                            supabaseClientProvider.importAuthToken(
+                                accessToken = response.accessToken,
+                                refreshToken = response.refreshToken,
+                            )
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to import auth token for file uploads", e)
+                        }
+
+                        // 4. Upload files (now authenticated)
+                        val userId = session.user.id
+                        val profilePhotoUrl = uploadFileIfPresent(
+                            registration.profilePhotoUri,
+                            PROFILE_PHOTOS_BUCKET,
+                            "$userId/profile-photo",
+                        )
+                        val licenseDocumentUrl = uploadFileIfPresent(
+                            registration.licenseDocumentUri,
+                            CREDENTIALS_BUCKET,
+                            "$userId/license-document",
+                        )
+                        val certificatesUrl = uploadFileIfPresent(
+                            registration.certificatesUri,
+                            CREDENTIALS_BUCKET,
+                            "$userId/certificates",
+                        )
+
+                        // 5. Update server profile with file URLs if any were uploaded
+                        if (profilePhotoUrl != null || licenseDocumentUrl != null ||
+                            certificatesUrl != null
+                        ) {
+                            try {
+                                fileUploadService.updateDoctorProfileUrls(
+                                    doctorId = userId,
+                                    profilePhotoUrl = profilePhotoUrl,
+                                    licenseDocumentUrl = licenseDocumentUrl,
+                                    certificatesUrl = certificatesUrl,
+                                )
+                                Log.d(TAG, "Updated doctor profile with file URLs")
+                            } catch (e: Exception) {
+                                Log.w(TAG, "Failed to update profile with file URLs", e)
+                            }
+                        }
+
+                        // 6. Cache doctor profile locally
                         val now = System.currentTimeMillis()
                         doctorProfileDao.insert(
                             DoctorProfileEntity(
@@ -170,7 +205,8 @@ class AuthRepositoryImpl @Inject constructor(
                                 fullName = registration.fullName,
                                 email = registration.email,
                                 phone = registration.phone,
-                                specialty = specialty,
+                                specialty = registration.specialty,
+                                specialistField = specialistField,
                                 languages = registration.languages,
                                 bio = registration.bio,
                                 licenseNumber = registration.licenseNumber,
@@ -190,6 +226,7 @@ class AuthRepositoryImpl @Inject constructor(
                     else -> apiResult.map { error("unreachable") }.toDomainResult()
                 }
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                Log.e(TAG, "registerDoctor failed", e)
                 Result.Error(e)
             }
         }
@@ -229,16 +266,28 @@ class AuthRepositoryImpl @Inject constructor(
 
     private suspend fun uploadFileIfPresent(
         uriString: String?,
+        bucketName: String,
         storagePath: String,
     ): String? {
-        if (uriString.isNullOrBlank()) return null
+        if (uriString.isNullOrBlank()) {
+            Log.d(TAG, "uploadFileIfPresent: no URI for $bucketName/$storagePath")
+            return null
+        }
 
         val uri = Uri.parse(uriString)
-        val bytes = readBytesFromUri(uri) ?: return null
-        val contentType = application.contentResolver.getType(uri) ?: "application/octet-stream"
+        val bytes = readBytesFromUri(uri)
+        if (bytes == null) {
+            Log.w(TAG, "uploadFileIfPresent: failed to read bytes from $uri")
+            return null
+        }
+        Log.d(TAG, "uploadFileIfPresent: read ${bytes.size} bytes for $bucketName/$storagePath")
+
+        val contentType = application.contentResolver.getType(uri)
+            ?: detectMimeType(bytes)
+        Log.d(TAG, "uploadFileIfPresent: contentType=$contentType for $bucketName/$storagePath")
 
         val result = fileUploadService.uploadFile(
-            bucketName = DOCTOR_DOCUMENTS_BUCKET,
+            bucketName = bucketName,
             path = storagePath,
             bytes = bytes,
             contentType = contentType,
@@ -246,16 +295,46 @@ class AuthRepositoryImpl @Inject constructor(
 
         return when (result) {
             is ApiResult.Success -> {
-                fileUploadService.getPublicUrl(DOCTOR_DOCUMENTS_BUCKET, result.data)
+                val url = fileUploadService.getPublicUrl(bucketName, result.data)
+                Log.d(TAG, "uploadFileIfPresent: uploaded to $url")
+                url
             }
-            else -> null
+            else -> {
+                Log.e(TAG, "uploadFileIfPresent: upload failed for $bucketName/$storagePath — $result")
+                null
+            }
         }
+    }
+
+    private fun detectMimeType(bytes: ByteArray): String {
+        if (bytes.size >= 4) {
+            // JPEG: FF D8
+            if (bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte()) return "image/jpeg"
+            // PNG: 89 50 4E 47
+            if (bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() &&
+                bytes[2] == 0x4E.toByte() && bytes[3] == 0x47.toByte()
+            ) return "image/png"
+            // PDF: 25 50 44 46 (%PDF)
+            if (bytes[0] == 0x25.toByte() && bytes[1] == 0x50.toByte() &&
+                bytes[2] == 0x44.toByte() && bytes[3] == 0x46.toByte()
+            ) return "application/pdf"
+            // GIF: 47 49 46
+            if (bytes[0] == 0x47.toByte() && bytes[1] == 0x49.toByte() &&
+                bytes[2] == 0x46.toByte()
+            ) return "image/gif"
+            // WEBP: 52 49 46 46 ... 57 45 42 50
+            if (bytes.size >= 12 && bytes[0] == 0x52.toByte() && bytes[8] == 0x57.toByte() &&
+                bytes[9] == 0x45.toByte() && bytes[10] == 0x42.toByte()
+            ) return "image/webp"
+        }
+        return "image/jpeg" // safe default for doctor uploads
     }
 
     private fun readBytesFromUri(uri: Uri): ByteArray? {
         return try {
             application.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-        } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.e(TAG, "readBytesFromUri failed for $uri", e)
             null
         }
     }
@@ -404,7 +483,9 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "AuthRepositoryImpl"
         private const val SECONDS_TO_MILLIS = 1000L
-        private const val DOCTOR_DOCUMENTS_BUCKET = "doctor-documents"
+        private const val PROFILE_PHOTOS_BUCKET = "profile-photos"
+        private const val CREDENTIALS_BUCKET = "credentials"
     }
 }

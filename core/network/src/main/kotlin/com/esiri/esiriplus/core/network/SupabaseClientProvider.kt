@@ -2,6 +2,7 @@ package com.esiri.esiriplus.core.network
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.postgrest.Postgrest
@@ -29,12 +30,25 @@ class SupabaseClientProvider @Inject constructor(
                 preconfigured = okHttpClient
             }
 
-            install(Auth)
+            install(Auth) {
+                alwaysAutoRefresh = false
+                autoLoadFromStorage = false
+            }
             install(Functions)
             install(Postgrest)
             install(Realtime)
             install(Storage)
         }
+    }
+
+    /**
+     * Import an auth token so subsequent Storage/Postgrest calls are authenticated.
+     */
+    suspend fun importAuthToken(accessToken: String, refreshToken: String = "") {
+        client.auth.importAuthToken(
+            accessToken = accessToken,
+            refreshToken = refreshToken,
+        )
     }
 
     private companion object {

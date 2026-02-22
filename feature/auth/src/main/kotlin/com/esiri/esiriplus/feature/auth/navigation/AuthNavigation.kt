@@ -151,6 +151,11 @@ fun NavGraphBuilder.authGraph(
             DoctorLoginScreen(
                 onAuthenticated = onDoctorAuthenticated,
                 onBack = { navController.popBackStack() },
+                onRegister = {
+                    navController.navigate(DoctorTermsRoute) {
+                        popUpTo(DoctorLoginRoute) { inclusive = true }
+                    }
+                },
             )
         }
         composable<AccessRecordsRoute> {

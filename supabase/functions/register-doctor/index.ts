@@ -4,7 +4,7 @@
 // Expects JSON body:
 //   { email, password, full_name, country_code, phone, specialty, country,
 //     languages, license_number, years_experience, bio, services,
-//     profile_photo_url?, license_document_url?, certificates_url? }
+//     specialist_field?, profile_photo_url?, license_document_url?, certificates_url? }
 //
 // Returns SessionResponse: { access_token, refresh_token, expires_at, user }
 
@@ -121,6 +121,7 @@ Deno.serve(async (req: Request) => {
           license_number: body.license_number,
           years_experience: body.years_experience ?? 0,
           bio: body.bio ?? "",
+          specialist_field: body.specialist_field ?? null,
           profile_photo_url: body.profile_photo_url ?? null,
           is_verified: false,
           is_available: false,

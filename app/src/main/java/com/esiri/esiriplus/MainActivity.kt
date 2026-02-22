@@ -9,8 +9,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,16 +56,14 @@ class MainActivity : ComponentActivity() {
                     else -> {
                         val navController = rememberNavController()
                         val authState = viewModel.authState.collectAsStateWithLifecycle()
-                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                            EsiriplusNavHost(
-                                navController = navController,
-                                authState = authState.value,
-                                onLogout = viewModel::onLogout,
-                                modifier = Modifier
-                                    .padding(innerPadding)
-                                    .imePadding(),
-                            )
-                        }
+                        EsiriplusNavHost(
+                            navController = navController,
+                            authState = authState.value,
+                            onLogout = viewModel::onLogout,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .imePadding(),
+                        )
                     }
                 }
             }

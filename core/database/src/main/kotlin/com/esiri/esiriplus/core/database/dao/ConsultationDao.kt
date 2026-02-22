@@ -29,6 +29,12 @@ interface ConsultationDao {
     @Query("SELECT * FROM consultations WHERE status = :status ORDER BY createdAt DESC")
     fun getByStatus(status: String): Flow<List<ConsultationEntity>>
 
+    @Query("SELECT * FROM consultations WHERE doctorId = :doctorId ORDER BY createdAt DESC")
+    fun getByDoctorId(doctorId: String): Flow<List<ConsultationEntity>>
+
+    @Query("SELECT * FROM consultations WHERE doctorId = :doctorId AND status = :status ORDER BY createdAt DESC")
+    fun getByDoctorIdAndStatus(doctorId: String, status: String): Flow<List<ConsultationEntity>>
+
     @Query("SELECT * FROM consultations WHERE status = 'ACTIVE' ORDER BY createdAt DESC LIMIT 1")
     fun getActiveConsultation(): Flow<ConsultationEntity?>
 

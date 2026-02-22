@@ -2,6 +2,7 @@ package com.esiri.esiriplus.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -38,15 +39,35 @@ fun EsiriplusNavHost(
         }
     }
 
-    // React to auth state changes after initial composition
+    // Track whether we've already navigated for the current authenticated state,
+    // so we don't re-navigate on every auth state emission (e.g. token refresh).
+    val hasNavigatedForAuth = remember {
+        mutableStateOf(startDestination != AuthGraph)
+    }
+
+    // React to auth state changes — single source of truth for auth navigation
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Unauthenticated, is AuthState.SessionExpired -> {
+                hasNavigatedForAuth.value = false
                 navController.navigate(RoleSelectionRoute) {
                     popUpTo(0) { inclusive = true }
                 }
             }
-            else -> { /* navigation handled by in-flow callbacks */ }
+            is AuthState.Authenticated -> {
+                if (!hasNavigatedForAuth.value) {
+                    hasNavigatedForAuth.value = true
+                    val dest: Any = when (authState.session.user.role) {
+                        UserRole.PATIENT -> PatientGraph
+                        UserRole.DOCTOR -> DoctorGraph
+                        UserRole.ADMIN -> AdminGraph
+                    }
+                    navController.navigate(dest) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+            else -> {}
         }
     }
 
@@ -57,16 +78,10 @@ fun EsiriplusNavHost(
     ) {
         authGraph(
             navController = navController,
-            onPatientAuthenticated = {
-                navController.navigate(PatientGraph) {
-                    launchSingleTop = true
-                }
-            },
-            onDoctorAuthenticated = {
-                navController.navigate(DoctorGraph) {
-                    launchSingleTop = true
-                }
-            },
+            // Navigation is now handled by LaunchedEffect reacting to authState changes.
+            // These callbacks remain as no-ops for the authGraph API contract.
+            onPatientAuthenticated = {},
+            onDoctorAuthenticated = {},
         )
         patientGraph(navController = navController)
         doctorGraph(navController = navController, onSignOut = onLogout)

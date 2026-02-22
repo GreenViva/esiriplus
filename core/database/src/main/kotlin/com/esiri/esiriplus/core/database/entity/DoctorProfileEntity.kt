@@ -19,6 +19,7 @@ data class DoctorProfileEntity(
     val email: String,
     val phone: String,
     val specialty: String,
+    @ColumnInfo(defaultValue = "NULL") val specialistField: String? = null,
     val languages: List<String>,
     val bio: String,
     val licenseNumber: String,

@@ -71,6 +71,7 @@ data class DoctorRegistrationRequest(
     @SerialName("years_experience") val yearsExperience: Int,
     @SerialName("bio") val bio: String,
     @SerialName("services") val services: List<String>,
+    @SerialName("specialist_field") val specialistField: String? = null,
     @SerialName("profile_photo_url") val profilePhotoUrl: String? = null,
     @SerialName("license_document_url") val licenseDocumentUrl: String? = null,
     @SerialName("certificates_url") val certificatesUrl: String? = null,
