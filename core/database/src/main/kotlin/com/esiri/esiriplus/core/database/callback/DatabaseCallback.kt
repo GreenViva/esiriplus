@@ -71,6 +71,39 @@ class DatabaseCallback(
     companion object {
         private const val TAG = "DatabaseCallback"
 
+        /**
+         * Re-insert reference data into an already-open database.
+         * Called from [EsiriplusDatabase.reseedReferenceData] after clearAllTables().
+         */
+        fun reseed(db: SupportSQLiteDatabase) {
+            SERVICE_TIERS.forEach { tier ->
+                db.execSQL(
+                    """
+                    INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder, durationMinutes, features)
+                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+                    """.trimIndent(),
+                    arrayOf<Any>(
+                        tier.id,
+                        tier.category,
+                        tier.displayName,
+                        tier.description,
+                        tier.priceAmount,
+                        tier.currency,
+                        tier.sortOrder,
+                        tier.durationMinutes,
+                        tier.features,
+                    ),
+                )
+            }
+            APP_CONFIG_DEFAULTS.forEach { (key, value, description) ->
+                db.execSQL(
+                    "INSERT OR IGNORE INTO app_config (`key`, value, description) VALUES (?, ?, ?)",
+                    arrayOf(key, value, description),
+                )
+            }
+            Log.d(TAG, "Re-seeded ${SERVICE_TIERS.size} service tiers + ${APP_CONFIG_DEFAULTS.size} app config entries")
+        }
+
         private data class ServiceTierSeed(
             val id: String,
             val category: String,

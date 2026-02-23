@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Phone body -->
+    <path
+        android:pathData="M7,2h10c1.1,0 2,0.9 2,2v16c0,1.1 -0.9,2 -2,2H7c-1.1,0 -2,-0.9 -2,-2V4c0,-1.1 0.9,-2 2,-2z"
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#2A9D8F"
+        android:strokeWidth="1.5"/>
+    <!-- Screen -->
+    <path
+        android:pathData="M6.5,5h11v12h-11z"
+        android:fillColor="#E0F2F1"/>
+    <!-- Dollar sign on screen -->
+    <path
+        android:pathData="M12,7.5v0.5m0,5v0.5m-1.5,-4.5c0,-0.83 0.67,-1.5 1.5,-1.5s1.5,0.67 1.5,1.5c0,0.83 -0.67,1.5 -1.5,1.5s-1.5,0.67 -1.5,1.5c0,0.83 0.67,1.5 1.5,1.5s1.5,-0.67 1.5,-1.5"
+        android:fillColor="#00000000"
+        android:strokeColor="#2A9D8F"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"/>
+    <!-- Home button -->
+    <path
+        android:pathData="M12,19.5m-0.8,0a0.8,0.8 0,1 1,1.6 0a0.8,0.8 0,1 1,-1.6 0"
+        android:fillColor="#2A9D8F"/>
+</vector>

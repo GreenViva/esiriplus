@@ -53,6 +53,18 @@ class DoctorProfileService @Inject constructor(
         }
     }
 
+    suspend fun getDoctorsBySpecialty(specialty: String): ApiResult<List<DoctorProfileRow>> {
+        return safeApiCall {
+            val result = supabaseClientProvider.client.from("doctor_profiles")
+                .select {
+                    filter { eq("specialty", specialty) }
+                }
+                .decodeList<DoctorProfileRow>()
+            Log.d(TAG, "Fetched ${result.size} doctors for specialty=$specialty")
+            result
+        }
+    }
+
     companion object {
         private const val TAG = "DoctorProfileSvc"
     }

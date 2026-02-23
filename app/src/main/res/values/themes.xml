@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Esiriplus" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Esiriplus" parent="Theme.AppCompat.Light.NoActionBar" />
     <style name="Theme.Esiriplus.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/brand_mint_light</item>
         <item name="postSplashScreenTheme">@style/Theme.Esiriplus</item>

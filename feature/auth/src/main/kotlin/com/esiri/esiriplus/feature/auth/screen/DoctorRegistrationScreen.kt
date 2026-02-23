@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.feature.auth.R
+import com.esiri.esiriplus.feature.auth.biometric.BiometricEnrollmentScreen
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 import com.esiri.esiriplus.feature.auth.viewmodel.DoctorRegistrationUiState
 import com.esiri.esiriplus.feature.auth.viewmodel.DoctorRegistrationViewModel
@@ -86,6 +87,7 @@ private val StepTitles = listOf(
     "Professional Details" to "Your qualifications and experience",
     "Services Offered" to "Services available for your specialty",
     "Upload Credentials" to "Upload your medical license and certificates for verification",
+    "Biometric Security" to "Set up fingerprint or face unlock for your account",
 )
 
 private val Specialties = listOf(
@@ -319,6 +321,14 @@ fun DoctorRegistrationScreen(
                                 certificatesLauncher.launch(arrayOf("application/pdf", "image/*"))
                             },
                         )
+                        8 -> BiometricEnrollmentScreen(
+                            biometricAvailable = uiState.biometricAvailable,
+                            biometricEnrolled = uiState.biometricEnrolled,
+                            deviceAlreadyBound = uiState.deviceAlreadyBound,
+                            biometricAuthManager = viewModel.biometricAuthManager,
+                            onEnrollmentSuccess = viewModel::onBiometricEnrolled,
+                            onRefreshBiometricState = viewModel::refreshBiometricState,
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -438,7 +448,7 @@ private fun StepIndicator(currentStep: Int) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
-        for (step in 1..7) {
+        for (step in 1..8) {
             val isCompleted = step < currentStep
             val isCurrent = step == currentStep
 
@@ -471,10 +481,10 @@ private fun StepIndicator(currentStep: Int) {
                 }
             }
 
-            if (step < 7) {
+            if (step < 8) {
                 Box(
                     modifier = Modifier
-                        .width(20.dp)
+                        .width(16.dp)
                         .height(2.dp)
                         .background(
                             if (step < currentStep) BrandTeal else CardBorder,
@@ -1388,11 +1398,11 @@ private fun BottomBar(
                 )
             } else {
                 Text(
-                    text = if (currentStep == 7) "Complete Registration" else "Continue",
+                    text = if (currentStep == 8) "Complete Registration" else "Continue",
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
                 )
-                if (currentStep < 7) {
+                if (currentStep < 8) {
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,

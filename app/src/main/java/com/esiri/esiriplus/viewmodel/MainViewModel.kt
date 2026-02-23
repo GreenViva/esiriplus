@@ -9,6 +9,7 @@ import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import com.esiri.esiriplus.core.domain.usecase.ObserveAuthStateUseCase
 import com.esiri.esiriplus.core.domain.usecase.RefreshSessionUseCase
+import com.esiri.esiriplus.lifecycle.BiometricLockStateHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,7 @@ class MainViewModel @Inject constructor(
     private val refreshSession: RefreshSessionUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val databaseInitializer: DatabaseInitializer,
+    private val biometricLockStateHolder: BiometricLockStateHolder,
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
@@ -48,6 +50,7 @@ class MainViewModel @Inject constructor(
 
     fun onLogout() {
         viewModelScope.launch {
+            biometricLockStateHolder.setLocked(true)
             logoutUseCase()
         }
     }

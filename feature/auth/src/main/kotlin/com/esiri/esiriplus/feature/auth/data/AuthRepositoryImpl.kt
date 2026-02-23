@@ -20,6 +20,8 @@ import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.domain.model.User
 import com.esiri.esiriplus.core.domain.model.UserRole
+import com.esiri.esiriplus.core.network.dto.DeviceBindingCheckResponse
+import com.esiri.esiriplus.core.network.dto.DeviceBindingRequest
 import com.esiri.esiriplus.core.network.dto.DoctorLoginRequest
 import com.esiri.esiriplus.core.network.dto.DoctorRegistrationRequest
 import com.esiri.esiriplus.core.network.dto.LookupPatientRequest
@@ -33,6 +35,7 @@ import com.esiri.esiriplus.core.network.dto.toDomain
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.toDomainResult
 import com.esiri.esiriplus.core.network.storage.FileUploadService
+import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import java.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +65,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val database: EsiriplusDatabase,
     private val fileUploadService: FileUploadService,
     private val supabaseClientProvider: SupabaseClientProvider,
+    private val deviceBindingManager: DeviceBindingManager,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AuthRepository, SessionInvalidator {
 
@@ -221,6 +225,10 @@ class AuthRepositoryImpl @Inject constructor(
                                 certificatesUrl = certificatesUrl,
                             ),
                         )
+
+                        // 7. Bind device to this doctor (server-side)
+                        bindDeviceOnServer(userId, deviceBindingManager.getDeviceFingerprint())
+
                         Result.Success(session)
                     }
                     else -> apiResult.map { error("unreachable") }.toDomainResult()
@@ -247,6 +255,13 @@ class AuthRepositoryImpl @Inject constructor(
                 val session = saveSessionAndTokens(apiResult.data)
                 // Cache doctor profile from backend if available
                 cacheDoctorProfile(session.user.id)
+
+                // Check device binding on server (best-effort)
+                checkDeviceBindingOnServer(
+                    session.user.id,
+                    deviceBindingManager.getDeviceFingerprint(),
+                )
+
                 Result.Success(session)
             }
             else -> apiResult.map { error("unreachable") }.toDomainResult()
@@ -365,6 +380,7 @@ class AuthRepositoryImpl @Inject constructor(
         tokenManager.clearTokens()
         withContext(ioDispatcher) {
             database.clearAllTables()
+            database.reseedReferenceData()
         }
     }
 
@@ -480,6 +496,47 @@ class AuthRepositoryImpl @Inject constructor(
             sessionDao.insertSession(session.toEntity())
         }
         return session
+    }
+
+    private suspend fun bindDeviceOnServer(doctorId: String, deviceFingerprint: String) {
+        try {
+            val request = DeviceBindingRequest(
+                doctorId = doctorId,
+                deviceFingerprint = deviceFingerprint,
+            )
+            val body = json.encodeToString(request)
+                .let { Json.parseToJsonElement(it).jsonObject }
+            edgeFunctionClient.invoke(
+                functionName = "bind-device",
+                body = body,
+            )
+            Log.d(TAG, "Device bound on server for doctor=$doctorId")
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.w(TAG, "Failed to bind device on server (non-critical)", e)
+        }
+    }
+
+    private suspend fun checkDeviceBindingOnServer(doctorId: String, deviceFingerprint: String) {
+        try {
+            val request = DeviceBindingRequest(
+                doctorId = doctorId,
+                deviceFingerprint = deviceFingerprint,
+            )
+            val body = json.encodeToString(request)
+                .let { Json.parseToJsonElement(it).jsonObject }
+            val result = edgeFunctionClient.invokeAndDecode<DeviceBindingCheckResponse>(
+                functionName = "check-device-binding",
+                body = body,
+            )
+            if (result is ApiResult.Success) {
+                Log.d(
+                    TAG,
+                    "Device binding check: bound=${result.data.bound}, matches=${result.data.matches}",
+                )
+            }
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.w(TAG, "Failed to check device binding on server (non-critical)", e)
+        }
     }
 
     companion object {

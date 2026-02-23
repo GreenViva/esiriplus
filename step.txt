@@ -1,0 +1,63 @@
+category
+Database Layer
+
+features name
+Communication & Report Entities
+
+asset details
+"Create Room entities:
+• VideoCallEntity
+• PatientReportEntity
+• TypingIndicatorEntity
+• NotificationEntity
+• DAOs and Repositories"
+
+
+user story
+As a developer, I want communication artifacts stored so that video call history and reports are accessible offline
+
+ 
+acceptance criteria
+"• VideoCallEntity:
+  @Entity(tableName = ""video_calls"")
+  - call_id: String (PK, UUID)
+  - consultation_id: String (FK)
+  - started_at: Long
+  - ended_at: Long?
+  - duration_seconds: Int
+  - call_quality: CallQuality (enum: EXCELLENT, GOOD, FAIR, POOR)
+  - created_at: Long
+• PatientReportEntity:
+  @Entity(tableName = ""patient_reports"")
+  - report_id: String (PK, UUID)
+  - consultation_id: String (FK)
+  - patient_session_id: String (FK)
+  - report_url: String (Supabase Storage URL)
+  - local_file_path: String? (local storage path after download)
+  - generated_at: Long
+  - downloaded_at: Long?
+  - file_size_bytes: Long
+  - is_downloaded: Boolean (default false)
+• TypingIndicatorEntity:
+  @Entity(tableName = ""typing_indicators"", primaryKeys = [""consultation_id"", ""user_id""])
+  - consultation_id: String
+  - user_id: String (patient_session_id or doctor_id)
+  - is_typing: Boolean
+  - updated_at: Long
+• NotificationEntity:
+  @Entity(tableName = ""notifications"")
+  - notification_id: String (PK, UUID)
+  - user_id: String (patient_session_id or doctor_id)
+  - title: String
+  - body: String
+  - type: NotificationType (enum: CONSULTATION_REQUEST, MESSAGE_RECEIVED, VIDEO_CALL_INCOMING, REPORT_READY, PAYMENT_STATUS)
+  - data: String (JSON payload for deep linking)
+  - read_at: Long?
+  - created_at: Long
+• DAOs:
+  - VideoCallDao
+  - PatientReportDao: getByConsultationId, getDownloadedReports, markAsDownloaded
+  - TypingIndicatorDao: upsert, getByConsultationId, deleteOld (>10 seconds)
+  - NotificationDao: getUnreadNotifications, markAsRead, deleteOld (>30 days)
+• Repositories
+• Unit tests"

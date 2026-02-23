@@ -98,3 +98,24 @@ data class RecoverByIdResponse(
     @SerialName("refresh_expires_at") val refreshExpiresAt: String? = null,
     val message: String? = null,
 )
+
+// ── Device Binding DTOs ─────────────────────────────────────────────────────
+
+@Serializable
+data class DeviceBindingRequest(
+    @SerialName("doctor_id") val doctorId: String,
+    @SerialName("device_fingerprint") val deviceFingerprint: String,
+)
+
+@Serializable
+data class DeviceBindingCheckResponse(
+    val bound: Boolean,
+    val matches: Boolean,
+)
+
+@Serializable
+data class DeviceBindingResponse(
+    val bound: Boolean,
+    @SerialName("doctor_id") val doctorId: String,
+    @SerialName("device_fingerprint") val deviceFingerprint: String,
+)

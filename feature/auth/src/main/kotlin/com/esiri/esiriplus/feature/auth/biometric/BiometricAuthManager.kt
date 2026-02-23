@@ -1,15 +1,21 @@
 package com.esiri.esiriplus.feature.auth.biometric
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
-import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+
+enum class BiometricType {
+    FINGERPRINT,
+    FACE,
+}
 
 @Singleton
 class BiometricAuthManager @Inject constructor(
@@ -18,10 +24,20 @@ class BiometricAuthManager @Inject constructor(
 ) {
     private val biometricManager = BiometricManager.from(context)
 
-    fun isAvailable(): Boolean {
-        val result = biometricManager.canAuthenticate(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+    /** Device has biometric hardware (fingerprint, face, etc.). */
+    fun hasHardware(): Boolean {
+        val result = biometricManager.canAuthenticate(BIOMETRIC_STRONG)
+        return result != BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE &&
+            result != BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE
+    }
+
+    /** User has enrolled at least one biometric on the device. */
+    fun hasEnrolledBiometrics(): Boolean {
+        val result = biometricManager.canAuthenticate(BIOMETRIC_STRONG)
         return result == BiometricManager.BIOMETRIC_SUCCESS
     }
+
+    fun isAvailable(): Boolean = hasEnrolledBiometrics()
 
     fun isEnabled(): Boolean = preferenceStorage.isBiometricEnabled()
 
@@ -33,7 +49,7 @@ class BiometricAuthManager @Inject constructor(
         subtitle: String? = null,
         onResult: (BiometricResult) -> Unit,
     ) {
-        if (!isAvailable()) {
+        if (!hasEnrolledBiometrics()) {
             onResult(BiometricResult.NotAvailable)
             return
         }
@@ -55,17 +71,39 @@ class BiometricAuthManager @Inject constructor(
             }
 
             override fun onAuthenticationFailed() {
-                // Called on individual attempt failure; prompt stays open, so no action needed
+                // Individual attempt failure; prompt stays open
             }
         }
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .apply { if (subtitle != null) setSubtitle(subtitle) }
-            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+            .setNegativeButtonText("Cancel")
+            .setAllowedAuthenticators(BIOMETRIC_STRONG)
             .build()
 
         BiometricPrompt(activity, executor, callback).authenticate(promptInfo)
+    }
+
+    fun hasFingerprint(): Boolean =
+        context.packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)
+
+    fun hasFaceAuth(): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_FACE)
+
+    fun getAvailableTypes(): List<BiometricType> = buildList {
+        if (hasFingerprint()) add(BiometricType.FINGERPRINT)
+        if (hasFaceAuth()) add(BiometricType.FACE)
+    }
+
+    fun setPreferredBiometricType(type: BiometricType) {
+        preferenceStorage.setPreferredBiometricType(type.name)
+    }
+
+    fun getPreferredBiometricType(): BiometricType? {
+        val name = preferenceStorage.getPreferredBiometricType() ?: return null
+        return runCatching { BiometricType.valueOf(name) }.getOrNull()
     }
 
     sealed interface BiometricResult {

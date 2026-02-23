@@ -2,6 +2,7 @@ package com.esiri.esiriplus.core.network.model
 
 import android.util.Log
 import com.esiri.esiriplus.core.common.result.Result
+import com.esiri.esiriplus.core.network.EdgeFunctionException
 import io.github.jan.supabase.exceptions.RestException
 import retrofit2.HttpException
 import retrofit2.Response
@@ -13,6 +14,14 @@ private const val TAG = "SafeApiCall"
 suspend fun <T> safeApiCall(block: suspend () -> T): ApiResult<T> =
     try {
         ApiResult.Success(block())
+    } catch (e: EdgeFunctionException) {
+        val code = e.code
+        Log.e(TAG, "EdgeFunctionException: code=$code, body=${e.message}", e)
+        if (code == HTTP_UNAUTHORIZED) {
+            ApiResult.Unauthorized
+        } else {
+            ApiErrorMapper.fromHttpCode(code, e.message)
+        }
     } catch (e: RestException) {
         val code = e.statusCode
         Log.e(TAG, "RestException: code=$code, error=${e.error}", e)

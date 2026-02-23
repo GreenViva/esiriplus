@@ -1,11 +1,13 @@
 package com.esiri.esiriplus.feature.auth.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.util.Log
 import com.esiri.esiriplus.core.common.extensions.isValidEmail
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.usecase.LoginDoctorUseCase
+import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
+import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +22,8 @@ data class DoctorLoginUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
+    val deviceMismatch: Boolean = false,
+    val deviceMismatchError: String? = null,
 ) {
     val isFormValid: Boolean
         get() = email.isValidEmail() && password.length >= 6
@@ -28,6 +32,8 @@ data class DoctorLoginUiState(
 @HiltViewModel
 class DoctorLoginViewModel @Inject constructor(
     private val loginDoctor: LoginDoctorUseCase,
+    val biometricAuthManager: BiometricAuthManager,
+    private val deviceBindingManager: DeviceBindingManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorLoginUiState())
@@ -47,11 +53,34 @@ class DoctorLoginViewModel @Inject constructor(
             val email = uiState.value.email
             val password = uiState.value.password
 
-            // Retry once on transient failures (edge function cold starts, client init races)
             var lastError: String? = null
             for (attempt in 1..MAX_LOGIN_ATTEMPTS) {
                 when (val result = loginDoctor(email, password)) {
                     is Result.Success -> {
+                        val session = result.data
+                        val doctorId = session.user.id
+
+                        // Check device binding
+                        val boundDoctorId = deviceBindingManager.getBoundDoctorId()
+                        if (boundDoctorId != null && boundDoctorId != doctorId) {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    deviceMismatch = true,
+                                    deviceMismatchError =
+                                        "This device is registered to another doctor account. " +
+                                        "Please use your registered device or contact support.",
+                                )
+                            }
+                            return@launch
+                        }
+
+                        // Bind device if not yet bound
+                        if (!deviceBindingManager.isDeviceBoundTo(doctorId)) {
+                            deviceBindingManager.bindDevice(doctorId)
+                        }
+
+                        _uiState.update { it.copy(isLoading = false) }
                         onSuccess()
                         return@launch
                     }

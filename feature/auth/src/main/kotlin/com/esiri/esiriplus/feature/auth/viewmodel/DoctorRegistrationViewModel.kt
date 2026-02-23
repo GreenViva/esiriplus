@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.DoctorRegistration
 import com.esiri.esiriplus.core.domain.usecase.RegisterDoctorUseCase
+import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
+import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,10 +19,25 @@ import javax.inject.Inject
 @HiltViewModel
 class DoctorRegistrationViewModel @Inject constructor(
     private val registerDoctorUseCase: RegisterDoctorUseCase,
+    val biometricAuthManager: BiometricAuthManager,
+    private val deviceBindingManager: DeviceBindingManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorRegistrationUiState())
     val uiState: StateFlow<DoctorRegistrationUiState> = _uiState.asStateFlow()
+
+    init {
+        // Check biometric availability and device binding status on creation
+        val biometricAvailable = biometricAuthManager.isAvailable()
+        val boundDoctorId = deviceBindingManager.getBoundDoctorId()
+        val deviceAlreadyBound = boundDoctorId != null
+        _uiState.update {
+            it.copy(
+                biometricAvailable = biometricAvailable,
+                deviceAlreadyBound = deviceAlreadyBound,
+            )
+        }
+    }
 
     // Step navigation
     fun onBack() {
@@ -29,10 +46,22 @@ class DoctorRegistrationViewModel @Inject constructor(
 
     fun onContinue() {
         val state = _uiState.value
-        if (state.currentStep == 7) {
+        if (state.currentStep == 8) {
             completeRegistration()
         } else {
-            _uiState.update { it.copy(currentStep = (it.currentStep + 1).coerceAtMost(7)) }
+            _uiState.update { it.copy(currentStep = (it.currentStep + 1).coerceAtMost(8)) }
+        }
+    }
+
+    fun onBiometricEnrolled() {
+        _uiState.update { it.copy(biometricEnrolled = true) }
+    }
+
+    fun refreshBiometricState() {
+        val available = biometricAuthManager.hasHardware()
+        val enrolled = biometricAuthManager.hasEnrolledBiometrics()
+        _uiState.update {
+            it.copy(biometricAvailable = available && enrolled)
         }
     }
 
@@ -214,6 +243,10 @@ data class DoctorRegistrationUiState(
     // Step 7
     val licenseDocumentUri: Uri? = null,
     val certificatesUri: Uri? = null,
+    // Step 8: Biometric
+    val biometricAvailable: Boolean = true,
+    val biometricEnrolled: Boolean = false,
+    val deviceAlreadyBound: Boolean = false,
 ) {
     val isCurrentStepValid: Boolean
         get() = when (currentStep) {
@@ -226,6 +259,7 @@ data class DoctorRegistrationUiState(
             5 -> licenseNumber.isNotBlank() && bio.isNotBlank()
             6 -> selectedServices.isNotEmpty()
             7 -> licenseDocumentUri != null
+            8 -> biometricEnrolled
             else -> false
         }
 }

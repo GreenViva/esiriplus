@@ -5,19 +5,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateConsultationRequest(
-    @SerialName("patient_id") val patientId: String,
     @SerialName("service_type") val serviceType: String,
-    @SerialName("idempotency_key") val idempotencyKey: String,
+    @SerialName("consultation_type") val consultationType: String,
+    @SerialName("chief_complaint") val chiefComplaint: String,
+    @SerialName("preferred_language") val preferredLanguage: String = "en",
+    @SerialName("doctor_id") val doctorId: String? = null,
 )
 
 @Serializable
 data class ConsultationResponse(
-    val id: String,
-    @SerialName("patient_id") val patientId: String,
-    @SerialName("doctor_id") val doctorId: String? = null,
-    @SerialName("service_type") val serviceType: String,
+    @SerialName("consultation_id") val consultationId: String,
     val status: String,
-    val notes: String? = null,
-    @SerialName("created_at") val createdAt: String,
-    @SerialName("updated_at") val updatedAt: String? = null,
+    val message: String? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("available_slots") val availableSlots: Int? = null,
 )

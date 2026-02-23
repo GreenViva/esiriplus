@@ -12,7 +12,9 @@ import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.feature.admin.navigation.AdminGraph
 import com.esiri.esiriplus.feature.admin.navigation.adminGraph
 import com.esiri.esiriplus.feature.auth.navigation.AuthGraph
+import com.esiri.esiriplus.feature.auth.navigation.PatientSetupRoute
 import com.esiri.esiriplus.feature.auth.navigation.RoleSelectionRoute
+import com.esiri.esiriplus.feature.auth.navigation.SecurityQuestionsSetupRoute
 import com.esiri.esiriplus.feature.auth.navigation.authGraph
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorGraph
 import com.esiri.esiriplus.feature.doctor.navigation.doctorGraph
@@ -45,25 +47,48 @@ fun EsiriplusNavHost(
         mutableStateOf(startDestination != AuthGraph)
     }
 
-    // React to auth state changes — single source of truth for auth navigation
+    // React to auth state changes — single source of truth for auth navigation.
+    // Only force-navigate on logout/session expiry (when user was previously authenticated)
+    // or on first authentication. Let the normal SplashRoute → RoleSelection flow handle
+    // initial unauthenticated state so the splash "Tap to continue" screen shows.
     LaunchedEffect(authState) {
         when (authState) {
-            is AuthState.Unauthenticated, is AuthState.SessionExpired -> {
+            is AuthState.SessionExpired -> {
                 hasNavigatedForAuth.value = false
                 navController.navigate(RoleSelectionRoute) {
                     popUpTo(0) { inclusive = true }
                 }
             }
+            is AuthState.Unauthenticated -> {
+                // Only force-navigate if user was previously authenticated (i.e., logged out).
+                // On fresh app launch, let the auth graph's SplashRoute show first.
+                if (hasNavigatedForAuth.value) {
+                    hasNavigatedForAuth.value = false
+                    navController.navigate(RoleSelectionRoute) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
             is AuthState.Authenticated -> {
                 if (!hasNavigatedForAuth.value) {
-                    hasNavigatedForAuth.value = true
-                    val dest: Any = when (authState.session.user.role) {
-                        UserRole.PATIENT -> PatientGraph
-                        UserRole.DOCTOR -> DoctorGraph
-                        UserRole.ADMIN -> AdminGraph
-                    }
-                    navController.navigate(dest) {
-                        popUpTo(0) { inclusive = true }
+                    // Check if patient is still on the setup/recovery screen —
+                    // don't yank them to the dashboard until they click "Continue".
+                    val currentRoute = navController.currentDestination?.route
+                    val onPatientSetup = authState.session.user.role == UserRole.PATIENT &&
+                        currentRoute != null &&
+                        (currentRoute.contains("PatientSetupRoute") ||
+                            currentRoute.contains("SecurityQuestionsSetupRoute"))
+
+                    if (!onPatientSetup) {
+                        hasNavigatedForAuth.value = true
+                        val dest: Any = when (authState.session.user.role) {
+                            UserRole.PATIENT -> PatientGraph
+                            UserRole.DOCTOR -> DoctorGraph
+                            UserRole.ADMIN -> AdminGraph
+                        }
+                        navController.navigate(dest) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 }
             }
@@ -78,9 +103,15 @@ fun EsiriplusNavHost(
     ) {
         authGraph(
             navController = navController,
-            // Navigation is now handled by LaunchedEffect reacting to authState changes.
-            // These callbacks remain as no-ops for the authGraph API contract.
-            onPatientAuthenticated = {},
+            onPatientAuthenticated = {
+                // Called when patient finishes setup (clicks "Continue" on PatientSetupScreen).
+                // The LaunchedEffect skips auto-nav while on setup, so we navigate here.
+                hasNavigatedForAuth.value = true
+                navController.navigate(PatientGraph) {
+                    popUpTo(0) { inclusive = true }
+                }
+            },
+            // Doctor login/registration auto-navigates via LaunchedEffect.
             onDoctorAuthenticated = {},
         )
         patientGraph(navController = navController)

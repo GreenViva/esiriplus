@@ -2,7 +2,6 @@ package com.esiri.esiriplus.feature.patient.data
 
 import android.util.Log
 import com.esiri.esiriplus.core.common.result.Result
-import com.esiri.esiriplus.core.common.util.IdempotencyKeyGenerator
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.model.Consultation
@@ -92,9 +91,9 @@ class ConsultationRepositoryImpl @Inject constructor(
         serviceType: ServiceType,
     ): Result<Consultation> {
         val request = CreateConsultationRequest(
-            patientId = patientId,
-            serviceType = serviceType.name,
-            idempotencyKey = IdempotencyKeyGenerator.generate("consultation"),
+            serviceType = serviceType.name.lowercase(),
+            consultationType = "chat",
+            chiefComplaint = "General consultation",
         )
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
@@ -104,21 +103,69 @@ class ConsultationRepositoryImpl @Inject constructor(
         )
 
         val domainResult = apiResult.map { response ->
+            val now = Instant.now()
             Consultation(
-                id = response.id,
-                patientId = response.patientId,
-                doctorId = response.doctorId,
-                serviceType = ServiceType.entries.find { it.name.equals(response.serviceType, ignoreCase = true) }
+                id = response.consultationId,
+                patientId = patientId,
+                serviceType = serviceType,
+                status = ConsultationStatus.entries
+                    .find { it.name.equals(response.status, ignoreCase = true) }
+                    ?: ConsultationStatus.PENDING,
+                createdAt = response.createdAt?.let { Instant.parse(it) } ?: now,
+            )
+        }.toDomainResult()
+        if (domainResult is Result.Success) {
+            consultationDao.insert(domainResult.data.toEntity())
+        }
+        return domainResult
+    }
+
+    override suspend fun bookAppointment(
+        doctorId: String,
+        serviceType: String,
+        consultationType: String,
+        chiefComplaint: String,
+        preferredLanguage: String,
+    ): Result<Consultation> {
+        val request = CreateConsultationRequest(
+            serviceType = serviceType,
+            consultationType = consultationType,
+            chiefComplaint = chiefComplaint,
+            preferredLanguage = preferredLanguage,
+            doctorId = doctorId,
+        )
+        val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
+
+        val apiResult = edgeFunctionClient.invokeAndDecode<ConsultationResponse>(
+            functionName = "create-consultation",
+            body = body,
+        )
+
+        // Check for doctor_full error (edge function returns 409)
+        if (apiResult is com.esiri.esiriplus.core.network.model.ApiResult.Error &&
+            apiResult.code == 409
+        ) {
+            return Result.Error(
+                Exception("Doctor has no available slots"),
+                "Doctor has no available slots",
+            )
+        }
+
+        val domainResult = apiResult.map { response ->
+            val now = Instant.now()
+            Consultation(
+                id = response.consultationId,
+                patientId = "",
+                doctorId = doctorId,
+                serviceType = ServiceType.entries.find { it.name.equals(serviceType, ignoreCase = true) }
                     ?: ServiceType.GENERAL_CONSULTATION,
                 status = ConsultationStatus.entries
                     .find { it.name.equals(response.status, ignoreCase = true) }
                     ?: ConsultationStatus.PENDING,
-                notes = response.notes,
-                createdAt = Instant.parse(response.createdAt),
-                updatedAt = response.updatedAt?.let { Instant.parse(it) },
+                createdAt = response.createdAt?.let { Instant.parse(it) } ?: now,
             )
         }.toDomainResult()
-        // Cache newly created consultation locally
+
         if (domainResult is Result.Success) {
             consultationDao.insert(domainResult.data.toEntity())
         }

@@ -2,7 +2,7 @@
 // Creates a new consultation request for a patient.
 // Requires verified service access payment. Rate limit: 10/min.
 
-import { handlePreflight } from "../_shared/cors.ts";
+import { corsHeaders, handlePreflight } from "../_shared/cors.ts";
 import { validateAuth } from "../_shared/auth.ts";
 import { LIMITS } from "../_shared/rateLimit.ts";
 import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
@@ -12,6 +12,13 @@ import { getServiceClient } from "../_shared/supabase.ts";
 const VALID_SERVICE_TYPES = [
   "nurse", "clinical_officer", "pharmacist", "gp", "specialist", "psychologist",
 ];
+
+const MAX_DOCTOR_SLOTS = 10;
+
+// When PAYMENT_ENV is "mock" (default in dev), skip payment validation.
+// The UI payment flow is simulated client-side; real M-Pesa integration
+// will create service_access_payments records in sandbox/production.
+const PAYMENT_ENV = Deno.env.get("PAYMENT_ENV") ?? "mock";
 
 const VALID_CONSULTATION_TYPES = ["chat", "video", "both"];
 
@@ -70,20 +77,22 @@ Deno.serve(async (req: Request) => {
 
     const supabase = getServiceClient();
 
-    // Verify patient has paid for this service type
-    const { data: access } = await supabase
-      .from("service_access_payments")
-      .select("id")
-      .eq("patient_session_id", auth.sessionId)
-      .eq("service_type", body.service_type)
-      .eq("access_granted", true)
-      .gt("expires_at", new Date().toISOString())
-      .single();
+    // Verify patient has paid for this service type (skipped in mock mode)
+    if (PAYMENT_ENV !== "mock") {
+      const { data: access } = await supabase
+        .from("service_access_payments")
+        .select("id")
+        .eq("patient_session_id", auth.sessionId)
+        .eq("service_type", body.service_type)
+        .eq("access_granted", true)
+        .gt("expires_at", new Date().toISOString())
+        .single();
 
-    if (!access) {
-      throw new ValidationError(
-        `No active access for service type '${body.service_type}'. Please make payment first.`
-      );
+      if (!access) {
+        throw new ValidationError(
+          `No active access for service type '${body.service_type}'. Please make payment first.`
+        );
+      }
     }
 
     // If doctor_id specified, verify they're verified and available
@@ -93,12 +102,40 @@ Deno.serve(async (req: Request) => {
         .from("doctor_profiles")
         .select("doctor_id, is_verified")
         .eq("doctor_id", assignedDoctorId)
-        .eq("is_verified", true)
-        .eq("service_type", body.service_type)
+        .eq("specialty", body.service_type)
         .single();
 
       if (!doctor) {
         throw new ValidationError("Specified doctor not found or not available for this service");
+      }
+
+      if (!doctor.is_verified) {
+        throw new ValidationError("This doctor has not been verified yet and cannot accept consultations");
+      }
+
+      // Check doctor slot capacity
+      const { count: activeCount } = await supabase
+        .from("consultations")
+        .select("consultation_id", { count: "exact", head: true })
+        .eq("doctor_id", assignedDoctorId)
+        .in("status", ["pending", "active", "in_progress"]);
+
+      const usedSlots = activeCount ?? 0;
+      if (usedSlots >= MAX_DOCTOR_SLOTS) {
+        return new Response(
+          JSON.stringify({
+            error: "doctor_full",
+            message: "Doctor has no available slots",
+            available_slots: 0,
+          }),
+          {
+            status: 409,
+            headers: {
+              ...corsHeaders(origin),
+              "Content-Type": "application/json",
+            },
+          }
+        );
       }
     }
 
@@ -117,7 +154,7 @@ Deno.serve(async (req: Request) => {
       }, 200, origin);
     }
 
-    // Create the consultation
+    // Create the consultation — always pending (doctor must accept)
     const { data: consultation, error } = await supabase
       .from("consultations")
       .insert({
@@ -127,7 +164,7 @@ Deno.serve(async (req: Request) => {
         consultation_type: body.consultation_type,
         chief_complaint: body.chief_complaint.trim(),
         preferred_language: body.preferred_language ?? "en",
-        status: assignedDoctorId ? "active" : "pending",
+        status: "pending",
         created_at: new Date().toISOString(),
       })
       .select("consultation_id, status, created_at")
@@ -135,8 +172,29 @@ Deno.serve(async (req: Request) => {
 
     if (error) throw error;
 
-    // Notify available doctors if none assigned
-    if (!assignedDoctorId) {
+    // Calculate remaining available slots for the doctor
+    let availableSlots: number | undefined;
+    if (assignedDoctorId) {
+      // Send targeted push notification to the specific doctor
+      await supabase.functions.invoke("send-push-notification", {
+        body: {
+          user_id: assignedDoctorId,
+          title: "New Appointment Request",
+          body: `You have a new ${body.service_type} appointment request`,
+          type: "new_consultation",
+          consultation_id: consultation.consultation_id,
+        },
+      });
+
+      const { count } = await supabase
+        .from("consultations")
+        .select("consultation_id", { count: "exact", head: true })
+        .eq("doctor_id", assignedDoctorId)
+        .in("status", ["pending", "active", "in_progress"]);
+
+      availableSlots = MAX_DOCTOR_SLOTS - (count ?? 0);
+    } else {
+      // Broadcast to all doctors of this specialty
       await supabase.functions.invoke("send-push-notification", {
         body: {
           target: "doctors",
@@ -158,6 +216,7 @@ Deno.serve(async (req: Request) => {
         consultation_id: consultation.consultation_id,
         service_type: body.service_type,
         consultation_type: body.consultation_type,
+        doctor_id: assignedDoctorId,
       },
       ip_address: getClientIp(req),
     });
@@ -167,6 +226,7 @@ Deno.serve(async (req: Request) => {
       consultation_id: consultation.consultation_id,
       status: consultation.status,
       created_at: consultation.created_at,
+      ...(availableSlots !== undefined && { available_slots: availableSlots }),
     }, 201, origin);
 
   } catch (err) {

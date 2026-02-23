@@ -107,6 +107,15 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
 )
 abstract class EsiriplusDatabase : RoomDatabase() {
 
+    /**
+     * Re-inserts reference data (service tiers, app config) that gets wiped by [clearAllTables].
+     * Call this immediately after [clearAllTables] to restore prepopulated rows.
+     */
+    fun reseedReferenceData() {
+        val db = openHelper.writableDatabase
+        com.esiri.esiriplus.core.database.callback.DatabaseCallback.reseed(db)
+    }
+
     abstract fun userDao(): UserDao
     abstract fun sessionDao(): SessionDao
     abstract fun consultationDao(): ConsultationDao

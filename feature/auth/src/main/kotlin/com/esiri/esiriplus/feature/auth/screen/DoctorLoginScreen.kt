@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,11 +56,22 @@ fun DoctorLoginScreen(
     onAuthenticated: () -> Unit,
     onBack: () -> Unit,
     onRegister: () -> Unit = {},
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: DoctorLoginViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
+
+    // Device mismatch — show error screen
+    if (uiState.deviceMismatch) {
+        DeviceMismatchScreen(
+            error = uiState.deviceMismatchError ?: "Device bound to another doctor",
+            onBack = onBack,
+            modifier = modifier,
+        )
+        return
+    }
 
     Column(
         modifier = modifier
@@ -88,7 +100,6 @@ fun DoctorLoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Title
         Text(
             text = "Doctor Portal",
             fontSize = 24.sp,
@@ -98,7 +109,6 @@ fun DoctorLoginScreen(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Subtitle
         Text(
             text = "Sign in to manage your consultations",
             fontSize = 14.sp,
@@ -125,7 +135,6 @@ fun DoctorLoginScreen(
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    // Sign In tab (active)
                     Surface(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(6.dp),
@@ -136,14 +145,13 @@ fun DoctorLoginScreen(
                         Text(
                             text = "Sign In",
                             modifier = Modifier.padding(vertical = 10.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            textAlign = TextAlign.Center,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black,
                         )
                     }
 
-                    // Register tab (inactive)
                     Surface(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(6.dp),
@@ -153,7 +161,7 @@ fun DoctorLoginScreen(
                         Text(
                             text = "Register",
                             modifier = Modifier.padding(vertical = 10.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            textAlign = TextAlign.Center,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = SubtitleGray,
@@ -163,7 +171,6 @@ fun DoctorLoginScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Email label
                 Text(
                     text = "Email",
                     fontSize = 14.sp,
@@ -172,7 +179,6 @@ fun DoctorLoginScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Email field
                 OutlinedTextField(
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
@@ -200,7 +206,6 @@ fun DoctorLoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password label
                 Text(
                     text = "Password",
                     fontSize = 14.sp,
@@ -209,7 +214,6 @@ fun DoctorLoginScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Password field
                 OutlinedTextField(
                     value = uiState.password,
                     onValueChange = viewModel::onPasswordChanged,
@@ -291,6 +295,73 @@ fun DoctorLoginScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun DeviceMismatchScreen(
+    error: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(CreamBackground)
+            .statusBarsPadding()
+            .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(64.dp)
+                .background(Color(0xFFFEE2E2), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_lock),
+                contentDescription = null,
+                tint = Color(0xFFDC2626),
+                modifier = Modifier.size(32.dp),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Device Not Authorized",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = error,
+            fontSize = 14.sp,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = onBack,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+        ) {
+            Text(
+                text = "Go Back",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+            )
         }
     }
 }

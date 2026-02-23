@@ -1,0 +1,39 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Roof -->
+    <path
+        android:pathData="M12,3L2,9h20z"
+        android:fillColor="#9CA3AF"/>
+    <!-- Pillars -->
+    <path
+        android:pathData="M5,10v7"
+        android:fillColor="#00000000"
+        android:strokeColor="#9CA3AF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M9.5,10v7"
+        android:fillColor="#00000000"
+        android:strokeColor="#9CA3AF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M14.5,10v7"
+        android:fillColor="#00000000"
+        android:strokeColor="#9CA3AF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M19,10v7"
+        android:fillColor="#00000000"
+        android:strokeColor="#9CA3AF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"/>
+    <!-- Base -->
+    <path
+        android:pathData="M3,18h18v2H3z"
+        android:fillColor="#9CA3AF"/>
+</vector>

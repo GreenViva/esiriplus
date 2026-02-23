@@ -4,7 +4,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
+import com.esiri.esiriplus.feature.patient.screen.BookAppointmentScreen
 import com.esiri.esiriplus.feature.patient.screen.ConsultationHistoryScreen
+import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientConsultationScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientHomeScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientPaymentScreen
@@ -23,6 +26,17 @@ import kotlinx.serialization.Serializable
 @Serializable object PatientProfileRoute
 @Serializable object ServiceLocationRoute
 @Serializable object ServicesRoute
+@Serializable data class FindDoctorRoute(
+    val serviceCategory: String,
+    val servicePriceAmount: Int,
+    val serviceDurationMinutes: Int,
+)
+@Serializable data class BookAppointmentRoute(
+    val doctorId: String,
+    val serviceCategory: String,
+    val servicePriceAmount: Int,
+    val serviceDurationMinutes: Int,
+)
 @Serializable object ConsultationHistoryRoute
 @Serializable object ReportsRoute
 
@@ -51,8 +65,42 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
         composable<ServicesRoute> {
             ServicesScreen(
-                onServiceSelected = { serviceId ->
-                    navController.navigate(PatientConsultationRoute(serviceId))
+                onServiceSelected = { category, price, duration ->
+                    navController.navigate(
+                        FindDoctorRoute(
+                            serviceCategory = category,
+                            servicePriceAmount = price,
+                            serviceDurationMinutes = duration,
+                        ),
+                    )
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<FindDoctorRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<FindDoctorRoute>()
+            FindDoctorScreen(
+                servicePriceAmount = route.servicePriceAmount,
+                serviceDurationMinutes = route.serviceDurationMinutes,
+                onBookAppointment = { doctorId ->
+                    navController.navigate(
+                        BookAppointmentRoute(
+                            doctorId = doctorId,
+                            serviceCategory = route.serviceCategory,
+                            servicePriceAmount = route.servicePriceAmount,
+                            serviceDurationMinutes = route.serviceDurationMinutes,
+                        ),
+                    )
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<BookAppointmentRoute> {
+            BookAppointmentScreen(
+                onBookingSuccess = { consultationId ->
+                    navController.navigate(PatientConsultationRoute(consultationId)) {
+                        popUpTo<FindDoctorRoute> { inclusive = false }
+                    }
                 },
                 onBack = { navController.popBackStack() },
             )
