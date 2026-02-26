@@ -27,17 +27,14 @@ async function sendDoctorNotification(
   type: "doctor_approved" | "doctor_rejected",
 ) {
   try {
-    const serverClient = await createClient();
-    const { data: { session } } = await serverClient.auth.getSession();
-    if (!session) return;
-
     await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-push-notification`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          "X-Service-Key": process.env.SUPABASE_SERVICE_ROLE_KEY!,
         },
         body: JSON.stringify({ user_id: doctorId, title, body, type }),
       },

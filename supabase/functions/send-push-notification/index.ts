@@ -4,7 +4,7 @@
 // Rate limit: 20/min.
 
 import { handlePreflight } from "../_shared/cors.ts";
-import { validateAuth, requireRole } from "../_shared/auth.ts";
+import { validateAuth, requireRole, type AuthResult } from "../_shared/auth.ts";
 import { LIMITS } from "../_shared/rateLimit.ts";
 import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
 import { logEvent, getClientIp } from "../_shared/logger.ts";
@@ -168,13 +168,14 @@ Deno.serve(async (req: Request) => {
   if (preflight) return preflight;
 
   try {
-    const auth = await validateAuth(req);
-    // Doctors, admins, and internal function calls can send notifications
-    // Patients cannot directly call this endpoint
-    if (auth.role !== "doctor" && auth.role !== "admin" && auth.role !== "hr") {
-      // Allow if called with service role (internal invocation)
-      const serviceKey = req.headers.get("X-Service-Key");
-      if (serviceKey !== Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
+    let auth: AuthResult;
+    const internalKey = req.headers.get("X-Service-Key");
+    if (internalKey === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
+      // Internal call from admin panel — skip JWT auth
+      auth = { userId: "service-role", sessionToken: null, sessionId: null, role: "admin" as const, jwt: "" };
+    } else {
+      auth = await validateAuth(req);
+      if (auth.role !== "doctor" && auth.role !== "admin" && auth.role !== "hr") {
         requireRole(auth, "admin");
       }
     }
