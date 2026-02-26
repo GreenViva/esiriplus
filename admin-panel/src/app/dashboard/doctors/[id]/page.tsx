@@ -8,6 +8,7 @@ import { formatDate, specialtyLabel } from "@/lib/utils";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import DoctorActions from "./DoctorActions";
+import RealtimeRefresh from "@/components/RealtimeRefresh";
 import type { DoctorProfile, DoctorDeviceBinding } from "@/lib/types/database";
 
 interface Props {
@@ -30,6 +31,10 @@ export default async function DoctorDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-3xl">
+      <RealtimeRefresh
+        tables={["doctor_profiles", "admin_logs"]}
+        channelName={`admin-doctor-detail-${id}`}
+      />
       <Link
         href="/dashboard/doctors"
         className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-4"
