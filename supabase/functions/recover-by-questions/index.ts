@@ -1,15 +1,16 @@
 // functions/recover-by-questions/index.ts
 // Recovers a patient session by answering recovery questions.
-// Used when patient forgot their Patient ID.
+// Used when patient forgot their Patient ID — fully anonymous.
 //
 // Flow:
-//   1. Patient provides Patient ID + answers to 3 of 5 questions
-//   2. Function verifies answers using PBKDF2 comparison
-//   3. If 3+ correct → reveals Patient ID + issues new JWT
-//   4. All medical history restored
+//   1. Patient provides answers to all 5 security questions
+//   2. Answers are normalized, sorted by key, concatenated, and SHA-256 hashed
+//   3. Hash is used to look up patient_sessions.recovery_hash
+//   4. If found, individual answers are verified via PBKDF2 (need 3+ correct)
+//   5. On success → reveals Patient ID + issues new JWT
 //
 // Security:
-//   - Brute force protected (10 attempts per 30 min)
+//   - Brute force protected (10 attempts per 30 min, keyed on recovery_hash)
 //   - Answers normalized (lowercase, trimmed) before comparison
 //   - Timing-attack resistant PBKDF2 comparison
 //   - Failed attempts logged
@@ -18,12 +19,19 @@ import { handlePreflight } from "../_shared/cors.ts";
 import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
 import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
-import { sha256Hex } from "../_shared/bcrypt.ts";
 
 const JWT_SECRET    = Deno.env.get("JWT_SECRET") ?? Deno.env.get("SUPABASE_JWT_SECRET")!;
 const SESSION_TTL_H = 24;
 const REFRESH_TTL_D = 7;
 const MIN_CORRECT   = 3; // must answer 3 of 5 correctly
+
+const ALLOWED_QUESTIONS = [
+  "first_pet",
+  "favorite_city",
+  "birth_city",
+  "primary_school",
+  "favorite_teacher",
+];
 
 function generateSecureToken(): string {
   const uuidPart    = crypto.randomUUID().replace(/-/g, "");
@@ -52,6 +60,14 @@ async function hashToken(token: string): Promise<string> {
   const saltB64 = btoa(String.fromCharCode(...salt));
   const hashB64 = btoa(String.fromCharCode(...new Uint8Array(hashBits)));
   return `${saltB64}:${hashB64}`;
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const data = new TextEncoder().encode(input);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 async function signJWT(payload: Record<string, unknown>): Promise<string> {
@@ -84,10 +100,9 @@ async function compareAnswer(rawAnswer: string, storedHash: string, storedSaltB6
       { name: "PBKDF2", hash: "SHA-256", salt, iterations: 100_000 },
       keyMaterial, 256
     );
-    // Compare as base64 — storedHash is already base64, actualHash must match
     const actualHash = btoa(String.fromCharCode(...new Uint8Array(hashBits)));
 
-    // Constant-time comparison — both are base64 strings
+    // Constant-time comparison
     if (actualHash.length !== storedHash.length) return false;
     let diff = 0;
     for (let i = 0; i < actualHash.length; i++) {
@@ -97,6 +112,18 @@ async function compareAnswer(rawAnswer: string, storedHash: string, storedSaltB6
   } catch {
     return false;
   }
+}
+
+// Combined answers hash — must match the same logic in setup-recovery
+async function computeRecoveryHash(answers: Record<string, string>): Promise<string> {
+  const combined = ALLOWED_QUESTIONS
+    .map((key) => (answers[key] || "").toLowerCase().trim())
+    .join("|");
+  const data = new TextEncoder().encode(combined);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 Deno.serve(async (req: Request) => {
@@ -114,32 +141,25 @@ Deno.serve(async (req: Request) => {
     let body: Record<string, unknown> = {};
     try { body = await req.json(); } catch { /* required */ }
 
-    const patientId = body?.patient_id as string | undefined;
-    const answers   = body?.answers as Record<string, string> | undefined;
-
-    if (!patientId || typeof patientId !== "string") {
-      throw new ValidationError("patient_id is required");
-    }
+    const answers = body?.answers as Record<string, string> | undefined;
 
     if (!answers || typeof answers !== "object") {
       throw new ValidationError("answers object is required");
     }
 
-    if (Object.keys(answers).length < MIN_CORRECT) {
-      throw new ValidationError(`Must provide at least ${MIN_CORRECT} answers`);
+    // Must provide all 5 answers (they form the lookup key)
+    if (Object.keys(answers).length !== ALLOWED_QUESTIONS.length) {
+      throw new ValidationError("All 5 security question answers are required");
     }
 
-    if (!/^ESR-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(patientId.toUpperCase())) {
-      throw new ValidationError("Invalid Patient ID format");
-    }
+    // Compute the recovery hash from answers to find the session
+    const recoveryHash = await computeRecoveryHash(answers);
+    const supabase     = getServiceClient();
 
-    const patientIdHash = await sha256Hex(patientId.toUpperCase());
-    const supabase      = getServiceClient();
-
-    // Check brute force lockout
+    // Check brute force lockout (keyed on recovery_hash)
     const { data: locked } = await supabase
       .rpc("is_recovery_locked", {
-        p_patient_id_hash: patientIdHash,
+        p_patient_id_hash: recoveryHash,
         p_ip_address:      clientIp,
       });
 
@@ -147,27 +167,27 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("Too many failed attempts. Please try again in 30 minutes.");
     }
 
-    // Look up session
+    // Look up session by recovery_hash
     const { data: session } = await supabase
       .from("patient_sessions")
       .select("session_id, is_locked, recovery_setup, patient_id")
-      .eq("patient_id_hash", patientIdHash)
+      .eq("recovery_hash", recoveryHash)
       .single();
 
     if (!session || !session.recovery_setup) {
       await supabase.from("recovery_attempts").insert({
-        patient_id_hash: patientIdHash,
+        patient_id_hash: recoveryHash,
         ip_address:      clientIp,
         success:         false,
       });
-      throw new ValidationError("Invalid Patient ID or recovery not set up");
+      throw new ValidationError("No account found matching these answers, or recovery not set up");
     }
 
     if (session.is_locked) {
       throw new ValidationError("This account has been locked. Please contact support.");
     }
 
-    // Fetch stored recovery questions
+    // Fetch stored recovery questions for individual answer verification
     const { data: storedQuestions } = await supabase
       .from("recovery_questions")
       .select("question_key, answer_hash, answer_salt")
@@ -177,7 +197,7 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("Recovery questions not found for this account");
     }
 
-    // Compare answers — check all provided answers
+    // Compare answers — check all provided answers individually
     let correctCount = 0;
     for (const stored of storedQuestions) {
       const providedAnswer = answers[stored.question_key];
@@ -194,7 +214,7 @@ Deno.serve(async (req: Request) => {
     // Need at least 3 correct
     if (correctCount < MIN_CORRECT) {
       await supabase.from("recovery_attempts").insert({
-        patient_id_hash: patientIdHash,
+        patient_id_hash: recoveryHash,
         ip_address:      clientIp,
         success:         false,
       });
@@ -232,7 +252,7 @@ Deno.serve(async (req: Request) => {
 
     // Log success
     await supabase.from("recovery_attempts").insert({
-      patient_id_hash: patientIdHash,
+      patient_id_hash: recoveryHash,
       ip_address:      clientIp,
       success:         true,
     });
@@ -257,7 +277,7 @@ Deno.serve(async (req: Request) => {
 
     return successResponse({
       message:            "Account recovered successfully. Welcome back!",
-      patient_id:         session.patient_id, // remind them of their ID
+      patient_id:         session.patient_id,
       session_id:         session.session_id,
       access_token:       jwt,
       refresh_token:      newRefreshToken,

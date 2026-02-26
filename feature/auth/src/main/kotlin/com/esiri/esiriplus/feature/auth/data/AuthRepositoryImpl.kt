@@ -27,6 +27,7 @@ import com.esiri.esiriplus.core.network.dto.DoctorRegistrationRequest
 import com.esiri.esiriplus.core.network.dto.LookupPatientRequest
 import com.esiri.esiriplus.core.network.dto.PatientSessionResponse
 import com.esiri.esiriplus.core.network.dto.RecoverByIdResponse
+import com.esiri.esiriplus.core.network.dto.RecoverByQuestionsResponse
 import com.esiri.esiriplus.core.network.dto.RecoverPatientSessionRequest
 import com.esiri.esiriplus.core.network.dto.RefreshTokenRequest
 import com.esiri.esiriplus.core.network.dto.SessionResponse
@@ -391,12 +392,40 @@ class AuthRepositoryImpl @Inject constructor(
         )
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
-        return handleSessionResponse(
-            edgeFunctionClient.invokeAndDecode<SessionResponse>(
-                functionName = "recover-by-questions",
-                body = body,
-            ),
+        val apiResult = edgeFunctionClient.invokeAndDecode<RecoverByQuestionsResponse>(
+            functionName = "recover-by-questions",
+            body = body,
         )
+
+        return when (apiResult) {
+            is ApiResult.Success -> {
+                val response = apiResult.data
+                val session = Session(
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
+                    expiresAt = Instant.parse(response.expiresAt),
+                    user = User(
+                        id = response.patientId,
+                        fullName = "",
+                        phone = "",
+                        role = UserRole.PATIENT,
+                        isVerified = false,
+                    ),
+                )
+                tokenManager.saveTokens(
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
+                    expiresAtMillis = response.expiresIn * SECONDS_TO_MILLIS +
+                        System.currentTimeMillis(),
+                )
+                withContext(ioDispatcher) {
+                    userDao.insertUser(session.user.toEntity())
+                    sessionDao.insertSession(session.toEntity())
+                }
+                Result.Success(session)
+            }
+            else -> apiResult.map { error("unreachable") }.toDomainResult()
+        }
     }
 
     override suspend fun setupSecurityQuestions(answers: Map<String, String>): Result<Unit> {

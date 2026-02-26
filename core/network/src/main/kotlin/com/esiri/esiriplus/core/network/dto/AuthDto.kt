@@ -50,6 +50,20 @@ data class SetupSecurityQuestionsRequest(
 )
 
 @Serializable
+data class RecoverByQuestionsResponse(
+    @SerialName("patient_id") val patientId: String,
+    @SerialName("session_id") val sessionId: String,
+    @SerialName("access_token") val accessToken: String,
+    @SerialName("refresh_token") val refreshToken: String,
+    @SerialName("token_type") val tokenType: String = "Bearer",
+    @SerialName("expires_in") val expiresIn: Long,
+    @SerialName("expires_at") val expiresAt: String,
+    @SerialName("refresh_expires_at") val refreshExpiresAt: String? = null,
+    val message: String? = null,
+    val reminder: String? = null,
+)
+
+@Serializable
 data class SetupRecoveryResponse(
     @SerialName("patient_id") val patientId: String,
     val warning: String? = null,

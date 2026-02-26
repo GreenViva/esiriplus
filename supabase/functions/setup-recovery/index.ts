@@ -49,6 +49,20 @@ async function hashAnswer(answer: string, salt: Uint8Array): Promise<string> {
   return btoa(String.fromCharCode(...new Uint8Array(hashBits)));
 }
 
+// ── Combined answers hash for recovery lookup ────────────────────────────────
+// Sort answers by question key, normalize, concatenate, then SHA-256.
+// This creates a deterministic lookup key from the answers themselves.
+async function computeRecoveryHash(answers: Record<string, string>): Promise<string> {
+  const combined = ALLOWED_QUESTIONS
+    .map((key) => answers[key].toLowerCase().trim())
+    .join("|");
+  const data = new TextEncoder().encode(combined);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 // ── Validate request body ─────────────────────────────────────────────────────
 interface SetupRequest {
   answers: Record<string, string>; // { first_pet: "Fluffy", favorite_city: "Dar" ... }
@@ -140,7 +154,10 @@ Deno.serve(async (req: Request) => {
     const rawBody = await req.json();
     const body    = validate(rawBody);
 
-    // 5. Hash all 5 answers with individual salts
+    // 5. Compute recovery lookup hash from all 5 answers combined
+    const recoveryHash = await computeRecoveryHash(body.answers);
+
+    // 6. Hash all 5 answers with individual salts
     const questionRecords = [];
 
     for (const questionKey of ALLOWED_QUESTIONS) {
@@ -167,12 +184,13 @@ Deno.serve(async (req: Request) => {
 
     if (questionsErr) throw questionsErr;
 
-    // Mark recovery as set up (patient_id already assigned at session creation)
+    // Mark recovery as set up + store recovery hash for answer-based lookup
     const { error: updateErr } = await supabase
       .from("patient_sessions")
       .update({
         recovery_setup:    true,
         recovery_setup_at: new Date().toISOString(),
+        recovery_hash:     recoveryHash,
       })
       .eq("session_id", auth.sessionId);
 

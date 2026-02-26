@@ -57,6 +57,10 @@ class PatientRecoveryViewModel @Inject constructor(
         }
     }
 
+    fun onContinueToDashboard() {
+        _uiState.update { it.copy(continueClicked = true) }
+    }
+
     private fun submitRecovery(answers: Map<String, String>) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -97,4 +101,5 @@ data class PatientRecoveryUiState(
     val remainingAttempts: Int = 5,
     val isRateLimited: Boolean = false,
     val recoveredPatientId: String? = null,
+    val continueClicked: Boolean = false,
 )

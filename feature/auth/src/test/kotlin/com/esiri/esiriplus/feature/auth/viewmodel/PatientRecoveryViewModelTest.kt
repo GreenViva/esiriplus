@@ -120,6 +120,28 @@ class PatientRecoveryViewModelTest {
     }
 
     @Test
+    fun `does not auto-navigate on success until continue clicked`() = runTest {
+        coEvery { recoverPatientSession(any()) } returns Result.Success(testSession)
+
+        val viewModel = createViewModel()
+
+        repeat(4) {
+            viewModel.onAnswerChanged("answer-$it")
+            viewModel.onNext()
+        }
+        viewModel.onAnswerChanged("last-answer")
+        viewModel.onNext()
+
+        advanceUntilIdle()
+
+        assertNotNull(viewModel.uiState.value.recoveredPatientId)
+        assertFalse(viewModel.uiState.value.continueClicked)
+
+        viewModel.onContinueToDashboard()
+        assertTrue(viewModel.uiState.value.continueClicked)
+    }
+
+    @Test
     fun `shows error on recovery failure`() = runTest {
         coEvery { recoverPatientSession(any()) } returns Result.Error(
             RuntimeException("Invalid answers"),
