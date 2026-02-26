@@ -10,7 +10,7 @@ export default async function HRDoctorManagementPage() {
   const { data: doctors, error: fetchError } = await supabase
     .from("doctor_profiles")
     .select(
-      "doctor_id, full_name, email, phone, specialty, license_number, is_verified, is_available, average_rating, total_ratings, rejection_reason, created_at"
+      "doctor_id, full_name, email, phone, specialty, license_number, is_verified, is_available, average_rating, total_ratings, rejection_reason, created_at, profile_photo_url, license_document_url, certificates_url, bio, years_experience, country"
     )
     .order("created_at", { ascending: false });
 

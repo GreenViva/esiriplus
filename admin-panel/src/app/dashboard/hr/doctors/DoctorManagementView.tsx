@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { specialtyLabel } from "@/lib/utils";
 import {
@@ -27,6 +28,12 @@ interface Doctor {
   rejection_reason: string | null;
   created_at: string;
   is_banned: boolean;
+  profile_photo_url: string | null;
+  license_document_url: string | null;
+  certificates_url: string | null;
+  bio: string | null;
+  years_experience: number | null;
+  country: string | null;
 }
 
 type SortKey = "status" | "rating";
@@ -49,6 +56,7 @@ export default function DoctorManagementView({ doctors }: Props) {
   const [rejectReason, setRejectReason] = useState("");
   const [warnModal, setWarnModal] = useState<string | null>(null);
   const [warnMessage, setWarnMessage] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function getStatus(d: Doctor): string {
     if (d.is_banned) return "banned";
@@ -276,15 +284,27 @@ export default function DoctorManagementView({ doctors }: Props) {
                 const isLoading = loading === d.doctor_id;
 
                 return (
-                  <tr key={d.doctor_id} className="hover:bg-gray-50/50 transition-colors">
+                  <Fragment key={d.doctor_id}>
+                  <tr className="hover:bg-gray-50/50 transition-colors">
                     {/* Doctor */}
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-brand-teal/10 flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-bold text-brand-teal">
-                            {d.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
-                          </span>
-                        </div>
+                        {d.profile_photo_url ? (
+                          <Image
+                            src={d.profile_photo_url}
+                            alt=""
+                            width={36}
+                            height={36}
+                            className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-brand-teal/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-brand-teal">
+                              {d.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
                         <div>
                           <p className="font-medium text-gray-900">{d.full_name}</p>
                           <p className="text-xs text-gray-400">{d.email}</p>
@@ -327,6 +347,20 @@ export default function DoctorManagementView({ doctors }: Props) {
                     {/* Actions */}
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setExpandedId(expandedId === d.doctor_id ? null : d.doctor_id)}
+                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                            expandedId === d.doctor_id
+                              ? "bg-brand-teal text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                        >
+                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Credentials
+                        </button>
                         {isLoading ? (
                           <span className="text-xs text-gray-400">Processing...</span>
                         ) : (status === "pending" || status === "rejected") ? (
@@ -392,6 +426,58 @@ export default function DoctorManagementView({ doctors }: Props) {
                       </div>
                     </td>
                   </tr>
+                  {expandedId === d.doctor_id && (
+                    <tr>
+                      <td colSpan={7} className="px-5 py-4 bg-gray-50/80">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Doctor details */}
+                          <div className="space-y-2 text-sm">
+                            {d.phone && (
+                              <div><span className="text-gray-400">Phone:</span> <span className="font-medium text-gray-900">{d.phone}</span></div>
+                            )}
+                            {d.country && (
+                              <div><span className="text-gray-400">Country:</span> <span className="font-medium text-gray-900">{d.country}</span></div>
+                            )}
+                            {d.years_experience != null && (
+                              <div><span className="text-gray-400">Experience:</span> <span className="font-medium text-gray-900">{d.years_experience} years</span></div>
+                            )}
+                            {d.bio && (
+                              <div><span className="text-gray-400">Bio:</span> <span className="text-gray-700">{d.bio}</span></div>
+                            )}
+                            {d.rejection_reason && (
+                              <div className="p-2 rounded-lg bg-red-50 border border-red-100">
+                                <span className="text-xs font-medium text-red-700">Rejection Reason:</span>
+                                <p className="text-sm text-red-600">{d.rejection_reason}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Credentials */}
+                          <div className="space-y-3">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Uploaded Credentials</p>
+                            {(d.profile_photo_url || d.license_document_url || d.certificates_url) ? (
+                              <div className="space-y-2">
+                                {d.profile_photo_url && (
+                                  <CredentialPreview url={d.profile_photo_url} label="Profile Photo" />
+                                )}
+                                {d.license_document_url && (
+                                  <CredentialPreview url={d.license_document_url} label="Medical License" />
+                                )}
+                                {d.certificates_url && (
+                                  <CredentialPreview url={d.certificates_url} label="Certificates" />
+                                )}
+                              </div>
+                            ) : (
+                              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                                <p className="text-sm text-amber-700 font-medium">No credentials uploaded</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 );
               })}
               {filtered.length === 0 && (
@@ -467,6 +553,61 @@ export default function DoctorManagementView({ doctors }: Props) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CredentialPreview({ url, label }: { url: string; label: string }) {
+  const lower = url.toLowerCase();
+  const isPdf = lower.endsWith(".pdf") || lower.includes("pdf");
+  const isImage =
+    lower.endsWith(".jpg") ||
+    lower.endsWith(".jpeg") ||
+    lower.endsWith(".png") ||
+    lower.endsWith(".webp") ||
+    lower.includes("profile-photo") ||
+    lower.includes("image");
+
+  return (
+    <div className="rounded-lg border border-gray-200 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-gray-200">
+        <p className="text-xs font-medium text-gray-700">{label}</p>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-brand-teal hover:underline"
+        >
+          Open full
+        </a>
+      </div>
+      {isPdf ? (
+        <iframe
+          src={url}
+          className="w-full h-40 bg-white"
+          title={label}
+        />
+      ) : isImage ? (
+        <Image
+          src={url}
+          alt={label}
+          width={400}
+          height={160}
+          className="w-full h-40 object-contain bg-white"
+          unoptimized
+        />
+      ) : (
+        <div className="px-3 py-2">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-brand-teal hover:underline"
+          >
+            Download {label}
+          </a>
         </div>
       )}
     </div>
