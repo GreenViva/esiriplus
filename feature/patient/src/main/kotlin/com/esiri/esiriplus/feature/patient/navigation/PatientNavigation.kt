@@ -92,6 +92,11 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                         ),
                     )
                 },
+                onNavigateToConsultation = { consultationId ->
+                    navController.navigate(PatientConsultationRoute(consultationId)) {
+                        popUpTo<FindDoctorRoute> { inclusive = false }
+                    }
+                },
                 onBack = { navController.popBackStack() },
             )
         }

@@ -31,6 +31,7 @@ android {
 dependencies {
     api(project(":core:common"))
     implementation(project(":core:domain"))
+    implementation(project(":core:database"))
 
     // Supabase
     implementation(platform(libs.supabase.bom))
@@ -56,6 +57,10 @@ dependencies {
     // Moshi
     implementation(libs.moshi)
     ksp(libs.moshi.kotlin.codegen)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     // Security
     implementation(libs.security.crypto)

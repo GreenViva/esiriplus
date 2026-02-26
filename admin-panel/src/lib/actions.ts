@@ -20,6 +20,33 @@ function revalidateDoctorPaths() {
   revalidatePath("/dashboard");
 }
 
+async function sendDoctorNotification(
+  doctorId: string,
+  title: string,
+  body: string,
+  type: "doctor_approved" | "doctor_rejected",
+) {
+  try {
+    const serverClient = await createClient();
+    const { data: { session } } = await serverClient.auth.getSession();
+    if (!session) return;
+
+    await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-push-notification`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ user_id: doctorId, title, body, type }),
+      },
+    );
+  } catch (e) {
+    console.error("Failed to send push notification:", e);
+  }
+}
+
 export async function approveDoctor(doctorId: string) {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
@@ -28,7 +55,7 @@ export async function approveDoctor(doctorId: string) {
 
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_verified: true, is_available: true, rejection_reason: null, updated_at: new Date().toISOString() })
+    .update({ is_verified: true, is_available: false, rejection_reason: null, updated_at: new Date().toISOString() })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
@@ -39,6 +66,13 @@ export async function approveDoctor(doctorId: string) {
     target_type: "doctor_profile",
     target_id: doctorId,
   });
+
+  await sendDoctorNotification(
+    doctorId,
+    "Application Approved!",
+    "Congratulations! Your application has been approved. You can now go online and start accepting patient consultations.",
+    "doctor_approved",
+  );
 
   revalidateDoctorPaths();
   return { success: true };
@@ -64,6 +98,13 @@ export async function rejectDoctor(doctorId: string, reason: string) {
     target_id: doctorId,
     details: { reason },
   });
+
+  await sendDoctorNotification(
+    doctorId,
+    "Application Update",
+    `Your application was not approved. Reason: ${reason}. Please review and resubmit your credentials.`,
+    "doctor_rejected",
+  );
 
   revalidateDoctorPaths();
   return { success: true };

@@ -35,6 +35,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.AlertDialog
@@ -51,6 +52,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -75,6 +77,7 @@ import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardUiState
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardViewModel
 import com.esiri.esiriplus.feature.doctor.viewmodel.EarningsTransaction
+import com.esiri.esiriplus.feature.doctor.viewmodel.IncomingRequestViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val DarkText = Color.Black
@@ -101,11 +104,30 @@ private val TabLabels = listOf("All Consultations", "Availability", "Earnings", 
 @Composable
 fun DoctorDashboardScreen(
     onNavigateToConsultations: () -> Unit,
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToConsultation: (consultationId: String) -> Unit = {},
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoctorDashboardViewModel = hiltViewModel(),
+    incomingRequestViewModel: IncomingRequestViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val incomingRequestState by incomingRequestViewModel.uiState.collectAsState()
+
+    // Navigate when doctor accepts a request and consultation is created
+    LaunchedEffect(Unit) {
+        incomingRequestViewModel.consultationStarted.collect { event ->
+            onNavigateToConsultation(event.consultationId)
+        }
+    }
+
+    // Incoming consultation request dialog (shown on top of everything)
+    IncomingRequestDialog(
+        state = incomingRequestState,
+        onAccept = incomingRequestViewModel::acceptRequest,
+        onReject = incomingRequestViewModel::rejectRequest,
+        onDismiss = incomingRequestViewModel::dismissRequest,
+    )
 
     if (uiState.isLoading) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -159,6 +181,7 @@ fun DoctorDashboardScreen(
                     onViewAllRequests = onNavigateToConsultations,
                     onOpenSidebar = { isSidebarOpen = true },
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
+                    onNotificationsClick = onNavigateToNotifications,
                 )
                 DoctorNavItem.CONSULTATIONS -> ConsultationsContent(
                     uiState = uiState,
@@ -438,6 +461,7 @@ private fun DashboardContent(
     onViewAllRequests: () -> Unit,
     onOpenSidebar: () -> Unit,
     onSetAvailability: () -> Unit,
+    onNotificationsClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -448,14 +472,21 @@ private fun DashboardContent(
         TopBar(
             doctorName = uiState.doctorName,
             isOnline = uiState.isOnline,
+            isVerified = uiState.isVerified,
             onToggleOnline = onToggleOnline,
             onOpenSidebar = onOpenSidebar,
+            onNotificationsClick = onNotificationsClick,
         )
 
-        // Verified banner
-        if (uiState.isVerified) {
-            Spacer(modifier = Modifier.height(12.dp))
-            VerifiedBanner(modifier = Modifier.padding(horizontal = 12.dp))
+        // Status banners
+        Spacer(modifier = Modifier.height(12.dp))
+        when {
+            uiState.isVerified -> VerifiedBanner(modifier = Modifier.padding(horizontal = 12.dp))
+            uiState.rejectionReason != null -> RejectedBanner(
+                reason = uiState.rejectionReason,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+            else -> PendingReviewBanner(modifier = Modifier.padding(horizontal = 12.dp))
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -489,15 +520,17 @@ private fun DashboardContent(
 private fun TopBar(
     doctorName: String,
     isOnline: Boolean,
+    isVerified: Boolean,
     onToggleOnline: () -> Unit,
     onOpenSidebar: () -> Unit = {},
+    onNotificationsClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
-        // Row 1: Menu + Welcome + Online toggle
+        // Row 1: Menu + Welcome + Notifications + Online toggle (or Under Review chip)
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -521,33 +554,65 @@ private fun TopBar(
                 modifier = Modifier.weight(1f),
             )
 
-            // Online toggle
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (isOnline) {
-                    Box(
-                        modifier = Modifier
-                            .size(7.dp)
-                            .background(Color(0xFF22C55E), CircleShape),
+            // Notification bell
+            IconButton(
+                onClick = onNotificationsClick,
+                modifier = Modifier.size(32.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = DarkText,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+
+            if (isVerified) {
+                // Online toggle
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isOnline) {
+                        Box(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .background(Color(0xFF22C55E), CircleShape),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    Text(
+                        text = "Online",
+                        fontSize = 12.sp,
+                        color = DarkText,
+                        fontWeight = FontWeight.Medium,
                     )
                     Spacer(modifier = Modifier.width(4.dp))
+                    Switch(
+                        checked = isOnline,
+                        onCheckedChange = { onToggleOnline() },
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = BrandTeal,
+                            checkedThumbColor = Color.White,
+                            uncheckedTrackColor = CardBorder,
+                            uncheckedThumbColor = Color.White,
+                        ),
+                    )
                 }
-                Text(
-                    text = "Online",
-                    fontSize = 12.sp,
-                    color = DarkText,
-                    fontWeight = FontWeight.Medium,
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Switch(
-                    checked = isOnline,
-                    onCheckedChange = { onToggleOnline() },
-                    colors = SwitchDefaults.colors(
-                        checkedTrackColor = BrandTeal,
-                        checkedThumbColor = Color.White,
-                        uncheckedTrackColor = CardBorder,
-                        uncheckedThumbColor = Color.White,
-                    ),
-                )
+            } else {
+                // Under Review chip
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFFFF7ED))
+                        .border(1.dp, Color(0xFFFDBA74), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        text = "Under Review",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFEA580C),
+                    )
+                }
             }
         }
 
@@ -600,6 +665,97 @@ private fun VerifiedBanner(modifier: Modifier = Modifier) {
                 fontSize = 12.sp,
                 color = DarkText,
                 lineHeight = 16.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PendingReviewBanner(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, Color(0xFFFDBA74), RoundedCornerShape(10.dp))
+            .background(Color(0xFFFFF7ED))
+            .padding(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(Color(0xFFF97316), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = Color.White,
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(
+                text = "Application Under Review",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = DarkText,
+            )
+            Text(
+                text = "Your application is under review. This typically takes 1\u20135 business days. You\u2019ll be notified once approved.",
+                fontSize = 12.sp,
+                color = DarkText,
+                lineHeight = 16.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RejectedBanner(reason: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(10.dp))
+            .background(Color(0xFFFEF2F2))
+            .padding(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(Color(0xFFDC2626), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "!",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(
+                text = "Application Not Approved",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = DarkText,
+            )
+            Text(
+                text = reason,
+                fontSize = 12.sp,
+                color = DarkText,
+                lineHeight = 16.sp,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Please review the reason and resubmit your credentials.",
+                fontSize = 11.sp,
+                color = Color(0xFF991B1B),
+                lineHeight = 14.sp,
             )
         }
     }

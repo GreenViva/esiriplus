@@ -329,7 +329,7 @@ export default function DoctorManagementView({ doctors }: Props) {
                       <div className="flex items-center justify-end gap-2">
                         {isLoading ? (
                           <span className="text-xs text-gray-400">Processing...</span>
-                        ) : status === "pending" ? (
+                        ) : (status === "pending" || status === "rejected") ? (
                           <>
                             <button
                               onClick={() => handleApprove(d.doctor_id)}
@@ -347,7 +347,7 @@ export default function DoctorManagementView({ doctors }: Props) {
                               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                               </svg>
-                              Reject
+                              {status === "rejected" ? "Reject Again" : "Reject"}
                             </button>
                           </>
                         ) : status === "active" ? (
@@ -388,8 +388,6 @@ export default function DoctorManagementView({ doctors }: Props) {
                           >
                             Unban
                           </button>
-                        ) : status === "rejected" ? (
-                          <span className="text-xs text-gray-400 italic">Rejected</span>
                         ) : null}
                       </div>
                     </td>

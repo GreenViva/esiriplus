@@ -26,6 +26,9 @@ fun NavGraphBuilder.doctorGraph(
         composable<DoctorDashboardRoute> {
             DoctorDashboardScreen(
                 onNavigateToConsultations = { navController.navigate(DoctorConsultationListRoute) },
+                onNavigateToConsultation = { consultationId ->
+                    navController.navigate(DoctorConsultationDetailRoute(consultationId))
+                },
                 onSignOut = onSignOut,
             )
         }

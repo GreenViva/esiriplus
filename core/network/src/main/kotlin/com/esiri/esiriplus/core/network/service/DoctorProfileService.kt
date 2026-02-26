@@ -32,6 +32,7 @@ data class DoctorProfileRow(
     val country: String = "",
     @SerialName("license_document_url") val licenseDocumentUrl: String? = null,
     @SerialName("certificates_url") val certificatesUrl: String? = null,
+    @SerialName("rejection_reason") val rejectionReason: String? = null,
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String,
 )

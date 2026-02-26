@@ -44,7 +44,7 @@ export default function DoctorCardActions({ doctorId }: Props) {
   }
 
   return (
-    <>
+    <div className="flex items-center gap-2">
       <button
         onClick={() => setApproveModalOpen(true)}
         disabled={loading === "approve"}
@@ -104,9 +104,9 @@ export default function DoctorCardActions({ doctorId }: Props) {
           onChange={(e) => setRejectReason(e.target.value)}
           placeholder="Reason for rejection..."
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none mb-4"
         />
-        <div className="flex justify-end gap-3 mt-4">
+        <div className="flex justify-end gap-3">
           <button
             onClick={() => setRejectModalOpen(false)}
             className="px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -122,6 +122,6 @@ export default function DoctorCardActions({ doctorId }: Props) {
           </button>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }

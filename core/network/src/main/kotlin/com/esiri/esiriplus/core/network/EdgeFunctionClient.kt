@@ -52,9 +52,8 @@ class EdgeFunctionClient @Inject constructor(
                 .header("Content-Type", "application/json")
                 .header("apikey", BuildConfig.SUPABASE_ANON_KEY)
 
-            tokenManager.getAccessTokenSync()?.let { token ->
-                requestBuilder.header("Authorization", "Bearer $token")
-            }
+            val token = tokenManager.getAccessTokenSync() ?: BuildConfig.SUPABASE_ANON_KEY
+            requestBuilder.header("Authorization", "Bearer $token")
 
             val response = okHttpClient.newCall(requestBuilder.build()).execute()
             val responseBody = response.body?.string() ?: ""

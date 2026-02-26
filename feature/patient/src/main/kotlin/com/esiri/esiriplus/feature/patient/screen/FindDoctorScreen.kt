@@ -28,14 +28,18 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,8 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
+import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.AvailabilityFilter
+import com.esiri.esiriplus.feature.patient.viewmodel.ConsultationRequestViewModel
 import com.esiri.esiriplus.feature.patient.viewmodel.FindDoctorViewModel
 import java.text.NumberFormat
 import java.util.Locale
@@ -89,12 +95,22 @@ fun FindDoctorScreen(
     servicePriceAmount: Int,
     serviceDurationMinutes: Int,
     onBookAppointment: (doctorId: String) -> Unit,
+    onNavigateToConsultation: (consultationId: String) -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FindDoctorViewModel = hiltViewModel(),
+    requestViewModel: ConsultationRequestViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val requestState by requestViewModel.uiState.collectAsState()
     val categoryName = categoryDisplayNames[uiState.serviceCategory] ?: uiState.serviceCategory
+
+    // Navigate on accepted consultation
+    LaunchedEffect(Unit) {
+        requestViewModel.acceptedEvent.collect { event ->
+            onNavigateToConsultation(event.consultationId)
+        }
+    }
 
     Box(
         modifier = modifier
@@ -314,15 +330,39 @@ fun FindDoctorScreen(
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
+                    // Countdown overlay (shown when request is active)
+                    if (requestState.activeRequestId != null) {
+                        item {
+                            RequestStatusBanner(
+                                status = requestState.status,
+                                secondsRemaining = requestState.secondsRemaining,
+                                statusMessage = requestState.statusMessage,
+                                onDismiss = requestViewModel::dismissStatus,
+                            )
+                        }
+                    }
+
                     items(uiState.filteredDoctors, key = { it.doctorId }) { doctor ->
                         val usedSlots = uiState.slotCounts[doctor.doctorId] ?: 0
                         val availableSlots = 10 - usedSlots
+                        val isThisDoctorRequested = requestState.activeRequestDoctorId == doctor.doctorId
+                        val hasActiveRequest = requestState.activeRequestId != null
                         DoctorCard(
                             doctor = doctor,
                             priceAmount = servicePriceAmount,
                             durationMinutes = serviceDurationMinutes,
                             availableSlots = availableSlots,
+                            isRequestActive = hasActiveRequest,
+                            isThisDoctorRequested = isThisDoctorRequested,
+                            isSending = requestState.isSending && isThisDoctorRequested,
+                            secondsRemaining = if (isThisDoctorRequested) requestState.secondsRemaining else 0,
                             onBookAppointment = { onBookAppointment(doctor.doctorId) },
+                            onRequestConsultation = {
+                                requestViewModel.sendRequest(
+                                    doctorId = doctor.doctorId,
+                                    serviceType = uiState.serviceCategory.lowercase(),
+                                )
+                            },
                         )
                     }
                     item { Spacer(Modifier.height(8.dp)) }
@@ -339,7 +379,12 @@ private fun DoctorCard(
     priceAmount: Int,
     durationMinutes: Int,
     availableSlots: Int,
+    isRequestActive: Boolean = false,
+    isThisDoctorRequested: Boolean = false,
+    isSending: Boolean = false,
+    secondsRemaining: Int = 0,
     onBookAppointment: () -> Unit,
+    onRequestConsultation: () -> Unit = {},
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -566,7 +611,7 @@ private fun DoctorCard(
             HorizontalDivider(color = CardBorder, thickness = 1.dp)
             Spacer(Modifier.height(12.dp))
 
-            // Bottom row: price + Book Appointment
+            // Bottom row: price + actions
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
@@ -604,20 +649,56 @@ private fun DoctorCard(
                         color = slotColor,
                     )
                     Spacer(Modifier.height(4.dp))
-                    Button(
+
+                    // Request Consultation button (primary action for online doctors)
+                    if (doctor.isAvailable && availableSlots > 0) {
+                        val buttonEnabled = !isRequestActive && !isSending
+                        Button(
+                            onClick = onRequestConsultation,
+                            enabled = buttonEnabled,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = BrandTeal,
+                                disabledContainerColor = BrandTeal.copy(alpha = 0.4f),
+                            ),
+                        ) {
+                            if (isSending) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(14.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp,
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text("Sending...", fontSize = 13.sp, color = Color.White)
+                            } else if (isThisDoctorRequested) {
+                                Text(
+                                    text = "Waiting... ${secondsRemaining}s",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White,
+                                )
+                            } else {
+                                Text(
+                                    text = if (isRequestActive) "Request Active" else "Request Consultation",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White,
+                                )
+                            }
+                        }
+                    }
+
+                    // Book Appointment button (schedule for later)
+                    OutlinedButton(
                         onClick = onBookAppointment,
-                        enabled = availableSlots > 0,
+                        enabled = availableSlots > 0 && !isRequestActive,
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            disabledContainerColor = Color.White.copy(alpha = 0.6f),
-                        ),
                         border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_calendar),
                             contentDescription = null,
-                            tint = if (availableSlots > 0) Color.Black else SubtitleGrey,
+                            tint = if (availableSlots > 0 && !isRequestActive) Color.Black else SubtitleGrey,
                             modifier = Modifier.size(14.dp),
                         )
                         Spacer(Modifier.width(6.dp))
@@ -625,7 +706,92 @@ private fun DoctorCard(
                             text = if (availableSlots > 0) "Book Appointment" else "No Slots",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = if (availableSlots > 0) Color.Black else SubtitleGrey,
+                            color = if (availableSlots > 0 && !isRequestActive) Color.Black else SubtitleGrey,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RequestStatusBanner(
+    status: ConsultationRequestStatus?,
+    secondsRemaining: Int,
+    statusMessage: String?,
+    onDismiss: () -> Unit,
+) {
+    val (bgColor, borderColor) = when (status) {
+        ConsultationRequestStatus.ACCEPTED -> Color(0xFFECFDF5) to SuccessGreen
+        ConsultationRequestStatus.REJECTED -> Color(0xFFFEF2F2) to Color(0xFFDC2626)
+        ConsultationRequestStatus.EXPIRED -> Color(0xFFFFF7ED) to WarningOrange
+        else -> Color(0xFFF0FDFA) to BrandTeal
+    }
+
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = bgColor,
+        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (status == ConsultationRequestStatus.PENDING && secondsRemaining > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "Waiting for doctor response...",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = BrandTeal,
+                    ) {
+                        Text(
+                            text = "${secondsRemaining}s",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    progress = { secondsRemaining / 60f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                    color = BrandTeal,
+                    trackColor = BrandTeal.copy(alpha = 0.15f),
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = statusMessage ?: "",
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (status != ConsultationRequestStatus.ACCEPTED) {
+                        Text(
+                            text = "Dismiss",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = BrandTeal,
+                            modifier = Modifier
+                                .clickable(onClick = onDismiss)
+                                .padding(start = 8.dp),
                         )
                     }
                 }

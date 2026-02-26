@@ -17,6 +17,7 @@ import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.database.entity.PatientSessionEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorProfileRepository
+import com.esiri.esiriplus.core.domain.repository.FcmTokenRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.model.ApiResult
@@ -141,6 +142,7 @@ data class DoctorDashboardUiState(
     val lastMonthEarnings: String = "TSh 0",
     val pendingPayout: String = "TSh 0",
     val recentTransactions: List<EarningsTransaction> = emptyList(),
+    val rejectionReason: String? = null,
 )
 
 // ─── ViewModel ──────────────────────────────────────────────────────────────────
@@ -162,6 +164,7 @@ class DoctorDashboardViewModel @Inject constructor(
     private val realtimeService: DoctorRealtimeService,
     private val fileUploadService: FileUploadService,
     private val supabaseClientProvider: SupabaseClientProvider,
+    private val fcmTokenRepository: FcmTokenRepository,
     private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
@@ -214,6 +217,7 @@ class DoctorDashboardViewModel @Inject constructor(
                         profilePhotoUrl = profile.profilePhotoUrl,
                         registeredYearsExperience = storedYears,
                         registrationTimestamp = createdAt,
+                        rejectionReason = dbProfile?.rejectionReason,
                     )
                 }
             } else {
@@ -260,6 +264,7 @@ class DoctorDashboardViewModel @Inject constructor(
             launch { fetchConsultationsFromSupabase(doctorId) }
             launch { fetchEarningsFromSupabase(doctorId) }
             launch { subscribeToRealtime(doctorId) }
+            launch { pushFcmTokenIfNeeded(doctorId) }
         }
     }
 
@@ -310,11 +315,22 @@ class DoctorDashboardViewModel @Inject constructor(
                     country = row.country,
                     licenseDocumentUrl = row.licenseDocumentUrl,
                     certificatesUrl = row.certificatesUrl,
+                    rejectionReason = row.rejectionReason,
                     createdAt = createdAtMillis,
                     updatedAt = remoteUpdatedAt,
                 )
                 doctorProfileDao.insert(entity)
                 Log.d(TAG, "Cached profile from Supabase for $doctorId")
+
+                // Update UI state with latest verification info from remote
+                _uiState.update {
+                    it.copy(
+                        isVerified = row.isVerified,
+                        isOnline = row.isAvailable,
+                        isAvailable = row.isAvailable,
+                        rejectionReason = row.rejectionReason,
+                    )
+                }
             }
             else -> Log.e(TAG, "Failed to fetch profile from Supabase: $result")
         }
@@ -496,10 +512,16 @@ class DoctorDashboardViewModel @Inject constructor(
     private fun subscribeToRealtime(doctorId: String) {
         viewModelScope.launch {
             realtimeService.subscribeToConsultations(doctorId, viewModelScope)
-
             realtimeService.consultationEvents.collect {
                 Log.d(TAG, "Realtime event received, re-fetching consultations")
                 fetchConsultationsFromSupabase(doctorId)
+            }
+        }
+        viewModelScope.launch {
+            realtimeService.subscribeToProfileChanges(doctorId, viewModelScope)
+            realtimeService.profileEvents.collect {
+                Log.d(TAG, "Profile realtime event received, re-fetching profile")
+                fetchProfileFromSupabase(doctorId)
             }
         }
     }
@@ -507,7 +529,7 @@ class DoctorDashboardViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         viewModelScope.launch {
-            realtimeService.unsubscribe()
+            realtimeService.unsubscribeAll()
         }
     }
 
@@ -759,6 +781,7 @@ class DoctorDashboardViewModel @Inject constructor(
                     isAvailable = state.profileAvailableForConsultations,
                     services = state.profileServices,
                     country = state.profileCountry,
+                    rejectionReason = state.rejectionReason,
                     createdAt = state.registrationTimestamp,
                     updatedAt = System.currentTimeMillis(),
                 )
@@ -805,6 +828,7 @@ class DoctorDashboardViewModel @Inject constructor(
     // ─── Other actions ──────────────────────────────────────────────────────────
 
     fun onToggleOnline() {
+        if (!_uiState.value.isVerified) return
         viewModelScope.launch {
             val session = authRepository.currentSession.first() ?: return@launch
             val newState = !_uiState.value.isOnline
@@ -816,6 +840,16 @@ class DoctorDashboardViewModel @Inject constructor(
     fun onSignOut() {
         viewModelScope.launch {
             logoutUseCase()
+        }
+    }
+
+    // ─── FCM Token ──────────────────────────────────────────────────────────────
+
+    private suspend fun pushFcmTokenIfNeeded(doctorId: String) {
+        try {
+            fcmTokenRepository.fetchAndRegisterToken(doctorId)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to push FCM token", e)
         }
     }
 

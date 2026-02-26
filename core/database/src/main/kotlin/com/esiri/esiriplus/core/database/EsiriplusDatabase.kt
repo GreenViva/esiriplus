@@ -97,7 +97,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         PatientReportEntity::class,
         TypingIndicatorEntity::class,
     ],
-    version = 14,
+    version = 15,
     exportSchema = true,
 )
 @TypeConverters(

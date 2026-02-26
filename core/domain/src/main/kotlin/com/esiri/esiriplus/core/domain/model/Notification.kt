@@ -13,8 +13,18 @@ data class Notification(
 
 enum class NotificationType {
     CONSULTATION_REQUEST,
+    CONSULTATION_ACCEPTED,
     MESSAGE_RECEIVED,
     VIDEO_CALL_INCOMING,
     REPORT_READY,
     PAYMENT_STATUS,
+    DOCTOR_APPROVED,
+    DOCTOR_REJECTED,
+    ;
+
+    companion object {
+        fun fromString(value: String): NotificationType =
+            entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
+                ?: CONSULTATION_REQUEST
+    }
 }

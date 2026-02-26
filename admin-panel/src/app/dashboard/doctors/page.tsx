@@ -26,8 +26,11 @@ export default async function DoctorsPage({ searchParams }: Props) {
   const allDoctors = (data ?? []) as DoctorProfile[];
 
   // Derive counts from the full list
-  const pendingDoctors = allDoctors.filter((d) => !d.is_verified && !d.rejection_reason);
+  // Pending: Anyone not yet verified (matches dashboard count)
+  const pendingDoctors = allDoctors.filter((d) => !d.is_verified);
+  // Specifically rejected (subset of unverified)
   const rejectedDoctors = allDoctors.filter((d) => !d.is_verified && !!d.rejection_reason);
+  // Approved
   const approvedDoctors = allDoctors.filter((d) => d.is_verified);
 
   let doctors = allDoctors;
@@ -47,7 +50,7 @@ export default async function DoctorsPage({ searchParams }: Props) {
         d.full_name.toLowerCase().includes(query) ||
         d.email.toLowerCase().includes(query) ||
         d.specialty.toLowerCase().includes(query) ||
-        d.license_number.toLowerCase().includes(query),
+        (d.license_number ?? "").toLowerCase().includes(query),
     );
   }
 

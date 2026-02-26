@@ -15,10 +15,11 @@ class AuthInterceptor @Inject constructor(
         val requestBuilder = originalRequest.newBuilder()
             .header(HEADER_API_KEY, BuildConfig.SUPABASE_ANON_KEY)
 
-        val token = tokenManager.getAccessTokenSync()
-        if (token != null) {
-            requestBuilder.header(HEADER_AUTHORIZATION, "Bearer $token")
-        }
+        // Always include Authorization header: user JWT if available,
+        // otherwise the anon key (which is a valid JWT for the anonymous role).
+        // Supabase Edge Functions verify JWT by default and return 401 without it.
+        val token = tokenManager.getAccessTokenSync() ?: BuildConfig.SUPABASE_ANON_KEY
+        requestBuilder.header(HEADER_AUTHORIZATION, "Bearer $token")
 
         return chain.proceed(requestBuilder.build())
     }

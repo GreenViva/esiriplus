@@ -12,4 +12,10 @@ interface NotificationRepository {
     suspend fun markAllAsRead(userId: String)
     suspend fun deleteOldNotifications(threshold: Long)
     suspend fun clearAll()
+
+    /** Fetch a single notification from Supabase and store in Room. */
+    suspend fun fetchAndStoreNotification(notificationId: String)
+
+    /** Sync all unread notifications from Supabase into Room. */
+    suspend fun syncFromRemote(userId: String)
 }

@@ -43,6 +43,7 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
 
     // Core
     implementation(libs.androidx.core.ktx)
@@ -59,6 +60,11 @@ dependencies {
 
     // Serialization (for type-safe navigation routes)
     implementation(libs.kotlinx.serialization.json)
+
+    // WorkManager
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.work.hilt)
+    ksp(libs.work.hilt.compiler)
 
     // Project modules
     implementation(project(":core:common"))

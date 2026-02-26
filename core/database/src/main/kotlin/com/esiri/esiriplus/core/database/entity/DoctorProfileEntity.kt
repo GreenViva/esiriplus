@@ -36,4 +36,5 @@ data class DoctorProfileEntity(
     @ColumnInfo(defaultValue = "") val country: String = "",
     @ColumnInfo(defaultValue = "NULL") val licenseDocumentUrl: String? = null,
     @ColumnInfo(defaultValue = "NULL") val certificatesUrl: String? = null,
+    @ColumnInfo(defaultValue = "NULL") val rejectionReason: String? = null,
 )

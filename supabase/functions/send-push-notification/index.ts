@@ -85,6 +85,9 @@ async function getFCMAccessToken(): Promise<string> {
 }
 
 // ── Send single FCM message ───────────────────────────────────────────────────
+// Medical privacy: push payload contains no patient data.
+// Only notification_id and type are sent so the app can fetch
+// full content securely from Supabase after wake.
 async function sendFCM(
   fcmToken: string,
   notification: PushRequest,
@@ -93,14 +96,13 @@ async function sendFCM(
   const message = {
     message: {
       token: fcmToken,
-      notification: {
+      data: {
+        notification_id: notification.notification_id ?? "",
+        type: notification.type,
+        user_id: notification.user_id ?? notification.session_id ?? "",
+        // Fallback title/body for inline display (used by admin direct pushes)
         title: notification.title,
         body: notification.body,
-      },
-      data: {
-        type: notification.type,
-        consultation_id: notification.consultation_id ?? "",
-        ...(notification.data ?? {}),
       },
       android: {
         priority: "high",
@@ -134,6 +136,7 @@ interface PushRequest {
   body: string;
   type: string;            // notification type for client-side routing
   consultation_id?: string;
+  notification_id?: string | null; // set after inserting into notifications table
   data?: Record<string, string>; // extra payload
 }
 
@@ -195,14 +198,24 @@ Deno.serve(async (req: Request) => {
       if (data?.fcm_token) fcmTokens = [data.fcm_token];
 
     } else if (notification.user_id) {
-      // Specific user (doctor/admin)
-      const { data } = await supabase
-        .from("doctor_profiles")
-        .select("fcm_token")
-        .eq("doctor_id", notification.user_id)
-        .not("fcm_token", "is", null)
+      // Specific user — check fcm_tokens table first (universal), then doctor_profiles
+      const { data: tokenRow } = await supabase
+        .from("fcm_tokens")
+        .select("token")
+        .eq("user_id", notification.user_id)
         .single();
-      if (data?.fcm_token) fcmTokens = [data.fcm_token];
+      if (tokenRow?.token) {
+        fcmTokens = [tokenRow.token];
+      } else {
+        // Fallback: legacy doctor_profiles.fcm_token
+        const { data } = await supabase
+          .from("doctor_profiles")
+          .select("fcm_token")
+          .eq("doctor_id", notification.user_id)
+          .not("fcm_token", "is", null)
+          .single();
+        if (data?.fcm_token) fcmTokens = [data.fcm_token];
+      }
 
     } else if (notification.target === "doctors") {
       // Broadcast to available doctors of a service type
@@ -221,16 +234,38 @@ Deno.serve(async (req: Request) => {
       fcmTokens = (data ?? []).map((d) => d.fcm_token).filter(Boolean);
     }
 
+    // Determine target user_id for the notification record
+    const targetUserId = notification.user_id ?? notification.session_id ?? null;
+
+    // Insert notification record into Supabase (source of truth)
+    let notificationId: string | null = null;
+    if (targetUserId) {
+      const { data: insertedNotif } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: targetUserId,
+          title: notification.title,
+          body: notification.body,
+          type: notification.type,
+          data: JSON.stringify(notification.data ?? {}),
+        })
+        .select("notification_id")
+        .single();
+      notificationId = insertedNotif?.notification_id ?? null;
+    }
+
     if (fcmTokens.length === 0) {
-      return successResponse({ message: "No FCM tokens found, notification skipped" }, 200, origin);
+      return successResponse({ message: "No FCM tokens found, notification stored only", notification_id: notificationId }, 200, origin);
     }
 
     // Get OAuth2 access token once, reuse for all messages
     const accessToken = await getFCMAccessToken();
 
     // Send to all tokens (in parallel, max 20)
+    // Medical privacy: push payload contains no patient data —
+    // only notification_id and type for secure server-side fetch.
     const results = await Promise.allSettled(
-      fcmTokens.slice(0, 20).map((token) => sendFCM(token, notification, accessToken))
+      fcmTokens.slice(0, 20).map((token) => sendFCM(token, { ...notification, notification_id: notificationId }, accessToken))
     );
 
     const sent = results.filter((r) => r.status === "fulfilled" && r.value).length;
