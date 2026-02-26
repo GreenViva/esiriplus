@@ -43,7 +43,15 @@ export default function RealtimeRefresh({ tables, channelName }: Props) {
       );
     }
 
-    channel.subscribe();
+    channel.subscribe((status, err) => {
+      if (status === "SUBSCRIBED") {
+        console.log(`[Realtime] ${channelName}: subscribed to ${tablesKey}`);
+      } else if (status === "CHANNEL_ERROR") {
+        console.error(`[Realtime] ${channelName}: channel error`, err);
+      } else if (status === "TIMED_OUT") {
+        console.warn(`[Realtime] ${channelName}: subscription timed out`);
+      }
+    });
 
     return () => {
       if (refreshTimer.current) clearTimeout(refreshTimer.current);

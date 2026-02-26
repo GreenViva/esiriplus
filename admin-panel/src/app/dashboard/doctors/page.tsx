@@ -182,6 +182,10 @@ export default async function DoctorsPage({ searchParams }: Props) {
                 <p className="text-gray-900 font-medium">{doc.phone}</p>
               </div>
               <div>
+                <p className="text-gray-400">Country:</p>
+                <p className="text-gray-900 font-medium">{doc.country || "N/A"}</p>
+              </div>
+              <div>
                 <p className="text-gray-400">Medical License:</p>
                 <p className="text-gray-900 font-medium">{doc.license_number}</p>
               </div>
@@ -190,6 +194,25 @@ export default async function DoctorsPage({ searchParams }: Props) {
                 <p className="text-gray-900 font-medium">{doc.years_experience} years</p>
               </div>
             </div>
+
+            {/* Uploaded Credentials */}
+            {(doc.profile_photo_url || doc.license_document_url || doc.certificates_url) ? (
+              <div className="mb-4 space-y-3">
+                {doc.profile_photo_url && (
+                  <CredentialPreview url={doc.profile_photo_url} label="Profile Photo" />
+                )}
+                {doc.license_document_url && (
+                  <CredentialPreview url={doc.license_document_url} label="Medical License" />
+                )}
+                {doc.certificates_url && (
+                  <CredentialPreview url={doc.certificates_url} label="Certificates" />
+                )}
+              </div>
+            ) : (
+              <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
+                <p className="text-sm text-amber-700 font-medium">No credentials uploaded</p>
+              </div>
+            )}
 
             {/* Bio */}
             {doc.bio && (
@@ -267,5 +290,58 @@ function TabLink({
         {count}
       </span>
     </Link>
+  );
+}
+
+function CredentialPreview({ url, label }: { url: string; label: string }) {
+  const lower = url.toLowerCase();
+  const isPdf = lower.endsWith(".pdf") || lower.includes("pdf");
+  const isImage =
+    lower.endsWith(".jpg") ||
+    lower.endsWith(".jpeg") ||
+    lower.endsWith(".png") ||
+    lower.endsWith(".webp");
+
+  return (
+    <div className="rounded-lg border border-gray-200 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+        <p className="text-xs font-medium text-gray-700">{label}</p>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-brand-teal hover:underline"
+        >
+          Open full
+        </a>
+      </div>
+      {isPdf ? (
+        <iframe
+          src={url}
+          className="w-full h-48 bg-white"
+          title={label}
+        />
+      ) : isImage ? (
+        <Image
+          src={url}
+          alt={label}
+          width={400}
+          height={200}
+          className="w-full h-48 object-contain bg-white"
+          unoptimized
+        />
+      ) : (
+        <div className="px-3 py-3">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-brand-teal hover:underline"
+          >
+            Download {label}
+          </a>
+        </div>
+      )}
+    </div>
   );
 }
