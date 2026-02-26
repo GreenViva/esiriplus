@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -157,78 +158,98 @@ class AuthRepositoryImpl @Inject constructor(
                         val response = apiResult.data
                         val session = saveSessionAndTokens(response)
 
-                        // 3. Import auth token so Storage uploads are authenticated
-                        try {
-                            supabaseClientProvider.importAuthToken(
-                                accessToken = response.accessToken,
-                                refreshToken = response.refreshToken,
-                            )
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Failed to import auth token for file uploads", e)
-                        }
-
-                        // 4. Upload files (now authenticated)
-                        val userId = session.user.id
-                        val profilePhotoUrl = uploadFileIfPresent(
-                            registration.profilePhotoUri,
-                            PROFILE_PHOTOS_BUCKET,
-                            "$userId/profile-photo",
-                        )
-                        val licenseDocumentUrl = uploadFileIfPresent(
-                            registration.licenseDocumentUri,
-                            CREDENTIALS_BUCKET,
-                            "$userId/license-document",
-                        )
-                        val certificatesUrl = uploadFileIfPresent(
-                            registration.certificatesUri,
-                            CREDENTIALS_BUCKET,
-                            "$userId/certificates",
-                        )
-
-                        // 5. Update server profile with file URLs if any were uploaded
-                        if (profilePhotoUrl != null || licenseDocumentUrl != null ||
-                            certificatesUrl != null
-                        ) {
+                        // Steps 3-7 run in NonCancellable context because
+                        // saving the session above triggers navigation which
+                        // clears the ViewModel scope — without this, uploads
+                        // and device binding get CancellationException.
+                        withContext(NonCancellable) {
+                            // 3. Import auth token so Storage uploads are authenticated
                             try {
-                                fileUploadService.updateDoctorProfileUrls(
-                                    doctorId = userId,
+                                supabaseClientProvider.importAuthToken(
+                                    accessToken = response.accessToken,
+                                    refreshToken = response.refreshToken,
+                                )
+                                Log.d(TAG, "importAuthToken succeeded")
+                            } catch (e: Exception) {
+                                Log.e(TAG, "importAuthToken FAILED — uploads will likely fail", e)
+                            }
+
+                            // 4. Upload files (now authenticated)
+                            val userId = session.user.id
+                            Log.d(
+                                TAG,
+                                "File URIs — photo=${registration.profilePhotoUri}" +
+                                    " license=${registration.licenseDocumentUri}" +
+                                    " certs=${registration.certificatesUri}",
+                            )
+                            val profilePhotoUrl = uploadFileIfPresent(
+                                registration.profilePhotoUri,
+                                PROFILE_PHOTOS_BUCKET,
+                                "$userId/profile-photo",
+                            )
+                            val licenseDocumentUrl = uploadFileIfPresent(
+                                registration.licenseDocumentUri,
+                                CREDENTIALS_BUCKET,
+                                "$userId/license-document",
+                            )
+                            val certificatesUrl = uploadFileIfPresent(
+                                registration.certificatesUri,
+                                CREDENTIALS_BUCKET,
+                                "$userId/certificates",
+                            )
+                            Log.d(
+                                TAG,
+                                "Upload results — photo=$profilePhotoUrl" +
+                                    " license=$licenseDocumentUrl certs=$certificatesUrl",
+                            )
+
+                            // 5. Update server profile with file URLs if any were uploaded
+                            if (profilePhotoUrl != null || licenseDocumentUrl != null ||
+                                certificatesUrl != null
+                            ) {
+                                try {
+                                    fileUploadService.updateDoctorProfileUrls(
+                                        doctorId = userId,
+                                        profilePhotoUrl = profilePhotoUrl,
+                                        licenseDocumentUrl = licenseDocumentUrl,
+                                        certificatesUrl = certificatesUrl,
+                                    )
+                                    Log.d(TAG, "Updated doctor profile with file URLs on server")
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "FAILED to update profile URLs on server", e)
+                                }
+                            } else {
+                                Log.w(TAG, "No files were uploaded — all URLs are null")
+                            }
+
+                            // 6. Cache doctor profile locally
+                            val now = System.currentTimeMillis()
+                            doctorProfileDao.insert(
+                                DoctorProfileEntity(
+                                    doctorId = session.user.id,
+                                    fullName = registration.fullName,
+                                    email = registration.email,
+                                    phone = registration.phone,
+                                    specialty = registration.specialty,
+                                    specialistField = specialistField,
+                                    languages = registration.languages,
+                                    bio = registration.bio,
+                                    licenseNumber = registration.licenseNumber,
+                                    yearsExperience = registration.yearsExperience,
                                     profilePhotoUrl = profilePhotoUrl,
+                                    createdAt = now,
+                                    updatedAt = now,
+                                    services = registration.services,
+                                    countryCode = registration.countryCode,
+                                    country = registration.country,
                                     licenseDocumentUrl = licenseDocumentUrl,
                                     certificatesUrl = certificatesUrl,
-                                )
-                                Log.d(TAG, "Updated doctor profile with file URLs")
-                            } catch (e: Exception) {
-                                Log.w(TAG, "Failed to update profile with file URLs", e)
-                            }
+                                ),
+                            )
+
+                            // 7. Bind device to this doctor (server-side)
+                            bindDeviceOnServer(userId, deviceBindingManager.getDeviceFingerprint())
                         }
-
-                        // 6. Cache doctor profile locally
-                        val now = System.currentTimeMillis()
-                        doctorProfileDao.insert(
-                            DoctorProfileEntity(
-                                doctorId = session.user.id,
-                                fullName = registration.fullName,
-                                email = registration.email,
-                                phone = registration.phone,
-                                specialty = registration.specialty,
-                                specialistField = specialistField,
-                                languages = registration.languages,
-                                bio = registration.bio,
-                                licenseNumber = registration.licenseNumber,
-                                yearsExperience = registration.yearsExperience,
-                                profilePhotoUrl = profilePhotoUrl,
-                                createdAt = now,
-                                updatedAt = now,
-                                services = registration.services,
-                                countryCode = registration.countryCode,
-                                country = registration.country,
-                                licenseDocumentUrl = licenseDocumentUrl,
-                                certificatesUrl = certificatesUrl,
-                            ),
-                        )
-
-                        // 7. Bind device to this doctor (server-side)
-                        bindDeviceOnServer(userId, deviceBindingManager.getDeviceFingerprint())
 
                         Result.Success(session)
                     }
@@ -315,8 +336,25 @@ class AuthRepositoryImpl @Inject constructor(
                 Log.d(TAG, "uploadFileIfPresent: uploaded to $url")
                 url
             }
-            else -> {
-                Log.e(TAG, "uploadFileIfPresent: upload failed for $bucketName/$storagePath — $result")
+            is ApiResult.Error -> {
+                Log.e(
+                    TAG,
+                    "uploadFileIfPresent: API error for $bucketName/$storagePath" +
+                        " — code=${result.code} message=${result.message}",
+                )
+                null
+            }
+            is ApiResult.NetworkError -> {
+                Log.e(
+                    TAG,
+                    "uploadFileIfPresent: network error for $bucketName/$storagePath" +
+                        " — ${result.message}",
+                    result.exception,
+                )
+                null
+            }
+            is ApiResult.Unauthorized -> {
+                Log.e(TAG, "uploadFileIfPresent: UNAUTHORIZED for $bucketName/$storagePath")
                 null
             }
         }
@@ -529,19 +567,20 @@ class AuthRepositoryImpl @Inject constructor(
 
     private suspend fun bindDeviceOnServer(doctorId: String, deviceFingerprint: String) {
         try {
+            Log.d(TAG, "bindDevice: doctorId=$doctorId fingerprint=$deviceFingerprint")
             val request = DeviceBindingRequest(
                 doctorId = doctorId,
                 deviceFingerprint = deviceFingerprint,
             )
             val body = json.encodeToString(request)
                 .let { Json.parseToJsonElement(it).jsonObject }
-            edgeFunctionClient.invoke(
+            val result = edgeFunctionClient.invoke(
                 functionName = "bind-device",
                 body = body,
             )
-            Log.d(TAG, "Device bound on server for doctor=$doctorId")
+            Log.d(TAG, "bindDevice: result=$result")
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-            Log.w(TAG, "Failed to bind device on server (non-critical)", e)
+            Log.e(TAG, "bindDevice FAILED for doctor=$doctorId", e)
         }
     }
 
