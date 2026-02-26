@@ -9,6 +9,7 @@ import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import DoctorActions from "./DoctorActions";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 import type { DoctorProfile, DoctorDeviceBinding } from "@/lib/types/database";
 
 interface Props {
@@ -44,7 +45,10 @@ export default async function DoctorDetailPage({ params }: Props) {
         </svg>
         Back to Doctors
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Doctor Details</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Doctor Details</h1>
+        <DownloadPdfButton doctor={doctor} variant="button" />
+      </div>
 
       <Card className="mb-6">
         <div className="flex items-start gap-4 mb-6">

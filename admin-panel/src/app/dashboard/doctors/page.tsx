@@ -8,6 +8,7 @@ import type { DoctorProfile } from "@/lib/types/database";
 import DoctorCardActions from "./DoctorCardActions";
 import DoctorSearch from "./DoctorSearch";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface Props {
   searchParams: Promise<{ filter?: string; q?: string }>;
@@ -239,6 +240,7 @@ export default async function DoctorsPage({ searchParams }: Props) {
                 </svg>
                 View Credentials
               </Link>
+              <DownloadPdfButton doctor={doc} />
               {!doc.is_verified && (
                 <DoctorCardActions doctorId={doc.doctor_id} />
               )}

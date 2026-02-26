@@ -13,6 +13,7 @@ import {
   unbanDoctor,
   warnDoctor,
 } from "@/lib/actions";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface Doctor {
   doctor_id: string;
@@ -361,6 +362,7 @@ export default function DoctorManagementView({ doctors }: Props) {
                           </svg>
                           Credentials
                         </button>
+                        <DownloadPdfButton doctor={d} />
                         {isLoading ? (
                           <span className="text-xs text-gray-400">Processing...</span>
                         ) : (status === "pending" || status === "rejected") ? (
