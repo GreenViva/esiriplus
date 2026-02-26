@@ -18,7 +18,7 @@ export default async function DoctorsPage({ searchParams }: Props) {
   const supabase = createAdminClient();
 
   // Fetch all doctors
-  const { data } = await supabase
+  const { data, error: fetchError } = await supabase
     .from("doctor_profiles")
     .select("*")
     .order("created_at", { ascending: false });
@@ -60,6 +60,16 @@ export default async function DoctorsPage({ searchParams }: Props) {
         tables={["doctor_profiles", "admin_logs"]}
         channelName="admin-doctors-realtime"
       />
+      {/* Error banner */}
+      {fetchError && (
+        <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
+          <p className="text-sm font-medium text-red-700">
+            Failed to load doctor applications. Check your Supabase connection.
+          </p>
+          <p className="text-xs text-red-500 mt-1">{fetchError.message}</p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Doctor Applications</h1>

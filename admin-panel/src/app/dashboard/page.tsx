@@ -49,6 +49,18 @@ export default async function DashboardPage() {
       .is("license_document_url", null),
   ]);
 
+  // Surface any query errors so admins see them
+  const queryErrors = [
+    doctorsRes.error,
+    verifiedDoctorsRes.error,
+    pendingApplicationsRes.error,
+    patientsRes.error,
+    activeConsultationsRes.error,
+    completedConsultationsRes.error,
+    revenueRes.error,
+    pendingCredentialsRes.error,
+  ].filter(Boolean);
+
   const totalDoctors = doctorsRes.count ?? 0;
   const verifiedDoctors = verifiedDoctorsRes.count ?? 0;
   const pendingApplications = pendingApplicationsRes.count ?? 0;
@@ -189,6 +201,18 @@ export default async function DashboardPage() {
         tables={["doctor_profiles", "admin_logs", "consultations", "payments"]}
         channelName="admin-dashboard-realtime"
       />
+      {/* Error banner */}
+      {queryErrors.length > 0 && (
+        <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
+          <p className="text-sm font-medium text-red-700">
+            Failed to load some dashboard data. Check your Supabase connection.
+          </p>
+          <p className="text-xs text-red-500 mt-1">
+            {queryErrors.map((e) => e!.message).join("; ")}
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -202,6 +226,7 @@ export default async function DashboardPage() {
         <StatCard
           label="Total Doctors"
           value={totalDoctors}
+          href="/dashboard/doctors"
           iconBg="bg-blue-50"
           icon={
             <svg className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -212,6 +237,7 @@ export default async function DashboardPage() {
         <StatCard
           label="Verified Doctors"
           value={verifiedDoctors}
+          href="/dashboard/doctors?filter=verified"
           iconBg="bg-green-50"
           icon={
             <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -222,6 +248,7 @@ export default async function DashboardPage() {
         <StatCard
           label="Pending Applications"
           value={pendingApplications}
+          href="/dashboard/doctors?filter=pending"
           iconBg="bg-yellow-50"
           icon={
             <svg className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -276,6 +303,7 @@ export default async function DashboardPage() {
         <StatCard
           label="Pending Credentials"
           value={pendingCredentials}
+          href="/dashboard/doctors"
           iconBg="bg-indigo-50"
           icon={
             <svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

@@ -7,7 +7,7 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 export default async function HRDoctorManagementPage() {
   const supabase = createAdminClient();
 
-  const { data: doctors } = await supabase
+  const { data: doctors, error: fetchError } = await supabase
     .from("doctor_profiles")
     .select(
       "doctor_id, full_name, email, phone, specialty, license_number, is_verified, is_available, average_rating, total_ratings, rejection_reason, created_at"
@@ -35,6 +35,14 @@ export default async function HRDoctorManagementPage() {
         tables={["doctor_profiles", "admin_logs"]}
         channelName="hr-doctors-realtime"
       />
+      {fetchError && (
+        <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
+          <p className="text-sm font-medium text-red-700">
+            Failed to load doctor data. Check your Supabase connection.
+          </p>
+          <p className="text-xs text-red-500 mt-1">{fetchError.message}</p>
+        </div>
+      )}
       <DoctorManagementView doctors={allDoctors} />
     </>
   );
