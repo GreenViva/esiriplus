@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 data class DoctorLoginUiState(
@@ -31,6 +32,9 @@ data class DoctorLoginUiState(
     val isBanned: Boolean = false,
     val banReason: String? = null,
     val bannedAt: String? = null,
+    val isSuspended: Boolean = false,
+    val suspendedUntil: String? = null,
+    val suspensionReason: String? = null,
 ) {
     val isFormValid: Boolean
         get() = email.isValidEmail() && password.length >= 6
@@ -59,7 +63,7 @@ class DoctorLoginViewModel @Inject constructor(
 
     fun login(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null, isBanned = false) }
+            _uiState.update { it.copy(isLoading = true, error = null, isBanned = false, isSuspended = false) }
             val email = uiState.value.email
             val password = uiState.value.password
 
@@ -70,9 +74,9 @@ class DoctorLoginViewModel @Inject constructor(
                         val session = result.data
                         val doctorId = session.user.id
 
-                        // Check ban status before allowing navigation
-                        val banned = checkBanStatus(session.accessToken, session.refreshToken, doctorId)
-                        if (banned) return@launch
+                        // Check ban/suspension status before allowing navigation
+                        val blocked = checkAccountStatus(session.accessToken, session.refreshToken, doctorId)
+                        if (blocked) return@launch
 
                         _uiState.update { it.copy(isLoading = false) }
                         onSuccess()
@@ -93,10 +97,10 @@ class DoctorLoginViewModel @Inject constructor(
     }
 
     /**
-     * Checks if the doctor is banned by fetching their profile from Supabase.
-     * Returns true if banned (UI state is updated to show ban screen).
+     * Checks if the doctor is banned or suspended by fetching their profile from Supabase.
+     * Returns true if blocked (UI state is updated to show the appropriate screen).
      */
-    private suspend fun checkBanStatus(
+    private suspend fun checkAccountStatus(
         accessToken: String,
         refreshToken: String,
         doctorId: String,
@@ -108,8 +112,14 @@ class DoctorLoginViewModel @Inject constructor(
 
             when (val profileResult = profileService.getDoctorProfile(doctorId)) {
                 is ApiResult.Success -> {
-                    val profile = profileResult.data
-                    if (profile?.isBanned == true) {
+                    val profile = profileResult.data ?: run {
+                        Log.w(TAG, "Profile is null for $doctorId")
+                        return false
+                    }
+                    Log.d(TAG, "Profile check: isBanned=${profile.isBanned}, suspendedUntil=${profile.suspendedUntil}, suspensionReason=${profile.suspensionReason}")
+
+                    // Ban takes priority over suspension
+                    if (profile.isBanned) {
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -118,23 +128,45 @@ class DoctorLoginViewModel @Inject constructor(
                                 bannedAt = profile.bannedAt,
                             )
                         }
-                        true
-                    } else {
-                        false
+                        return true
                     }
+
+                    // Check active suspension
+                    val suspendedUntil = profile.suspendedUntil
+                    if (suspendedUntil != null) {
+                        val isSuspended = try {
+                            java.time.OffsetDateTime.parse(suspendedUntil).toInstant().isAfter(Instant.now())
+                        } catch (_: Exception) {
+                            try { Instant.parse(suspendedUntil).isAfter(Instant.now()) } catch (_: Exception) { false }
+                        }
+
+                        if (isSuspended) {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isSuspended = true,
+                                    suspendedUntil = suspendedUntil,
+                                    suspensionReason = profile.suspensionReason,
+                                )
+                            }
+                            return true
+                        }
+                    }
+
+                    false
                 }
                 else -> {
-                    Log.w(TAG, "Failed to check ban status, allowing login")
+                    Log.w(TAG, "Failed to check account status, allowing login")
                     false
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking ban status", e)
+            Log.e(TAG, "Error checking account status", e)
             false
         }
     }
 
-    fun clearBanState() {
+    fun clearBlockedState() {
         _uiState.update {
             DoctorLoginUiState()
         }

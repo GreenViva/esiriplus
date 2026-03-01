@@ -63,6 +63,7 @@ data class DoctorProfileRow(
     @SerialName("certificates_url") val certificatesUrl: String? = null,
     @SerialName("rejection_reason") val rejectionReason: String? = null,
     @SerialName("suspended_until") val suspendedUntil: String? = null,
+    @SerialName("suspension_reason") val suspensionReason: String? = null,
     @SerialName("is_banned") val isBanned: Boolean = false,
     @SerialName("banned_at") val bannedAt: String? = null,
     @SerialName("ban_reason") val banReason: String? = null,

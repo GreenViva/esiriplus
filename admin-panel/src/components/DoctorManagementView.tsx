@@ -64,6 +64,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
   const [warnMessage, setWarnMessage] = useState("");
   const [suspendModal, setSuspendModal] = useState<string | null>(null);
   const [suspendDays, setSuspendDays] = useState<number>(7);
+  const [suspendReason, setSuspendReason] = useState("");
   const [banModal, setBanModal] = useState<string | null>(null);
   const [banReason, setBanReason] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -148,12 +149,13 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
   async function handleSuspend(doctorId: string) {
     setLoading(doctorId);
     setError("");
-    const result = await suspendDoctor(doctorId, suspendDays);
+    const result = await suspendDoctor(doctorId, suspendDays, suspendReason);
     if (result.error) {
       setError(result.error);
     } else {
       setSuspendModal(null);
       setSuspendDays(7);
+      setSuspendReason("");
     }
     setLoading(null);
     router.refresh();
@@ -674,9 +676,17 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
             <p className="text-xs text-gray-400 mb-4">
               Suspension ends: {new Date(Date.now() + suspendDays * 86400000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Reason for Suspension</label>
+            <textarea
+              value={suspendReason}
+              onChange={(e) => setSuspendReason(e.target.value)}
+              placeholder="Reason for suspension..."
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 resize-none mb-4"
+            />
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => { setSuspendModal(null); setSuspendDays(7); }}
+                onClick={() => { setSuspendModal(null); setSuspendDays(7); setSuspendReason(""); }}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel

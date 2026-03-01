@@ -83,7 +83,21 @@ fun DoctorLoginScreen(
             banReason = uiState.banReason,
             bannedAt = uiState.bannedAt,
             onSignOut = {
-                viewModel.clearBanState()
+                viewModel.clearBlockedState()
+                onLogout()
+            },
+            modifier = modifier,
+        )
+        return
+    }
+
+    // Suspended doctor — show suspension notice screen
+    if (uiState.isSuspended) {
+        SuspendedDoctorScreen(
+            suspendedUntil = uiState.suspendedUntil,
+            suspensionReason = uiState.suspensionReason,
+            onSignOut = {
+                viewModel.clearBlockedState()
                 onLogout()
             },
             modifier = modifier,
@@ -503,6 +517,177 @@ private fun BannedDoctorScreen(
                     fontSize = 13.sp,
                     color = Color.Black,
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "support@esiriplus.com",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF0369A1),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            TextButton(onClick = onSignOut) {
+                Text(
+                    text = "Sign Out",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF6B7280),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SuspendedDoctorScreen(
+    suspendedUntil: String?,
+    suspensionReason: String?,
+    onSignOut: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val suspensionEnd = remember(suspendedUntil) {
+        try {
+            val until = java.time.Instant.parse(suspendedUntil)
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' h:mm a")
+                .withZone(java.time.ZoneId.systemDefault())
+            formatter.format(until)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    val remainingTime = remember(suspendedUntil) {
+        try {
+            val until = java.time.Instant.parse(suspendedUntil)
+            val now = java.time.Instant.now()
+            val duration = java.time.Duration.between(now, until)
+            val days = duration.toDays()
+            val hours = duration.toHours() % 24
+            when {
+                days > 0 -> "$days day${if (days > 1) "s" else ""} and $hours hour${if (hours != 1L) "s" else ""}"
+                hours > 0 -> "$hours hour${if (hours != 1L) "s" else ""}"
+                else -> "less than an hour"
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Orange circle with pause icon
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(Color(0xFFFFF7ED), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "\u23F8",
+                    fontSize = 36.sp,
+                    color = Color(0xFFEA580C),
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Account Suspended",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFEA580C),
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Your account has been temporarily suspended.",
+                fontSize = 14.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+            )
+
+            if (!suspensionReason.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFFF7ED))
+                        .border(1.dp, Color(0xFFFDBA74), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        text = "Reason",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFEA580C),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = suspensionReason,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Time remaining box
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF0F9FF))
+                    .border(1.dp, Color(0xFFBAE6FD), RoundedCornerShape(12.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Suspension Details",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF0369A1),
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                if (remainingTime != null) {
+                    Text(
+                        text = "Time remaining: $remainingTime",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                if (suspensionEnd != null) {
+                    Text(
+                        text = "Your suspension will be automatically lifted on $suspensionEnd.",
+                        fontSize = 13.sp,
+                        color = Color.Black,
+                    )
+                } else {
+                    Text(
+                        text = "Your suspension will be automatically lifted when the period ends.",
+                        fontSize = 13.sp,
+                        color = Color.Black,
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "support@esiriplus.com",

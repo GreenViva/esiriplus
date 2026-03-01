@@ -204,7 +204,7 @@ export async function toggleRatingFlag(ratingId: string, flagged: boolean) {
   return { success: true };
 }
 
-export async function suspendDoctor(doctorId: string, days: number) {
+export async function suspendDoctor(doctorId: string, days: number, reason: string) {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
 
@@ -217,7 +217,12 @@ export async function suspendDoctor(doctorId: string, days: number) {
 
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_available: false, suspended_until: suspendedUntil, updated_at: new Date().toISOString() })
+    .update({
+      is_available: false,
+      suspended_until: suspendedUntil,
+      suspension_reason: reason || null,
+      updated_at: new Date().toISOString(),
+    })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
@@ -227,14 +232,14 @@ export async function suspendDoctor(doctorId: string, days: number) {
     action: "suspend_doctor",
     target_type: "doctor_profile",
     target_id: doctorId,
-    details: { days, suspended_until: suspendedUntil },
+    details: { days, suspended_until: suspendedUntil, reason },
   });
 
   const endDate = new Date(suspendedUntil).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   await sendDoctorNotification(
     doctorId,
     "Account Suspended",
-    `Your account has been suspended for ${days} day${days > 1 ? "s" : ""}. Suspension will be automatically lifted on ${endDate}.`,
+    `Your account has been suspended for ${days} day${days > 1 ? "s" : ""} due to: ${reason || "policy violation"}. Suspension will be automatically lifted on ${endDate}.`,
     "doctor_suspended",
   );
 
@@ -250,7 +255,7 @@ export async function unsuspendDoctor(doctorId: string) {
 
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_available: true, suspended_until: null, updated_at: new Date().toISOString() })
+    .update({ is_available: true, suspended_until: null, suspension_reason: null, updated_at: new Date().toISOString() })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };

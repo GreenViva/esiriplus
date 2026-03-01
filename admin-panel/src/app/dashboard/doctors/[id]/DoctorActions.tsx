@@ -23,6 +23,7 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
   const [rejectReason, setRejectReason] = useState("");
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [suspendDays, setSuspendDays] = useState<number>(7);
+  const [suspendReason, setSuspendReason] = useState("");
 
   async function handleApprove() {
     setLoading("approve");
@@ -62,11 +63,12 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
   async function handleSuspend() {
     setLoading("suspend");
     setError("");
-    const result = await suspendDoctor(doctorId, suspendDays);
+    const result = await suspendDoctor(doctorId, suspendDays, suspendReason);
     if (result.error) setError(result.error);
     else {
       setSuspendModalOpen(false);
       setSuspendDays(7);
+      setSuspendReason("");
       router.refresh();
     }
     setLoading(null);
@@ -202,6 +204,14 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
         <p className="text-xs text-gray-400 mb-4">
           Suspension ends: {new Date(Date.now() + suspendDays * 86400000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
         </p>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Reason for Suspension</label>
+        <textarea
+          value={suspendReason}
+          onChange={(e) => setSuspendReason(e.target.value)}
+          placeholder="Reason for suspension..."
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none mb-4"
+        />
         <div className="flex justify-end gap-3 mt-4">
           <Button variant="outline" onClick={() => setSuspendModalOpen(false)}>
             Cancel
