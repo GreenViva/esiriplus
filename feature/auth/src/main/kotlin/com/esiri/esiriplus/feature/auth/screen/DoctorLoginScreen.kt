@@ -105,6 +105,21 @@ fun DoctorLoginScreen(
         return
     }
 
+    // Warning — doctor must acknowledge before proceeding
+    if (uiState.hasWarning) {
+        WarningDoctorScreen(
+            warningMessage = uiState.warningMessage,
+            isLoading = uiState.isLoading,
+            onAcknowledge = { viewModel.acknowledgeWarning() },
+            onSignOut = {
+                viewModel.clearBlockedState()
+                onLogout()
+            },
+            modifier = modifier,
+        )
+        return
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -698,6 +713,164 @@ private fun SuspendedDoctorScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+
+            TextButton(onClick = onSignOut) {
+                Text(
+                    text = "Sign Out",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF6B7280),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WarningDoctorScreen(
+    warningMessage: String?,
+    isLoading: Boolean,
+    onAcknowledge: () -> Unit,
+    onSignOut: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Amber circle with warning icon
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(Color(0xFFFEF3C7), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "\u26A0",
+                    fontSize = 36.sp,
+                    color = Color(0xFFD97706),
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Warning Notice",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFD97706),
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "You have received a warning from the administration.",
+                fontSize = 14.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+            )
+
+            if (!warningMessage.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFFFBEB))
+                        .border(1.dp, Color(0xFFFCD34D), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        text = "Warning Details",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFD97706),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = warningMessage,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Info box
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF0F9FF))
+                    .border(1.dp, Color(0xFFBAE6FD), RoundedCornerShape(12.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Please take note",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF0369A1),
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Please review this warning carefully. Repeated violations may result in suspension or a permanent ban of your account.",
+                    fontSize = 13.sp,
+                    color = Color.Black,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "support@esiriplus.com",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF0369A1),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Acknowledge button
+            Button(
+                onClick = onAcknowledge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                enabled = !isLoading,
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD97706),
+                    disabledContainerColor = Color(0xFFD97706).copy(alpha = 0.5f),
+                ),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(22.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        text = "I Understand",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             TextButton(onClick = onSignOut) {
                 Text(

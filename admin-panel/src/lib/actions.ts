@@ -155,6 +155,17 @@ export async function warnDoctor(doctorId: string, message: string) {
 
   const supabase = createAdminClient();
 
+  const { error } = await supabase
+    .from("doctor_profiles")
+    .update({
+      warning_message: message,
+      warning_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("doctor_id", doctorId);
+
+  if (error) return { error: error.message };
+
   await supabase.from("admin_logs").insert({
     admin_id: auth.user.id,
     action: "warn_doctor",

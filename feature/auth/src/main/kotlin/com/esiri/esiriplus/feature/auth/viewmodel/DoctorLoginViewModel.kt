@@ -35,6 +35,8 @@ data class DoctorLoginUiState(
     val isSuspended: Boolean = false,
     val suspendedUntil: String? = null,
     val suspensionReason: String? = null,
+    val hasWarning: Boolean = false,
+    val warningMessage: String? = null,
 ) {
     val isFormValid: Boolean
         get() = email.isValidEmail() && password.length >= 6
@@ -52,6 +54,10 @@ class DoctorLoginViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DoctorLoginUiState())
     val uiState: StateFlow<DoctorLoginUiState> = _uiState.asStateFlow()
+
+    /** Stored callback + doctorId for deferred navigation after warning acknowledgment. */
+    private var pendingOnSuccess: (() -> Unit)? = null
+    private var pendingDoctorId: String? = null
 
     fun onEmailChanged(email: String) {
         _uiState.update { it.copy(email = email, error = null) }
@@ -74,8 +80,8 @@ class DoctorLoginViewModel @Inject constructor(
                         val session = result.data
                         val doctorId = session.user.id
 
-                        // Check ban/suspension status before allowing navigation
-                        val blocked = checkAccountStatus(session.accessToken, session.refreshToken, doctorId)
+                        // Check ban/suspension/warning status before allowing navigation
+                        val blocked = checkAccountStatus(session.accessToken, session.refreshToken, doctorId, onSuccess)
                         if (blocked) return@launch
 
                         _uiState.update { it.copy(isLoading = false) }
@@ -97,13 +103,14 @@ class DoctorLoginViewModel @Inject constructor(
     }
 
     /**
-     * Checks if the doctor is banned or suspended by fetching their profile from Supabase.
+     * Checks if the doctor is banned, suspended, or has a pending warning.
      * Returns true if blocked (UI state is updated to show the appropriate screen).
      */
     private suspend fun checkAccountStatus(
         accessToken: String,
         refreshToken: String,
         doctorId: String,
+        onSuccess: () -> Unit,
     ): Boolean {
         return try {
             val freshAccess = tokenManager.getAccessTokenSync() ?: accessToken
@@ -116,7 +123,7 @@ class DoctorLoginViewModel @Inject constructor(
                         Log.w(TAG, "Profile is null for $doctorId")
                         return false
                     }
-                    Log.d(TAG, "Profile check: isBanned=${profile.isBanned}, suspendedUntil=${profile.suspendedUntil}, suspensionReason=${profile.suspensionReason}")
+                    Log.d(TAG, "Profile check: isBanned=${profile.isBanned}, suspendedUntil=${profile.suspendedUntil}, warningMessage=${profile.warningMessage}")
 
                     // Ban takes priority over suspension
                     if (profile.isBanned) {
@@ -153,6 +160,20 @@ class DoctorLoginViewModel @Inject constructor(
                         }
                     }
 
+                    // Check pending warning — doctor must acknowledge before proceeding
+                    if (!profile.warningMessage.isNullOrBlank()) {
+                        pendingOnSuccess = onSuccess
+                        pendingDoctorId = doctorId
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                hasWarning = true,
+                                warningMessage = profile.warningMessage,
+                            )
+                        }
+                        return true
+                    }
+
                     false
                 }
                 else -> {
@@ -166,7 +187,28 @@ class DoctorLoginViewModel @Inject constructor(
         }
     }
 
+    /** Doctor acknowledges the warning and proceeds to dashboard. */
+    fun acknowledgeWarning() {
+        val doctorId = pendingDoctorId ?: return
+        val onSuccess = pendingOnSuccess ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                profileService.acknowledgeWarning(doctorId)
+                Log.d(TAG, "Warning acknowledged for $doctorId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to acknowledge warning", e)
+            }
+            pendingOnSuccess = null
+            pendingDoctorId = null
+            _uiState.update { it.copy(isLoading = false, hasWarning = false, warningMessage = null) }
+            onSuccess()
+        }
+    }
+
     fun clearBlockedState() {
+        pendingOnSuccess = null
+        pendingDoctorId = null
         _uiState.update {
             DoctorLoginUiState()
         }

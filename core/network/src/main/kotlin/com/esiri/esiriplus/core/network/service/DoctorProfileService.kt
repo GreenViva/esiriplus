@@ -64,6 +64,8 @@ data class DoctorProfileRow(
     @SerialName("rejection_reason") val rejectionReason: String? = null,
     @SerialName("suspended_until") val suspendedUntil: String? = null,
     @SerialName("suspension_reason") val suspensionReason: String? = null,
+    @SerialName("warning_message") val warningMessage: String? = null,
+    @SerialName("warning_at") val warningAt: String? = null,
     @SerialName("is_banned") val isBanned: Boolean = false,
     @SerialName("banned_at") val bannedAt: String? = null,
     @SerialName("ban_reason") val banReason: String? = null,
@@ -114,6 +116,21 @@ class DoctorProfileService @Inject constructor(
                 filter { eq("doctor_id", doctorId) }
             }
             Log.d(TAG, "Updated availability for $doctorId to $isAvailable")
+        }
+    }
+
+    suspend fun acknowledgeWarning(doctorId: String): ApiResult<Unit> {
+        return safeApiCall {
+            supabaseClientProvider.client.from("doctor_profiles").update(
+                buildJsonObject {
+                    put("warning_message", null as String?)
+                    put("warning_at", null as String?)
+                    put("updated_at", java.time.Instant.now().toString())
+                },
+            ) {
+                filter { eq("doctor_id", doctorId) }
+            }
+            Log.d(TAG, "Acknowledged warning for $doctorId")
         }
     }
 
