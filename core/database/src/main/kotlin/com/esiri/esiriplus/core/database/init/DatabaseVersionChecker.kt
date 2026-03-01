@@ -61,6 +61,6 @@ class DatabaseVersionChecker @Inject constructor(
     companion object {
         private const val TAG = "DatabaseVersionChecker"
         private const val DATABASE_NAME = "esiriplus.db"
-        const val EXPECTED_VERSION = 18
+        const val EXPECTED_VERSION = 19
     }
 }
