@@ -57,6 +57,8 @@ class MessageQueue @Inject constructor(
                 senderType = msg.senderType,
                 senderId = msg.senderId,
                 messageText = msg.messageText,
+                messageType = msg.messageType,
+                attachmentUrl = msg.attachmentUrl,
             )) {
                 is ApiResult.Success -> {
                     messageDao.markAsSynced(msg.messageId)

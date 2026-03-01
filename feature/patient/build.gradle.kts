@@ -15,4 +15,5 @@ dependencies {
     implementation(project(":feature:chat"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.compose.material.icons.extended)
 }

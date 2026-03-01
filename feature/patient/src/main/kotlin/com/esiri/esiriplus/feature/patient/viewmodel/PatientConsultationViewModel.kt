@@ -1,6 +1,9 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +17,7 @@ import com.esiri.esiriplus.core.domain.model.ConsultationSessionState
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.service.ChatRealtimeService
+import com.esiri.esiriplus.core.network.storage.FileUploadService
 import com.esiri.esiriplus.core.network.service.ConsultationSessionManager
 import com.esiri.esiriplus.core.network.service.MessageQueue
 import com.esiri.esiriplus.core.network.service.MessageService
@@ -47,6 +51,7 @@ data class ChatUiState(
     val consultationId: String = "",
     val error: String? = null,
     val sendError: String? = null,
+    val isUploading: Boolean = false,
 )
 
 @HiltViewModel
@@ -61,6 +66,7 @@ class PatientConsultationViewModel @Inject constructor(
     private val consultationSessionManager: ConsultationSessionManager,
     private val tokenManager: TokenManager,
     private val supabaseClientProvider: SupabaseClientProvider,
+    private val fileUploadService: FileUploadService,
 ) : ViewModel() {
 
     val consultationId: String = savedStateHandle["consultationId"] ?: ""
@@ -182,6 +188,7 @@ class PatientConsultationViewModel @Inject constructor(
                             senderId = event.senderId,
                             messageText = event.messageText,
                             messageType = event.messageType,
+                            attachmentUrl = event.attachmentUrl,
                             synced = true,
                             createdAt = parseTimestamp(event.createdAt),
                         )
@@ -357,6 +364,111 @@ class PatientConsultationViewModel @Inject constructor(
         sendTypingIndicator(false)
     }
 
+    fun sendAttachment(uri: Uri, context: Context) {
+        val state = _uiState.value
+        if (state.currentUserId.isBlank() || state.isUploading) return
+
+        _uiState.update { it.copy(isUploading = true, sendError = null) }
+
+        viewModelScope.launch(safeHandler) {
+            try {
+                val contentResolver = context.contentResolver
+                val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
+                val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: throw IllegalStateException("Cannot read file")
+
+                if (bytes.size > 10 * 1024 * 1024) {
+                    _uiState.update {
+                        it.copy(isUploading = false, sendError = "File too large. Maximum size is 10MB.")
+                    }
+                    delay(3000)
+                    _uiState.update { it.copy(sendError = null) }
+                    return@launch
+                }
+
+                val isImage = mimeType.startsWith("image/")
+                val messageType = if (isImage) "image" else "document"
+                val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "bin"
+                val fileName = getFileNameFromUri(uri, context) ?: "file.$ext"
+
+                val storagePath = "$consultationId/${UUID.randomUUID()}.$ext"
+                val uploadResult = fileUploadService.uploadFile(
+                    bucketName = ATTACHMENT_BUCKET,
+                    path = storagePath,
+                    bytes = bytes,
+                    contentType = mimeType,
+                )
+
+                when (uploadResult) {
+                    is ApiResult.Success -> {
+                        val publicUrl = fileUploadService.getPublicUrl(ATTACHMENT_BUCKET, storagePath)
+                        val messageId = UUID.randomUUID().toString()
+                        val now = System.currentTimeMillis()
+                        val messageData = MessageData(
+                            messageId = messageId,
+                            consultationId = consultationId,
+                            senderType = state.currentUserType,
+                            senderId = state.currentUserId,
+                            messageText = fileName,
+                            messageType = messageType,
+                            attachmentUrl = publicUrl,
+                            synced = false,
+                            createdAt = now,
+                        )
+                        messageRepository.saveMessage(messageData)
+
+                        when (val sendResult = messageService.sendMessage(
+                            messageId = messageId,
+                            consultationId = consultationId,
+                            senderType = state.currentUserType,
+                            senderId = state.currentUserId,
+                            messageText = fileName,
+                            messageType = messageType,
+                            attachmentUrl = publicUrl,
+                        )) {
+                            is ApiResult.Success -> {
+                                messageRepository.markAsSynced(messageId)
+                                Log.d(TAG, "Attachment $messageId sent successfully")
+                            }
+                            else -> {
+                                Log.e(TAG, "Failed to send attachment message: $sendResult")
+                                _uiState.update { it.copy(sendError = "Failed to send attachment. Retrying...") }
+                                messageQueue.processUnsynced()
+                                delay(3000)
+                                _uiState.update { it.copy(sendError = null) }
+                            }
+                        }
+                    }
+                    else -> {
+                        Log.e(TAG, "Failed to upload file: $uploadResult")
+                        _uiState.update { it.copy(sendError = "Failed to upload file. Please try again.") }
+                        delay(3000)
+                        _uiState.update { it.copy(sendError = null) }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "sendAttachment failed", e)
+                _uiState.update { it.copy(sendError = "Failed to send attachment.") }
+                delay(3000)
+                _uiState.update { it.copy(sendError = null) }
+            } finally {
+                _uiState.update { it.copy(isUploading = false) }
+            }
+        }
+    }
+
+    private fun getFileNameFromUri(uri: Uri, context: Context): String? {
+        if (uri.scheme == "content") {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0 && cursor.moveToFirst()) {
+                    return cursor.getString(nameIndex)
+                }
+            }
+        }
+        return uri.lastPathSegment
+    }
+
     fun dismissSendError() {
         _uiState.update { it.copy(sendError = null) }
     }
@@ -397,6 +509,8 @@ class PatientConsultationViewModel @Inject constructor(
                 senderType = msg.senderType,
                 senderId = msg.senderId,
                 messageText = msg.messageText,
+                messageType = msg.messageType,
+                attachmentUrl = msg.attachmentUrl,
             )) {
                 is ApiResult.Success -> messageRepository.markAsSynced(msg.messageId)
                 else -> {} // Will retry next session
@@ -434,6 +548,7 @@ class PatientConsultationViewModel @Inject constructor(
         private const val TYPING_THROTTLE_MS = 2_000L
         private const val TYPING_AUTO_CLEAR_MS = 3_000L
         private const val TYPING_DISPLAY_TIMEOUT_MS = 5_000L
+        private const val ATTACHMENT_BUCKET = "message-attachments"
     }
 }
 

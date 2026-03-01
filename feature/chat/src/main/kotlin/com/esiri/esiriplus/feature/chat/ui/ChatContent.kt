@@ -1,6 +1,9 @@
 package com.esiri.esiriplus.feature.chat.ui
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +31,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,13 +49,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.esiri.esiriplus.core.domain.repository.MessageData
 import kotlinx.coroutines.delay
 
@@ -75,6 +88,8 @@ fun ChatContent(
     error: String? = null,
     sendError: String? = null,
     isInputEnabled: Boolean = true,
+    isUploading: Boolean = false,
+    onAttachmentClick: () -> Unit = {},
     topBarActions: @Composable RowScope.() -> Unit = {},
     timerContent: @Composable () -> Unit = {},
     bottomOverlay: @Composable () -> Unit = {},
@@ -164,6 +179,32 @@ fun ChatContent(
                 }
             }
 
+            // Upload progress banner
+            if (isUploading) {
+                Surface(
+                    color = BrandTeal.copy(alpha = 0.1f),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CircularProgressIndicator(
+                            color = BrandTeal,
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "Uploading attachment...",
+                            color = BrandTeal,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
+            }
+
             // Input bar
             if (isInputEnabled) {
                 ChatInputBar(
@@ -178,6 +219,8 @@ fun ChatContent(
                             textInput = ""
                         }
                     },
+                    onAttachmentClick = onAttachmentClick,
+                    isUploading = isUploading,
                 )
             } else {
                 DisabledInputBar()
@@ -264,6 +307,7 @@ private fun MessageBubble(
     message: MessageData,
     isOwn: Boolean,
 ) {
+    val context = LocalContext.current
     val bubbleColor = if (isOwn) BrandTeal else Color.White
     val textColor = if (isOwn) Color.White else Color.Black
     val alignment = if (isOwn) Alignment.End else Alignment.Start
@@ -272,6 +316,9 @@ private fun MessageBubble(
     } else {
         RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
     }
+
+    val hasAttachment = !message.attachmentUrl.isNullOrBlank()
+    val isImage = message.messageType == "image" && hasAttachment
 
     Column(
         modifier = Modifier
@@ -286,11 +333,91 @@ private fun MessageBubble(
             modifier = Modifier.widthIn(min = 64.dp, max = 280.dp),
         ) {
             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                Text(
-                    text = message.messageText,
-                    color = textColor,
-                    fontSize = 15.sp,
-                )
+                // Attachment content
+                if (isImage) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(message.attachmentUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Attached image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 100.dp, max = 200.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(message.attachmentUrl))
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            },
+                        contentScale = ContentScale.Crop,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                } else if (hasAttachment) {
+                    // Document / PDF attachment
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (isOwn) Color.White.copy(alpha = 0.15f) else Color(0xFFF3F4F6),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(message.attachmentUrl))
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            },
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.Description,
+                                contentDescription = "Document",
+                                tint = if (isOwn) Color.White else BrandTeal,
+                                modifier = Modifier.size(28.dp),
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = extractFileName(message.messageText, message.attachmentUrl!!),
+                                    color = textColor,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    text = "Tap to open",
+                                    color = if (isOwn) Color.White.copy(alpha = 0.7f) else Color(0xFF6B7280),
+                                    fontSize = 11.sp,
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                }
+
+                // Text content (show if not empty, or if no attachment)
+                if (message.messageText.isNotBlank() && !(hasAttachment && message.messageText == extractFileName(message.messageText, message.attachmentUrl ?: ""))) {
+                    if (!hasAttachment) {
+                        // Pure text message
+                        Text(
+                            text = message.messageText,
+                            color = textColor,
+                            fontSize = 15.sp,
+                        )
+                    }
+                } else if (!hasAttachment) {
+                    Text(
+                        text = message.messageText,
+                        color = textColor,
+                        fontSize = 15.sp,
+                    )
+                }
+
+                // Timestamp row
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -310,6 +437,16 @@ private fun MessageBubble(
             }
         }
     }
+}
+
+/** Extract a display filename from the message text or attachment URL. */
+private fun extractFileName(messageText: String, attachmentUrl: String): String {
+    // If messageText looks like a filename, use it
+    if (messageText.isNotBlank() && (messageText.contains('.') || messageText.length < 60)) {
+        return messageText
+    }
+    // Fallback: extract from URL
+    return attachmentUrl.substringAfterLast('/').substringBefore('?').ifBlank { "Document" }
 }
 
 @Composable
@@ -372,6 +509,8 @@ private fun ChatInputBar(
     value: String,
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
+    onAttachmentClick: () -> Unit,
+    isUploading: Boolean = false,
 ) {
     Surface(
         shadowElevation = 8.dp,
@@ -381,9 +520,21 @@ private fun ChatInputBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            IconButton(
+                onClick = onAttachmentClick,
+                enabled = !isUploading,
+                modifier = Modifier.size(40.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AttachFile,
+                    contentDescription = "Attach file",
+                    tint = if (isUploading) Color(0xFFE5E7EB) else BrandTeal,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,

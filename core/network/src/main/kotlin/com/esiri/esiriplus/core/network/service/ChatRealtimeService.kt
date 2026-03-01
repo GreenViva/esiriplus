@@ -33,6 +33,7 @@ data class ChatMessageEvent(
     val senderId: String,
     val messageText: String,
     val messageType: String,
+    val attachmentUrl: String? = null,
     val createdAt: String,
 )
 
@@ -200,8 +201,9 @@ class ChatRealtimeService @Inject constructor(
         val senderId = record["sender_id"]?.jsonPrimitive?.content ?: return null
         val messageText = record["message_text"]?.jsonPrimitive?.content ?: ""
         val messageType = record["message_type"]?.jsonPrimitive?.content ?: "text"
+        val attachmentUrl = record["attachment_url"]?.jsonPrimitive?.content
         val createdAt = record["created_at"]?.jsonPrimitive?.content ?: ""
-        return ChatMessageEvent(messageId, consultationId, senderType, senderId, messageText, messageType, createdAt)
+        return ChatMessageEvent(messageId, consultationId, senderType, senderId, messageText, messageType, attachmentUrl, createdAt)
     }
 
     private fun extractTypingEvent(action: PostgresAction): TypingEvent? {

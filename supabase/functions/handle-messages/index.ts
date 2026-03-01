@@ -104,13 +104,14 @@ async function handleSend(
   const consultationId = body.consultation_id as string;
   const senderType = body.sender_type as string;
   const senderId = body.sender_id as string;
-  const messageText = body.message_text as string;
+  const messageText = (body.message_text as string) ?? "";
   const messageType = (body.message_type as string) ?? "text";
+  const attachmentUrl = (body.attachment_url as string) || null;
 
   if (!consultationId) throw new ValidationError("consultation_id is required");
   if (!senderType) throw new ValidationError("sender_type is required");
   if (!senderId) throw new ValidationError("sender_id is required");
-  if (!messageText) throw new ValidationError("message_text is required");
+  if (!messageText && !attachmentUrl) throw new ValidationError("message_text or attachment_url is required");
 
   // Authorization: verify caller is a participant
   await verifyConsultationParticipant(consultationId, auth);
@@ -138,6 +139,7 @@ async function handleSend(
     message_type: messageType,
   };
   if (messageId) insertPayload.message_id = messageId;
+  if (attachmentUrl) insertPayload.attachment_url = attachmentUrl;
 
   const { data, error } = await supabase
     .from("messages")

@@ -53,6 +53,7 @@ class MessageService @Inject constructor(
         senderId: String,
         messageText: String,
         messageType: String = "text",
+        attachmentUrl: String? = null,
     ): ApiResult<MessageRow> {
         val body = buildJsonObject {
             put("action", "send")
@@ -62,6 +63,7 @@ class MessageService @Inject constructor(
             put("sender_id", senderId)
             put("message_text", messageText)
             put("message_type", messageType)
+            if (attachmentUrl != null) put("attachment_url", attachmentUrl)
         }
         return safeApiCall {
             val raw = edgeFunctionClient.invoke(FUNCTION_NAME, body).getOrThrow()
