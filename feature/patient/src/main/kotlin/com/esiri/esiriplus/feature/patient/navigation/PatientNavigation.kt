@@ -58,6 +58,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onNavigateToProfile = { navController.navigate(PatientProfileRoute) },
                 onNavigateToReports = { navController.navigate(ReportsRoute) },
                 onNavigateToConsultationHistory = { navController.navigate(ConsultationHistoryRoute) },
+                onNavigateToAppointments = { navController.navigate(PatientAppointmentsRoute) },
                 onResumeConsultation = { consultationId ->
                     navController.navigate(PatientConsultationRoute(consultationId))
                 },

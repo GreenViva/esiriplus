@@ -15,6 +15,10 @@ import com.esiri.esiriplus.core.database.entity.DoctorAvailabilityEntity
 import com.esiri.esiriplus.core.database.entity.DoctorEarningsEntity
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.database.entity.PatientSessionEntity
+import com.esiri.esiriplus.core.common.result.Result
+import com.esiri.esiriplus.core.domain.model.Appointment
+import com.esiri.esiriplus.core.domain.model.AppointmentStatus
+import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorProfileRepository
 import com.esiri.esiriplus.core.domain.repository.FcmTokenRepository
@@ -151,6 +155,10 @@ data class DoctorDashboardUiState(
     val rejectionReason: String? = null,
     /** Non-null if the doctor has an active consultation to resume (crash recovery). */
     val activeConsultationToResume: String? = null,
+    // Appointments
+    val upcomingAppointments: List<Appointment> = emptyList(),
+    val todayAppointments: List<Appointment> = emptyList(),
+    val isLoadingAppointments: Boolean = false,
 )
 
 // ─── ViewModel ──────────────────────────────────────────────────────────────────
@@ -160,6 +168,7 @@ class DoctorDashboardViewModel @Inject constructor(
     private val application: Application,
     private val authRepository: AuthRepository,
     private val doctorProfileRepository: DoctorProfileRepository,
+    private val appointmentRepository: AppointmentRepository,
     private val consultationDao: ConsultationDao,
     private val availabilityDao: DoctorAvailabilityDao,
     private val doctorProfileDao: DoctorProfileDao,
@@ -280,6 +289,7 @@ class DoctorDashboardViewModel @Inject constructor(
             }
             launch { subscribeToRealtime(doctorId) }
             launch { pushFcmTokenIfNeeded(doctorId) }
+            launch { loadAppointments() }
         }
     }
 
@@ -523,6 +533,47 @@ class DoctorDashboardViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private suspend fun loadAppointments() {
+        _uiState.update { it.copy(isLoadingAppointments = true) }
+        when (val result = appointmentRepository.getAppointments(limit = 100)) {
+            is Result.Success -> {
+                val now = System.currentTimeMillis()
+                val todayStart = now - (now % (24 * 60 * 60 * 1000))
+                val todayEnd = todayStart + (24 * 60 * 60 * 1000)
+
+                val today = result.data.filter { apt ->
+                    apt.scheduledAt in todayStart until todayEnd &&
+                        apt.status in listOf(
+                            AppointmentStatus.BOOKED,
+                            AppointmentStatus.CONFIRMED,
+                            AppointmentStatus.IN_PROGRESS,
+                        )
+                }.sortedBy { it.scheduledAt }
+
+                val upcoming = result.data.filter { apt ->
+                    apt.scheduledAt >= todayEnd &&
+                        apt.status in listOf(
+                            AppointmentStatus.BOOKED,
+                            AppointmentStatus.CONFIRMED,
+                        )
+                }.sortedBy { it.scheduledAt }
+
+                _uiState.update {
+                    it.copy(
+                        todayAppointments = today,
+                        upcomingAppointments = upcoming,
+                        isLoadingAppointments = false,
+                    )
+                }
+            }
+            is Result.Error -> {
+                Log.w(TAG, "Failed to load appointments: ${result.message}")
+                _uiState.update { it.copy(isLoadingAppointments = false) }
+            }
+            is Result.Loading -> { /* no-op */ }
         }
     }
 

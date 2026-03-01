@@ -138,6 +138,7 @@ class BookAppointmentViewModel @Inject constructor(
             val dateStr = date.toString() // YYYY-MM-DD
             when (val result = appointmentRepository.getAvailableSlots(doctorId, dateStr)) {
                 is Result.Success -> {
+                    Log.d(TAG, "getAvailableSlots OK: date=$dateStr, availabilitySlots=${result.data.availabilitySlots.size}, bookedAppointments=${result.data.bookedAppointments.size}, dayOfWeek=${result.data.dayOfWeek}")
                     cachedSlotsResponse = result.data
                     val slots = generateTimeSlots(result.data, date)
                     _uiState.update {
@@ -172,8 +173,8 @@ class BookAppointmentViewModel @Inject constructor(
         val isToday = date == now.toLocalDate()
 
         for (availSlot in response.availabilitySlots) {
-            val startTime = LocalTime.parse(availSlot.startTime, timeFormatter)
-            val endTime = LocalTime.parse(availSlot.endTime, timeFormatter)
+            val startTime = LocalTime.parse(availSlot.startTime)
+            val endTime = LocalTime.parse(availSlot.endTime)
             val intervalMinutes = serviceDurationMinutes.toLong()
 
             var current = startTime

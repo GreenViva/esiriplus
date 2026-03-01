@@ -286,9 +286,10 @@ async function handleGetSlots(
 ): Promise<Response> {
   const supabase = getServiceClient();
 
-  // Parse the target date
-  const targetDate = new Date(body.date + "T00:00:00+03:00"); // EAT
-  const dayOfWeek = targetDate.getDay(); // 0=Sunday
+  // Parse the target date — use UTC to avoid timezone shift issues
+  const [year, month, day] = body.date.split("-").map(Number);
+  const targetDate = new Date(Date.UTC(year, month - 1, day));
+  const dayOfWeek = targetDate.getUTCDay(); // 0=Sunday
 
   // 1. Get doctor's availability slots for this day of week
   const { data: availabilitySlots, error: slotsError } = await supabase

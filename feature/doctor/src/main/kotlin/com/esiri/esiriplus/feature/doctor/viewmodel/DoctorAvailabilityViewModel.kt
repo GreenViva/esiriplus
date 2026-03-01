@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.service.AvailabilitySlotRow
 import com.esiri.esiriplus.core.network.service.DoctorAvailabilityService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,13 +38,32 @@ private val DAY_NAMES = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thur
 class DoctorAvailabilityViewModel @Inject constructor(
     private val availabilityService: DoctorAvailabilityService,
     private val authRepository: AuthRepository,
+    private val supabaseClientProvider: SupabaseClientProvider,
+    private val tokenManager: TokenManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorAvailabilityUiState())
     val uiState: StateFlow<DoctorAvailabilityUiState> = _uiState.asStateFlow()
 
     init {
-        loadSlots()
+        ensureAuthAndLoad()
+    }
+
+    private fun ensureAuthAndLoad() {
+        viewModelScope.launch {
+            try {
+                val session = authRepository.currentSession.first()
+                if (session != null) {
+                    val freshAccess = tokenManager.getAccessTokenSync() ?: session.accessToken
+                    val freshRefresh = tokenManager.getRefreshTokenSync() ?: session.refreshToken
+                    supabaseClientProvider.importAuthToken(freshAccess, freshRefresh)
+                    Log.d(TAG, "importAuthToken succeeded for availability")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "importAuthToken FAILED", e)
+            }
+            loadSlots()
+        }
     }
 
     fun loadSlots() {
@@ -98,6 +119,7 @@ class DoctorAvailabilityViewModel @Inject constructor(
             try {
                 val doctorId = authRepository.currentSession.first()?.user?.id ?: return@launch
 
+                Log.d(TAG, "Inserting slot: doctor=$doctorId day=${state.editDayOfWeek} ${state.editStartTime}-${state.editEndTime}")
                 availabilityService.insertSlot(
                     AvailabilitySlotRow(
                         doctorId = doctorId,
@@ -107,6 +129,7 @@ class DoctorAvailabilityViewModel @Inject constructor(
                         bufferMinutes = state.editBufferMinutes,
                     ),
                 )
+                Log.d(TAG, "Slot inserted successfully")
 
                 _uiState.update {
                     it.copy(isSaving = false, successMessage = "Slot added")

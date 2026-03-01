@@ -86,8 +86,24 @@ class DoctorAvailabilityService @Inject constructor(
     }
 
     suspend fun insertSlot(slot: AvailabilitySlotRow) {
-        supabaseClientProvider.client.from("doctor_availability_slots")
-            .insert(slot)
+        // Build JSON manually to omit slot_id so the DB default gen_random_uuid() kicks in
+        val json = buildJsonObject {
+            put("doctor_id", slot.doctorId)
+            put("day_of_week", slot.dayOfWeek)
+            put("start_time", slot.startTime)
+            put("end_time", slot.endTime)
+            put("buffer_minutes", slot.bufferMinutes)
+            put("is_active", slot.isActive)
+        }
+        Log.d(TAG, "insertSlot: posting JSON=$json")
+        try {
+            supabaseClientProvider.client.from("doctor_availability_slots")
+                .insert(json)
+            Log.d(TAG, "insertSlot: SUCCESS")
+        } catch (e: Exception) {
+            Log.e(TAG, "insertSlot: FAILED — ${e::class.simpleName}: ${e.message}", e)
+            throw e
+        }
     }
 
     suspend fun deleteSlot(slotId: String) {

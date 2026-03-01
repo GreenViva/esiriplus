@@ -78,7 +78,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.esiri.esiriplus.core.domain.model.Appointment
 import com.esiri.esiriplus.feature.doctor.R
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardUiState
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardViewModel
 import com.esiri.esiriplus.feature.doctor.viewmodel.EarningsTransaction
@@ -254,6 +259,7 @@ fun DoctorDashboardScreen(
                     uiState = uiState,
                     onToggleOnline = viewModel::onToggleOnline,
                     onViewAllRequests = onNavigateToConsultations,
+                    onViewAllAppointments = onNavigateToAppointments,
                     onOpenSidebar = { isSidebarOpen = true },
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
                     onNotificationsClick = onNavigateToNotifications,
@@ -536,6 +542,7 @@ private fun DashboardContent(
     uiState: DoctorDashboardUiState,
     onToggleOnline: () -> Unit,
     onViewAllRequests: () -> Unit,
+    onViewAllAppointments: () -> Unit = {},
     onOpenSidebar: () -> Unit,
     onSetAvailability: () -> Unit,
     onNotificationsClick: () -> Unit = {},
@@ -587,6 +594,17 @@ private fun DashboardContent(
         PendingRequestsSection(
             count = uiState.pendingRequests,
             onViewAll = onViewAllRequests,
+            modifier = Modifier.padding(horizontal = 12.dp),
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Upcoming Appointments
+        AppointmentsSection(
+            todayAppointments = uiState.todayAppointments,
+            upcomingAppointments = uiState.upcomingAppointments,
+            isLoading = uiState.isLoadingAppointments,
+            onViewAll = onViewAllAppointments,
             modifier = Modifier.padding(horizontal = 12.dp),
         )
 
@@ -932,14 +950,26 @@ private fun StatsGrid(uiState: DoctorDashboardUiState, modifier: Modifier = Modi
                 modifier = Modifier.weight(1f),
             )
         }
-        // Row 3: Acceptance Rate (single card)
-        StatCard(
-            value = uiState.acceptanceRate,
-            label = "Acceptance Rate",
-            iconColor = BrandTeal,
-            iconBg = Color(0xFFD1FAE5),
-            modifier = Modifier.fillMaxWidth(0.48f),
-        )
+        // Row 3: Acceptance Rate + Appointments
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            StatCard(
+                value = uiState.acceptanceRate,
+                label = "Acceptance Rate",
+                iconColor = BrandTeal,
+                iconBg = Color(0xFFD1FAE5),
+                modifier = Modifier.weight(1f),
+            )
+            StatCard(
+                value = "${uiState.todayAppointments.size + uiState.upcomingAppointments.size}",
+                label = "Appointments",
+                iconColor = Color(0xFF8B5CF6),
+                iconBg = Color(0xFFEDE9FE),
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -1119,6 +1149,173 @@ private fun PendingRequestsSection(
                 text = if (count == 0) "No pending requests" else "$count pending request(s)",
                 fontSize = 13.sp,
                 color = SubtitleGray,
+            )
+        }
+    }
+}
+
+// ─── Appointments Section ───────────────────────────────────────────────────────
+
+private val appointmentDateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
+private val appointmentTimeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+
+@Composable
+private fun AppointmentsSection(
+    todayAppointments: List<Appointment>,
+    upcomingAppointments: List<Appointment>,
+    isLoading: Boolean,
+    onViewAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val allAppointments = todayAppointments + upcomingAppointments
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
+            .background(Color.White)
+            .padding(14.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Upcoming Appointments",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = DarkText,
+                modifier = Modifier.weight(1f),
+            )
+            Row(
+                modifier = Modifier.clickable(onClick = onViewAll),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "View All",
+                    fontSize = 12.sp,
+                    color = DarkText,
+                    fontWeight = FontWeight.Medium,
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = DarkText,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = BrandTeal, modifier = Modifier.size(24.dp))
+            }
+        } else if (allAppointments.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp),
+                    tint = CardBorder,
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "No upcoming appointments",
+                    fontSize = 13.sp,
+                    color = SubtitleGray,
+                )
+            }
+        } else {
+            // Show up to 3 appointments as a preview
+            allAppointments.take(3).forEach { appointment ->
+                AppointmentRow(appointment = appointment)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            if (allAppointments.size > 3) {
+                Text(
+                    text = "+${allAppointments.size - 3} more",
+                    fontSize = 12.sp,
+                    color = BrandTeal,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .clickable(onClick = onViewAll)
+                        .padding(top = 4.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppointmentRow(appointment: Appointment) {
+    val scheduledInstant = Instant.ofEpochMilli(appointment.scheduledAt)
+    val zoned = scheduledInstant.atZone(ZoneId.of("Africa/Nairobi"))
+    val dateStr = zoned.format(appointmentDateFormatter)
+    val timeStr = zoned.format(appointmentTimeFormatter)
+
+    val statusColor = when (appointment.status.name.lowercase()) {
+        "booked" -> Color(0xFF3B82F6)
+        "confirmed" -> BrandTeal
+        "in_progress" -> Color(0xFFF59E0B)
+        else -> Color.Gray
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFFF8FFFE))
+            .border(1.dp, CardBorder, RoundedCornerShape(8.dp))
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = appointment.serviceType.replaceFirstChar { it.uppercase() }.replace("_", " "),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = DarkText,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "$dateStr at $timeStr",
+                fontSize = 11.sp,
+                color = SubtitleGray,
+            )
+            if (appointment.chiefComplaint.isNotBlank()) {
+                Text(
+                    text = appointment.chiefComplaint,
+                    fontSize = 11.sp,
+                    color = SubtitleGray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(statusColor.copy(alpha = 0.1f))
+                .padding(horizontal = 8.dp, vertical = 3.dp),
+        ) {
+            Text(
+                text = appointment.status.name.lowercase()
+                    .replaceFirstChar { it.uppercase() },
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                color = statusColor,
             )
         }
     }

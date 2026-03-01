@@ -83,6 +83,7 @@ fun PatientHomeScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToReports: () -> Unit,
     onNavigateToConsultationHistory: () -> Unit,
+    onNavigateToAppointments: () -> Unit,
     onResumeConsultation: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientHomeViewModel = hiltViewModel(),
@@ -184,7 +185,12 @@ fun PatientHomeScreen(
             Spacer(Modifier.height(12.dp))
 
             // My Appointments
-            MyAppointmentsSection()
+            DashboardSectionCard(
+                iconRes = R.drawable.ic_calendar,
+                title = "My Appointments",
+                subtitle = "View and manage your appointments",
+                onClick = onNavigateToAppointments,
+            )
         }
 
         // Pulsing chat FAB when there is an active consultation
@@ -650,52 +656,3 @@ private fun ActiveChatFab(
     }
 }
 
-@Composable
-private fun MyAppointmentsSection() {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            painter = painterResource(R.drawable.ic_calendar),
-            contentDescription = null,
-            tint = BrandTeal,
-            modifier = Modifier.size(22.dp),
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = "My Appointments",
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            color = Color.Black,
-        )
-    }
-    Spacer(Modifier.height(12.dp))
-    // Empty state
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, CardBorder),
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_calendar),
-                    contentDescription = null,
-                    tint = CardBorder,
-                    modifier = Modifier.size(40.dp),
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "No appointments yet",
-                    color = SubtitleGrey,
-                    fontSize = 14.sp,
-                )
-            }
-        }
-    }
-}
