@@ -581,6 +581,109 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_15_16 = object : Migration(15, 16) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Recreate messages table WITHOUT foreign key to consultations.
+            // Messages are cached from the server; the consultation may not exist
+            // locally, so the FK constraint prevents all message inserts.
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `messages_new` (
+                    `messageId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `senderType` TEXT NOT NULL,
+                    `senderId` TEXT NOT NULL,
+                    `messageText` TEXT NOT NULL,
+                    `messageType` TEXT NOT NULL,
+                    `attachmentUrl` TEXT DEFAULT NULL,
+                    `isRead` INTEGER NOT NULL DEFAULT 0,
+                    `synced` INTEGER NOT NULL DEFAULT 0,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`messageId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO `messages_new` (
+                    `messageId`, `consultationId`, `senderType`, `senderId`,
+                    `messageText`, `messageType`, `attachmentUrl`, `isRead`,
+                    `synced`, `createdAt`
+                )
+                SELECT
+                    `messageId`, `consultationId`, `senderType`, `senderId`,
+                    `messageText`, `messageType`, `attachmentUrl`, `isRead`,
+                    `synced`, `createdAt`
+                FROM `messages`
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE `messages`")
+            db.execSQL("ALTER TABLE `messages_new` RENAME TO `messages`")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_messages_consultationId_createdAt` ON `messages` (`consultationId`, `createdAt`)")
+        }
+    }
+
+    val MIGRATION_16_17 = object : Migration(16, 17) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Recreate consultations table WITHOUT foreign key to patient_sessions.
+            // Consultations are cached from the server; the patient session may not
+            // exist locally (especially on the doctor side), so the FK prevents inserts.
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `consultations_new` (
+                    `consultationId` TEXT NOT NULL,
+                    `patientSessionId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `serviceType` TEXT NOT NULL,
+                    `consultationFee` INTEGER NOT NULL,
+                    `sessionStartTime` INTEGER DEFAULT NULL,
+                    `sessionEndTime` INTEGER DEFAULT NULL,
+                    `sessionDurationMinutes` INTEGER NOT NULL DEFAULT 15,
+                    `requestExpiresAt` INTEGER NOT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`consultationId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO `consultations_new` (
+                    `consultationId`, `patientSessionId`, `doctorId`, `status`,
+                    `serviceType`, `consultationFee`, `sessionStartTime`, `sessionEndTime`,
+                    `sessionDurationMinutes`, `requestExpiresAt`, `createdAt`, `updatedAt`
+                )
+                SELECT
+                    `consultationId`, `patientSessionId`, `doctorId`, `status`,
+                    `serviceType`, `consultationFee`, `sessionStartTime`, `sessionEndTime`,
+                    `sessionDurationMinutes`, `requestExpiresAt`, `createdAt`, `updatedAt`
+                FROM `consultations`
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE `consultations`")
+            db.execSQL("ALTER TABLE `consultations_new` RENAME TO `consultations`")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_consultations_patientSessionId` ON `consultations` (`patientSessionId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_consultations_doctorId` ON `consultations` (`doctorId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_consultations_status_createdAt` ON `consultations` (`status`, `createdAt`)")
+        }
+    }
+
+    val MIGRATION_17_18 = object : Migration(17, 18) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `messages` ADD COLUMN `retryCount` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `messages` ADD COLUMN `failedAt` INTEGER DEFAULT NULL")
+        }
+    }
+
+    val MIGRATION_18_19 = object : Migration(18, 19) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `doctor_profiles` ADD COLUMN `isBanned` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `doctor_profiles` ADD COLUMN `bannedAt` INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE `doctor_profiles` ADD COLUMN `banReason` TEXT DEFAULT NULL")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -596,5 +699,9 @@ object DatabaseMigrations {
         MIGRATION_12_13,
         MIGRATION_13_14,
         MIGRATION_14_15,
+        MIGRATION_15_16,
+        MIGRATION_16_17,
+        MIGRATION_17_18,
+        MIGRATION_18_19,
     )
 }

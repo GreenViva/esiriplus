@@ -3,6 +3,8 @@
 
 import { corsHeaders, handlePreflight } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
+import { checkRateLimit } from "../_shared/rateLimit.ts";
+import { getClientIp } from "../_shared/logger.ts";
 
 const MAX_DOCTOR_SLOTS = 10;
 const MAX_IDS_PER_REQUEST = 50;
@@ -18,6 +20,10 @@ Deno.serve(async (req) => {
   };
 
   try {
+    // Rate limit by IP (30 req/min)
+    const clientIp = getClientIp(req) ?? "unknown";
+    await checkRateLimit(`get-doctor-slots:${clientIp}`, 30, 60);
+
     const { doctor_ids } = await req.json();
 
     if (

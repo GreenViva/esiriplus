@@ -2,14 +2,18 @@ package com.esiri.esiriplus.core.network.di
 
 import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
 import com.esiri.esiriplus.core.domain.repository.FcmTokenRepository
+import com.esiri.esiriplus.core.domain.repository.MessageRepository
 import com.esiri.esiriplus.core.domain.repository.NotificationRepository
+
 import com.esiri.esiriplus.core.network.BuildConfig
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.api.SupabaseApi
 import com.esiri.esiriplus.core.network.fcm.FcmTokenRepositoryImpl
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRepositoryImpl
+import com.esiri.esiriplus.core.network.service.MessageRepositoryImpl
 import com.esiri.esiriplus.core.network.service.NotificationRepositoryImpl
+
 import com.esiri.esiriplus.core.network.interceptor.AuthInterceptor
 import com.esiri.esiriplus.core.network.interceptor.LoggingInterceptorFactory
 import com.esiri.esiriplus.core.network.interceptor.ProactiveTokenRefreshInterceptor
@@ -104,6 +108,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideConsultationRequestRepository(impl: ConsultationRequestRepositoryImpl): ConsultationRequestRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideMessageRepository(impl: MessageRepositoryImpl): MessageRepository = impl
 
     private const val CONNECT_TIMEOUT_SECONDS = 30L
     private const val READ_TIMEOUT_SECONDS = 60L

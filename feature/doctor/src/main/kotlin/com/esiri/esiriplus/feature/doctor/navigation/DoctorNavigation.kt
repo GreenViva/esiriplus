@@ -7,12 +7,14 @@ import androidx.navigation.compose.navigation
 import com.esiri.esiriplus.feature.doctor.screen.DoctorConsultationDetailScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorConsultationListScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorDashboardScreen
+import com.esiri.esiriplus.feature.doctor.screen.DoctorNotificationsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorReportScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorVideoCallScreen
 import kotlinx.serialization.Serializable
 
 @Serializable object DoctorGraph
 @Serializable object DoctorDashboardRoute
+@Serializable object DoctorNotificationsRoute
 @Serializable object DoctorConsultationListRoute
 @Serializable data class DoctorConsultationDetailRoute(val consultationId: String)
 @Serializable data class DoctorVideoCallRoute(val consultationId: String)
@@ -29,7 +31,13 @@ fun NavGraphBuilder.doctorGraph(
                 onNavigateToConsultation = { consultationId ->
                     navController.navigate(DoctorConsultationDetailRoute(consultationId))
                 },
+                onNavigateToNotifications = { navController.navigate(DoctorNotificationsRoute) },
                 onSignOut = onSignOut,
+            )
+        }
+        composable<DoctorNotificationsRoute> {
+            DoctorNotificationsScreen(
+                onBack = { navController.popBackStack() },
             )
         }
         composable<DoctorConsultationListRoute> {

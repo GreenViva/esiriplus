@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.extensions.isValidEmail
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.usecase.LoginDoctorUseCase
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.TokenManager
+import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.service.DoctorProfileService
 import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
 import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +28,9 @@ data class DoctorLoginUiState(
     val error: String? = null,
     val deviceMismatch: Boolean = false,
     val deviceMismatchError: String? = null,
+    val isBanned: Boolean = false,
+    val banReason: String? = null,
+    val bannedAt: String? = null,
 ) {
     val isFormValid: Boolean
         get() = email.isValidEmail() && password.length >= 6
@@ -34,6 +41,9 @@ class DoctorLoginViewModel @Inject constructor(
     private val loginDoctor: LoginDoctorUseCase,
     val biometricAuthManager: BiometricAuthManager,
     private val deviceBindingManager: DeviceBindingManager,
+    private val profileService: DoctorProfileService,
+    private val supabaseClientProvider: SupabaseClientProvider,
+    private val tokenManager: TokenManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorLoginUiState())
@@ -49,7 +59,7 @@ class DoctorLoginViewModel @Inject constructor(
 
     fun login(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = true, error = null, isBanned = false) }
             val email = uiState.value.email
             val password = uiState.value.password
 
@@ -60,25 +70,9 @@ class DoctorLoginViewModel @Inject constructor(
                         val session = result.data
                         val doctorId = session.user.id
 
-                        // Check device binding
-                        val boundDoctorId = deviceBindingManager.getBoundDoctorId()
-                        if (boundDoctorId != null && boundDoctorId != doctorId) {
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    deviceMismatch = true,
-                                    deviceMismatchError =
-                                        "This device is registered to another doctor account. " +
-                                        "Please use your registered device or contact support.",
-                                )
-                            }
-                            return@launch
-                        }
-
-                        // Bind device if not yet bound
-                        if (!deviceBindingManager.isDeviceBoundTo(doctorId)) {
-                            deviceBindingManager.bindDevice(doctorId)
-                        }
+                        // Check ban status before allowing navigation
+                        val banned = checkBanStatus(session.accessToken, session.refreshToken, doctorId)
+                        if (banned) return@launch
 
                         _uiState.update { it.copy(isLoading = false) }
                         onSuccess()
@@ -95,6 +89,54 @@ class DoctorLoginViewModel @Inject constructor(
                 }
             }
             _uiState.update { it.copy(isLoading = false, error = lastError) }
+        }
+    }
+
+    /**
+     * Checks if the doctor is banned by fetching their profile from Supabase.
+     * Returns true if banned (UI state is updated to show ban screen).
+     */
+    private suspend fun checkBanStatus(
+        accessToken: String,
+        refreshToken: String,
+        doctorId: String,
+    ): Boolean {
+        return try {
+            val freshAccess = tokenManager.getAccessTokenSync() ?: accessToken
+            val freshRefresh = tokenManager.getRefreshTokenSync() ?: refreshToken
+            supabaseClientProvider.importAuthToken(freshAccess, freshRefresh)
+
+            when (val profileResult = profileService.getDoctorProfile(doctorId)) {
+                is ApiResult.Success -> {
+                    val profile = profileResult.data
+                    if (profile?.isBanned == true) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                isBanned = true,
+                                banReason = profile.banReason,
+                                bannedAt = profile.bannedAt,
+                            )
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> {
+                    Log.w(TAG, "Failed to check ban status, allowing login")
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking ban status", e)
+            false
+        }
+    }
+
+    fun clearBanState() {
+        _uiState.update {
+            DoctorLoginUiState()
         }
     }
 

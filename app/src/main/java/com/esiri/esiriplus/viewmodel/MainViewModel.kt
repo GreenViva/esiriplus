@@ -67,7 +67,12 @@ class MainViewModel @Inject constructor(
     private suspend fun handleSessionExpired() {
         val result = refreshSession()
         if (result is Result.Error) {
-            logoutUseCase()
+            // Emit SessionExpired so NavHost can decide what to do.
+            // Do NOT call logoutUseCase() here — that clears the session and
+            // emits Unauthenticated, which would yank the user off protected
+            // screens (chat, payment). The NavHost will only navigate away
+            // if the user is NOT on a protected screen.
+            _authState.value = AuthState.SessionExpired
         }
     }
 }

@@ -10,6 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface SupabaseApi {
@@ -54,7 +55,7 @@ interface SupabaseApi {
 
     @GET("rest/v1/payments")
     suspend fun getPayment(
-        @Query("id") idFilter: String,
+        @Query("payment_id") paymentIdFilter: String,
         @Query("select") select: String = "*",
         @Header("Accept") accept: String = "application/vnd.pgrst.object+json",
     ): Response<PaymentApiModel>
@@ -74,4 +75,11 @@ interface SupabaseApi {
         @Header("Prefer") prefer: String = "return=representation",
         @Header("Accept") accept: String = "application/vnd.pgrst.object+json",
     ): Response<UserApiModel>
+
+    // FCM Tokens
+    @POST("rest/v1/fcm_tokens")
+    suspend fun upsertFcmToken(
+        @Body body: Map<String, String>,
+        @Header("Prefer") prefer: String = "resolution=merge-duplicates",
+    ): Response<Unit>
 }

@@ -219,9 +219,7 @@ Deno.serve(async (req: Request) => {
         success:         false,
       });
 
-      throw new ValidationError(
-        `Incorrect answers. You got ${correctCount} of ${MIN_CORRECT} required correct.`
-      );
+      throw new ValidationError("Incorrect answers. Please try again.");
     }
 
     // ── Success — issue new JWT ───────────────────────────────────────────────

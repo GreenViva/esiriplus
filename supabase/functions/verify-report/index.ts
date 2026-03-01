@@ -6,6 +6,7 @@ import { handlePreflight } from "../_shared/cors.ts";
 import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
 import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
+import { checkRateLimit } from "../_shared/rateLimit.ts";
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
@@ -13,6 +14,10 @@ Deno.serve(async (req: Request) => {
   if (preflight) return preflight;
 
   try {
+    // Rate limit by IP (30 req/min)
+    const clientIp = getClientIp(req) ?? "unknown";
+    await checkRateLimit(`verify-report:${clientIp}`, 30, 60);
+
     // Support both POST body and GET query param
     let verificationCode: string | null = null;
 

@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.feature.auth.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -26,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -68,6 +72,20 @@ fun DoctorLoginScreen(
         DeviceMismatchScreen(
             error = uiState.deviceMismatchError ?: "Device bound to another doctor",
             onBack = onBack,
+            modifier = modifier,
+        )
+        return
+    }
+
+    // Banned doctor — show ban notice screen
+    if (uiState.isBanned) {
+        BannedDoctorScreen(
+            banReason = uiState.banReason,
+            bannedAt = uiState.bannedAt,
+            onSignOut = {
+                viewModel.clearBanState()
+                onLogout()
+            },
             modifier = modifier,
         )
         return
@@ -362,6 +380,148 @@ private fun DeviceMismatchScreen(
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,
             )
+        }
+    }
+}
+
+@Composable
+private fun BannedDoctorScreen(
+    banReason: String?,
+    bannedAt: String?,
+    onSignOut: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val appealDeadline = remember(bannedAt) {
+        try {
+            val banned = java.time.Instant.parse(bannedAt)
+            val deadline = banned.plus(java.time.Duration.ofDays(7))
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("MMMM d, yyyy")
+                .withZone(java.time.ZoneId.systemDefault())
+            formatter.format(deadline)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Red circle with X icon
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(Color(0xFFFEE2E2), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "\u2716",
+                    fontSize = 36.sp,
+                    color = Color(0xFFDC2626),
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Account Banned",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFDC2626),
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "You have been banned from using this application.",
+                fontSize = 14.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+            )
+
+            if (!banReason.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFEF2F2))
+                        .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        text = "Reason",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFDC2626),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = banReason,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Appeal info box
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF0F9FF))
+                    .border(1.dp, Color(0xFFBAE6FD), RoundedCornerShape(12.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Have a complaint?",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF0369A1),
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (appealDeadline != null) {
+                        "You may contact our support team to appeal this decision within 7 days (by $appealDeadline)."
+                    } else {
+                        "You may contact our support team to appeal this decision within 7 days of the ban."
+                    },
+                    fontSize = 13.sp,
+                    color = Color.Black,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "support@esiriplus.com",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF0369A1),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            TextButton(onClick = onSignOut) {
+                Text(
+                    text = "Sign Out",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF6B7280),
+                )
+            }
         }
     }
 }

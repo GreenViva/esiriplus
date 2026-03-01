@@ -9,7 +9,7 @@ import { errorResponse, successResponse, ValidationError } from "../_shared/erro
 import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
-// All valid service types with their prices in KES
+// All valid service types with their prices in TZS
 const SERVICE_TIERS: Record<string, number> = {
   nurse:            500,
   clinical_officer: 800,
@@ -37,8 +37,8 @@ function validate(body: unknown): ServicePaymentRequest {
     );
   }
 
-  if (typeof b.phone_number !== "string" || !/^2547\d{8}$|^2541\d{8}$/.test(b.phone_number)) {
-    throw new ValidationError("phone_number must be in format 254XXXXXXXXX");
+  if (typeof b.phone_number !== "string" || !/^2556\d{8}$|^2557\d{8}$/.test(b.phone_number)) {
+    throw new ValidationError("phone_number must be in format 255XXXXXXXXX");
   }
 
   if (typeof b.idempotency_key !== "string" || b.idempotency_key.length < 8) {
@@ -119,7 +119,7 @@ Deno.serve(async (req: Request) => {
     });
 
     return successResponse({
-      message: `Payment of KES ${amount} initiated for ${body.service_type}`,
+      message: `Payment of TZS ${amount} initiated for ${body.service_type}`,
       service_type: body.service_type,
       amount,
       ...stkResponse.data,

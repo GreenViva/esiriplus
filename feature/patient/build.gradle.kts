@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:network"))
     implementation(project(":core:database"))
+    implementation(project(":feature:chat"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.play.services.location)
 }

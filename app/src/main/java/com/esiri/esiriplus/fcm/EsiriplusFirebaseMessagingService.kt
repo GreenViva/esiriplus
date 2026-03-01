@@ -169,6 +169,11 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         "PAYMENT_STATUS" -> "Payment Update"
         "DOCTOR_APPROVED" -> "Application Update"
         "DOCTOR_REJECTED" -> "Application Update"
+        "DOCTOR_WARNED" -> "Warning from Administration"
+        "DOCTOR_SUSPENDED" -> "Account Suspended"
+        "DOCTOR_UNSUSPENDED" -> "Account Reinstated"
+        "DOCTOR_BANNED" -> "Account Banned"
+        "DOCTOR_UNBANNED" -> "Account Reinstated"
         else -> "eSIRI+ Notification"
     }
 

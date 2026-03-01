@@ -183,7 +183,7 @@ export default async function DashboardPage() {
   for (const log of logsRes.data ?? []) {
     const details = log.details as Record<string, unknown> | null;
     activities.push({
-      id: `log-${log.id}`,
+      id: `log-${log.log_id}`,
       type: "admin",
       title: formatAdminAction(log.action, details),
       subtitle: log.target_type ?? undefined,

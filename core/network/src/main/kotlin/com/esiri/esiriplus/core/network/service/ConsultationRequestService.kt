@@ -3,7 +3,6 @@ package com.esiri.esiriplus.core.network.service
 import android.util.Log
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.model.ApiResult
-import com.esiri.esiriplus.core.network.model.safeApiCall
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
@@ -19,6 +18,7 @@ data class ConsultationRequestRow(
     @SerialName("expires_at") val expiresAt: String? = null,
     @SerialName("ttl_seconds") val ttlSeconds: Int? = null,
     @SerialName("consultation_id") val consultationId: String? = null,
+    @SerialName("debug_error") val debugError: String? = null,
 )
 
 @Singleton
@@ -39,10 +39,7 @@ class ConsultationRequestService @Inject constructor(
             put("consultation_type", consultationType)
             put("chief_complaint", chiefComplaint)
         }
-        return safeApiCall {
-            val raw = edgeFunctionClient.invoke(FUNCTION_NAME, body).getOrThrow()
-            edgeFunctionClient.json.decodeFromString<ConsultationRequestRow>(raw)
-        }
+        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
     }
 
     suspend fun acceptRequest(requestId: String): ApiResult<ConsultationRequestRow> {
@@ -50,10 +47,41 @@ class ConsultationRequestService @Inject constructor(
             put("action", "accept")
             put("request_id", requestId)
         }
-        return safeApiCall {
-            val raw = edgeFunctionClient.invoke(FUNCTION_NAME, body).getOrThrow()
-            Log.d(TAG, "Accept response: $raw")
-            edgeFunctionClient.json.decodeFromString<ConsultationRequestRow>(raw)
+        Log.d(TAG, "Accept: calling edge function for request=$requestId")
+        // edgeFunctionClient.invoke() already wraps in safeApiCall — do NOT double-wrap.
+        // Instead, pattern-match the result and only parse on success.
+        return when (val rawResult = edgeFunctionClient.invoke(FUNCTION_NAME, body)) {
+            is ApiResult.Success -> {
+                val raw = rawResult.data
+                Log.d(TAG, "Accept response body: $raw")
+                try {
+                    val row = edgeFunctionClient.json.decodeFromString<ConsultationRequestRow>(raw)
+                    // The edge function returns status="insert_error" when consultation creation fails.
+                    if (row.status == "insert_error") {
+                        val debugError = row.debugError ?: "Failed to create consultation"
+                        Log.e(TAG, "Accept returned insert_error: $debugError")
+                        ApiResult.Error(code = 409, message = debugError)
+                    } else {
+                        Log.d(TAG, "Accept SUCCESS: consultationId=${row.consultationId}")
+                        ApiResult.Success(row)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Accept: failed to parse response", e)
+                    ApiResult.NetworkError(e, "Failed to parse accept response: ${e.message}")
+                }
+            }
+            is ApiResult.Error -> {
+                Log.e(TAG, "Accept ERROR: code=${rawResult.code}, message=${rawResult.message}")
+                rawResult
+            }
+            is ApiResult.NetworkError -> {
+                Log.e(TAG, "Accept NETWORK ERROR: ${rawResult.message}", rawResult.exception)
+                rawResult
+            }
+            is ApiResult.Unauthorized -> {
+                Log.e(TAG, "Accept UNAUTHORIZED")
+                rawResult
+            }
         }
     }
 
@@ -62,10 +90,7 @@ class ConsultationRequestService @Inject constructor(
             put("action", "reject")
             put("request_id", requestId)
         }
-        return safeApiCall {
-            val raw = edgeFunctionClient.invoke(FUNCTION_NAME, body).getOrThrow()
-            edgeFunctionClient.json.decodeFromString<ConsultationRequestRow>(raw)
-        }
+        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
     }
 
     suspend fun expireRequest(requestId: String): ApiResult<ConsultationRequestRow> {
@@ -73,9 +98,24 @@ class ConsultationRequestService @Inject constructor(
             put("action", "expire")
             put("request_id", requestId)
         }
-        return safeApiCall {
-            val raw = edgeFunctionClient.invoke(FUNCTION_NAME, body).getOrThrow()
-            edgeFunctionClient.json.decodeFromString<ConsultationRequestRow>(raw)
+        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
+    }
+
+    /**
+     * Safely decode an edge function result without double-wrapping in safeApiCall.
+     * [EdgeFunctionClient.invoke] already wraps errors via safeApiCall; calling
+     * .getOrThrow() inside another safeApiCall destroys the original error message.
+     */
+    private fun decodeEdgeFunctionResult(rawResult: ApiResult<String>): ApiResult<ConsultationRequestRow> {
+        return when (rawResult) {
+            is ApiResult.Success -> try {
+                ApiResult.Success(edgeFunctionClient.json.decodeFromString<ConsultationRequestRow>(rawResult.data))
+            } catch (e: Exception) {
+                ApiResult.NetworkError(e, "Failed to parse response: ${e.message}")
+            }
+            is ApiResult.Error -> rawResult
+            is ApiResult.NetworkError -> rawResult
+            is ApiResult.Unauthorized -> rawResult
         }
     }
 

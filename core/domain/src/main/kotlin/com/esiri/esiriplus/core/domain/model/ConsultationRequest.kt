@@ -17,11 +17,12 @@ enum class ConsultationRequestStatus {
     ACCEPTED,
     REJECTED,
     EXPIRED,
+    UNKNOWN,
     ;
 
     companion object {
         fun fromString(value: String): ConsultationRequestStatus =
             entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
-                ?: PENDING
+                ?: UNKNOWN
     }
 }

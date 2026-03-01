@@ -79,7 +79,10 @@ async function getFCMAccessToken(): Promise<string> {
     }),
   });
 
-  if (!tokenRes.ok) throw new Error("Failed to get FCM access token");
+  if (!tokenRes.ok) {
+    const errText = await tokenRes.text();
+    throw new Error(`Failed to get FCM access token (${tokenRes.status}): ${errText}`);
+  }
   const tokenData = await tokenRes.json();
   return tokenData.access_token;
 }
@@ -122,6 +125,11 @@ async function sendFCM(
     },
     body: JSON.stringify(message),
   });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`FCM send failed (${res.status}): ${errBody}`);
+  }
 
   return res.ok;
 }
@@ -170,7 +178,8 @@ Deno.serve(async (req: Request) => {
   try {
     let auth: AuthResult;
     const internalKey = req.headers.get("X-Service-Key");
-    if (internalKey === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
+    const serviceRoleKey = Deno.env.get("INTERNAL_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    if (internalKey && internalKey === serviceRoleKey) {
       // Internal call from admin panel — skip JWT auth
       auth = { userId: "service-role", sessionToken: null, sessionId: null, role: "admin" as const, jwt: "" };
     } else {
@@ -199,7 +208,7 @@ Deno.serve(async (req: Request) => {
       if (data?.fcm_token) fcmTokens = [data.fcm_token];
 
     } else if (notification.user_id) {
-      // Specific user — check fcm_tokens table first (universal), then doctor_profiles
+      // Specific user — look up FCM token from fcm_tokens table
       const { data: tokenRow } = await supabase
         .from("fcm_tokens")
         .select("token")
@@ -207,32 +216,24 @@ Deno.serve(async (req: Request) => {
         .single();
       if (tokenRow?.token) {
         fcmTokens = [tokenRow.token];
-      } else {
-        // Fallback: legacy doctor_profiles.fcm_token
-        const { data } = await supabase
-          .from("doctor_profiles")
-          .select("fcm_token")
-          .eq("doctor_id", notification.user_id)
-          .not("fcm_token", "is", null)
-          .single();
-        if (data?.fcm_token) fcmTokens = [data.fcm_token];
       }
 
     } else if (notification.target === "doctors") {
-      // Broadcast to available doctors of a service type
-      let query = supabase
+      // Broadcast to all available doctors — look up from fcm_tokens joined with doctor_profiles
+      const { data: doctors } = await supabase
         .from("doctor_profiles")
-        .select("fcm_token")
+        .select("doctor_id")
         .eq("is_verified", true)
-        .eq("is_available", true)
-        .not("fcm_token", "is", null);
+        .eq("is_available", true);
 
-      if (notification.service_type) {
-        query = query.eq("service_type", notification.service_type);
+      if (doctors && doctors.length > 0) {
+        const doctorIds = doctors.map((d) => d.doctor_id);
+        const { data: tokens } = await supabase
+          .from("fcm_tokens")
+          .select("token")
+          .in("user_id", doctorIds);
+        fcmTokens = (tokens ?? []).map((t) => t.token).filter(Boolean);
       }
-
-      const { data } = await query;
-      fcmTokens = (data ?? []).map((d) => d.fcm_token).filter(Boolean);
     }
 
     // Determine target user_id for the notification record

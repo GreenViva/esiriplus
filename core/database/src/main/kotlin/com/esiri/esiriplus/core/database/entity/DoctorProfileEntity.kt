@@ -37,4 +37,7 @@ data class DoctorProfileEntity(
     @ColumnInfo(defaultValue = "NULL") val licenseDocumentUrl: String? = null,
     @ColumnInfo(defaultValue = "NULL") val certificatesUrl: String? = null,
     @ColumnInfo(defaultValue = "NULL") val rejectionReason: String? = null,
+    @ColumnInfo(defaultValue = "0") val isBanned: Boolean = false,
+    @ColumnInfo(defaultValue = "NULL") val bannedAt: Long? = null,
+    @ColumnInfo(defaultValue = "NULL") val banReason: String? = null,
 )

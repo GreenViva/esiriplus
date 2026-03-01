@@ -5,11 +5,12 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class PaymentApiModel(
-    val id: String,
-    @Json(name = "consultation_id") val consultationId: String,
+    @Json(name = "payment_id") val paymentId: String,
+    @Json(name = "patient_session_id") val patientSessionId: String? = null,
     val amount: Int,
-    val currency: String = "KES",
+    val currency: String = "TZS",
     val status: String,
-    @Json(name = "mpesa_receipt_number") val mpesaReceiptNumber: String? = null,
+    @Json(name = "transaction_id") val transactionId: String? = null,
+    @Json(name = "failure_reason") val failureReason: String? = null,
     @Json(name = "created_at") val createdAt: String,
 )

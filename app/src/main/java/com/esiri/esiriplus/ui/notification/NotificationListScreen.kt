@@ -220,6 +220,11 @@ private fun getTypeColor(type: NotificationType): Color = when (type) {
     NotificationType.PAYMENT_STATUS -> Color(0xFFF59E0B)
     NotificationType.DOCTOR_APPROVED -> Color(0xFF22C55E)
     NotificationType.DOCTOR_REJECTED -> Color(0xFFEF4444)
+    NotificationType.DOCTOR_WARNED -> Color(0xFFF59E0B)
+    NotificationType.DOCTOR_SUSPENDED -> Color(0xFFF97316)
+    NotificationType.DOCTOR_UNSUSPENDED -> Color(0xFF22C55E)
+    NotificationType.DOCTOR_BANNED -> Color(0xFFEF4444)
+    NotificationType.DOCTOR_UNBANNED -> Color(0xFF22C55E)
 }
 
 private fun getTypeEmoji(type: NotificationType): String = when (type) {
@@ -231,6 +236,11 @@ private fun getTypeEmoji(type: NotificationType): String = when (type) {
     NotificationType.PAYMENT_STATUS -> "\uD83D\uDCB3"
     NotificationType.DOCTOR_APPROVED -> "\uD83C\uDF89"
     NotificationType.DOCTOR_REJECTED -> "\u274C"
+    NotificationType.DOCTOR_WARNED -> "\u26A0\uFE0F"
+    NotificationType.DOCTOR_SUSPENDED -> "\u23F8\uFE0F"
+    NotificationType.DOCTOR_UNSUSPENDED -> "\u25B6\uFE0F"
+    NotificationType.DOCTOR_BANNED -> "\uD83D\uDEAB"
+    NotificationType.DOCTOR_UNBANNED -> "\u2705"
 }
 
 private fun formatTimestamp(epochMillis: Long): String {

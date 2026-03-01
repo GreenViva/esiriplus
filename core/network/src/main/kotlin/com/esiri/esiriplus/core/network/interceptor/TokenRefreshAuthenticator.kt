@@ -16,6 +16,13 @@ class TokenRefreshAuthenticator @Inject constructor(
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
+        // Patient custom JWTs cannot be refreshed via Supabase Auth.
+        // Do NOT attempt refresh or invalidate — just let the request fail gracefully.
+        val currentToken = tokenManager.getAccessTokenSync()
+        if (currentToken != null && JwtUtils.isPatientToken(currentToken)) {
+            return null
+        }
+
         // Don't retry more than once
         if (responseCount(response) > 1) {
             sessionInvalidator.get().invalidate()
@@ -26,12 +33,12 @@ class TokenRefreshAuthenticator @Inject constructor(
             ?.removePrefix("Bearer ")
 
         synchronized(this) {
-            val currentToken = tokenManager.getAccessTokenSync()
+            val latestToken = tokenManager.getAccessTokenSync()
 
             // Another thread already refreshed the token
-            if (currentToken != null && currentToken != requestToken) {
+            if (latestToken != null && latestToken != requestToken) {
                 return response.request.newBuilder()
-                    .header("Authorization", "Bearer $currentToken")
+                    .header("Authorization", "Bearer $latestToken")
                     .build()
             }
 

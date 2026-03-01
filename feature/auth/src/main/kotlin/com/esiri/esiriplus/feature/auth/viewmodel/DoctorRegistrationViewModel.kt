@@ -27,14 +27,12 @@ class DoctorRegistrationViewModel @Inject constructor(
     val uiState: StateFlow<DoctorRegistrationUiState> = _uiState.asStateFlow()
 
     init {
-        // Check biometric availability and device binding status on creation
+        // Device binding is temporarily disabled.
         val biometricAvailable = biometricAuthManager.isAvailable()
-        val boundDoctorId = deviceBindingManager.getBoundDoctorId()
-        val deviceAlreadyBound = boundDoctorId != null
         _uiState.update {
             it.copy(
                 biometricAvailable = biometricAvailable,
-                deviceAlreadyBound = deviceAlreadyBound,
+                deviceAlreadyBound = false,
             )
         }
     }

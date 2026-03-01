@@ -8,7 +8,7 @@ import { errorResponse, successResponse, ValidationError } from "../_shared/erro
 import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
-// Available recharge packages: minutes → KES price
+// Available recharge packages: minutes → TZS price
 const RECHARGE_PACKAGES: Record<number, number> = {
   10:  200,
   30:  500,
@@ -39,8 +39,8 @@ function validate(body: unknown): RechargeRequest {
     );
   }
 
-  if (typeof b.phone_number !== "string" || !/^2547\d{8}$|^2541\d{8}$/.test(b.phone_number)) {
-    throw new ValidationError("phone_number must be in format 254XXXXXXXXX");
+  if (typeof b.phone_number !== "string" || !/^2556\d{8}$|^2557\d{8}$/.test(b.phone_number)) {
+    throw new ValidationError("phone_number must be in format 255XXXXXXXXX");
   }
 
   if (typeof b.idempotency_key !== "string" || b.idempotency_key.length < 8) {
@@ -109,7 +109,7 @@ Deno.serve(async (req: Request) => {
     });
 
     return successResponse({
-      message: `Recharge of ${body.minutes} minutes (KES ${amount}) initiated`,
+      message: `Recharge of ${body.minutes} minutes (TZS ${amount}) initiated`,
       minutes: body.minutes,
       amount,
       ...stkResponse.data,

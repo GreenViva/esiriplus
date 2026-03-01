@@ -1,6 +1,9 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -9,6 +12,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,6 +64,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -113,6 +118,26 @@ fun DoctorDashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val incomingRequestState by incomingRequestViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    // Show toast when doctor tries to toggle while suspended
+    LaunchedEffect(uiState.suspensionMessage) {
+        uiState.suspensionMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.clearSuspensionMessage()
+        }
+    }
+
+    // Request POST_NOTIFICATIONS permission on Android 13+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { /* granted or not — FCM will work either way, just no system tray */ }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     // Navigate when doctor accepts a request and consultation is created
     LaunchedEffect(Unit) {
@@ -133,6 +158,16 @@ fun DoctorDashboardScreen(
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = BrandTeal)
         }
+        return
+    }
+
+    // ── Banned doctor: immovable full-screen ban notice ────────────────────────
+    if (uiState.isBanned) {
+        BanNoticeScreen(
+            banReason = uiState.banReason,
+            bannedAt = uiState.bannedAt,
+            onSignOut = onSignOut,
+        )
         return
     }
 
@@ -169,11 +204,49 @@ fun DoctorDashboardScreen(
             .navigationBarsPadding(),
     ) {
         // Content area (always full width)
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(ContentBg),
         ) {
+            // Persistent banner for active consultation resume
+            val activeConsultationId = uiState.activeConsultationToResume
+            if (activeConsultationId != null) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToConsultation(activeConsultationId) },
+                    color = BrandTeal,
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Active Consultation",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                            )
+                            Text(
+                                "Tap to resume your chat",
+                                color = Color.White.copy(alpha = 0.9f),
+                                fontSize = 12.sp,
+                            )
+                        }
+                        Text(
+                            "Resume \u25B6",
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                        )
+                    }
+                }
+            }
+
+            Box(modifier = Modifier.weight(1f)) {
             when (selectedNav) {
                 DoctorNavItem.DASHBOARD -> DashboardContent(
                     uiState = uiState,
@@ -190,6 +263,7 @@ fun DoctorDashboardScreen(
                 DoctorNavItem.CHAT -> ActiveChatsContent(
                     uiState = uiState,
                     onOpenSidebar = { isSidebarOpen = true },
+                    onNavigateToConsultation = onNavigateToConsultation,
                 )
                 DoctorNavItem.AVAILABILITY -> AvailabilitySettingsContent(
                     uiState = uiState,
@@ -206,6 +280,7 @@ fun DoctorDashboardScreen(
                     onOpenSidebar = { isSidebarOpen = true },
                 )
             }
+        }
         }
 
         // Sidebar overlay (slides in from left)
@@ -473,6 +548,7 @@ private fun DashboardContent(
             doctorName = uiState.doctorName,
             isOnline = uiState.isOnline,
             isVerified = uiState.isVerified,
+            isSuspended = uiState.suspendedUntil != null,
             onToggleOnline = onToggleOnline,
             onOpenSidebar = onOpenSidebar,
             onNotificationsClick = onNotificationsClick,
@@ -521,6 +597,7 @@ private fun TopBar(
     doctorName: String,
     isOnline: Boolean,
     isVerified: Boolean,
+    isSuspended: Boolean = false,
     onToggleOnline: () -> Unit,
     onOpenSidebar: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
@@ -568,7 +645,23 @@ private fun TopBar(
             }
             Spacer(modifier = Modifier.width(4.dp))
 
-            if (isVerified) {
+            if (isVerified && isSuspended) {
+                // Suspended chip — toggle disabled
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFFEF2F2))
+                        .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        text = "Suspended",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFDC2626),
+                    )
+                }
+            } else if (isVerified) {
                 // Online toggle
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (isOnline) {
@@ -1160,6 +1253,7 @@ private fun ConsultationsContent(
 @Composable
 private fun ConsultationCard(
     consultation: com.esiri.esiriplus.core.database.entity.ConsultationEntity,
+    onClick: (() -> Unit)? = null,
 ) {
     val statusColor = when (consultation.status) {
         "PENDING" -> Color(0xFFF59E0B)
@@ -1175,6 +1269,7 @@ private fun ConsultationCard(
             .clip(RoundedCornerShape(10.dp))
             .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
             .background(Color.White)
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(14.dp),
     ) {
         Row(
@@ -2049,6 +2144,7 @@ private fun ProfileDropdown(
 private fun ActiveChatsContent(
     uiState: DoctorDashboardUiState,
     onOpenSidebar: () -> Unit,
+    onNavigateToConsultation: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -2119,7 +2215,10 @@ private fun ActiveChatsContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 uiState.activeConsultationsList.forEach { consultation ->
-                    ConsultationCard(consultation = consultation)
+                    ConsultationCard(
+                        consultation = consultation,
+                        onClick = { onNavigateToConsultation(consultation.consultationId) },
+                    )
                 }
             }
         }
@@ -2461,6 +2560,151 @@ private fun WrappingRow(
         layout(constraints.maxWidth, totalHeight) {
             placeables.forEachIndexed { index, placeable ->
                 placeable.placeRelative(positions[index].first, positions[index].second)
+            }
+        }
+    }
+}
+
+// ── Full-screen Ban Notice ──────────────────────────────────────────────────────
+
+@Composable
+private fun BanNoticeScreen(
+    banReason: String?,
+    bannedAt: String?,
+    onSignOut: () -> Unit,
+) {
+    val appealDeadline = remember(bannedAt) {
+        try {
+            val banned = java.time.Instant.parse(bannedAt)
+            val deadline = banned.plus(java.time.Duration.ofDays(7))
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("MMMM d, yyyy")
+                .withZone(java.time.ZoneId.systemDefault())
+            formatter.format(deadline)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Red circle with X icon
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(Color(0xFFFEE2E2), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "\u2716",
+                    fontSize = 36.sp,
+                    color = Color(0xFFDC2626),
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Account Banned",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFDC2626),
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Your account has been banned from using this application.",
+                fontSize = 14.sp,
+                color = DarkText,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+
+            if (!banReason.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Reason box
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFEF2F2))
+                        .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        text = "Reason",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFDC2626),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = banReason,
+                        fontSize = 14.sp,
+                        color = DarkText,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Appeal info box
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF0F9FF))
+                    .border(1.dp, Color(0xFFBAE6FD), RoundedCornerShape(12.dp))
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Have a complaint?",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF0369A1),
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = if (appealDeadline != null) {
+                        "You may contact our support team to appeal this decision within 7 days (by $appealDeadline)."
+                    } else {
+                        "You may contact our support team to appeal this decision within 7 days of the ban."
+                    },
+                    fontSize = 13.sp,
+                    color = DarkText,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "support@esiriplus.com",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF0369A1),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Sign out button
+            TextButton(onClick = onSignOut) {
+                Text(
+                    text = "Sign Out",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF6B7280),
+                )
             }
         }
     }

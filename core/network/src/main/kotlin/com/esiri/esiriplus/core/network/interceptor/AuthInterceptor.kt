@@ -15,11 +15,28 @@ class AuthInterceptor @Inject constructor(
         val requestBuilder = originalRequest.newBuilder()
             .header(HEADER_API_KEY, BuildConfig.SUPABASE_ANON_KEY)
 
-        // Always include Authorization header: user JWT if available,
-        // otherwise the anon key (which is a valid JWT for the anonymous role).
-        // Supabase Edge Functions verify JWT by default and return 401 without it.
-        val token = tokenManager.getAccessTokenSync() ?: BuildConfig.SUPABASE_ANON_KEY
-        requestBuilder.header(HEADER_AUTHORIZATION, "Bearer $token")
+        val token = tokenManager.getAccessTokenSync()
+
+        if (token != null) {
+            val isEdgeFunction = originalRequest.url.encodedPath.contains("/functions/v1/")
+
+            if (isEdgeFunction) {
+                // Edge Functions accept any JWT (custom patient JWTs + doctor Supabase JWTs)
+                requestBuilder.header(HEADER_AUTHORIZATION, "Bearer $token")
+            } else if (!JwtUtils.isPatientToken(token)) {
+                // Doctor tokens (role="authenticated") work with PostgREST/Realtime/Storage.
+                // Patient tokens (role="patient") are NOT valid Postgres roles and cause 401.
+                requestBuilder.header(HEADER_AUTHORIZATION, "Bearer $token")
+            }
+            // For patient tokens on non-edge-function URLs: don't set Authorization.
+            // PostgREST will use the apikey (anon role) which has public RLS access.
+        } else {
+            // No token — use anon key for edge functions (they require Authorization header)
+            val isEdgeFunction = originalRequest.url.encodedPath.contains("/functions/v1/")
+            if (isEdgeFunction) {
+                requestBuilder.header(HEADER_AUTHORIZATION, "Bearer ${BuildConfig.SUPABASE_ANON_KEY}")
+            }
+        }
 
         return chain.proceed(requestBuilder.build())
     }

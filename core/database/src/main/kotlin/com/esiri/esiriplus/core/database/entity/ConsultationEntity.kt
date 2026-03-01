@@ -1,20 +1,11 @@
 package com.esiri.esiriplus.core.database.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "consultations",
-    foreignKeys = [
-        ForeignKey(
-            entity = PatientSessionEntity::class,
-            parentColumns = ["sessionId"],
-            childColumns = ["patientSessionId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
     indices = [
         Index("patientSessionId"),
         Index("doctorId"),

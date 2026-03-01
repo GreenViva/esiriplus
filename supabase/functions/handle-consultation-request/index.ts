@@ -12,7 +12,7 @@
 //
 // Rate limit: 10/min per user.
 
-import { handlePreflight } from "../_shared/cors.ts";
+import { handlePreflight, corsHeaders } from "../_shared/cors.ts";
 import { validateAuth, type AuthResult } from "../_shared/auth.ts";
 import { LIMITS } from "../_shared/rateLimit.ts";
 import {
@@ -24,6 +24,16 @@ import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
 const REQUEST_TTL_SECONDS = 60;
+
+// Service tier fees (TZS) — must match client-side service_tiers
+const SERVICE_FEES: Record<string, number> = {
+  nurse: 5000,
+  clinical_officer: 7000,
+  pharmacist: 3000,
+  gp: 10000,
+  specialist: 30000,
+  psychologist: 50000,
+};
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -129,7 +139,7 @@ async function handleCreate(
     .from("consultations")
     .select("consultation_id", { count: "exact", head: true })
     .eq("doctor_id", body.doctor_id)
-    .in("status", ["pending", "active", "in_progress"]);
+    .in("status", ["pending", "active"]);
 
   if ((activeCount ?? 0) >= 10) {
     return successResponse(
@@ -245,32 +255,119 @@ async function handleAccept(
     throw new ValidationError("Request has expired");
   }
 
-  // Mark request as accepted
-  const { error: updateError } = await supabase
-    .from("consultation_requests")
-    .update({ status: "accepted" })
-    .eq("request_id", body.request_id)
-    .eq("status", "pending"); // Optimistic lock
+  // DB trigger enforces one open consultation per patient (P0001).
+  // Use atomic RPC that closes stale consultations + inserts new one in a single transaction.
+  const patientSessionId = request.patient_session_id;
+  console.log("handleAccept: patient_session_id =", patientSessionId, "type =", typeof patientSessionId);
 
-  if (updateError) throw updateError;
+  const consultationFee = SERVICE_FEES[request.service_type] ?? 5000;
 
-  // Create the actual consultation
-  const { data: consultation, error: consultationError } = await supabase
-    .from("consultations")
-    .insert({
-      patient_session_id: request.patient_session_id,
+  // Try the atomic RPC first (close stale + insert in one transaction)
+  let consultation: { consultation_id: string; status: string; created_at: string } | null = null;
+  let consultationError: { message: string; code?: string; details?: string } | null = null;
+
+  const { data: rpcData, error: rpcError } = await supabase.rpc(
+    "create_consultation_with_cleanup",
+    {
+      p_patient_session_id: patientSessionId,
+      p_doctor_id: auth.userId,
+      p_service_type: request.service_type,
+      p_consultation_type: request.consultation_type ?? "chat",
+      p_chief_complaint: request.chief_complaint ?? "",
+      p_consultation_fee: consultationFee,
+      p_request_expires_at: request.expires_at,
+      p_request_id: body.request_id,
+    }
+  ).maybeSingle();
+
+  if (rpcError) {
+    console.warn("create_consultation_with_cleanup RPC error:", JSON.stringify(rpcError));
+
+    // Fallback: RPC might not be deployed yet — try close + insert separately
+    const { error: closeRpcError } = await supabase.rpc(
+      "close_stale_consultations",
+      { p_patient_session_id: patientSessionId }
+    ).maybeSingle();
+
+    if (closeRpcError) {
+      console.warn("close_stale_consultations RPC error:", JSON.stringify(closeRpcError));
+    }
+
+    const now = new Date().toISOString();
+    const insertPayload = {
+      patient_session_id: patientSessionId,
       doctor_id: auth.userId,
       service_type: request.service_type,
       consultation_type: request.consultation_type ?? "chat",
       chief_complaint: request.chief_complaint ?? "",
       status: "active",
+      consultation_fee: consultationFee,
+      request_expires_at: request.expires_at,
       request_id: body.request_id,
-      created_at: new Date().toISOString(),
-    })
-    .select("consultation_id, status, created_at")
-    .single();
+      created_at: now,
+      updated_at: now,
+    };
 
-  if (consultationError) throw consultationError;
+    const { data: insertData, error: insertError } = await supabase
+      .from("consultations")
+      .insert(insertPayload)
+      .select("consultation_id, status, created_at")
+      .single();
+
+    if (insertError) {
+      consultation = null;
+      consultationError = {
+        message: insertError.message,
+        code: (insertError as Record<string, unknown>).code as string | undefined,
+        details: (insertError as Record<string, unknown>).details as string | undefined,
+      };
+    } else {
+      consultation = insertData;
+    }
+  } else {
+    // RPC succeeded — extract the returned consultation row
+    consultation = rpcData;
+    console.log("create_consultation_with_cleanup succeeded:", JSON.stringify(consultation));
+  }
+
+  if (consultationError || !consultation) {
+    const errMsg = consultationError?.message ?? "Unknown error creating consultation";
+    console.error("Consultation creation failed:", JSON.stringify(consultationError));
+    // Use errorResponse-style format so client ApiErrorMapper.tryParseJsonError()
+    // can extract the "error" field and show a meaningful message to the doctor.
+    return new Response(
+      JSON.stringify({
+        error: errMsg,
+        code: "INSERT_ERROR",
+        request_id: body.request_id,
+        status: "insert_error",
+        debug_error: errMsg,
+        debug_code: consultationError?.code,
+        debug_details: consultationError?.details,
+      }),
+      {
+        status: 409,
+        headers: {
+          ...corsHeaders(origin),
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  }
+
+  // Single atomic update: mark accepted + link consultation_id
+  // This fires ONE realtime event with both status="accepted" and consultation_id set,
+  // so the patient client can immediately navigate to the chat screen.
+  const { error: updateError } = await supabase
+    .from("consultation_requests")
+    .update({
+      status: "accepted",
+      consultation_id: consultation.consultation_id,
+    })
+    .eq("request_id", body.request_id)
+    .eq("status", "pending"); // Optimistic lock
+
+  if (updateError) throw updateError;
 
   // Notify patient via push
   try {

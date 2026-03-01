@@ -31,6 +31,18 @@ interface MessageDao {
     @Query("SELECT * FROM messages WHERE synced = 0")
     suspend fun getUnsyncedMessages(): List<MessageEntity>
 
+    @Query("SELECT * FROM messages WHERE synced = 0 AND consultationId = :consultationId")
+    suspend fun getUnsyncedByConsultation(consultationId: String): List<MessageEntity>
+
+    @Query("SELECT MAX(createdAt) FROM messages WHERE consultationId = :consultationId AND synced = 1")
+    suspend fun getLatestSyncedTimestamp(consultationId: String): Long?
+
+    @Query("UPDATE messages SET retryCount = retryCount + 1, failedAt = :failedAt WHERE messageId = :messageId")
+    suspend fun incrementRetryCount(messageId: String, failedAt: Long)
+
+    @Query("SELECT * FROM messages WHERE synced = 0 AND retryCount < :maxRetries ORDER BY createdAt ASC")
+    suspend fun getRetryableMessages(maxRetries: Int): List<MessageEntity>
+
     @Query("DELETE FROM messages")
     suspend fun clearAll()
 }

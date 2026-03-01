@@ -25,6 +25,8 @@ data class RequestRealtimeEvent(
     val requestId: String,
     val status: String,
     val consultationId: String? = null,
+    val patientSessionId: String? = null,
+    val serviceType: String? = null,
 )
 
 /**
@@ -111,11 +113,15 @@ class ConsultationRequestRealtimeService @Inject constructor(
         val requestId = record["request_id"]?.jsonPrimitive?.content ?: return null
         val status = record["status"]?.jsonPrimitive?.content ?: return null
         val consultationId = record["consultation_id"]?.jsonPrimitive?.content
+        val patientSessionId = record["patient_session_id"]?.jsonPrimitive?.content
+        val serviceType = record["service_type"]?.jsonPrimitive?.content
 
         return RequestRealtimeEvent(
             requestId = requestId,
             status = status,
             consultationId = consultationId,
+            patientSessionId = patientSessionId,
+            serviceType = serviceType,
         )
     }
 

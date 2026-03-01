@@ -24,7 +24,7 @@ async function sendDoctorNotification(
   doctorId: string,
   title: string,
   body: string,
-  type: "doctor_approved" | "doctor_rejected",
+  type: "doctor_approved" | "doctor_rejected" | "doctor_suspended" | "doctor_unsuspended" | "doctor_banned" | "doctor_unbanned" | "doctor_warned",
 ) {
   try {
     await fetch(
@@ -52,7 +52,7 @@ export async function approveDoctor(doctorId: string) {
 
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_verified: true, is_available: false, rejection_reason: null, updated_at: new Date().toISOString() })
+    .update({ is_verified: true, verification_status: "approved", is_available: false, rejection_reason: null, updated_at: new Date().toISOString() })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
@@ -83,7 +83,7 @@ export async function rejectDoctor(doctorId: string, reason: string) {
 
   const { error: updateError } = await supabase
     .from("doctor_profiles")
-    .update({ is_verified: false, rejection_reason: reason, updated_at: new Date().toISOString() })
+    .update({ is_verified: false, verification_status: "rejected", rejection_reason: reason, updated_at: new Date().toISOString() })
     .eq("doctor_id", doctorId);
 
   if (updateError) return { error: updateError.message };
@@ -107,31 +107,43 @@ export async function rejectDoctor(doctorId: string, reason: string) {
   return { success: true };
 }
 
-export async function banDoctor(doctorId: string) {
+export async function banDoctor(doctorId: string, reason: string) {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
 
-  // Ban auth user (100-year ban)
-  const { error } = await supabase.auth.admin.updateUserById(doctorId, {
-    ban_duration: "876000h",
-  });
+  const bannedAt = new Date().toISOString();
+
+  // Mark as banned in doctor_profiles (app-layer enforcement).
+  // The doctor can still authenticate but will see an immovable ban screen.
+  const { error } = await supabase
+    .from("doctor_profiles")
+    .update({
+      is_banned: true,
+      banned_at: bannedAt,
+      ban_reason: reason.trim(),
+      is_available: false,
+      updated_at: bannedAt,
+    })
+    .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
-
-  // Also mark as unavailable in profile
-  await supabase
-    .from("doctor_profiles")
-    .update({ is_available: false, updated_at: new Date().toISOString() })
-    .eq("doctor_id", doctorId);
 
   await supabase.from("admin_logs").insert({
     admin_id: auth.user.id,
     action: "ban_doctor",
     target_type: "doctor_profile",
     target_id: doctorId,
+    details: { reason: reason.trim() },
   });
+
+  await sendDoctorNotification(
+    doctorId,
+    "Account Banned",
+    `Your account has been banned. Reason: ${reason.trim()}. You may contact support within 7 days to appeal.`,
+    "doctor_banned",
+  );
 
   revalidateDoctorPaths();
   return { success: true };
@@ -150,6 +162,13 @@ export async function warnDoctor(doctorId: string, message: string) {
     target_id: doctorId,
     details: { message },
   });
+
+  await sendDoctorNotification(
+    doctorId,
+    "Warning from Administration",
+    message,
+    "doctor_warned",
+  );
 
   revalidateDoctorPaths();
   return { success: true };
@@ -185,15 +204,20 @@ export async function toggleRatingFlag(ratingId: string, flagged: boolean) {
   return { success: true };
 }
 
-export async function suspendDoctor(doctorId: string) {
+export async function suspendDoctor(doctorId: string, days: number) {
   const auth = await requireAuth();
   if (auth.error) return { error: auth.error };
 
+  if (!Number.isInteger(days) || days < 1 || days > 365) {
+    return { error: "Suspension duration must be between 1 and 365 days" };
+  }
+
   const supabase = createAdminClient();
+  const suspendedUntil = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_available: false, updated_at: new Date().toISOString() })
+    .update({ is_available: false, suspended_until: suspendedUntil, updated_at: new Date().toISOString() })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
@@ -203,7 +227,16 @@ export async function suspendDoctor(doctorId: string) {
     action: "suspend_doctor",
     target_type: "doctor_profile",
     target_id: doctorId,
+    details: { days, suspended_until: suspendedUntil },
   });
+
+  const endDate = new Date(suspendedUntil).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  await sendDoctorNotification(
+    doctorId,
+    "Account Suspended",
+    `Your account has been suspended for ${days} day${days > 1 ? "s" : ""}. Suspension will be automatically lifted on ${endDate}.`,
+    "doctor_suspended",
+  );
 
   revalidateDoctorPaths();
   return { success: true };
@@ -217,7 +250,7 @@ export async function unsuspendDoctor(doctorId: string) {
 
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_available: true, updated_at: new Date().toISOString() })
+    .update({ is_available: true, suspended_until: null, updated_at: new Date().toISOString() })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
@@ -229,6 +262,13 @@ export async function unsuspendDoctor(doctorId: string) {
     target_id: doctorId,
   });
 
+  await sendDoctorNotification(
+    doctorId,
+    "Account Reinstated",
+    "Your account suspension has been lifted. You can now go online and accept consultations.",
+    "doctor_unsuspended",
+  );
+
   revalidateDoctorPaths();
   return { success: true };
 }
@@ -239,15 +279,15 @@ export async function unbanDoctor(doctorId: string) {
 
   const supabase = createAdminClient();
 
-  const { error: authError } = await supabase.auth.admin.updateUserById(doctorId, {
-    ban_duration: "none",
-  });
-
-  if (authError) return { error: authError.message };
-
   const { error } = await supabase
     .from("doctor_profiles")
-    .update({ is_available: true, updated_at: new Date().toISOString() })
+    .update({
+      is_banned: false,
+      banned_at: null,
+      ban_reason: null,
+      is_available: true,
+      updated_at: new Date().toISOString(),
+    })
     .eq("doctor_id", doctorId);
 
   if (error) return { error: error.message };
@@ -258,6 +298,13 @@ export async function unbanDoctor(doctorId: string) {
     target_type: "doctor_profile",
     target_id: doctorId,
   });
+
+  await sendDoctorNotification(
+    doctorId,
+    "Account Unbanned",
+    "Your account ban has been lifted. You can now log in and resume your practice.",
+    "doctor_unbanned",
+  );
 
   revalidateDoctorPaths();
   return { success: true };

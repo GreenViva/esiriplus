@@ -102,6 +102,13 @@ class DoctorRealtimeService @Inject constructor(
         unsubscribeProfile()
     }
 
+    /** Non-suspend variant safe to call from onCleared (where viewModelScope is cancelled). */
+    fun unsubscribeAllSync() {
+        try {
+            kotlinx.coroutines.runBlocking { unsubscribeAll() }
+        } catch (_: Exception) { }
+    }
+
     companion object {
         private const val TAG = "DoctorRealtimeSvc"
     }

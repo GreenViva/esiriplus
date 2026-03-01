@@ -14,11 +14,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import javax.inject.Inject
@@ -73,6 +82,37 @@ private data class ListDoctorsResponse(
     val doctors: List<DoctorRow> = emptyList(),
 )
 
+/**
+ * Handles JSON fields that may arrive as either a real JSON array `["a","b"]`
+ * or a stringified JSON array `"[\"a\",\"b\"]"`.
+ */
+private object StringOrListSerializer : KSerializer<List<String>> {
+    private val delegate = ListSerializer(String.serializer())
+    override val descriptor: SerialDescriptor = delegate.descriptor
+
+    override fun deserialize(decoder: Decoder): List<String> {
+        val jsonDecoder = decoder as kotlinx.serialization.json.JsonDecoder
+        return when (val element = jsonDecoder.decodeJsonElement()) {
+            is JsonArray -> element.jsonArray.map { it.jsonPrimitive.content }
+            is JsonPrimitive -> {
+                val text = element.content
+                if (text.startsWith("[")) {
+                    try {
+                        Json.decodeFromString(delegate, text)
+                    } catch (_: Exception) {
+                        emptyList()
+                    }
+                } else {
+                    emptyList()
+                }
+            }
+            else -> emptyList()
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: List<String>) = delegate.serialize(encoder, value)
+}
+
 @Serializable
 private data class DoctorRow(
     @SerialName("doctor_id") val doctorId: String,
@@ -81,6 +121,7 @@ private data class DoctorRow(
     val phone: String = "",
     val specialty: String = "",
     @SerialName("specialist_field") val specialistField: String? = null,
+    @Serializable(with = StringOrListSerializer::class)
     val languages: List<String> = emptyList(),
     val bio: String = "",
     @SerialName("license_number") val licenseNumber: String = "",
@@ -90,6 +131,7 @@ private data class DoctorRow(
     @SerialName("total_ratings") val totalRatings: Int = 0,
     @SerialName("is_verified") val isVerified: Boolean = false,
     @SerialName("is_available") val isAvailable: Boolean = false,
+    @Serializable(with = StringOrListSerializer::class)
     val services: List<String> = emptyList(),
     @SerialName("country_code") val countryCode: String = "+255",
     val country: String = "",
@@ -106,7 +148,7 @@ class FindDoctorViewModel @Inject constructor(
     private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
 
     private val serviceCategory: String = savedStateHandle["serviceCategory"] ?: ""
     private val doctorSpecialty: String = categoryToSpecialty[serviceCategory] ?: serviceCategory

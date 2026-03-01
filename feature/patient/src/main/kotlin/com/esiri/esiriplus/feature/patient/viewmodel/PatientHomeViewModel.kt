@@ -2,6 +2,8 @@ package com.esiri.esiriplus.feature.patient.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esiri.esiriplus.core.database.dao.ConsultationDao
+import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,12 +21,14 @@ data class PatientHomeUiState(
     val languageDisplayName: String = "English",
     val soundsEnabled: Boolean = true,
     val isLoading: Boolean = true,
+    val activeConsultation: ConsultationEntity? = null,
 )
 
 @HiltViewModel
 class PatientHomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val logoutUseCase: LogoutUseCase,
+    private val consultationDao: ConsultationDao,
 ) : ViewModel() {
 
     private val _soundsEnabled = MutableStateFlow(true)
@@ -32,7 +36,8 @@ class PatientHomeViewModel @Inject constructor(
     val uiState: StateFlow<PatientHomeUiState> = combine(
         authRepository.currentSession,
         _soundsEnabled,
-    ) { session, soundsEnabled ->
+        consultationDao.getActiveConsultation(),
+    ) { session, soundsEnabled, activeConsultation ->
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -41,6 +46,7 @@ class PatientHomeViewModel @Inject constructor(
                 languageDisplayName = "English",
                 soundsEnabled = soundsEnabled,
                 isLoading = false,
+                activeConsultation = activeConsultation,
             )
         } else {
             PatientHomeUiState(isLoading = false)

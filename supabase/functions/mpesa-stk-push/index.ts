@@ -84,10 +84,11 @@ async function mockStkPush(
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface StkPushRequest {
-  phone_number: string;   // 254XXXXXXXXX format
+  phone_number: string;   // 255XXXXXXXXX format
   amount: number;
   consultation_id?: string;
   payment_type: "service_access" | "call_recharge";
+  service_type?: string;  // e.g. "nurse", "gp", "specialist" — passed through for service_access
   idempotency_key: string;
 }
 
@@ -99,13 +100,13 @@ function validate(body: unknown): StkPushRequest {
   const b = body as Record<string, unknown>;
 
   // phone
-  if (typeof b.phone_number !== "string" || !/^2547\d{8}$|^2541\d{8}$/.test(b.phone_number)) {
-    throw new ValidationError("phone_number must be in format 254XXXXXXXXX");
+  if (typeof b.phone_number !== "string" || !/^2556\d{8}$|^2557\d{8}$/.test(b.phone_number)) {
+    throw new ValidationError("phone_number must be in format 255XXXXXXXXX");
   }
 
   // amount
   if (typeof b.amount !== "number" || b.amount < 1 || !Number.isInteger(b.amount)) {
-    throw new ValidationError("amount must be a positive integer (KES)");
+    throw new ValidationError("amount must be a positive integer (TZS)");
   }
 
   // payment_type
@@ -197,6 +198,7 @@ Deno.serve(async (req: Request) => {
         amount: body.amount,
         currency: "TZS",
         payment_type: body.payment_type,
+        service_type: body.service_type ?? null,
         status: "pending",
         phone_number: body.phone_number,
         consultation_id: body.consultation_id ?? null,

@@ -7,8 +7,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -372,7 +370,6 @@ fun FindDoctorScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DoctorCard(
     doctor: DoctorProfileEntity,
@@ -503,9 +500,8 @@ private fun DoctorCard(
             // Service tags
             if (doctor.services.isNotEmpty()) {
                 Spacer(Modifier.height(10.dp))
-                FlowRow(
+                Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     val visibleTags = doctor.services.take(2)
                     val remaining = doctor.services.size - visibleTags.size

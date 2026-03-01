@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -16,9 +17,15 @@ import com.esiri.esiriplus.feature.auth.navigation.PatientSetupRoute
 import com.esiri.esiriplus.feature.auth.navigation.RoleSelectionRoute
 import com.esiri.esiriplus.feature.auth.navigation.SecurityQuestionsSetupRoute
 import com.esiri.esiriplus.feature.auth.navigation.authGraph
+import com.esiri.esiriplus.feature.doctor.navigation.DoctorConsultationDetailRoute
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorGraph
+import com.esiri.esiriplus.feature.doctor.navigation.DoctorReportRoute
+import com.esiri.esiriplus.feature.doctor.navigation.DoctorVideoCallRoute
 import com.esiri.esiriplus.feature.doctor.navigation.doctorGraph
+import com.esiri.esiriplus.feature.patient.navigation.PatientConsultationRoute
 import com.esiri.esiriplus.feature.patient.navigation.PatientGraph
+import com.esiri.esiriplus.feature.patient.navigation.PatientPaymentRoute
+import com.esiri.esiriplus.feature.patient.navigation.PatientVideoCallRoute
 import com.esiri.esiriplus.feature.patient.navigation.patientGraph
 
 @Composable
@@ -51,21 +58,47 @@ fun EsiriplusNavHost(
     // Only force-navigate on logout/session expiry (when user was previously authenticated)
     // or on first authentication. Let the normal SplashRoute → RoleSelection flow handle
     // initial unauthenticated state so the splash "Tap to continue" screen shows.
+    //
+    // IMPORTANT: Never force-navigate while user is on a protected screen (chat, payment,
+    // video call, report). This prevents accidental data loss and jarring UX.
     LaunchedEffect(authState) {
+        val currentRoute = navController.currentDestination?.route ?: ""
+        Log.d("NavHost", "authState changed: $authState, hasNavigatedForAuth=${hasNavigatedForAuth.value}, currentRoute=$currentRoute")
+
+        // Protected screens — NEVER yank the user away from these.
+        // They handle their own errors gracefully. Uses class references so renames
+        // are caught at compile time (unlike raw string matching).
+        val isProtectedScreen = currentRoute.startsWith(DoctorConsultationDetailRoute::class.qualifiedName ?: "") ||
+            currentRoute.startsWith(PatientConsultationRoute::class.qualifiedName ?: "") ||
+            currentRoute.startsWith(PatientPaymentRoute::class.qualifiedName ?: "") ||
+            currentRoute.startsWith(DoctorVideoCallRoute::class.qualifiedName ?: "") ||
+            currentRoute.startsWith(PatientVideoCallRoute::class.qualifiedName ?: "") ||
+            currentRoute.startsWith(DoctorReportRoute::class.qualifiedName ?: "")
+
         when (authState) {
             is AuthState.SessionExpired -> {
-                hasNavigatedForAuth.value = false
-                navController.navigate(RoleSelectionRoute) {
-                    popUpTo(0) { inclusive = true }
+                if (isProtectedScreen) {
+                    Log.w("NavHost", "SESSION EXPIRED but on protected screen ($currentRoute) — suppressing navigation")
+                } else {
+                    Log.w("NavHost", "SESSION EXPIRED — navigating to RoleSelection")
+                    hasNavigatedForAuth.value = false
+                    navController.navigate(RoleSelectionRoute) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             }
             is AuthState.Unauthenticated -> {
                 // Only force-navigate if user was previously authenticated (i.e., logged out).
                 // On fresh app launch, let the auth graph's SplashRoute show first.
                 if (hasNavigatedForAuth.value) {
-                    hasNavigatedForAuth.value = false
-                    navController.navigate(RoleSelectionRoute) {
-                        popUpTo(0) { inclusive = true }
+                    if (isProtectedScreen) {
+                        Log.w("NavHost", "UNAUTHENTICATED but on protected screen ($currentRoute) — suppressing navigation")
+                    } else {
+                        Log.w("NavHost", "UNAUTHENTICATED (was auth) — navigating to RoleSelection")
+                        hasNavigatedForAuth.value = false
+                        navController.navigate(RoleSelectionRoute) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 }
             }
@@ -73,13 +106,12 @@ fun EsiriplusNavHost(
                 if (!hasNavigatedForAuth.value) {
                     // Check if patient is still on the setup/recovery screen —
                     // don't yank them to the dashboard until they click "Continue".
-                    val currentRoute = navController.currentDestination?.route
                     val onPatientSetup = authState.session.user.role == UserRole.PATIENT &&
-                        currentRoute != null &&
-                        (currentRoute.contains("PatientSetupRoute") ||
-                            currentRoute.contains("SecurityQuestionsSetupRoute"))
+                        (currentRoute.startsWith(PatientSetupRoute::class.qualifiedName ?: "") ||
+                            currentRoute.startsWith(SecurityQuestionsSetupRoute::class.qualifiedName ?: ""))
 
                     if (!onPatientSetup) {
+                        Log.d("NavHost", "AUTHENTICATED (first time) — navigating to role graph")
                         hasNavigatedForAuth.value = true
                         val dest: Any = when (authState.session.user.role) {
                             UserRole.PATIENT -> PatientGraph

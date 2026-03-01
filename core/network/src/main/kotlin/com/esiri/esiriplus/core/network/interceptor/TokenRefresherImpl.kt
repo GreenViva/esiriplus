@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.network.interceptor
 
+import android.util.Log
 import com.esiri.esiriplus.core.network.BuildConfig
 import com.esiri.esiriplus.core.network.TokenManager
 import com.squareup.moshi.Json
@@ -17,6 +18,10 @@ class TokenRefresherImpl @Inject constructor(
 ) : TokenRefresher {
 
     private val bareClient = OkHttpClient.Builder().build()
+
+    companion object {
+        private const val TAG = "TokenRefresher"
+    }
 
     override fun refreshToken(currentRefreshToken: String): Boolean {
         val url = "${BuildConfig.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token"
@@ -44,11 +49,14 @@ class TokenRefresherImpl @Inject constructor(
                     refreshToken = tokenResponse.refreshToken,
                     expiresAtMillis = expiresAtMillis,
                 )
+                Log.d(TAG, "Token refreshed successfully, expires in ${tokenResponse.expiresIn}s")
                 true
             } else {
+                Log.e(TAG, "Token refresh failed: HTTP ${response.code} - ${response.body?.string()}")
                 false
             }
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.e(TAG, "Token refresh exception", e)
             false
         }
     }

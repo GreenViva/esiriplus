@@ -9,6 +9,7 @@ interface MessageRepository {
     suspend fun markAsRead(messageId: String)
     suspend fun markAsSynced(messageId: String)
     suspend fun getUnsyncedMessages(): List<MessageData>
+    suspend fun getLatestSyncedTimestamp(consultationId: String): Long?
     suspend fun clearAll()
 }
 
@@ -23,4 +24,6 @@ data class MessageData(
     val isRead: Boolean = false,
     val synced: Boolean = false,
     val createdAt: Long,
+    val retryCount: Int = 0,
+    val failedAt: Long? = null,
 )

@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
     // Fetch the pending payment by checkout request ID
     const { data: payment, error: fetchErr } = await supabase
       .from("payments")
-      .select("payment_id, payment_type, patient_session_id, consultation_id, amount")
+      .select("payment_id, payment_type, patient_session_id, consultation_id, amount, status, service_type")
       .eq("mpesa_checkout_request_id", checkoutRequestId)
       .single();
 
@@ -76,6 +76,19 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // Idempotency: skip if already processed (prevents double-credit on duplicate callbacks)
+    if (payment.status !== "pending") {
+      return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Already processed" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Recharge package mapping: amount (TZS) → minutes
+    const RECHARGE_MINUTES: Record<number, number> = {
+      200: 10, 500: 30, 900: 60, 1500: 120,
+    };
+
     if (resultCode === 0) {
       // Payment successful — extract M-Pesa receipt
       const items: { Name: string; Value: unknown }[] =
@@ -84,37 +97,37 @@ Deno.serve(async (req: Request) => {
         items.find((i) => i.Name === name)?.Value;
 
       const mpesaReceiptNumber = get("MpesaReceiptNumber") as string;
-      const transactionDate    = get("TransactionDate") as string;
-      const phoneNumber        = get("PhoneNumber") as string;
 
       // Update payment to completed
       await supabase
         .from("payments")
         .update({
           status: "completed",
-          mpesa_receipt_number: mpesaReceiptNumber,
-          mpesa_transaction_date: transactionDate,
-          paid_phone_number: String(phoneNumber),
-          completed_at: new Date().toISOString(),
+          transaction_id: mpesaReceiptNumber,
+          updated_at: new Date().toISOString(),
         })
         .eq("payment_id", payment.payment_id);
 
       // Trigger downstream logic based on payment type
       if (payment.payment_type === "service_access") {
         await supabase.from("service_access_payments").insert({
-          payment_id: payment.payment_id,
+          payment_id: crypto.randomUUID(),
+          base_payment_id: payment.payment_id,
           patient_session_id: payment.patient_session_id,
-          access_granted: true,
-          granted_at: new Date().toISOString(),
+          service_type: payment.service_type,
+          amount: payment.amount,
+          status: "completed",
         });
       } else if (payment.payment_type === "call_recharge") {
-        // Add minutes based on amount paid (e.g. 1 KES = 1 minute)
-        const minutes = Math.floor(payment.amount);
+        const minutes = RECHARGE_MINUTES[payment.amount] ?? 10;
         await supabase.from("call_recharge_payments").insert({
-          payment_id: payment.payment_id,
+          payment_id: crypto.randomUUID(),
+          base_payment_id: payment.payment_id,
           patient_session_id: payment.patient_session_id,
-          minutes_added: minutes,
-          recharged_at: new Date().toISOString(),
+          consultation_id: payment.consultation_id,
+          additional_minutes: minutes,
+          amount: payment.amount,
+          status: "completed",
         });
         // Update consultation remaining minutes
         if (payment.consultation_id) {
@@ -130,7 +143,7 @@ Deno.serve(async (req: Request) => {
         body: {
           session_id: payment.patient_session_id,
           title: "Payment Confirmed ✓",
-          body: `Your payment of KES ${payment.amount} was successful.`,
+          body: `Your payment of TZS ${payment.amount} was successful.`,
           type: "payment_success",
         },
       });
@@ -154,7 +167,7 @@ Deno.serve(async (req: Request) => {
         .update({
           status: "failed",
           failure_reason: resultDesc,
-          failed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .eq("payment_id", payment.payment_id);
 

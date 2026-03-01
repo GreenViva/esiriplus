@@ -16,6 +16,7 @@ interface NavItem {
 const adminItems: NavItem[] = [
   { href: "/dashboard", label: "Admin Dashboard", icon: DashboardIcon },
   { href: "/dashboard/doctors", label: "Doctor Applications", icon: DoctorAppIcon },
+  { href: "/dashboard/doctors/management", label: "Doctor Management", icon: DoctorMgmtIcon },
   { href: "/dashboard/payments", label: "Payments", icon: PaymentsIcon },
   { href: "/dashboard/analytics", label: "Health Analytics", icon: AnalyticsIcon },
   { href: "/dashboard/users", label: "Role Management", icon: RoleIcon },
@@ -72,6 +73,10 @@ export default function Sidebar({ email, fullName, role = "admin" }: SidebarProp
       return pathname.startsWith(href);
     }
     if (href === "/dashboard") return pathname === "/dashboard";
+    // Exact match for /dashboard/doctors so it doesn't also match /dashboard/doctors/management
+    if (href === "/dashboard/doctors") {
+      return pathname === "/dashboard/doctors" || (pathname.startsWith("/dashboard/doctors/") && !pathname.startsWith("/dashboard/doctors/management"));
+    }
     return pathname.startsWith(href);
   }
 

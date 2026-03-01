@@ -20,6 +20,7 @@ import com.esiri.esiriplus.core.domain.repository.DoctorProfileRepository
 import com.esiri.esiriplus.core.domain.repository.FcmTokenRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.service.DoctorAvailabilityService
 import com.esiri.esiriplus.core.network.service.DoctorConsultationService
@@ -132,6 +133,11 @@ data class DoctorDashboardUiState(
     val profilePhotoUrl: String? = null,
     val profileSaved: Boolean = false,
     val profileSyncFailed: Boolean = false,
+    val suspendedUntil: String? = null,
+    val suspensionMessage: String? = null,
+    val isBanned: Boolean = false,
+    val bannedAt: String? = null,
+    val banReason: String? = null,
     val profileUploading: Boolean = false,
     // For preserving original DB values when saving
     val registeredYearsExperience: Int = 0,
@@ -143,6 +149,8 @@ data class DoctorDashboardUiState(
     val pendingPayout: String = "TSh 0",
     val recentTransactions: List<EarningsTransaction> = emptyList(),
     val rejectionReason: String? = null,
+    /** Non-null if the doctor has an active consultation to resume (crash recovery). */
+    val activeConsultationToResume: String? = null,
 )
 
 // ─── ViewModel ──────────────────────────────────────────────────────────────────
@@ -166,6 +174,7 @@ class DoctorDashboardViewModel @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
     private val fcmTokenRepository: FcmTokenRepository,
     private val logoutUseCase: LogoutUseCase,
+    private val tokenManager: TokenManager,
 ) : ViewModel() {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -235,7 +244,7 @@ class DoctorDashboardViewModel @Inject constructor(
             // 2. Start observing Room flows (will update UI reactively as data is cached)
             observeConsultations(userId)
             observeEarnings(userId)
-            loadAvailability(userId)
+            viewModelScope.launch { loadAvailability(userId) }
 
             // 3. Authenticate with Supabase and fetch remote data
             authenticateAndFetchRemoteData(session.accessToken, session.refreshToken, userId)
@@ -249,9 +258,12 @@ class DoctorDashboardViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+                // Use FRESH token from EncryptedTokenStorage, not stale Room session token.
+                val freshAccess = tokenManager.getAccessTokenSync() ?: accessToken
+                val freshRefresh = tokenManager.getRefreshTokenSync() ?: refreshToken
                 supabaseClientProvider.importAuthToken(
-                    accessToken = accessToken,
-                    refreshToken = refreshToken,
+                    accessToken = freshAccess,
+                    refreshToken = freshRefresh,
                 )
                 Log.d(TAG, "Supabase auth token imported for $doctorId")
             } catch (e: Exception) {
@@ -259,10 +271,13 @@ class DoctorDashboardViewModel @Inject constructor(
                 return@launch
             }
 
-            // Fetch all remote data in parallel
-            launch { fetchProfileFromSupabase(doctorId) }
-            launch { fetchConsultationsFromSupabase(doctorId) }
-            launch { fetchEarningsFromSupabase(doctorId) }
+            // Earnings has FK constraints on both doctor_profiles (doctorId)
+            // and consultations (consultationId), so it must run after both.
+            launch {
+                fetchProfileFromSupabase(doctorId)
+                fetchConsultationsFromSupabase(doctorId)
+                fetchEarningsFromSupabase(doctorId)
+            }
             launch { subscribeToRealtime(doctorId) }
             launch { pushFcmTokenIfNeeded(doctorId) }
         }
@@ -290,10 +305,21 @@ class DoctorDashboardViewModel @Inject constructor(
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to re-sync local profile to Supabase", e)
                     }
+                    // Always apply server-controlled fields (approval status, rejection)
+                    if (localProfile.isVerified != row.isVerified || localProfile.rejectionReason != row.rejectionReason) {
+                        doctorProfileDao.insert(localProfile.copy(isVerified = row.isVerified, rejectionReason = row.rejectionReason))
+                    }
+                    _uiState.update {
+                        it.copy(isVerified = row.isVerified, rejectionReason = row.rejectionReason)
+                    }
                     return
                 }
 
                 val createdAtMillis = parseInstantToMillis(row.createdAt) ?: now
+                // Preserve local isAvailable unless the doctor is suspended or banned
+                // (server-enforced suspension/ban overrides local toggle).
+                val isSuspended = row.suspendedUntil != null &&
+                    try { Instant.parse(row.suspendedUntil).isAfter(Instant.now()) } catch (_: Exception) { false }
                 val entity = DoctorProfileEntity(
                     doctorId = row.doctorId,
                     fullName = row.fullName,
@@ -309,7 +335,7 @@ class DoctorDashboardViewModel @Inject constructor(
                     averageRating = row.averageRating,
                     totalRatings = row.totalRatings,
                     isVerified = row.isVerified,
-                    isAvailable = row.isAvailable,
+                    isAvailable = if (isSuspended || row.isBanned) false else (localProfile?.isAvailable ?: row.isAvailable),
                     services = row.services.ifEmpty { localProfile?.services ?: emptyList() },
                     countryCode = row.countryCode,
                     country = row.country,
@@ -322,14 +348,21 @@ class DoctorDashboardViewModel @Inject constructor(
                 doctorProfileDao.insert(entity)
                 Log.d(TAG, "Cached profile from Supabase for $doctorId")
 
-                // Update UI state with latest verification info from remote
+                // Update UI state with server-controlled fields.
+                // Suspension and ban status are authoritative from the server.
                 _uiState.update {
-                    it.copy(
+                    var updated = it.copy(
                         isVerified = row.isVerified,
-                        isOnline = row.isAvailable,
-                        isAvailable = row.isAvailable,
                         rejectionReason = row.rejectionReason,
+                        suspendedUntil = row.suspendedUntil,
+                        isBanned = row.isBanned,
+                        bannedAt = row.bannedAt,
+                        banReason = row.banReason,
                     )
+                    if (isSuspended || row.isBanned) {
+                        updated = updated.copy(isOnline = false, isAvailable = false, profileAvailableForConsultations = false)
+                    }
+                    updated
                 }
             }
             else -> Log.e(TAG, "Failed to fetch profile from Supabase: $result")
@@ -383,6 +416,8 @@ class DoctorDashboardViewModel @Inject constructor(
 
                 // Compute dashboard stats from fetched data
                 updateDashboardStats(entities)
+                // activeConsultationToResume is now derived reactively from
+                // the Room Flow in observeConsultations() — no one-shot needed.
             }
             else -> Log.e(TAG, "Failed to fetch consultations from Supabase: $result")
         }
@@ -409,8 +444,14 @@ class DoctorDashboardViewModel @Inject constructor(
                         createdAt = parseInstantToMillis(row.createdAt) ?: now,
                     )
                 }
-                doctorEarningsDao.insertAll(entities)
-                Log.d(TAG, "Cached ${entities.size} earnings from Supabase")
+                try {
+                    doctorEarningsDao.insertAll(entities)
+                    Log.d(TAG, "Cached ${entities.size} earnings from Supabase")
+                } catch (e: Exception) {
+                    // FK constraint can fail if an earning references a consultation
+                    // that wasn't fetched (e.g. old/deleted). Log and continue.
+                    Log.w(TAG, "Some earnings skipped due to FK constraint", e)
+                }
             }
             else -> Log.e(TAG, "Failed to fetch earnings from Supabase: $result")
         }
@@ -427,7 +468,11 @@ class DoctorDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             consultationDao.getByDoctorIdAndStatus(doctorId, "ACTIVE").collect { list ->
                 _uiState.update {
-                    it.copy(activeConsultationsList = list, activeConsultations = list.size)
+                    it.copy(
+                        activeConsultationsList = list,
+                        activeConsultations = list.size,
+                        activeConsultationToResume = list.firstOrNull()?.consultationId,
+                    )
                 }
             }
         }
@@ -528,9 +573,7 @@ class DoctorDashboardViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        viewModelScope.launch {
-            realtimeService.unsubscribeAll()
-        }
+        realtimeService.unsubscribeAllSync()
     }
 
     private suspend fun loadAvailability(doctorId: String) {
@@ -683,12 +726,14 @@ class DoctorDashboardViewModel @Inject constructor(
 
             _uiState.update { it.copy(profileUploading = true) }
             try {
-                // Import auth token so Storage uploads are authenticated
+                // Import fresh auth token so Storage uploads are authenticated
                 val session = authRepository.currentSession.first()
                 if (session != null) {
+                    val freshAccess = tokenManager.getAccessTokenSync() ?: session.accessToken
+                    val freshRefresh = tokenManager.getRefreshTokenSync() ?: session.refreshToken
                     supabaseClientProvider.importAuthToken(
-                        accessToken = session.accessToken,
-                        refreshToken = session.refreshToken,
+                        accessToken = freshAccess,
+                        refreshToken = freshRefresh,
                     )
                 }
 
@@ -756,7 +801,15 @@ class DoctorDashboardViewModel @Inject constructor(
     }
 
     fun onProfileAvailableToggled() {
-        _uiState.update { it.copy(profileAvailableForConsultations = !it.profileAvailableForConsultations, profileSaved = false) }
+        _uiState.update {
+            val newState = !it.profileAvailableForConsultations
+            it.copy(
+                profileAvailableForConsultations = newState,
+                isOnline = newState,
+                isAvailable = newState,
+                profileSaved = false,
+            )
+        }
     }
 
     fun saveProfile() {
@@ -801,12 +854,14 @@ class DoctorDashboardViewModel @Inject constructor(
 
     private suspend fun syncProfileToSupabase(state: DoctorDashboardUiState): Boolean {
         return try {
-            // Import auth token for authenticated Postgrest calls
+            // Import fresh auth token for authenticated Postgrest calls
             val session = authRepository.currentSession.first()
             if (session != null) {
+                val freshAccess = tokenManager.getAccessTokenSync() ?: session.accessToken
+                val freshRefresh = tokenManager.getRefreshTokenSync() ?: session.refreshToken
                 supabaseClientProvider.importAuthToken(
-                    accessToken = session.accessToken,
-                    refreshToken = session.refreshToken,
+                    accessToken = freshAccess,
+                    refreshToken = freshRefresh,
                 )
             }
 
@@ -827,13 +882,54 @@ class DoctorDashboardViewModel @Inject constructor(
 
     // ─── Other actions ──────────────────────────────────────────────────────────
 
+    fun clearSuspensionMessage() {
+        _uiState.update { it.copy(suspensionMessage = null) }
+    }
+
     fun onToggleOnline() {
-        if (!_uiState.value.isVerified) return
+        Log.d(TAG, "onToggleOnline called, isVerified=${_uiState.value.isVerified}, isOnline=${_uiState.value.isOnline}")
+        if (!_uiState.value.isVerified) {
+            Log.w(TAG, "onToggleOnline: doctor not verified, ignoring")
+            return
+        }
+        // Block toggle while suspended
+        val suspUntil = _uiState.value.suspendedUntil
+        if (suspUntil != null) {
+            try {
+                val suspInstant = Instant.parse(suspUntil)
+                if (suspInstant.isAfter(Instant.now())) {
+                    val date = suspInstant.atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy"))
+                    _uiState.update { it.copy(suspensionMessage = "Your account is suspended until $date") }
+                    Log.w(TAG, "onToggleOnline: doctor suspended until $suspUntil, blocking")
+                    return
+                }
+            } catch (_: Exception) { /* parse failed, allow toggle */ }
+        }
         viewModelScope.launch {
-            val session = authRepository.currentSession.first() ?: return@launch
+            val session = authRepository.currentSession.first()
+            if (session == null) {
+                Log.w(TAG, "onToggleOnline: no session, ignoring")
+                return@launch
+            }
             val newState = !_uiState.value.isOnline
+            Log.d(TAG, "onToggleOnline: setting isOnline=$newState for ${session.user.id}")
             doctorProfileRepository.updateAvailability(session.user.id, newState)
-            _uiState.update { it.copy(isOnline = newState, isAvailable = newState) }
+            _uiState.update {
+                it.copy(
+                    isOnline = newState,
+                    isAvailable = newState,
+                    profileAvailableForConsultations = newState,
+                )
+            }
+            // Sync to Supabase so patients can see the doctor's online status
+            try {
+                profileService.updateAvailability(session.user.id, newState)
+                Log.d(TAG, "onToggleOnline: synced to Supabase successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to sync availability to Supabase", e)
+            }
         }
     }
 

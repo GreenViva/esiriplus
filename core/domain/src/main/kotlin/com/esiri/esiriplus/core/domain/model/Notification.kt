@@ -20,6 +20,11 @@ enum class NotificationType {
     PAYMENT_STATUS,
     DOCTOR_APPROVED,
     DOCTOR_REJECTED,
+    DOCTOR_WARNED,
+    DOCTOR_SUSPENDED,
+    DOCTOR_UNSUSPENDED,
+    DOCTOR_BANNED,
+    DOCTOR_UNBANNED,
     ;
 
     companion object {

@@ -247,8 +247,8 @@ class AuthRepositoryImpl @Inject constructor(
                                 ),
                             )
 
-                            // 7. Bind device to this doctor (server-side)
-                            bindDeviceOnServer(userId, deviceBindingManager.getDeviceFingerprint())
+                            // Device binding is temporarily disabled.
+                            // bindDeviceOnServer(userId, deviceBindingManager.getDeviceFingerprint())
                         }
 
                         Result.Success(session)
@@ -278,11 +278,10 @@ class AuthRepositoryImpl @Inject constructor(
                 // Cache doctor profile from backend if available
                 cacheDoctorProfile(session.user.id)
 
-                // Check device binding on server (best-effort)
-                checkDeviceBindingOnServer(
-                    session.user.id,
-                    deviceBindingManager.getDeviceFingerprint(),
-                )
+                // Device binding is checked server-side by login-doctor.
+                // Skipping client-side check — it triggers 401 from the
+                // Supabase gateway (no --no-verify-jwt) which cascades into
+                // TokenRefreshAuthenticator → session invalidation → logout.
 
                 Result.Success(session)
             }

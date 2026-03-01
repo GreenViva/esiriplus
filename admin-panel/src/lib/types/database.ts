@@ -30,6 +30,7 @@ export interface DoctorProfile {
   license_document_url: string | null;
   certificates_url: string | null;
   rejection_reason: string | null;
+  suspended_until: string | null;
 }
 
 export interface Consultation {

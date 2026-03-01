@@ -22,9 +22,11 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabase
       .from("doctor_profiles")
-      .select("*")
+      .select("doctor_id, full_name, email, phone, specialty, specialist_field, languages, bio, license_number, years_experience, profile_photo_url, average_rating, total_ratings, is_verified, is_available, services, country_code, country, created_at, updated_at")
       .eq("specialty", specialty)
-      .eq("is_verified", true);
+      .eq("is_verified", true)
+      .eq("is_banned", false)
+      .or("suspended_until.is.null,suspended_until.lte." + new Date().toISOString());
 
     if (error) {
       console.error("list-doctors query error:", error);

@@ -11,7 +11,10 @@ class ProactiveTokenRefreshInterceptor @Inject constructor(
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        if (tokenManager.getAccessTokenSync() != null && tokenManager.isTokenExpiringSoon()) {
+        val token = tokenManager.getAccessTokenSync()
+        // Only refresh Supabase Auth tokens (doctors). Patient custom JWTs
+        // cannot be refreshed via Supabase Auth.
+        if (token != null && !JwtUtils.isPatientToken(token) && tokenManager.isTokenExpiringSoon()) {
             val refreshToken = tokenManager.getRefreshTokenSync()
             if (refreshToken != null) {
                 tokenRefresher.refreshToken(refreshToken)

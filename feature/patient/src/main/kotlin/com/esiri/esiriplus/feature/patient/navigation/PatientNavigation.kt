@@ -50,6 +50,9 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onNavigateToProfile = { navController.navigate(PatientProfileRoute) },
                 onNavigateToReports = { navController.navigate(ReportsRoute) },
                 onNavigateToConsultationHistory = { navController.navigate(ConsultationHistoryRoute) },
+                onResumeConsultation = { consultationId ->
+                    navController.navigate(PatientConsultationRoute(consultationId))
+                },
             )
         }
         composable<ServiceLocationRoute> {
@@ -58,7 +61,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                     navController.navigate(ServicesRoute)
                 },
                 onSelectOutsideTanzania = {
-                    navController.navigate(PatientConsultationRoute(""))
+                    // International consultations not yet supported — stay on current screen
                 },
                 onBack = { navController.popBackStack() },
             )
@@ -94,7 +97,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 },
                 onNavigateToConsultation = { consultationId ->
                     navController.navigate(PatientConsultationRoute(consultationId)) {
-                        popUpTo<FindDoctorRoute> { inclusive = false }
+                        popUpTo<PatientHomeRoute> { inclusive = false }
                     }
                 },
                 onBack = { navController.popBackStack() },
@@ -104,7 +107,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
             BookAppointmentScreen(
                 onBookingSuccess = { consultationId ->
                     navController.navigate(PatientConsultationRoute(consultationId)) {
-                        popUpTo<FindDoctorRoute> { inclusive = false }
+                        popUpTo<PatientHomeRoute> { inclusive = false }
                     }
                 },
                 onBack = { navController.popBackStack() },
@@ -115,7 +118,9 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onNavigateToPayment = { consultationId ->
                     navController.navigate(PatientPaymentRoute(consultationId))
                 },
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    navController.popBackStack(PatientHomeRoute, inclusive = false)
+                },
             )
         }
         composable<PatientPaymentRoute> {

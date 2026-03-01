@@ -20,15 +20,17 @@ export default async function DoctorDetailPage({ params }: Props) {
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const [profileRes, bindingsRes] = await Promise.all([
+  const [profileRes, bindingsRes, authUserRes] = await Promise.all([
     supabase.from("doctor_profiles").select("*").eq("doctor_id", id).single(),
     supabase.from("doctor_device_bindings").select("*").eq("doctor_id", id),
+    supabase.auth.admin.getUserById(id),
   ]);
 
   if (!profileRes.data) notFound();
 
   const doctor = profileRes.data as DoctorProfile;
   const bindings = (bindingsRes.data ?? []) as DoctorDeviceBinding[];
+  const isBanned = doctor.is_banned ?? false;
 
   return (
     <div className="max-w-3xl">
@@ -88,6 +90,14 @@ export default async function DoctorDetailPage({ params }: Props) {
           <Field label="Country" value={doctor.country ?? "N/A"} />
           <Field label="Rating" value={`${doctor.average_rating.toFixed(1)} (${doctor.total_ratings} reviews)`} />
           <Field label="Available" value={doctor.is_available ? "Yes" : "No"} />
+          {doctor.suspended_until && (
+            <Field
+              label="Suspended Until"
+              value={new Date(doctor.suspended_until).toLocaleDateString("en-US", {
+                month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
+              })}
+            />
+          )}
           <Field label="Registered" value={formatDate(doctor.created_at)} />
         </dl>
 
@@ -150,6 +160,8 @@ export default async function DoctorDetailPage({ params }: Props) {
       <DoctorActions
         doctorId={doctor.doctor_id}
         isVerified={doctor.is_verified}
+        isAvailable={doctor.is_available}
+        isBanned={isBanned}
         hasDevice={bindings.some((b) => b.is_active)}
       />
     </div>

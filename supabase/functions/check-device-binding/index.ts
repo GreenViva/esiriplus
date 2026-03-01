@@ -26,6 +26,7 @@ Deno.serve(async (req: Request) => {
       return new Response("Method not allowed", { status: 405 });
     }
 
+    // Tight rate limit by IP (called during login — no auth available yet)
     await checkRateLimit(`check-device:${clientIp}`, 10, 60);
 
     const body = await req.json();

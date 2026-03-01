@@ -12,6 +12,9 @@ const WHITE: [number, number, number] = [255, 255, 255];
 const PAGE_MARGIN = 15;
 const CONTENT_WIDTH = 180; // A4 (210) - 2*15
 
+const PDFJS_CDN_VERSION = "4.9.155";
+const PDFJS_CDN_BASE = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_CDN_VERSION}`;
+
 export interface DoctorPdfInput {
   doctor_id: string;
   full_name: string;
@@ -42,16 +45,23 @@ interface FetchedImage {
   height: number;
 }
 
-function isImageUrl(url: string): boolean {
+/** Detect content type via HEAD request, fall back to URL-based guessing */
+async function detectContentType(url: string): Promise<"image" | "pdf" | "unknown"> {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    const ct = res.headers.get("content-type")?.toLowerCase() ?? "";
+    if (ct.startsWith("image/")) return "image";
+    if (ct === "application/pdf") return "pdf";
+  } catch { /* fall through to URL guessing */ }
+
   const lower = url.toLowerCase();
-  return (
-    lower.endsWith(".jpg") ||
-    lower.endsWith(".jpeg") ||
-    lower.endsWith(".png") ||
-    lower.endsWith(".webp") ||
-    lower.includes("profile-photo") ||
-    lower.includes("image")
-  );
+  if (
+    lower.endsWith(".jpg") || lower.endsWith(".jpeg") ||
+    lower.endsWith(".png") || lower.endsWith(".webp") ||
+    lower.includes("profile-photo") || lower.includes("image")
+  ) return "image";
+  if (lower.endsWith(".pdf")) return "pdf";
+  return "unknown";
 }
 
 async function fetchImage(url: string): Promise<FetchedImage | null> {
@@ -77,6 +87,75 @@ async function fetchImage(url: string): Promise<FetchedImage | null> {
   }
 }
 
+/** Load pdf.js from CDN dynamically (bypasses webpack ESM bundling issues) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadPdfJs(): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((window as any).pdfjsLib) return (window as any).pdfjsLib;
+
+  // Use new Function to create a real import() that webpack can't intercept
+  const dynamicImport = new Function("url", "return import(url)");
+  await dynamicImport(`${PDFJS_CDN_BASE}/pdf.min.mjs`);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lib = (window as any).pdfjsLib;
+  if (!lib) throw new Error("Failed to load pdf.js from CDN");
+
+  lib.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN_BASE}/pdf.worker.min.mjs`;
+  return lib;
+}
+
+/** Render all pages of a remote PDF as JPEG images */
+async function fetchPdfAsImages(url: string): Promise<FetchedImage[]> {
+  try {
+    const pdfjsLib = await loadPdfJs();
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const images: FetchedImage[] = [];
+
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const scale = 2; // 2x for good quality
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) continue;
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      images.push({ dataUrl, width: viewport.width, height: viewport.height });
+    }
+
+    return images;
+  } catch (err) {
+    console.error("Failed to render PDF:", url, err);
+    return [];
+  }
+}
+
+/** Fetch a credential: detect type via Content-Type header, then fetch accordingly */
+async function fetchCredential(url: string): Promise<{ images: FetchedImage[]; type: "image" | "pdf" | "failed" }> {
+  const contentType = await detectContentType(url);
+
+  if (contentType === "image") {
+    const img = await fetchImage(url);
+    return img ? { images: [img], type: "image" } : { images: [], type: "failed" };
+  }
+  if (contentType === "pdf") {
+    const pages = await fetchPdfAsImages(url);
+    return pages.length > 0 ? { images: pages, type: "pdf" } : { images: [], type: "failed" };
+  }
+  // Unknown type — try as image first, then PDF
+  const img = await fetchImage(url);
+  if (img) return { images: [img], type: "image" };
+  const pages = await fetchPdfAsImages(url);
+  if (pages.length > 0) return { images: pages, type: "pdf" };
+  return { images: [], type: "failed" };
+}
+
 function scaleToFit(
   imgW: number, imgH: number,
   maxW: number, maxH: number,
@@ -86,15 +165,15 @@ function scaleToFit(
 }
 
 export async function generateDoctorPdf(doctor: DoctorPdfInput): Promise<void> {
-  // Fetch all credential images in parallel
-  const [photoImg, licenseImg, certsImg] = await Promise.all([
-    doctor.profile_photo_url && isImageUrl(doctor.profile_photo_url)
-      ? fetchImage(doctor.profile_photo_url) : null,
-    doctor.license_document_url && isImageUrl(doctor.license_document_url)
-      ? fetchImage(doctor.license_document_url) : null,
-    doctor.certificates_url && isImageUrl(doctor.certificates_url)
-      ? fetchImage(doctor.certificates_url) : null,
+  // Fetch all credentials in parallel (images + PDF documents rendered as images)
+  const [photoResult, licenseResult, certsResult] = await Promise.all([
+    doctor.profile_photo_url ? fetchCredential(doctor.profile_photo_url) : null,
+    doctor.license_document_url ? fetchCredential(doctor.license_document_url) : null,
+    doctor.certificates_url ? fetchCredential(doctor.certificates_url) : null,
   ]);
+
+  // Profile photo is the first image from the photo credential (for header use)
+  const photoImg = photoResult?.images[0] ?? null;
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageH = doc.internal.pageSize.getHeight();
@@ -249,10 +328,10 @@ export async function generateDoctorPdf(doctor: DoctorPdfInput): Promise<void> {
   // ─── CREDENTIALS ───
   sectionHeader("Credentials & Documents");
 
-  const credentials: { label: string; url: string | null | undefined; img: FetchedImage | null }[] = [
-    { label: "Profile Photo", url: doctor.profile_photo_url, img: photoImg },
-    { label: "Medical License", url: doctor.license_document_url, img: licenseImg },
-    { label: "Certificates", url: doctor.certificates_url, img: certsImg },
+  const credentials: { label: string; url: string | null | undefined; result: Awaited<ReturnType<typeof fetchCredential>> | null }[] = [
+    { label: "Profile Photo", url: doctor.profile_photo_url, result: photoResult },
+    { label: "Medical License", url: doctor.license_document_url, result: licenseResult },
+    { label: "Certificates", url: doctor.certificates_url, result: certsResult },
   ];
 
   let hasAnyCred = false;
@@ -268,29 +347,47 @@ export async function generateDoctorPdf(doctor: DoctorPdfInput): Promise<void> {
     doc.text(cred.label, PAGE_MARGIN, y);
     y += 5;
 
-    if (cred.img) {
-      // Embed image
-      const maxImgH = 90;
-      const { w, h } = scaleToFit(cred.img.width, cred.img.height, CONTENT_WIDTH, maxImgH);
-      ensureSpace(h + 6);
+    const images = cred.result?.images ?? [];
 
-      // Light border around image
-      doc.setDrawColor(...BORDER_COLOR);
-      doc.setLineWidth(0.3);
-      doc.rect(PAGE_MARGIN, y, w, h);
-      doc.addImage(cred.img.dataUrl, "JPEG", PAGE_MARGIN, y, w, h);
-      y += h + 6;
+    if (images.length > 0) {
+      // Embed all images (single image for photos, multiple pages for PDFs)
+      if (cred.result?.type === "pdf" && images.length > 1) {
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(...LIGHT_TEXT);
+        doc.text(`(${images.length} pages)`, PAGE_MARGIN + doc.getTextWidth(cred.label) + 4, y - 5);
+      }
+
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        const maxImgH = 120;
+        const { w, h } = scaleToFit(img.width, img.height, CONTENT_WIDTH, maxImgH);
+        ensureSpace(h + 8);
+
+        if (cred.result?.type === "pdf" && images.length > 1) {
+          doc.setFontSize(7);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(...LIGHT_TEXT);
+          doc.text(`Page ${i + 1} of ${images.length}`, PAGE_MARGIN, y);
+          y += 3;
+        }
+
+        // Light border around image
+        doc.setDrawColor(...BORDER_COLOR);
+        doc.setLineWidth(0.3);
+        doc.rect(PAGE_MARGIN, y, w, h);
+        doc.addImage(img.dataUrl, "JPEG", PAGE_MARGIN, y, w, h);
+        y += h + 4;
+      }
+      y += 2;
     } else {
-      // PDF or failed fetch — show as link
+      // Failed to fetch — show as clickable link fallback
       ensureSpace(10);
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-
-      const isPdf = cred.url.toLowerCase().includes("pdf");
       doc.setTextColor(...LIGHT_TEXT);
-      doc.text(isPdf ? "PDF Document" : "Document", PAGE_MARGIN, y);
+      doc.text("Could not embed document — click link to view:", PAGE_MARGIN, y);
       y += 4;
-
       doc.setTextColor(...BRAND_TEAL);
       doc.textWithLink(cred.url, PAGE_MARGIN, y, { url: cred.url });
       y += 8;

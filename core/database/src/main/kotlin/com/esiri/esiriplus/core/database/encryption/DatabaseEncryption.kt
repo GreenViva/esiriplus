@@ -3,6 +3,7 @@ package com.esiri.esiriplus.core.database.encryption
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
@@ -13,6 +14,7 @@ import javax.crypto.SecretKey
 
 object DatabaseEncryption {
 
+    private const val TAG = "DatabaseEncryption"
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
     private const val DB_KEY_ALIAS = "esiriplus_db_key"
     private const val PREFS_FILE = "esiriplus_db_passphrase"
@@ -31,13 +33,25 @@ object DatabaseEncryption {
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
-        val prefs = EncryptedSharedPreferences.create(
-            context,
-            PREFS_FILE,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-        )
+        val prefs = try {
+            EncryptedSharedPreferences.create(
+                context,
+                PREFS_FILE,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "DB passphrase prefs corrupted, clearing and recreating", e)
+            context.deleteSharedPreferences(PREFS_FILE)
+            EncryptedSharedPreferences.create(
+                context,
+                PREFS_FILE,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        }
 
         return prefs.getString(KEY_PASSPHRASE, null)
             ?: generatePassphrase().also { passphrase ->

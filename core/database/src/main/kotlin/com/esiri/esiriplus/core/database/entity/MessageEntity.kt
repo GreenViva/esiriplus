@@ -1,20 +1,11 @@
 package com.esiri.esiriplus.core.database.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "messages",
-    foreignKeys = [
-        ForeignKey(
-            entity = ConsultationEntity::class,
-            parentColumns = ["consultationId"],
-            childColumns = ["consultationId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
     indices = [
         Index("consultationId", "createdAt"),
     ],
@@ -30,4 +21,6 @@ data class MessageEntity(
     val isRead: Boolean = false,
     val synced: Boolean = false,
     val createdAt: Long,
+    val retryCount: Int = 0,
+    val failedAt: Long? = null,
 )

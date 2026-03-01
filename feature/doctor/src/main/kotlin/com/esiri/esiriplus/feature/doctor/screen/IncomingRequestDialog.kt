@@ -49,11 +49,11 @@ fun IncomingRequestDialog(
 
     Dialog(
         onDismissRequest = {
-            // Only allow dismiss if already resolved
-            if (state.responseStatus != null) onDismiss()
+            // Allow dismiss if resolved or in retry state
+            if (state.responseStatus != null || state.canRetry) onDismiss()
         },
         properties = DialogProperties(
-            dismissOnBackPress = state.responseStatus != null,
+            dismissOnBackPress = state.responseStatus != null || state.canRetry,
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = false,
         ),
@@ -75,14 +75,20 @@ fun IncomingRequestDialog(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(CircleShape)
-                        .background(BrandTeal.copy(alpha = 0.1f)),
+                        .background(
+                            when {
+                                state.canRetry -> RejectRed.copy(alpha = 0.1f)
+                                else -> BrandTeal.copy(alpha = 0.1f)
+                            },
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = when (state.responseStatus) {
-                            ConsultationRequestStatus.ACCEPTED -> "\u2713"
-                            ConsultationRequestStatus.REJECTED -> "\u2717"
-                            ConsultationRequestStatus.EXPIRED -> "\u23F0"
+                        text = when {
+                            state.canRetry -> "\u26A0\uFE0F" // warning icon
+                            state.responseStatus == ConsultationRequestStatus.ACCEPTED -> "\u2713"
+                            state.responseStatus == ConsultationRequestStatus.REJECTED -> "\u2717"
+                            state.responseStatus == ConsultationRequestStatus.EXPIRED -> "\u23F0"
                             else -> "\uD83D\uDCDE" // phone icon
                         },
                         fontSize = 24.sp,
@@ -93,10 +99,11 @@ fun IncomingRequestDialog(
 
                 // Title
                 Text(
-                    text = when (state.responseStatus) {
-                        ConsultationRequestStatus.ACCEPTED -> "Request Accepted"
-                        ConsultationRequestStatus.REJECTED -> "Request Declined"
-                        ConsultationRequestStatus.EXPIRED -> "Request Expired"
+                    text = when {
+                        state.canRetry -> "Accept Failed"
+                        state.responseStatus == ConsultationRequestStatus.ACCEPTED -> "Request Accepted"
+                        state.responseStatus == ConsultationRequestStatus.REJECTED -> "Request Declined"
+                        state.responseStatus == ConsultationRequestStatus.EXPIRED -> "Request Expired"
                         else -> "Incoming Consultation Request"
                     },
                     fontSize = 20.sp,
@@ -109,10 +116,11 @@ fun IncomingRequestDialog(
 
                 // Subtitle
                 Text(
-                    text = when (state.responseStatus) {
-                        ConsultationRequestStatus.ACCEPTED -> "Redirecting to consultation..."
-                        ConsultationRequestStatus.REJECTED -> "The patient will be notified."
-                        ConsultationRequestStatus.EXPIRED -> "The request time has passed."
+                    text = when {
+                        state.canRetry -> "Something went wrong. You can retry."
+                        state.responseStatus == ConsultationRequestStatus.ACCEPTED -> "Redirecting to consultation..."
+                        state.responseStatus == ConsultationRequestStatus.REJECTED -> "The patient will be notified."
+                        state.responseStatus == ConsultationRequestStatus.EXPIRED -> "The request time has passed."
                         else -> "A patient is requesting a consultation. You have ${state.secondsRemaining} seconds to respond."
                     },
                     fontSize = 14.sp,
@@ -121,8 +129,8 @@ fun IncomingRequestDialog(
                     lineHeight = 20.sp,
                 )
 
-                // Countdown bar (only when pending)
-                if (state.responseStatus == null && state.secondsRemaining > 0) {
+                // Countdown bar (only when pending and not in retry state)
+                if (state.responseStatus == null && !state.canRetry && state.secondsRemaining > 0) {
                     Spacer(Modifier.height(20.dp))
 
                     // Countdown timer badge
@@ -169,8 +177,47 @@ fun IncomingRequestDialog(
 
                 Spacer(Modifier.height(24.dp))
 
-                // Action buttons (only when pending and not yet responded)
-                if (state.responseStatus == null) {
+                // Retry buttons (shown when accept/reject failed)
+                if (state.canRetry) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        // Dismiss
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(
+                                text = "Dismiss",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF6B7280),
+                            )
+                        }
+
+                        // Retry Accept
+                        Button(
+                            onClick = onAccept,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AcceptGreen,
+                            ),
+                        ) {
+                            Text(
+                                text = "Retry",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White,
+                            )
+                        }
+                    }
+                }
+
+                // Normal action buttons (only when pending, not responding, and not in retry state)
+                if (state.responseStatus == null && !state.canRetry) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),

@@ -78,8 +78,9 @@ Deno.serve(async (req: Request) => {
       .map((m) => `[${m.sender_role.toUpperCase()}]: ${m.content}`)
       .join("\n");
 
-    const doctorName = (consultation as unknown as Record<string, unknown>)
-      ?.doctor_profiles?.toString() ?? "Doctor";
+    const doctorProfile = (consultation as Record<string, unknown>)
+      ?.doctor_profiles as { full_name?: string; specialization?: string } | null;
+    const doctorName = doctorProfile?.full_name ?? "Doctor";
 
     const prompt = `
 You are a medical documentation assistant. Generate a structured clinical consultation report.

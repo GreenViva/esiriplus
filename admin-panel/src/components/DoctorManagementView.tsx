@@ -2,6 +2,7 @@
 
 import { useState, useMemo, Fragment } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { specialtyLabel } from "@/lib/utils";
 import {
@@ -35,6 +36,7 @@ interface Doctor {
   bio: string | null;
   years_experience: number | null;
   country: string | null;
+  suspended_until: string | null;
 }
 
 type SortKey = "status" | "rating";
@@ -43,9 +45,12 @@ type StatusFilter = "all" | "pending" | "active" | "suspended" | "banned" | "rej
 
 interface Props {
   doctors: Doctor[];
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
 }
 
-export default function DoctorManagementView({ doctors }: Props) {
+export default function DoctorManagementView({ doctors, currentPage, totalPages, basePath }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -57,6 +62,10 @@ export default function DoctorManagementView({ doctors }: Props) {
   const [rejectReason, setRejectReason] = useState("");
   const [warnModal, setWarnModal] = useState<string | null>(null);
   const [warnMessage, setWarnMessage] = useState("");
+  const [suspendModal, setSuspendModal] = useState<string | null>(null);
+  const [suspendDays, setSuspendDays] = useState<number>(7);
+  const [banModal, setBanModal] = useState<string | null>(null);
+  const [banReason, setBanReason] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function getStatus(d: Doctor): string {
@@ -139,18 +148,25 @@ export default function DoctorManagementView({ doctors }: Props) {
   async function handleSuspend(doctorId: string) {
     setLoading(doctorId);
     setError("");
-    const result = await suspendDoctor(doctorId);
-    if (result.error) setError(result.error);
+    const result = await suspendDoctor(doctorId, suspendDays);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setSuspendModal(null);
+      setSuspendDays(7);
+    }
     setLoading(null);
     router.refresh();
   }
 
   async function handleBan(doctorId: string) {
-    if (!confirm("Are you sure you want to ban this doctor? This will prevent them from logging in.")) return;
+    if (!banReason.trim()) return;
     setLoading(doctorId);
     setError("");
-    const result = await banDoctor(doctorId);
+    const result = await banDoctor(doctorId, banReason.trim());
     if (result.error) setError(result.error);
+    setBanModal(null);
+    setBanReason("");
     setLoading(null);
     router.refresh();
   }
@@ -327,6 +343,11 @@ export default function DoctorManagementView({ doctors }: Props) {
                     <td className="px-5 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
                         {status}
+                        {status === "suspended" && d.suspended_until && (
+                          <span className="ml-1 opacity-75">
+                            ({Math.max(1, Math.ceil((new Date(d.suspended_until).getTime() - Date.now()) / 86400000))}d left)
+                          </span>
+                        )}
                       </span>
                     </td>
 
@@ -398,13 +419,13 @@ export default function DoctorManagementView({ doctors }: Props) {
                               Warn
                             </button>
                             <button
-                              onClick={() => handleSuspend(d.doctor_id)}
+                              onClick={() => setSuspendModal(d.doctor_id)}
                               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                             >
                               Suspend
                             </button>
                             <button
-                              onClick={() => handleBan(d.doctor_id)}
+                              onClick={() => { setBanModal(d.doctor_id); setBanReason(""); }}
                               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors"
                             >
                               Ban
@@ -452,6 +473,16 @@ export default function DoctorManagementView({ doctors }: Props) {
                                 <p className="text-sm text-red-600">{d.rejection_reason}</p>
                               </div>
                             )}
+                            {status === "suspended" && d.suspended_until && (
+                              <div className="p-2 rounded-lg bg-orange-50 border border-orange-100">
+                                <span className="text-xs font-medium text-orange-700">Suspended until:</span>
+                                <p className="text-sm text-orange-600">
+                                  {new Date(d.suspended_until).toLocaleDateString("en-US", {
+                                    month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
+                                  })}
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Credentials */}
@@ -493,6 +524,33 @@ export default function DoctorManagementView({ doctors }: Props) {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-gray-500">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            {currentPage > 1 && (
+              <Link
+                href={`${basePath}?page=${currentPage - 1}`}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Previous
+              </Link>
+            )}
+            {currentPage < totalPages && (
+              <Link
+                href={`${basePath}?page=${currentPage + 1}`}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Next
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Reject Modal */}
       {rejectModal && (
@@ -552,6 +610,83 @@ export default function DoctorManagementView({ doctors }: Props) {
                 className="px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-xl hover:bg-amber-600 disabled:opacity-50 transition-colors"
               >
                 {loading === warnModal ? "Sending..." : "Send Warning"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ban Modal */}
+      {banModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
+            <h3 className="text-lg font-bold text-red-600 mb-1">Ban Doctor</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              This will permanently ban the doctor from using the application. They will see a ban notice with your reason when they log in. They can appeal within 7 days.
+            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Ban Reason (required)</label>
+            <textarea
+              value={banReason}
+              onChange={(e) => setBanReason(e.target.value)}
+              placeholder="Describe why this doctor is being banned..."
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 resize-none mb-4"
+              rows={3}
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => { setBanModal(null); setBanReason(""); }}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleBan(banModal)}
+                disabled={!banReason.trim() || loading === banModal}
+                className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {loading === banModal ? "Banning..." : "Confirm Ban"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Suspend Modal */}
+      {suspendModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Suspend Doctor</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Choose how long to suspend this doctor. They will be automatically unsuspended when the period ends.
+            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Suspension Duration</label>
+            <select
+              value={suspendDays}
+              onChange={(e) => setSuspendDays(Number(e.target.value))}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 mb-2"
+            >
+              <option value={1}>1 day</option>
+              <option value={3}>3 days</option>
+              <option value={7}>7 days</option>
+              <option value={14}>14 days</option>
+              <option value={30}>30 days</option>
+            </select>
+            <p className="text-xs text-gray-400 mb-4">
+              Suspension ends: {new Date(Date.now() + suspendDays * 86400000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => { setSuspendModal(null); setSuspendDays(7); }}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleSuspend(suspendModal)}
+                disabled={loading === suspendModal}
+                className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 disabled:opacity-50 transition-colors"
+              >
+                {loading === suspendModal ? "Suspending..." : "Confirm Suspension"}
               </button>
             </div>
           </div>
