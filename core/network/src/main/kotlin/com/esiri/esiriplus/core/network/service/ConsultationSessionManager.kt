@@ -73,7 +73,24 @@ class ConsultationSessionManager @Inject constructor(
                 val phase = mapStatusToPhase(data.status)
 
                 val remainingMs = when (phase) {
-                    ConsultationPhase.ACTIVE -> (scheduledEndMs - serverTimeMs).coerceAtLeast(0L)
+                    ConsultationPhase.ACTIVE -> {
+                        if (scheduledEndMs > 0L) {
+                            (scheduledEndMs - serverTimeMs).coerceAtLeast(0L)
+                        } else {
+                            // Fallback: scheduled_end_at is null (consultation created
+                            // without timer fields). Use originalDurationMinutes as
+                            // the full session duration to avoid immediate expiry.
+                            Log.w(TAG, "scheduled_end_at is null for ACTIVE consultation, using duration fallback")
+                            val sessionStartMs = data.sessionStartTime?.let { parseIso(it) } ?: 0L
+                            if (sessionStartMs > 0L) {
+                                val endMs = sessionStartMs + data.originalDurationMinutes * 60_000L
+                                (endMs - serverTimeMs).coerceAtLeast(0L)
+                            } else {
+                                // Last resort: assume session just started
+                                data.originalDurationMinutes * 60_000L
+                            }
+                        }
+                    }
                     ConsultationPhase.GRACE_PERIOD -> (gracePeriodEndMs - serverTimeMs).coerceAtLeast(0L)
                     else -> 0L
                 }

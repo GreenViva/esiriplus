@@ -34,12 +34,17 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,11 +107,21 @@ fun FindDoctorScreen(
     val uiState by viewModel.uiState.collectAsState()
     val requestState by requestViewModel.uiState.collectAsState()
     val categoryName = categoryDisplayNames[uiState.serviceCategory] ?: uiState.serviceCategory
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Navigate on accepted consultation
     LaunchedEffect(Unit) {
         requestViewModel.acceptedEvent.collect { event ->
             onNavigateToConsultation(event.consultationId)
+        }
+    }
+
+    // Show error messages
+    LaunchedEffect(requestState.errorMessage) {
+        val msg = requestState.errorMessage
+        if (msg != null) {
+            snackbarHostState.showSnackbar(msg)
+            requestViewModel.dismissError()
         }
     }
 
@@ -364,6 +379,18 @@ fun FindDoctorScreen(
                     item { Spacer(Modifier.height(8.dp)) }
                 }
             }
+        }
+
+        // Error snackbar
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) { data ->
+            Snackbar(
+                snackbarData = data,
+                containerColor = Color(0xFFDC2626),
+                contentColor = Color.White,
+            )
         }
     }
 

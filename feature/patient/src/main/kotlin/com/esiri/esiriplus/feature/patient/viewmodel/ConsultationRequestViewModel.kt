@@ -423,7 +423,18 @@ class ConsultationRequestViewModel @Inject constructor(
 
     private fun clearRequest() {
         _uiState.update {
-            ConsultationRequestUiState()
+            it.copy(
+                activeRequestId = null,
+                activeRequestDoctorId = null,
+                status = null,
+                secondsRemaining = 0,
+                statusMessage = null,
+                isSending = false,
+                errorMessage = null,
+                showSymptomsDialog = false,
+                pendingDoctorId = null,
+                pendingServiceType = null,
+            )
         }
     }
 

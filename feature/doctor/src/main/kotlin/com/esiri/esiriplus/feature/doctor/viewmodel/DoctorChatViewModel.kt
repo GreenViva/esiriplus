@@ -89,12 +89,6 @@ class DoctorChatViewModel @Inject constructor(
         }
     }
 
-    fun requestExtension() {
-        viewModelScope.launch(safeHandler) {
-            consultationSessionManager.requestExtension()
-        }
-    }
-
     private fun initChat() {
         viewModelScope.launch(safeHandler) {
             try {

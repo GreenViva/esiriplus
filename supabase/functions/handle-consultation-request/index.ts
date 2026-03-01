@@ -26,6 +26,16 @@ import { getServiceClient } from "../_shared/supabase.ts";
 
 const REQUEST_TTL_SECONDS = 60;
 
+// Duration per service type (minutes) — must match get_service_duration_minutes SQL
+const SERVICE_DURATIONS: Record<string, number> = {
+  nurse: 15,
+  clinical_officer: 15,
+  pharmacist: 5,
+  gp: 15,
+  specialist: 20,
+  psychologist: 30,
+};
+
 // Service tier fees (TZS) — must match client-side service_tiers
 const SERVICE_FEES: Record<string, number> = {
   nurse: 5000,
@@ -318,6 +328,8 @@ async function handleAccept(
     }
 
     const now = new Date().toISOString();
+    const durationMinutes = SERVICE_DURATIONS[request.service_type] ?? 15;
+    const scheduledEnd = new Date(Date.now() + durationMinutes * 60_000).toISOString();
     const insertPayload = {
       patient_session_id: patientSessionId,
       doctor_id: auth.userId,
@@ -328,6 +340,10 @@ async function handleAccept(
       consultation_fee: consultationFee,
       request_expires_at: request.expires_at,
       request_id: body.request_id,
+      session_start_time: now,
+      scheduled_end_at: scheduledEnd,
+      original_duration_minutes: durationMinutes,
+      extension_count: 0,
       created_at: now,
       updated_at: now,
     };

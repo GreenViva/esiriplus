@@ -42,6 +42,8 @@ fun PatientConsultationScreen(
         }
     }
 
+    val isInputEnabled = sessionState.phase == ConsultationPhase.ACTIVE
+
     ChatContent(
         messages = uiState.messages,
         isLoading = uiState.isLoading,
@@ -56,6 +58,7 @@ fun PatientConsultationScreen(
         modifier = modifier,
         error = uiState.error,
         sendError = uiState.sendError,
+        isInputEnabled = isInputEnabled,
         timerContent = {
             if (!sessionState.isLoading) {
                 ConsultationTimerBar(
@@ -68,7 +71,7 @@ fun PatientConsultationScreen(
         bottomOverlay = {
             when (sessionState.phase) {
                 ConsultationPhase.AWAITING_EXTENSION -> {
-                    if (sessionState.extensionRequested && !sessionState.patientDeclined) {
+                    if (!sessionState.patientDeclined) {
                         PatientExtensionPrompt(
                             consultationFee = sessionState.consultationFee,
                             durationMinutes = sessionState.originalDurationMinutes,

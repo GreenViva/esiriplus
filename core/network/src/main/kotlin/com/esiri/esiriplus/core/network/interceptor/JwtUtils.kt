@@ -10,7 +10,9 @@ import org.json.JSONObject
 object JwtUtils {
 
     /**
-     * Returns true if the given JWT has `role = "patient"` in its payload.
+     * Returns true if the given JWT is a patient custom token.
+     * Checks both legacy format (`role = "patient"`) and new format
+     * (`role = "authenticated"` + `app_role = "patient"`).
      * Patient custom JWTs are NOT valid Supabase Auth tokens and must not be
      * sent to PostgREST/Realtime/Storage endpoints.
      */
@@ -20,7 +22,10 @@ object JwtUtils {
             if (parts.size < 2) false
             else {
                 val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING))
-                JSONObject(payload).optString("role", "") == "patient"
+                val json = JSONObject(payload)
+                val role = json.optString("role", "")
+                val appRole = json.optString("app_role", "")
+                role == "patient" || appRole == "patient"
             }
         } catch (_: Exception) {
             false

@@ -125,6 +125,20 @@ fun SymptomsEntryDialog(
                         )
                     }
 
+                    if (symptoms.isBlank()) {
+                        TextButton(
+                            onClick = { onConfirm("") },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(
+                                text = "Skip",
+                                fontSize = 15.sp,
+                                color = BrandTeal,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+
                     Button(
                         onClick = { onConfirm(symptoms) },
                         enabled = symptoms.isNotBlank(),

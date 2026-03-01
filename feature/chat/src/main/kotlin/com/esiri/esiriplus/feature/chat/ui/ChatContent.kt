@@ -74,6 +74,7 @@ fun ChatContent(
     modifier: Modifier = Modifier,
     error: String? = null,
     sendError: String? = null,
+    isInputEnabled: Boolean = true,
     topBarActions: @Composable RowScope.() -> Unit = {},
     timerContent: @Composable () -> Unit = {},
     bottomOverlay: @Composable () -> Unit = {},
@@ -164,19 +165,23 @@ fun ChatContent(
             }
 
             // Input bar
-            ChatInputBar(
-                value = textInput,
-                onValueChange = { newValue ->
-                    textInput = newValue
-                    onTypingChanged(newValue.isNotEmpty())
-                },
-                onSend = {
-                    if (textInput.isNotBlank()) {
-                        onSendMessage(textInput)
-                        textInput = ""
-                    }
-                },
-            )
+            if (isInputEnabled) {
+                ChatInputBar(
+                    value = textInput,
+                    onValueChange = { newValue ->
+                        textInput = newValue
+                        onTypingChanged(newValue.isNotEmpty())
+                    },
+                    onSend = {
+                        if (textInput.isNotBlank()) {
+                            onSendMessage(textInput)
+                            textInput = ""
+                        }
+                    },
+                )
+            } else {
+                DisabledInputBar()
+            }
         }
     }
 }
@@ -420,6 +425,29 @@ private fun ChatInputBar(
                     modifier = Modifier.size(20.dp),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun DisabledInputBar() {
+    Surface(
+        shadowElevation = 8.dp,
+        color = Color(0xFFF3F4F6),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 12.dp, vertical = 16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "Messaging paused \u2014 session time ended",
+                color = Color(0xFF6B7280),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+            )
         }
     }
 }
