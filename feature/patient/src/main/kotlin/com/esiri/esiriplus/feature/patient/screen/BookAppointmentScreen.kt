@@ -1,7 +1,9 @@
 package com.esiri.esiriplus.feature.patient.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +15,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,21 +51,27 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.BookAppointmentViewModel
+import com.esiri.esiriplus.feature.patient.viewmodel.TimeSlot
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
 private val CardBorder = Color(0xFFE5E7EB)
 private val SubtitleGrey = Color(0xFF374151)
 private val SuccessGreen = Color(0xFF16A34A)
-private val WarningOrange = Color(0xFFEA580C)
 private val ErrorRed = Color(0xFFDC2626)
 private val RatingAmber = Color(0xFFF59E0B)
 
-private val dayOrder = listOf("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+private val dayFormatter = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH)
+private val dateNumFormatter = DateTimeFormatter.ofPattern("d", Locale.ENGLISH)
+private val monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
 
 @Composable
 fun BookAppointmentScreen(
-    onBookingSuccess: (consultationId: String) -> Unit,
+    onBookingSuccess: (appointmentId: String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookAppointmentViewModel = hiltViewModel(),
@@ -70,8 +80,8 @@ fun BookAppointmentScreen(
 
     // Navigate on success
     LaunchedEffect(uiState.bookingSuccess) {
-        uiState.bookingSuccess?.let { consultationId ->
-            onBookingSuccess(consultationId)
+        uiState.bookingSuccess?.let { appointmentId ->
+            onBookingSuccess(appointmentId)
         }
     }
 
@@ -113,7 +123,7 @@ fun BookAppointmentScreen(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Fill in the details to request an appointment",
+                    text = "Select a date and time for your appointment",
                     fontSize = 14.sp,
                     color = SubtitleGrey,
                     modifier = Modifier.fillMaxWidth(),
@@ -138,32 +148,51 @@ fun BookAppointmentScreen(
                     averageRating = uiState.averageRating,
                     totalRatings = uiState.totalRatings,
                     isVerified = uiState.isVerified,
+                    inSession = uiState.inSession,
                 )
 
-                // Slots badge
-                SlotsBadge(availableSlots = uiState.availableSlots)
+                Spacer(Modifier.height(16.dp))
 
-                // Availability schedule
-                if (uiState.availabilitySchedule.isNotEmpty()) {
-                    AvailabilityScheduleSection(schedule = uiState.availabilitySchedule)
-                }
+                // Date picker section
+                DatePickerSection(
+                    dates = uiState.availableDates,
+                    selectedDate = uiState.selectedDate,
+                    onDateSelected = viewModel::selectDate,
+                )
 
+                Spacer(Modifier.height(16.dp))
                 HorizontalDivider(
                     color = CardBorder,
                     thickness = 1.dp,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+                Spacer(Modifier.height(16.dp))
+
+                // Time slots section
+                TimeSlotsSection(
+                    isLoading = uiState.isLoadingSlots,
+                    timeSlots = uiState.timeSlots,
+                    selectedTime = uiState.selectedTime,
+                    onTimeSelected = viewModel::selectTime,
                 )
 
-                // Booking form
-                BookingForm(
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider(
+                    color = CardBorder,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+                Spacer(Modifier.height(16.dp))
+
+                // Complaint field + book button
+                BookingFormSection(
                     chiefComplaint = uiState.chiefComplaint,
                     onChiefComplaintChange = viewModel::updateChiefComplaint,
-                    preferredLanguage = uiState.preferredLanguage,
-                    onPreferredLanguageChange = viewModel::updatePreferredLanguage,
+                    selectedDate = uiState.selectedDate,
+                    selectedTime = uiState.selectedTime,
                     isSubmitting = uiState.isSubmitting,
                     errorMessage = uiState.errorMessage,
-                    availableSlots = uiState.availableSlots,
-                    onBookAppointment = viewModel::bookAppointment,
+                    onBook = viewModel::bookAppointment,
                 )
 
                 Spacer(Modifier.height(32.dp))
@@ -179,6 +208,7 @@ private fun DoctorInfoCard(
     averageRating: Double,
     totalRatings: Int,
     isVerified: Boolean,
+    inSession: Boolean,
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -193,7 +223,6 @@ private fun DoctorInfoCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Initials circle
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -241,11 +270,7 @@ private fun DoctorInfoCard(
                         }
                     }
                 }
-                Text(
-                    text = specialty,
-                    fontSize = 14.sp,
-                    color = SubtitleGrey,
-                )
+                Text(text = specialty, fontSize = 14.sp, color = SubtitleGrey)
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -266,6 +291,21 @@ private fun DoctorInfoCard(
                         fontSize = 12.sp,
                         color = SubtitleGrey,
                     )
+                    if (inSession) {
+                        Spacer(Modifier.width(8.dp))
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0xFFFFF7ED),
+                        ) {
+                            Text(
+                                text = "In Session",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFFEA580C),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -273,102 +313,175 @@ private fun DoctorInfoCard(
 }
 
 @Composable
-private fun SlotsBadge(availableSlots: Int) {
-    val (slotColor, slotText) = when {
-        availableSlots < 0 -> BrandTeal to "Loading..."
-        availableSlots == 0 -> ErrorRed to "0/10 slots available"
-        availableSlots <= 3 -> WarningOrange to "$availableSlots/10 slots available"
-        else -> SuccessGreen to "$availableSlots/10 slots available"
-    }
-
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = slotColor.copy(alpha = 0.1f),
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(slotColor),
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = slotText,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = slotColor,
-            )
-        }
-    }
-}
-
-@Composable
-private fun AvailabilityScheduleSection(
-    schedule: Map<String, com.esiri.esiriplus.feature.patient.viewmodel.DayScheduleDto>,
-) {
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(R.drawable.ic_calendar),
-                contentDescription = null,
-                tint = BrandTeal,
-                modifier = Modifier.size(16.dp),
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = "Availability Schedule",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black,
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-
-        dayOrder.forEach { day ->
-            val daySchedule = schedule[day] ?: schedule[day.replaceFirstChar { it.uppercaseChar() }]
-            if (daySchedule != null && daySchedule.enabled) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = day.replaceFirstChar { it.uppercaseChar() },
-                        fontSize = 13.sp,
-                        color = Color.Black,
-                    )
-                    Text(
-                        text = "${daySchedule.start} - ${daySchedule.end}",
-                        fontSize = 13.sp,
-                        color = SubtitleGrey,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun BookingForm(
-    chiefComplaint: String,
-    onChiefComplaintChange: (String) -> Unit,
-    preferredLanguage: String,
-    onPreferredLanguageChange: (String) -> Unit,
-    isSubmitting: Boolean,
-    errorMessage: String?,
-    availableSlots: Int,
-    onBookAppointment: () -> Unit,
+private fun DatePickerSection(
+    dates: List<LocalDate>,
+    selectedDate: LocalDate?,
+    onDateSelected: (LocalDate) -> Unit,
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        // Chief complaint
         Text(
-            text = "What is your chief complaint?",
+            text = selectedDate?.format(monthFormatter) ?: "Select a Date",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black,
+        )
+        Spacer(Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            dates.forEach { date ->
+                val isSelected = date == selectedDate
+                val isToday = date == LocalDate.now()
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isSelected) BrandTeal else Color.White,
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        if (isSelected) BrandTeal else if (isToday) BrandTeal.copy(alpha = 0.5f) else CardBorder,
+                    ),
+                    modifier = Modifier
+                        .clickable { onDateSelected(date) }
+                        .width(56.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(vertical = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = date.format(dayFormatter),
+                            fontSize = 11.sp,
+                            color = if (isSelected) Color.White.copy(alpha = 0.8f) else SubtitleGrey,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = date.format(dateNumFormatter),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) Color.White else Color.Black,
+                        )
+                        if (isToday) {
+                            Spacer(Modifier.height(2.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(4.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isSelected) Color.White else BrandTeal),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimeSlotsSection(
+    isLoading: Boolean,
+    timeSlots: List<TimeSlot>,
+    selectedTime: LocalTime?,
+    onTimeSelected: (LocalTime) -> Unit,
+) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Text(
+            text = "Available Times",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black,
+        )
+        Spacer(Modifier.height(12.dp))
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = BrandTeal, modifier = Modifier.size(32.dp))
+            }
+        } else if (timeSlots.isEmpty()) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFFFFF7ED),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "No available time slots for this date. Try a different day.",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 14.sp,
+                    color = Color(0xFFEA580C),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        } else {
+            // Use a fixed height grid for time slots
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height((((timeSlots.size + 3) / 4) * 48).dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                userScrollEnabled = false,
+            ) {
+                items(timeSlots) { slot ->
+                    val isSelected = slot.time == selectedTime
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = when {
+                            isSelected -> BrandTeal
+                            !slot.isAvailable -> Color(0xFFF3F4F6)
+                            else -> Color.White
+                        },
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            when {
+                                isSelected -> BrandTeal
+                                !slot.isAvailable -> Color(0xFFE5E7EB)
+                                else -> CardBorder
+                            },
+                        ),
+                        modifier = Modifier.clickable(enabled = slot.isAvailable) {
+                            onTimeSelected(slot.time)
+                        },
+                    ) {
+                        Text(
+                            text = slot.label,
+                            modifier = Modifier.padding(vertical = 10.dp),
+                            fontSize = 13.sp,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = when {
+                                isSelected -> Color.White
+                                !slot.isAvailable -> SubtitleGrey.copy(alpha = 0.4f)
+                                else -> Color.Black
+                            },
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BookingFormSection(
+    chiefComplaint: String,
+    onChiefComplaintChange: (String) -> Unit,
+    selectedDate: LocalDate?,
+    selectedTime: LocalTime?,
+    isSubmitting: Boolean,
+    errorMessage: String?,
+    onBook: () -> Unit,
+) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Text(
+            text = "Chief Complaint",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black,
@@ -379,14 +492,14 @@ private fun BookingForm(
             onValueChange = { if (it.length <= 1000) onChiefComplaintChange(it) },
             placeholder = {
                 Text(
-                    text = "Describe your symptoms or reason for the appointment (min 10 characters)...",
+                    text = "Describe your symptoms or reason for the appointment...",
                     fontSize = 14.sp,
                     color = SubtitleGrey.copy(alpha = 0.6f),
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
+                .height(100.dp),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
@@ -394,68 +507,15 @@ private fun BookingForm(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
             ),
-            maxLines = 5,
+            maxLines = 4,
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            Text(
-                text = "${chiefComplaint.length}/1000",
-                fontSize = 11.sp,
-                color = SubtitleGrey,
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        // Preferred language
-        Text(
-            text = "Preferred Language",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black,
-        )
-        Spacer(Modifier.height(6.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            listOf("en" to "English", "sw" to "Swahili").forEach { (code, label) ->
-                val isSelected = preferredLanguage == code
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (isSelected) BrandTeal else Color.White,
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        if (isSelected) BrandTeal else CardBorder,
-                    ),
-                    modifier = Modifier.clickable { onPreferredLanguageChange(code) },
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(14.dp),
-                            )
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        Text(
-                            text = label,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isSelected) Color.White else Color.Black,
-                        )
-                    }
-                }
-            }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Text(text = "${chiefComplaint.length}/1000", fontSize = 11.sp, color = SubtitleGrey)
         }
 
         // Error message
         if (errorMessage != null) {
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
             Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = ErrorRed.copy(alpha = 0.1f),
@@ -470,12 +530,13 @@ private fun BookingForm(
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
         // Book button
-        val isFormValid = chiefComplaint.trim().length >= 10 && availableSlots != 0
+        val timeLabel = selectedTime?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: ""
+        val isFormValid = selectedDate != null && selectedTime != null && chiefComplaint.trim().length >= 10
         Button(
-            onClick = onBookAppointment,
+            onClick = onBook,
             enabled = isFormValid && !isSubmitting,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
@@ -493,12 +554,7 @@ private fun BookingForm(
                     strokeWidth = 2.dp,
                 )
                 Spacer(Modifier.width(10.dp))
-                Text(
-                    text = "Booking...",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
-                )
+                Text(text = "Booking...", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
             } else {
                 Icon(
                     painter = painterResource(R.drawable.ic_calendar),
@@ -508,7 +564,7 @@ private fun BookingForm(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Book Appointment",
+                    text = if (timeLabel.isNotEmpty()) "Book for $timeLabel" else "Select a Time",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,

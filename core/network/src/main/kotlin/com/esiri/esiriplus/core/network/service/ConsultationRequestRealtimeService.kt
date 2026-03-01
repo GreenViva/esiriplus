@@ -27,6 +27,12 @@ data class RequestRealtimeEvent(
     val consultationId: String? = null,
     val patientSessionId: String? = null,
     val serviceType: String? = null,
+    val symptoms: String? = null,
+    val patientAgeGroup: String? = null,
+    val patientSex: String? = null,
+    val patientBloodGroup: String? = null,
+    val patientAllergies: String? = null,
+    val patientChronicConditions: String? = null,
 )
 
 /**
@@ -115,6 +121,12 @@ class ConsultationRequestRealtimeService @Inject constructor(
         val consultationId = record["consultation_id"]?.jsonPrimitive?.content
         val patientSessionId = record["patient_session_id"]?.jsonPrimitive?.content
         val serviceType = record["service_type"]?.jsonPrimitive?.content
+        val symptoms = record["symptoms"]?.jsonPrimitive?.content
+        val patientAgeGroup = record["patient_age_group"]?.jsonPrimitive?.content
+        val patientSex = record["patient_sex"]?.jsonPrimitive?.content
+        val patientBloodGroup = record["patient_blood_group"]?.jsonPrimitive?.content
+        val patientAllergies = record["patient_allergies"]?.jsonPrimitive?.content
+        val patientChronicConditions = record["patient_chronic_conditions"]?.jsonPrimitive?.content
 
         return RequestRealtimeEvent(
             requestId = requestId,
@@ -122,6 +134,12 @@ class ConsultationRequestRealtimeService @Inject constructor(
             consultationId = consultationId,
             patientSessionId = patientSessionId,
             serviceType = serviceType,
+            symptoms = symptoms,
+            patientAgeGroup = patientAgeGroup,
+            patientSex = patientSex,
+            patientBloodGroup = patientBloodGroup,
+            patientAllergies = patientAllergies,
+            patientChronicConditions = patientChronicConditions,
         )
     }
 

@@ -16,7 +16,10 @@ data class Consultation(
 enum class ConsultationStatus {
     PENDING,
     ASSIGNED,
+    ACTIVE,
     IN_PROGRESS,
+    AWAITING_EXTENSION,
+    GRACE_PERIOD,
     COMPLETED,
     CANCELLED,
 }

@@ -341,22 +341,20 @@ fun FindDoctorScreen(
                     }
 
                     items(uiState.filteredDoctors, key = { it.doctorId }) { doctor ->
-                        val usedSlots = uiState.slotCounts[doctor.doctorId] ?: 0
-                        val availableSlots = 10 - usedSlots
                         val isThisDoctorRequested = requestState.activeRequestDoctorId == doctor.doctorId
                         val hasActiveRequest = requestState.activeRequestId != null
                         DoctorCard(
                             doctor = doctor,
                             priceAmount = servicePriceAmount,
                             durationMinutes = serviceDurationMinutes,
-                            availableSlots = availableSlots,
+                            inSession = doctor.inSession,
                             isRequestActive = hasActiveRequest,
                             isThisDoctorRequested = isThisDoctorRequested,
                             isSending = requestState.isSending && isThisDoctorRequested,
                             secondsRemaining = if (isThisDoctorRequested) requestState.secondsRemaining else 0,
                             onBookAppointment = { onBookAppointment(doctor.doctorId) },
                             onRequestConsultation = {
-                                requestViewModel.sendRequest(
+                                requestViewModel.requestConsultation(
                                     doctorId = doctor.doctorId,
                                     serviceType = uiState.serviceCategory.lowercase(),
                                 )
@@ -368,6 +366,16 @@ fun FindDoctorScreen(
             }
         }
     }
+
+    // Symptoms entry dialog
+    if (requestState.showSymptomsDialog) {
+        SymptomsEntryDialog(
+            patientAgeGroup = requestState.patientAgeGroup,
+            patientSex = requestState.patientSex,
+            onConfirm = { symptoms -> requestViewModel.confirmAndSendRequest(symptoms) },
+            onDismiss = { requestViewModel.dismissSymptomsDialog() },
+        )
+    }
 }
 
 @Composable
@@ -375,7 +383,7 @@ private fun DoctorCard(
     doctor: DoctorProfileEntity,
     priceAmount: Int,
     durationMinutes: Int,
-    availableSlots: Int,
+    inSession: Boolean = false,
     isRequestActive: Boolean = false,
     isThisDoctorRequested: Boolean = false,
     isSending: Boolean = false,
@@ -463,21 +471,22 @@ private fun DoctorCard(
                             color = SubtitleGrey,
                         )
                         Spacer(Modifier.width(8.dp))
-                        // Status badge
+                        // Status badge: Available / In Session / Offline
+                        val (badgeText, badgeColor) = when {
+                            doctor.isAvailable && !inSession -> "Available" to SuccessGreen
+                            doctor.isAvailable && inSession -> "In Session" to WarningOrange
+                            else -> "Offline" to SubtitleGrey
+                        }
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (doctor.isAvailable) {
-                                SuccessGreen.copy(alpha = 0.1f)
-                            } else {
-                                WarningOrange.copy(alpha = 0.1f)
-                            },
+                            color = badgeColor.copy(alpha = 0.1f),
                         ) {
                             Text(
-                                text = if (doctor.isAvailable) "Available" else "In Session",
+                                text = badgeText,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = if (doctor.isAvailable) SuccessGreen else WarningOrange,
+                                color = badgeColor,
                             )
                         }
                     }
@@ -633,21 +642,8 @@ private fun DoctorCard(
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
-                    val slotColor = when {
-                        availableSlots == 0 -> Color(0xFFDC2626)
-                        availableSlots <= 3 -> WarningOrange
-                        else -> SuccessGreen
-                    }
-                    Text(
-                        text = "$availableSlots/10 slots",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = slotColor,
-                    )
-                    Spacer(Modifier.height(4.dp))
-
-                    // Request Consultation button (primary action for online doctors)
-                    if (doctor.isAvailable && availableSlots > 0) {
+                    // Request Consultation button (only when doctor is available AND not in session)
+                    if (doctor.isAvailable && !inSession) {
                         val buttonEnabled = !isRequestActive && !isSending
                         Button(
                             onClick = onRequestConsultation,
@@ -684,26 +680,52 @@ private fun DoctorCard(
                         }
                     }
 
-                    // Book Appointment button (schedule for later)
-                    OutlinedButton(
-                        onClick = onBookAppointment,
-                        enabled = availableSlots > 0 && !isRequestActive,
-                        shape = RoundedCornerShape(10.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_calendar),
-                            contentDescription = null,
-                            tint = if (availableSlots > 0 && !isRequestActive) Color.Black else SubtitleGrey,
-                            modifier = Modifier.size(14.dp),
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = if (availableSlots > 0) "Book Appointment" else "No Slots",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = if (availableSlots > 0 && !isRequestActive) Color.Black else SubtitleGrey,
-                        )
+                    // Book Appointment button (always available, primary when in session)
+                    if (inSession) {
+                        Button(
+                            onClick = onBookAppointment,
+                            enabled = !isRequestActive,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = BrandTeal,
+                                disabledContainerColor = BrandTeal.copy(alpha = 0.4f),
+                            ),
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_calendar),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(14.dp),
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = "Book Appointment",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.White,
+                            )
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = onBookAppointment,
+                            enabled = !isRequestActive,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_calendar),
+                                contentDescription = null,
+                                tint = if (!isRequestActive) Color.Black else SubtitleGrey,
+                                modifier = Modifier.size(14.dp),
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = "Book Appointment",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = if (!isRequestActive) Color.Black else SubtitleGrey,
+                            )
+                        }
                     }
                 }
             }

@@ -40,4 +40,6 @@ data class DoctorProfileEntity(
     @ColumnInfo(defaultValue = "0") val isBanned: Boolean = false,
     @ColumnInfo(defaultValue = "NULL") val bannedAt: Long? = null,
     @ColumnInfo(defaultValue = "NULL") val banReason: String? = null,
+    @ColumnInfo(defaultValue = "0") val inSession: Boolean = false,
+    @ColumnInfo(defaultValue = "10") val maxAppointmentsPerDay: Int = 10,
 )

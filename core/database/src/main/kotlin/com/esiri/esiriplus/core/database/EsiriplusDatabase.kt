@@ -7,11 +7,13 @@ import com.esiri.esiriplus.core.database.converter.DateConverters
 import com.esiri.esiriplus.core.database.converter.JsonConverter
 import com.esiri.esiriplus.core.database.converter.ListStringConverter
 import com.esiri.esiriplus.core.database.dao.AppConfigDao
+import com.esiri.esiriplus.core.database.dao.AppointmentDao
 import com.esiri.esiriplus.core.database.dao.AttachmentDao
 import com.esiri.esiriplus.core.database.dao.AuditLogDao
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DiagnosisDao
 import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
+import com.esiri.esiriplus.core.database.dao.DoctorAvailabilitySlotDao
 import com.esiri.esiriplus.core.database.dao.DoctorCredentialsDao
 import com.esiri.esiriplus.core.database.dao.DoctorEarningsDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
@@ -36,11 +38,13 @@ import com.esiri.esiriplus.core.database.dao.TypingIndicatorDao
 import com.esiri.esiriplus.core.database.dao.VideoCallDao
 import com.esiri.esiriplus.core.database.dao.VitalSignDao
 import com.esiri.esiriplus.core.database.entity.AppConfigEntity
+import com.esiri.esiriplus.core.database.entity.AppointmentEntity
 import com.esiri.esiriplus.core.database.entity.AttachmentEntity
 import com.esiri.esiriplus.core.database.entity.AuditLogEntity
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.database.entity.DiagnosisEntity
 import com.esiri.esiriplus.core.database.entity.DoctorAvailabilityEntity
+import com.esiri.esiriplus.core.database.entity.DoctorAvailabilitySlotEntity
 import com.esiri.esiriplus.core.database.entity.DoctorCredentialsEntity
 import com.esiri.esiriplus.core.database.entity.DoctorEarningsEntity
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
@@ -96,8 +100,10 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         VideoCallEntity::class,
         PatientReportEntity::class,
         TypingIndicatorEntity::class,
+        AppointmentEntity::class,
+        DoctorAvailabilitySlotEntity::class,
     ],
-    version = 19,
+    version = 21,
     exportSchema = true,
 )
 @TypeConverters(
@@ -145,4 +151,6 @@ abstract class EsiriplusDatabase : RoomDatabase() {
     abstract fun videoCallDao(): VideoCallDao
     abstract fun patientReportDao(): PatientReportDao
     abstract fun typingIndicatorDao(): TypingIndicatorDao
+    abstract fun appointmentDao(): AppointmentDao
+    abstract fun doctorAvailabilitySlotDao(): DoctorAvailabilitySlotDao
 }

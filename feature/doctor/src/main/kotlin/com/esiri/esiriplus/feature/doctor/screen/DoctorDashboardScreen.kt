@@ -111,6 +111,8 @@ fun DoctorDashboardScreen(
     onNavigateToConsultations: () -> Unit,
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToConsultation: (consultationId: String) -> Unit = {},
+    onNavigateToAppointments: () -> Unit = {},
+    onNavigateToAvailabilitySettings: () -> Unit = {},
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoctorDashboardViewModel = hiltViewModel(),

@@ -684,6 +684,72 @@ object DatabaseMigrations {
         }
     }
 
+    @Suppress("LongMethod")
+    val MIGRATION_19_20 = object : Migration(19, 20) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // 1. Create appointments table
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `appointments` (
+                    `appointmentId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `patientSessionId` TEXT NOT NULL,
+                    `scheduledAt` INTEGER NOT NULL,
+                    `durationMinutes` INTEGER NOT NULL DEFAULT 15,
+                    `status` TEXT NOT NULL,
+                    `serviceType` TEXT NOT NULL,
+                    `consultationType` TEXT NOT NULL DEFAULT 'chat',
+                    `chiefComplaint` TEXT NOT NULL DEFAULT '',
+                    `consultationFee` INTEGER NOT NULL DEFAULT 0,
+                    `consultationId` TEXT DEFAULT NULL,
+                    `rescheduledFrom` TEXT DEFAULT NULL,
+                    `reminderSentAt` INTEGER DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`appointmentId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_appointments_doctorId_status` ON `appointments` (`doctorId`, `status`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_appointments_patientSessionId_status` ON `appointments` (`patientSessionId`, `status`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_appointments_scheduledAt` ON `appointments` (`scheduledAt`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_appointments_status_scheduledAt` ON `appointments` (`status`, `scheduledAt`)")
+
+            // 2. Create doctor_availability_slots table
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_availability_slots` (
+                    `slotId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `dayOfWeek` INTEGER NOT NULL,
+                    `startTime` TEXT NOT NULL,
+                    `endTime` TEXT NOT NULL,
+                    `bufferMinutes` INTEGER NOT NULL DEFAULT 5,
+                    `isActive` INTEGER NOT NULL DEFAULT 1,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`slotId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_availability_slots_doctorId_isActive` ON `doctor_availability_slots` (`doctorId`, `isActive`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_doctor_availability_slots_dayOfWeek_isActive` ON `doctor_availability_slots` (`dayOfWeek`, `isActive`)")
+
+            // 3. Add inSession and maxAppointmentsPerDay to doctor_profiles
+            db.execSQL("ALTER TABLE `doctor_profiles` ADD COLUMN `inSession` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `doctor_profiles` ADD COLUMN `maxAppointmentsPerDay` INTEGER NOT NULL DEFAULT 10")
+        }
+    }
+
+    val MIGRATION_20_21 = object : Migration(20, 21) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `scheduledEndAt` INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `extensionCount` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `gracePeriodEndAt` INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `originalDurationMinutes` INTEGER NOT NULL DEFAULT 15")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -703,5 +769,7 @@ object DatabaseMigrations {
         MIGRATION_16_17,
         MIGRATION_17_18,
         MIGRATION_18_19,
+        MIGRATION_19_20,
+        MIGRATION_20_21,
     )
 }

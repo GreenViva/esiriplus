@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.network.di
 
+import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
 import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
 import com.esiri.esiriplus.core.domain.repository.FcmTokenRepository
 import com.esiri.esiriplus.core.domain.repository.MessageRepository
@@ -10,6 +11,7 @@ import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.api.SupabaseApi
 import com.esiri.esiriplus.core.network.fcm.FcmTokenRepositoryImpl
+import com.esiri.esiriplus.core.network.service.AppointmentRepositoryImpl
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRepositoryImpl
 import com.esiri.esiriplus.core.network.service.MessageRepositoryImpl
 import com.esiri.esiriplus.core.network.service.NotificationRepositoryImpl
@@ -112,6 +114,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideMessageRepository(impl: MessageRepositoryImpl): MessageRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideAppointmentRepository(impl: AppointmentRepositoryImpl): AppointmentRepository = impl
 
     private const val CONNECT_TIMEOUT_SECONDS = 30L
     private const val READ_TIMEOUT_SECONDS = 60L

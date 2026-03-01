@@ -5,23 +5,23 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
-import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
-import com.esiri.esiriplus.core.domain.repository.ConsultationRepository
-import com.esiri.esiriplus.core.network.EdgeFunctionClient
-import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
+import com.esiri.esiriplus.core.domain.repository.AvailableSlotsResponse
+import com.esiri.esiriplus.core.domain.repository.BookedSlot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.putJsonArray
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @Serializable
@@ -31,53 +31,67 @@ data class DayScheduleDto(
     val end: String = "",
 )
 
+data class TimeSlot(
+    val time: LocalTime,
+    val label: String,
+    val isAvailable: Boolean,
+)
+
 data class BookAppointmentUiState(
     val doctorName: String = "",
     val specialty: String = "",
     val averageRating: Double = 0.0,
     val totalRatings: Int = 0,
     val isVerified: Boolean = false,
-    val availableSlots: Int = -1, // -1 = loading
-    val availabilitySchedule: Map<String, DayScheduleDto> = emptyMap(),
-    val chiefComplaint: String = "",
-    val preferredLanguage: String = "en",
-    val isSubmitting: Boolean = false,
-    val bookingSuccess: String? = null, // consultation ID on success
-    val errorMessage: String? = null,
     val isLoadingDoctor: Boolean = true,
+    val isLoadingSlots: Boolean = false,
+
+    // Date selection
+    val selectedDate: LocalDate? = null,
+    val availableDates: List<LocalDate> = emptyList(), // next 14 days
+
+    // Time slots for selected date
+    val timeSlots: List<TimeSlot> = emptyList(),
+    val selectedTime: LocalTime? = null,
+
+    // Booking form
+    val chiefComplaint: String = "",
+    val durationMinutes: Int = 15,
+    val isSubmitting: Boolean = false,
+    val bookingSuccess: String? = null, // appointment ID on success
+    val errorMessage: String? = null,
+
+    // Slot info
+    val inSession: Boolean = false,
+    val maxAppointmentsPerDay: Int = 10,
 )
 
-private val categoryToSpecialty = mapOf(
-    "NURSE" to "nurse",
-    "CLINICAL_OFFICER" to "clinical_officer",
-    "PHARMACIST" to "pharmacist",
-    "GP" to "gp",
-    "SPECIALIST" to "specialist",
-    "PSYCHOLOGIST" to "psychologist",
-)
+private val EAT = ZoneId.of("Africa/Nairobi")
+private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 @HiltViewModel
 class BookAppointmentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val consultationRepository: ConsultationRepository,
-    private val edgeFunctionClient: EdgeFunctionClient,
+    private val appointmentRepository: AppointmentRepository,
     private val doctorProfileDao: DoctorProfileDao,
-    private val doctorAvailabilityDao: DoctorAvailabilityDao,
 ) : ViewModel() {
-
-    private val json = Json { ignoreUnknownKeys = true }
 
     private val doctorId: String = savedStateHandle["doctorId"] ?: ""
     private val serviceCategory: String = savedStateHandle["serviceCategory"] ?: ""
-    private val serviceType: String = categoryToSpecialty[serviceCategory] ?: serviceCategory
+    private val servicePriceAmount: Int = savedStateHandle["servicePriceAmount"] ?: 0
+    private val serviceDurationMinutes: Int = savedStateHandle["serviceDurationMinutes"] ?: 15
 
-    private val _uiState = MutableStateFlow(BookAppointmentUiState())
+    private val _uiState = MutableStateFlow(
+        BookAppointmentUiState(durationMinutes = serviceDurationMinutes),
+    )
     val uiState: StateFlow<BookAppointmentUiState> = _uiState.asStateFlow()
+
+    // Cached slot data per date
+    private var cachedSlotsResponse: AvailableSlotsResponse? = null
 
     init {
         loadDoctorInfo()
-        loadSlotAvailability()
-        loadAvailabilitySchedule()
+        initDates()
     }
 
     private fun loadDoctorInfo() {
@@ -100,55 +114,112 @@ class BookAppointmentViewModel @Inject constructor(
         }
     }
 
-    private fun loadSlotAvailability() {
+    private fun initDates() {
+        val today = LocalDate.now(EAT)
+        val dates = (0 until 14).map { today.plusDays(it.toLong()) }
+        _uiState.update { it.copy(availableDates = dates) }
+        selectDate(today)
+    }
+
+    fun selectDate(date: LocalDate) {
+        _uiState.update {
+            it.copy(
+                selectedDate = date,
+                selectedTime = null,
+                timeSlots = emptyList(),
+                isLoadingSlots = true,
+            )
+        }
+        loadSlotsForDate(date)
+    }
+
+    private fun loadSlotsForDate(date: LocalDate) {
         viewModelScope.launch {
-            val body = buildJsonObject {
-                putJsonArray("doctor_ids") { add(JsonPrimitive(doctorId)) }
-            }
-            when (val result = edgeFunctionClient.invoke("get-doctor-slots", body)) {
-                is ApiResult.Success -> {
-                    try {
-                        val response = json.decodeFromString<GetDoctorSlotsResponse>(result.data)
-                        val slot = response.slots[doctorId]
-                        _uiState.update {
-                            it.copy(availableSlots = slot?.available ?: 10)
-                        }
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Failed to parse slot response", e)
-                        _uiState.update { it.copy(availableSlots = 10) }
+            val dateStr = date.toString() // YYYY-MM-DD
+            when (val result = appointmentRepository.getAvailableSlots(doctorId, dateStr)) {
+                is Result.Success -> {
+                    cachedSlotsResponse = result.data
+                    val slots = generateTimeSlots(result.data, date)
+                    _uiState.update {
+                        it.copy(
+                            timeSlots = slots,
+                            isLoadingSlots = false,
+                            inSession = result.data.inSession,
+                            maxAppointmentsPerDay = result.data.maxAppointmentsPerDay,
+                        )
                     }
                 }
-                else -> {
-                    Log.w(TAG, "Failed to fetch slots: $result")
-                    _uiState.update { it.copy(availableSlots = 10) }
+                is Result.Error -> {
+                    Log.w(TAG, "Failed to load slots: ${result.message}")
+                    _uiState.update {
+                        it.copy(
+                            isLoadingSlots = false,
+                            errorMessage = "Failed to load available times",
+                        )
+                    }
                 }
+                is Result.Loading -> { /* no-op */ }
             }
         }
     }
 
-    private fun loadAvailabilitySchedule() {
-        viewModelScope.launch {
-            doctorAvailabilityDao.getByDoctorId(doctorId).collect { entity ->
-                if (entity != null && entity.availabilitySchedule.isNotBlank()) {
-                    try {
-                        val schedule = json.decodeFromString<Map<String, DayScheduleDto>>(
-                            entity.availabilitySchedule,
-                        )
-                        _uiState.update { it.copy(availabilitySchedule = schedule) }
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Failed to parse availability schedule", e)
-                    }
-                }
+    private fun generateTimeSlots(
+        response: AvailableSlotsResponse,
+        date: LocalDate,
+    ): List<TimeSlot> {
+        val slots = mutableListOf<TimeSlot>()
+        val now = ZonedDateTime.now(EAT)
+        val isToday = date == now.toLocalDate()
+
+        for (availSlot in response.availabilitySlots) {
+            val startTime = LocalTime.parse(availSlot.startTime, timeFormatter)
+            val endTime = LocalTime.parse(availSlot.endTime, timeFormatter)
+            val intervalMinutes = serviceDurationMinutes.toLong()
+
+            var current = startTime
+            while (current.plusMinutes(intervalMinutes) <= endTime) {
+                // Skip past times if today
+                val isInPast = isToday && current <= now.toLocalTime()
+
+                // Check if this time overlaps with any booked appointment
+                val isBooked = isTimeBooked(date, current, intervalMinutes.toInt(), response.bookedAppointments)
+
+                slots.add(
+                    TimeSlot(
+                        time = current,
+                        label = current.format(timeFormatter),
+                        isAvailable = !isInPast && !isBooked,
+                    ),
+                )
+                current = current.plusMinutes(intervalMinutes + availSlot.bufferMinutes.toLong())
             }
         }
+        return slots
+    }
+
+    private fun isTimeBooked(
+        date: LocalDate,
+        time: LocalTime,
+        durationMinutes: Int,
+        bookedAppointments: List<BookedSlot>,
+    ): Boolean {
+        val slotStart = ZonedDateTime.of(date, time, EAT).toInstant()
+        val slotEnd = slotStart.plusSeconds(durationMinutes * 60L)
+
+        return bookedAppointments.any { booked ->
+            val bookedStart = Instant.parse(booked.scheduledAt)
+            val bookedEnd = bookedStart.plusSeconds(booked.durationMinutes * 60L)
+            // Check overlap
+            slotStart < bookedEnd && slotEnd > bookedStart
+        }
+    }
+
+    fun selectTime(time: LocalTime) {
+        _uiState.update { it.copy(selectedTime = time, errorMessage = null) }
     }
 
     fun updateChiefComplaint(value: String) {
         _uiState.update { it.copy(chiefComplaint = value, errorMessage = null) }
-    }
-
-    fun updatePreferredLanguage(lang: String) {
-        _uiState.update { it.copy(preferredLanguage = lang) }
     }
 
     fun clearError() {
@@ -157,25 +228,30 @@ class BookAppointmentViewModel @Inject constructor(
 
     fun bookAppointment() {
         val state = _uiState.value
-        if (state.chiefComplaint.trim().length < 10) {
-            _uiState.update { it.copy(errorMessage = "Please describe your complaint (at least 10 characters)") }
+        if (state.selectedDate == null || state.selectedTime == null) {
+            _uiState.update { it.copy(errorMessage = "Please select a date and time") }
             return
         }
-        if (state.availableSlots == 0) {
-            _uiState.update { it.copy(errorMessage = "Doctor has no available slots") }
+        if (state.chiefComplaint.trim().length < 10) {
+            _uiState.update { it.copy(errorMessage = "Please describe your complaint (at least 10 characters)") }
             return
         }
         if (state.isSubmitting) return
 
         _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
 
+        val scheduledAt = ZonedDateTime.of(state.selectedDate, state.selectedTime, EAT)
+            .toInstant()
+            .toString() // ISO-8601
+
         viewModelScope.launch {
-            val result = consultationRepository.bookAppointment(
+            val result = appointmentRepository.bookAppointment(
                 doctorId = doctorId,
-                serviceType = serviceType,
-                consultationType = "both",
+                scheduledAt = scheduledAt,
+                durationMinutes = serviceDurationMinutes,
+                serviceType = serviceCategory.lowercase(),
+                consultationType = "chat",
                 chiefComplaint = state.chiefComplaint.trim(),
-                preferredLanguage = state.preferredLanguage,
             )
 
             when (result) {
@@ -183,8 +259,7 @@ class BookAppointmentViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            bookingSuccess = result.data.id,
-                            availableSlots = if (it.availableSlots > 0) it.availableSlots - 1 else 0,
+                            bookingSuccess = result.data.appointmentId,
                         )
                     }
                 }
@@ -206,15 +281,3 @@ class BookAppointmentViewModel @Inject constructor(
         private const val TAG = "BookAppointmentVM"
     }
 }
-
-@Serializable
-private data class GetDoctorSlotsResponse(
-    val slots: Map<String, BookingSlotInfo> = emptyMap(),
-)
-
-@Serializable
-private data class BookingSlotInfo(
-    val used: Int = 0,
-    val available: Int = 10,
-    val total: Int = 10,
-)

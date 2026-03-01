@@ -4,6 +4,7 @@
 //   action: "accept"  — doctor accepts → creates consultation + notifies patient
 //   action: "reject"  — doctor rejects → notifies patient
 //   action: "expire"  — client-side fallback to mark expired (server validates timestamp)
+//   action: "status"  — poll current request status (fallback when Realtime is unreliable)
 //
 // Server-side expiry enforcement prevents race conditions:
 //   - Accept after expiry is rejected
@@ -43,6 +44,12 @@ interface CreateRequest {
   service_type: string;
   consultation_type?: string;
   chief_complaint?: string;
+  symptoms?: string;
+  patient_age_group?: string;
+  patient_sex?: string;
+  patient_blood_group?: string;
+  patient_allergies?: string;
+  patient_chronic_conditions?: string;
 }
 
 interface RespondRequest {
@@ -55,7 +62,12 @@ interface ExpireRequest {
   request_id: string;
 }
 
-type RequestBody = CreateRequest | RespondRequest | ExpireRequest;
+interface StatusRequest {
+  action: "status";
+  request_id: string;
+}
+
+type RequestBody = CreateRequest | RespondRequest | ExpireRequest | StatusRequest;
 
 // ── Validation ───────────────────────────────────────────────────────────────
 
@@ -66,9 +78,9 @@ function validate(body: unknown): RequestBody {
   const b = body as Record<string, unknown>;
 
   const action = b.action as string;
-  if (!["create", "accept", "reject", "expire"].includes(action)) {
+  if (!["create", "accept", "reject", "expire", "status"].includes(action)) {
     throw new ValidationError(
-      'action must be one of: create, accept, reject, expire'
+      'action must be one of: create, accept, reject, expire, status'
     );
   }
 
@@ -134,16 +146,20 @@ async function handleCreate(
     throw new ValidationError("Doctor is not currently available");
   }
 
-  // Check doctor slot capacity (max 10 active consultations)
-  const { count: activeCount } = await supabase
-    .from("consultations")
-    .select("consultation_id", { count: "exact", head: true })
+  // Check if doctor is already in an active session
+  const { data: profile } = await supabase
+    .from("doctor_profiles")
+    .select("in_session")
     .eq("doctor_id", body.doctor_id)
-    .in("status", ["pending", "active"]);
+    .single();
 
-  if ((activeCount ?? 0) >= 10) {
+  if (profile?.in_session) {
     return successResponse(
-      { error: "doctor_full", message: "Doctor has no available slots" },
+      {
+        error: "doctor_in_session",
+        message: "Doctor is currently in a session. You can book an appointment for later.",
+        suggest_booking: true,
+      },
       409,
       origin
     );
@@ -161,6 +177,12 @@ async function handleCreate(
       service_type: body.service_type,
       consultation_type: body.consultation_type ?? "chat",
       chief_complaint: body.chief_complaint ?? "",
+      symptoms: body.symptoms ?? null,
+      patient_age_group: body.patient_age_group ?? null,
+      patient_sex: body.patient_sex ?? null,
+      patient_blood_group: body.patient_blood_group ?? null,
+      patient_allergies: body.patient_allergies ?? null,
+      patient_chronic_conditions: body.patient_chronic_conditions ?? null,
       status: "pending",
       created_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
@@ -176,7 +198,9 @@ async function handleCreate(
       body: {
         user_id: body.doctor_id,
         title: "New Consultation Request",
-        body: `A patient is requesting a ${body.service_type} consultation. You have 60 seconds to respond.`,
+        body: body.symptoms
+          ? `Patient: ${[body.patient_age_group, body.patient_sex].filter(Boolean).join(" | ") || "N/A"} — "${body.symptoms.slice(0, 80)}". Respond within 60s.`
+          : `A patient is requesting a ${body.service_type} consultation. You have 60 seconds to respond.`,
         type: "consultation_request",
         data: {
           request_id: request.request_id,
@@ -524,6 +548,41 @@ async function handleExpire(
   );
 }
 
+async function handleStatus(
+  body: StatusRequest,
+  auth: AuthResult,
+  origin: string | null
+): Promise<Response> {
+  const supabase = getServiceClient();
+
+  const { data: request } = await supabase
+    .from("consultation_requests")
+    .select("request_id, status, consultation_id, patient_session_id, doctor_id")
+    .eq("request_id", body.request_id)
+    .single();
+
+  if (!request) {
+    throw new ValidationError("Request not found");
+  }
+
+  // Verify caller owns this request
+  const isPatient = auth.sessionId === request.patient_session_id;
+  const isDoctor = auth.userId === request.doctor_id;
+  if (!isPatient && !isDoctor) {
+    throw new ValidationError("Not authorized");
+  }
+
+  return successResponse(
+    {
+      request_id: request.request_id,
+      status: request.status,
+      consultation_id: request.consultation_id,
+    },
+    200,
+    origin
+  );
+}
+
 // ── Main handler ─────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -548,6 +607,8 @@ Deno.serve(async (req: Request) => {
         return await handleReject(body as RespondRequest, auth, origin);
       case "expire":
         return await handleExpire(body as ExpireRequest, auth, origin);
+      case "status":
+        return await handleStatus(body as StatusRequest, auth, origin);
       default:
         throw new ValidationError("Unknown action");
     }

@@ -3,11 +3,24 @@ package com.esiri.esiriplus.core.network.service
 import android.util.Log
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import io.github.jan.supabase.postgrest.from
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
+
+@Serializable
+data class AvailabilitySlotRow(
+    @SerialName("slot_id") val slotId: String = "",
+    @SerialName("doctor_id") val doctorId: String = "",
+    @SerialName("day_of_week") val dayOfWeek: Int = 0,
+    @SerialName("start_time") val startTime: String = "08:00",
+    @SerialName("end_time") val endTime: String = "17:00",
+    @SerialName("buffer_minutes") val bufferMinutes: Int = 5,
+    @SerialName("is_active") val isActive: Boolean = true,
+)
 
 @Singleton
 class DoctorAvailabilityService @Inject constructor(
@@ -55,6 +68,31 @@ class DoctorAvailabilityService @Inject constructor(
             Log.e(TAG, "Failed to fetch availability for doctor $doctorId", e)
             null
         }
+    }
+
+    // ── Structured availability slots (doctor_availability_slots table) ──
+
+    suspend fun getSlots(doctorId: String): List<AvailabilitySlotRow> {
+        return try {
+            supabaseClientProvider.client.from("doctor_availability_slots")
+                .select {
+                    filter { eq("doctor_id", doctorId) }
+                }
+                .decodeList<AvailabilitySlotRow>()
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to load availability slots", e)
+            throw e
+        }
+    }
+
+    suspend fun insertSlot(slot: AvailabilitySlotRow) {
+        supabaseClientProvider.client.from("doctor_availability_slots")
+            .insert(slot)
+    }
+
+    suspend fun deleteSlot(slotId: String) {
+        supabaseClientProvider.client.from("doctor_availability_slots")
+            .delete { filter { eq("slot_id", slotId) } }
     }
 
     companion object {

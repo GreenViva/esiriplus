@@ -10,7 +10,11 @@ import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.MessageData
 import com.esiri.esiriplus.core.domain.repository.MessageRepository
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.domain.model.ConsultationSessionState
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.service.ChatRealtimeService
+import com.esiri.esiriplus.core.network.service.ConsultationSessionManager
 import com.esiri.esiriplus.core.network.service.MessageQueue
 import com.esiri.esiriplus.core.network.service.MessageService
 import com.esiri.esiriplus.core.network.service.RealtimeConnectionState
@@ -28,6 +32,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import android.util.Base64
+import org.json.JSONObject
 import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
@@ -40,6 +46,7 @@ data class ChatUiState(
     val otherPartyTyping: Boolean = false,
     val consultationId: String = "",
     val error: String? = null,
+    val sendError: String? = null,
 )
 
 @HiltViewModel
@@ -51,12 +58,17 @@ class PatientConsultationViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val consultationDao: ConsultationDao,
     private val messageQueue: MessageQueue,
+    private val consultationSessionManager: ConsultationSessionManager,
+    private val tokenManager: TokenManager,
+    private val supabaseClientProvider: SupabaseClientProvider,
 ) : ViewModel() {
 
     val consultationId: String = savedStateHandle["consultationId"] ?: ""
 
     private val _uiState = MutableStateFlow(ChatUiState(consultationId = consultationId))
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+
+    val sessionState: StateFlow<ConsultationSessionState> = consultationSessionManager.state
 
     private var typingJob: Job? = null
     private var pollJob: Job? = null
@@ -70,7 +82,22 @@ class PatientConsultationViewModel @Inject constructor(
     }
 
     init {
-        if (consultationId.isNotBlank()) initChat()
+        if (consultationId.isNotBlank()) {
+            initChat()
+            consultationSessionManager.start(consultationId, viewModelScope)
+        }
+    }
+
+    fun acceptExtension() {
+        viewModelScope.launch(safeHandler) {
+            consultationSessionManager.acceptExtension()
+        }
+    }
+
+    fun declineExtension() {
+        viewModelScope.launch(safeHandler) {
+            consultationSessionManager.declineExtension()
+        }
     }
 
     private fun initChat() {
@@ -79,11 +106,19 @@ class PatientConsultationViewModel @Inject constructor(
                 Log.d(TAG, "initChat START consultationId=$consultationId")
                 val session = authRepository.currentSession.first()
                 Log.d(TAG, "initChat session=${session != null}, userId=${session?.user?.id}, role=${session?.user?.role}")
-                val userId = session?.user?.id ?: run {
+                val patientId = session?.user?.id ?: run {
                     Log.e(TAG, "initChat ABORT: no session/userId")
                     return@launch
                 }
-                _uiState.update { it.copy(currentUserId = userId, currentUserType = "patient") }
+                // Patient sender_id must be the session UUID (from JWT sub/session_id claim),
+                // NOT the human-readable patient_id — the edge function validates
+                // senderId === auth.sessionId which is the session UUID.
+                val sessionId = getSessionIdFromToken() ?: run {
+                    Log.e(TAG, "initChat ABORT: could not extract session_id from JWT")
+                    return@launch
+                }
+                Log.d(TAG, "initChat: patientId=$patientId, sessionId(sender)=$sessionId")
+                _uiState.update { it.copy(currentUserId = sessionId, currentUserType = "patient") }
 
                 // Ensure consultation exists in Room so resume FAB works
                 val existing = consultationDao.getById(consultationId)
@@ -92,7 +127,7 @@ class PatientConsultationViewModel @Inject constructor(
                     consultationDao.insert(
                         ConsultationEntity(
                             consultationId = consultationId,
-                            patientSessionId = userId,
+                            patientSessionId = sessionId,
                             doctorId = "",
                             status = "ACTIVE",
                             serviceType = "general",
@@ -115,6 +150,17 @@ class PatientConsultationViewModel @Inject constructor(
                     }
                     .launchIn(viewModelScope)
 
+                // Import auth token so Supabase Realtime WebSocket authenticates
+                // as "authenticated" role (required for RLS to pass).
+                // Without this, Realtime connects as anon and receives zero events.
+                try {
+                    val freshToken = tokenManager.getAccessTokenSync() ?: session.accessToken
+                    supabaseClientProvider.importAuthToken(accessToken = freshToken)
+                    Log.d(TAG, "initChat: importAuthToken succeeded")
+                } catch (e: Exception) {
+                    Log.e(TAG, "initChat: importAuthToken FAILED — Realtime will be degraded", e)
+                }
+
                 // Fetch ALL remote messages on first load (no since filter)
                 Log.d(TAG, "initChat: fetching remote messages")
                 fetchRemoteMessages(fullSync = true)
@@ -127,7 +173,7 @@ class PatientConsultationViewModel @Inject constructor(
                 // Process incoming realtime messages from the other party
                 chatRealtimeService.messageEvents
                     .filter { it.consultationId == consultationId }
-                    .filter { it.senderId != userId }
+                    .filter { it.senderId != sessionId }
                     .onEach { event ->
                         val messageData = MessageData(
                             messageId = event.messageId,
@@ -146,7 +192,7 @@ class PatientConsultationViewModel @Inject constructor(
                 // Process typing events — launch auto-clear in separate job (2.3 fix)
                 chatRealtimeService.typingEvents
                     .filter { it.consultationId == consultationId }
-                    .filter { it.userId != userId }
+                    .filter { it.userId != sessionId }
                     .onEach { event ->
                         _uiState.update { it.copy(otherPartyTyping = event.isTyping) }
                         typingClearJob?.cancel()
@@ -175,9 +221,10 @@ class PatientConsultationViewModel @Inject constructor(
         }
     }
 
+    private var currentPollInterval = POLL_FAST_MS
+
     private fun adjustPolling(state: RealtimeConnectionState) {
-        pollJob?.cancel()
-        val interval = when (state) {
+        val newInterval = when (state) {
             RealtimeConnectionState.CONNECTED -> POLL_SLOW_MS
             else -> POLL_FAST_MS
         }
@@ -188,12 +235,21 @@ class PatientConsultationViewModel @Inject constructor(
             RealtimeConnectionState.CONNECTED -> null
         }
         _uiState.update { it.copy(error = errorMsg) }
-        Log.d(TAG, "Polling interval set to ${interval}ms (realtime=$state)")
-        pollJob = viewModelScope.launch(safeHandler) {
-            while (isActive) {
-                fetchRemoteMessages()
-                delay(interval)
+
+        // Only restart the poll job if the interval actually changed or no job is running.
+        // This prevents cancelling an in-flight fetch when Realtime state flaps rapidly.
+        if (newInterval != currentPollInterval || pollJob?.isActive != true) {
+            currentPollInterval = newInterval
+            pollJob?.cancel()
+            Log.d(TAG, "Polling interval set to ${newInterval}ms (realtime=$state)")
+            pollJob = viewModelScope.launch(safeHandler) {
+                while (isActive) {
+                    fetchRemoteMessages()
+                    delay(newInterval)
+                }
             }
+        } else {
+            Log.d(TAG, "Polling interval unchanged at ${newInterval}ms (realtime=$state), keeping existing job")
         }
     }
 
@@ -235,6 +291,17 @@ class PatientConsultationViewModel @Inject constructor(
         if (trimmed.isEmpty()) return
 
         val state = _uiState.value
+
+        // Guard: cannot send without a valid user identity
+        if (state.currentUserId.isBlank()) {
+            Log.e(TAG, "sendMessage BLOCKED: currentUserId is blank (initChat may not have completed)")
+            _uiState.update { it.copy(sendError = "Session not ready. Please wait a moment and try again.") }
+            return
+        }
+
+        // Clear any previous send error
+        _uiState.update { it.copy(sendError = null) }
+
         val messageId = UUID.randomUUID().toString()
         val now = System.currentTimeMillis()
 
@@ -254,23 +321,44 @@ class PatientConsultationViewModel @Inject constructor(
             messageRepository.saveMessage(messageData)
 
             // 2. Send to Supabase
-            when (messageService.sendMessage(
+            when (val result = messageService.sendMessage(
                 messageId = messageId,
                 consultationId = consultationId,
                 senderType = state.currentUserType,
                 senderId = state.currentUserId,
                 messageText = trimmed,
             )) {
-                is ApiResult.Success -> messageRepository.markAsSynced(messageId)
-                else -> {
-                    Log.w(TAG, "Failed to send message $messageId, will retry later")
+                is ApiResult.Success -> {
+                    messageRepository.markAsSynced(messageId)
+                    Log.d(TAG, "Message $messageId sent successfully")
+                }
+                is ApiResult.Error -> {
+                    Log.e(TAG, "Failed to send message $messageId: code=${result.code}, msg=${result.message}")
+                    _uiState.update { it.copy(sendError = "Message failed to send. Retrying...") }
                     messageQueue.processUnsynced()
+                    delay(3000)
+                    _uiState.update { it.copy(sendError = null) }
+                }
+                is ApiResult.Unauthorized -> {
+                    Log.e(TAG, "Failed to send message $messageId: UNAUTHORIZED")
+                    _uiState.update { it.copy(sendError = "Session expired. Please re-open this consultation.") }
+                }
+                is ApiResult.NetworkError -> {
+                    Log.e(TAG, "Failed to send message $messageId: NETWORK", result.exception)
+                    _uiState.update { it.copy(sendError = "Network error. Message will retry automatically.") }
+                    messageQueue.processUnsynced()
+                    delay(3000)
+                    _uiState.update { it.copy(sendError = null) }
                 }
             }
         }
 
         // Clear typing indicator
         sendTypingIndicator(false)
+    }
+
+    fun dismissSendError() {
+        _uiState.update { it.copy(sendError = null) }
     }
 
     fun onTypingChanged(isTyping: Boolean) {
@@ -316,6 +404,19 @@ class PatientConsultationViewModel @Inject constructor(
         }
     }
 
+    private fun getSessionIdFromToken(): String? {
+        val token = tokenManager.getAccessTokenSync() ?: return null
+        return try {
+            val parts = token.split(".")
+            if (parts.size < 2) return null
+            val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING))
+            JSONObject(payload).optString("session_id", null)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to decode session_id from JWT", e)
+            null
+        }
+    }
+
     override fun onCleared() {
         Log.d(TAG, "onCleared — ViewModel destroyed")
         super.onCleared()
@@ -323,6 +424,7 @@ class PatientConsultationViewModel @Inject constructor(
         typingClearJob?.cancel()
         pollJob?.cancel()
         chatRealtimeService.unsubscribeAllSync()
+        consultationSessionManager.stop()
     }
 
     companion object {

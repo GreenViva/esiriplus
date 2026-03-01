@@ -184,9 +184,11 @@ Deno.serve(async (req: Request) => {
     // 7. Issue JWT
     const nowSecs = Math.floor(Date.now() / 1000);
     const jwt = await signJWT({
+      sub:           session.session_id,    // Supabase auth.uid() for RLS
       session_id:    session.session_id,
       session_token: sessionToken,
-      role:          "patient",
+      role:          "authenticated",       // Supabase Postgres role
+      app_role:      "patient",             // Application-level role
       iat:           nowSecs,
       exp:           nowSecs + SESSION_TTL_H * 60 * 60,
     });

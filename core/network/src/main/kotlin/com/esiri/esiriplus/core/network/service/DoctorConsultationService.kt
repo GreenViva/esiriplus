@@ -22,6 +22,10 @@ data class ConsultationRow(
     @SerialName("session_end_time") val sessionEndTime: String? = null,
     @SerialName("session_duration_minutes") val sessionDurationMinutes: Int = 15,
     @SerialName("request_expires_at") val requestExpiresAt: String? = null,
+    @SerialName("scheduled_end_at") val scheduledEndAt: String? = null,
+    @SerialName("extension_count") val extensionCount: Int = 0,
+    @SerialName("grace_period_end_at") val gracePeriodEndAt: String? = null,
+    @SerialName("original_duration_minutes") val originalDurationMinutes: Int = 15,
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String,
 )

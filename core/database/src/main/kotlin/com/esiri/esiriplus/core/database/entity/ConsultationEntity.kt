@@ -25,6 +25,10 @@ data class ConsultationEntity(
     val requestExpiresAt: Long,
     val createdAt: Long,
     val updatedAt: Long,
+    val scheduledEndAt: Long? = null,
+    val extensionCount: Int = 0,
+    val gracePeriodEndAt: Long? = null,
+    val originalDurationMinutes: Int = DEFAULT_SESSION_DURATION,
 ) {
     companion object {
         const val DEFAULT_SESSION_DURATION = 15

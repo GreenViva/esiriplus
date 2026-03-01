@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Phone
@@ -11,7 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.domain.model.ConsultationPhase
 import com.esiri.esiriplus.feature.chat.ui.ChatContent
+import com.esiri.esiriplus.feature.chat.ui.ConsultationTimerBar
+import com.esiri.esiriplus.feature.chat.ui.DoctorExtensionOverlay
+import com.esiri.esiriplus.feature.chat.ui.GracePeriodBanner
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorChatViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -25,6 +30,13 @@ fun DoctorConsultationDetailScreen(
     viewModel: DoctorChatViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val sessionState by viewModel.sessionState.collectAsState()
+
+    // Block back navigation during active consultation
+    val isActive = sessionState.phase != ConsultationPhase.COMPLETED
+    BackHandler(enabled = isActive) {
+        // Swallow back press — doctor must explicitly end consultation
+    }
 
     ChatContent(
         messages = uiState.messages,
@@ -34,9 +46,12 @@ fun DoctorConsultationDetailScreen(
         consultationId = uiState.consultationId,
         onSendMessage = viewModel::sendMessage,
         onTypingChanged = viewModel::onTypingChanged,
-        onBack = onBack,
+        onBack = {
+            if (!isActive) onBack()
+        },
         modifier = modifier,
         error = uiState.error,
+        sendError = uiState.sendError,
         topBarActions = {
             IconButton(onClick = { onStartVideoCall(uiState.consultationId) }) {
                 Icon(
@@ -51,6 +66,31 @@ fun DoctorConsultationDetailScreen(
                     contentDescription = "Write Report",
                     tint = BrandTeal,
                 )
+            }
+        },
+        timerContent = {
+            if (!sessionState.isLoading) {
+                ConsultationTimerBar(
+                    phase = sessionState.phase,
+                    remainingSeconds = sessionState.remainingSeconds,
+                    extensionCount = sessionState.extensionCount,
+                )
+            }
+        },
+        bottomOverlay = {
+            when (sessionState.phase) {
+                ConsultationPhase.AWAITING_EXTENSION -> {
+                    DoctorExtensionOverlay(
+                        extensionRequested = sessionState.extensionRequested,
+                        patientDeclined = sessionState.patientDeclined,
+                        onRequestExtension = viewModel::requestExtension,
+                        onEndConsultation = viewModel::endConsultation,
+                    )
+                }
+                ConsultationPhase.GRACE_PERIOD -> {
+                    GracePeriodBanner(remainingSeconds = sessionState.remainingSeconds)
+                }
+                else -> {}
             }
         },
     )

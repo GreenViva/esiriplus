@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -128,6 +131,12 @@ fun IncomingRequestDialog(
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp,
                 )
+
+                // Patient info card (only when pending/no response and has data)
+                if (state.responseStatus == null && hasPatientInfo(state)) {
+                    Spacer(Modifier.height(12.dp))
+                    PatientInfoCard(state)
+                }
 
                 // Countdown bar (only when pending and not in retry state)
                 if (state.responseStatus == null && !state.canRetry && state.secondsRemaining > 0) {
@@ -266,6 +275,81 @@ fun IncomingRequestDialog(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+private fun hasPatientInfo(state: IncomingRequestUiState): Boolean {
+    return !state.symptoms.isNullOrBlank() ||
+        !state.patientAgeGroup.isNullOrBlank() ||
+        !state.patientSex.isNullOrBlank() ||
+        !state.patientBloodGroup.isNullOrBlank() ||
+        !state.patientAllergies.isNullOrBlank() ||
+        !state.patientChronicConditions.isNullOrBlank()
+}
+
+@Composable
+private fun PatientInfoCard(state: IncomingRequestUiState) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = BrandTeal.copy(alpha = 0.06f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            // Demographics line
+            val demographics = listOfNotNull(
+                state.patientAgeGroup,
+                state.patientSex,
+                state.patientBloodGroup?.let { "Blood: $it" },
+            ).filter { it.isNotBlank() }
+            if (demographics.isNotEmpty()) {
+                Text(
+                    text = "Patient: ${demographics.joinToString(" | ")}",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                )
+            }
+
+            // Symptoms
+            if (!state.symptoms.isNullOrBlank()) {
+                Text(
+                    text = "Symptoms: ${state.symptoms}",
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 16.sp,
+                )
+            }
+
+            // Allergies (highlighted)
+            if (!state.patientAllergies.isNullOrBlank()) {
+                Text(
+                    text = "Allergies: ${state.patientAllergies}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFDC2626),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            // Chronic conditions
+            if (!state.patientChronicConditions.isNullOrBlank()) {
+                Text(
+                    text = "Conditions: ${state.patientChronicConditions}",
+                    fontSize = 12.sp,
+                    color = Color(0xFF6B7280),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }

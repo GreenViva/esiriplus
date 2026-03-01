@@ -7,9 +7,11 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.esiri.esiriplus.feature.patient.screen.BookAppointmentScreen
 import com.esiri.esiriplus.feature.patient.screen.ConsultationHistoryScreen
+import com.esiri.esiriplus.feature.patient.screen.PatientAppointmentsScreen
 import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientConsultationScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientHomeScreen
+import com.esiri.esiriplus.feature.patient.screen.ExtensionPaymentScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientPaymentScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientProfileScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientVideoCallScreen
@@ -36,6 +38,12 @@ import kotlinx.serialization.Serializable
     val serviceCategory: String,
     val servicePriceAmount: Int,
     val serviceDurationMinutes: Int,
+)
+@Serializable object PatientAppointmentsRoute
+@Serializable data class ExtensionPaymentRoute(
+    val consultationId: String,
+    val amount: Int,
+    val serviceType: String,
 )
 @Serializable object ConsultationHistoryRoute
 @Serializable object ReportsRoute
@@ -105,8 +113,8 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
         composable<BookAppointmentRoute> {
             BookAppointmentScreen(
-                onBookingSuccess = { consultationId ->
-                    navController.navigate(PatientConsultationRoute(consultationId)) {
+                onBookingSuccess = {
+                    navController.navigate(PatientAppointmentsRoute) {
                         popUpTo<PatientHomeRoute> { inclusive = false }
                     }
                 },
@@ -118,8 +126,27 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onNavigateToPayment = { consultationId ->
                     navController.navigate(PatientPaymentRoute(consultationId))
                 },
+                onNavigateToExtensionPayment = { consultationId, amount, serviceType ->
+                    navController.navigate(
+                        ExtensionPaymentRoute(
+                            consultationId = consultationId,
+                            amount = amount,
+                            serviceType = serviceType,
+                        ),
+                    )
+                },
                 onBack = {
                     navController.popBackStack(PatientHomeRoute, inclusive = false)
+                },
+            )
+        }
+        composable<ExtensionPaymentRoute> {
+            ExtensionPaymentScreen(
+                onPaymentComplete = {
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
                 },
             )
         }
@@ -138,6 +165,11 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
         composable<PatientProfileRoute> {
             PatientProfileScreen(
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<PatientAppointmentsRoute> {
+            PatientAppointmentsScreen(
                 onBack = { navController.popBackStack() },
             )
         }

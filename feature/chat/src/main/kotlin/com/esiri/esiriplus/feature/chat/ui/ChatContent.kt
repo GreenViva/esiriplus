@@ -73,7 +73,10 @@ fun ChatContent(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     error: String? = null,
+    sendError: String? = null,
     topBarActions: @Composable RowScope.() -> Unit = {},
+    timerContent: @Composable () -> Unit = {},
+    bottomOverlay: @Composable () -> Unit = {},
 ) {
     var textInput by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -101,6 +104,9 @@ fun ChatContent(
                 onBack = onBack,
                 actions = topBarActions,
             )
+
+            // Timer bar slot
+            timerContent()
 
             // 5.4: Connection error banner
             if (error != null) {
@@ -137,6 +143,24 @@ fun ChatContent(
                     listState = listState,
                     modifier = Modifier.weight(1f),
                 )
+            }
+
+            // Bottom overlay slot (extension prompts, etc.)
+            bottomOverlay()
+
+            // Send error banner
+            if (sendError != null) {
+                Surface(
+                    color = Color(0xFFFEE2E2),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = sendError,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                        color = Color(0xFF991B1B),
+                        fontSize = 13.sp,
+                    )
+                }
             }
 
             // Input bar

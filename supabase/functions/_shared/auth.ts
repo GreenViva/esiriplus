@@ -2,7 +2,8 @@
 // Validates Bearer JWTs on every request.
 // Handles TWO types of tokens:
 //   1. Patient JWTs — custom HS256 signed by create-patient-session
-//      Contains: { session_id, session_token, role: "patient", exp, iat }
+//      Contains: { sub (session_id), session_id, session_token, role: "authenticated", app_role: "patient", exp, iat }
+//      (Also supports legacy format: { session_id, session_token, role: "patient", exp, iat })
 //   2. Doctor/Admin JWTs — issued by Supabase Auth
 //      Contains: { sub (auth.uid), role, exp, iat }
 
@@ -96,7 +97,10 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   }
 
   // ── Path A: Patient JWT (has session_token claim) ─────────────────────────
-  if (claims.role === "patient" && claims.session_token && claims.session_id) {
+  // Supports both old format (role:"patient") and new format (role:"authenticated", app_role:"patient")
+  const isPatientJwt = (claims.app_role === "patient" || claims.role === "patient") &&
+    claims.session_token && claims.session_id;
+  if (isPatientJwt) {
     // Verify our custom HS256 signature
     const valid = await verifyHS256(jwt, JWT_SECRET);
     if (!valid) throw new AuthError(401, "Invalid patient token signature");

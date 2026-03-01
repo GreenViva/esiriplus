@@ -38,6 +38,13 @@ data class IncomingRequestUiState(
     val errorMessage: String? = null,
     /** True when the accept call failed but can be retried (countdown paused). */
     val canRetry: Boolean = false,
+    /** Patient health info from the request */
+    val symptoms: String? = null,
+    val patientAgeGroup: String? = null,
+    val patientSex: String? = null,
+    val patientBloodGroup: String? = null,
+    val patientAllergies: String? = null,
+    val patientChronicConditions: String? = null,
 )
 
 data class ConsultationStartedEvent(
@@ -150,6 +157,12 @@ class IncomingRequestViewModel @Inject constructor(
                 patientSessionId = event.patientSessionId,
                 serviceType = event.serviceType,
                 secondsRemaining = REQUEST_TTL_SECONDS,
+                symptoms = event.symptoms,
+                patientAgeGroup = event.patientAgeGroup,
+                patientSex = event.patientSex,
+                patientBloodGroup = event.patientBloodGroup,
+                patientAllergies = event.patientAllergies,
+                patientChronicConditions = event.patientChronicConditions,
             )
         }
         startCountdown(event.requestId)

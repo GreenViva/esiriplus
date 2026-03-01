@@ -10,7 +10,9 @@ import com.esiri.esiriplus.core.domain.repository.MessageRepository
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.domain.model.ConsultationSessionState
 import com.esiri.esiriplus.core.network.service.ChatRealtimeService
+import com.esiri.esiriplus.core.network.service.ConsultationSessionManager
 import com.esiri.esiriplus.core.network.service.MessageQueue
 import com.esiri.esiriplus.core.network.service.MessageService
 import com.esiri.esiriplus.core.network.service.RealtimeConnectionState
@@ -40,6 +42,7 @@ data class DoctorChatUiState(
     val otherPartyTyping: Boolean = false,
     val consultationId: String = "",
     val error: String? = null,
+    val sendError: String? = null,
 )
 
 @HiltViewModel
@@ -52,12 +55,15 @@ class DoctorChatViewModel @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
     private val tokenManager: TokenManager,
     private val messageQueue: MessageQueue,
+    private val consultationSessionManager: ConsultationSessionManager,
 ) : ViewModel() {
 
     val consultationId: String = savedStateHandle["consultationId"] ?: ""
 
     private val _uiState = MutableStateFlow(DoctorChatUiState(consultationId = consultationId))
     val uiState: StateFlow<DoctorChatUiState> = _uiState.asStateFlow()
+
+    val sessionState: StateFlow<ConsultationSessionState> = consultationSessionManager.state
 
     private var typingJob: Job? = null
     private var pollJob: Job? = null
@@ -71,7 +77,22 @@ class DoctorChatViewModel @Inject constructor(
     }
 
     init {
-        if (consultationId.isNotBlank()) initChat()
+        if (consultationId.isNotBlank()) {
+            initChat()
+            consultationSessionManager.start(consultationId, viewModelScope)
+        }
+    }
+
+    fun endConsultation() {
+        viewModelScope.launch(safeHandler) {
+            consultationSessionManager.endConsultation()
+        }
+    }
+
+    fun requestExtension() {
+        viewModelScope.launch(safeHandler) {
+            consultationSessionManager.requestExtension()
+        }
     }
 
     private fun initChat() {
@@ -227,6 +248,17 @@ class DoctorChatViewModel @Inject constructor(
         if (trimmed.isEmpty()) return
 
         val state = _uiState.value
+
+        // Guard: cannot send without a valid user identity
+        if (state.currentUserId.isBlank()) {
+            Log.e(TAG, "sendMessage BLOCKED: currentUserId is blank (initChat may not have completed)")
+            _uiState.update { it.copy(sendError = "Session not ready. Please wait a moment and try again.") }
+            return
+        }
+
+        // Clear any previous send error
+        _uiState.update { it.copy(sendError = null) }
+
         val messageId = UUID.randomUUID().toString()
         val now = System.currentTimeMillis()
 
@@ -244,22 +276,44 @@ class DoctorChatViewModel @Inject constructor(
         viewModelScope.launch(safeHandler) {
             messageRepository.saveMessage(messageData)
 
-            when (messageService.sendMessage(
+            when (val result = messageService.sendMessage(
                 messageId = messageId,
                 consultationId = consultationId,
                 senderType = state.currentUserType,
                 senderId = state.currentUserId,
                 messageText = trimmed,
             )) {
-                is ApiResult.Success -> messageRepository.markAsSynced(messageId)
-                else -> {
-                    Log.w(TAG, "Failed to send message $messageId, will retry later")
+                is ApiResult.Success -> {
+                    messageRepository.markAsSynced(messageId)
+                    Log.d(TAG, "Message $messageId sent successfully")
+                }
+                is ApiResult.Error -> {
+                    Log.e(TAG, "Failed to send message $messageId: code=${result.code}, msg=${result.message}")
+                    _uiState.update { it.copy(sendError = "Message failed to send. Retrying...") }
                     messageQueue.processUnsynced()
+                    // Auto-clear error after 3s
+                    delay(3000)
+                    _uiState.update { it.copy(sendError = null) }
+                }
+                is ApiResult.Unauthorized -> {
+                    Log.e(TAG, "Failed to send message $messageId: UNAUTHORIZED")
+                    _uiState.update { it.copy(sendError = "Session expired. Please re-open this consultation.") }
+                }
+                is ApiResult.NetworkError -> {
+                    Log.e(TAG, "Failed to send message $messageId: NETWORK", result.exception)
+                    _uiState.update { it.copy(sendError = "Network error. Message will retry automatically.") }
+                    messageQueue.processUnsynced()
+                    delay(3000)
+                    _uiState.update { it.copy(sendError = null) }
                 }
             }
         }
 
         sendTypingIndicator(false)
+    }
+
+    fun dismissSendError() {
+        _uiState.update { it.copy(sendError = null) }
     }
 
     fun onTypingChanged(isTyping: Boolean) {
@@ -312,6 +366,7 @@ class DoctorChatViewModel @Inject constructor(
         typingClearJob?.cancel()
         pollJob?.cancel()
         chatRealtimeService.unsubscribeAllSync()
+        consultationSessionManager.stop()
     }
 
     companion object {

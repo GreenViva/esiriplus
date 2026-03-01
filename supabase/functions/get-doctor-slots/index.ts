@@ -1,12 +1,12 @@
 // get-doctor-slots – Returns appointment slot availability per doctor.
 // Accepts { doctor_ids: string[] } (max 50). Uses service client (no JWT required).
+// Now uses the in_session boolean from doctor_profiles instead of counting consultations.
 
 import { corsHeaders, handlePreflight } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 import { checkRateLimit } from "../_shared/rateLimit.ts";
 import { getClientIp } from "../_shared/logger.ts";
 
-const MAX_DOCTOR_SLOTS = 10;
 const MAX_IDS_PER_REQUEST = 50;
 
 Deno.serve(async (req) => {
@@ -41,35 +41,69 @@ Deno.serve(async (req) => {
 
     const supabase = getServiceClient();
 
-    // Count active consultations per doctor in a single query
-    const { data, error } = await supabase
-      .from("consultations")
-      .select("doctor_id")
-      .in("doctor_id", doctor_ids)
-      .in("status", ["pending", "active", "in_progress"]);
+    // Fetch in_session status and max_appointments_per_day from doctor_profiles
+    const { data: profiles, error: profileError } = await supabase
+      .from("doctor_profiles")
+      .select("doctor_id, in_session, max_appointments_per_day")
+      .in("doctor_id", doctor_ids);
 
-    if (error) {
-      console.error("get-doctor-slots query error:", error);
+    if (profileError) {
+      console.error("get-doctor-slots profile query error:", profileError);
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ error: profileError.message }),
         { status: 500, headers },
       );
     }
 
-    // Tally used slots per doctor
-    const usedMap: Record<string, number> = {};
-    for (const row of data ?? []) {
-      usedMap[row.doctor_id] = (usedMap[row.doctor_id] ?? 0) + 1;
+    // Count today's booked/confirmed/in_progress appointments per doctor
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const { data: todayAppointments, error: aptError } = await supabase
+      .from("appointments")
+      .select("doctor_id")
+      .in("doctor_id", doctor_ids)
+      .in("status", ["booked", "confirmed", "in_progress"])
+      .gte("scheduled_at", todayStart.toISOString())
+      .lte("scheduled_at", todayEnd.toISOString());
+
+    if (aptError) {
+      console.error("get-doctor-slots appointments query error:", aptError);
     }
 
-    // Build response with all requested doctor IDs
-    const slots: Record<string, { used: number; available: number; total: number }> = {};
+    // Tally today's appointments per doctor
+    const todayCountMap: Record<string, number> = {};
+    for (const row of todayAppointments ?? []) {
+      todayCountMap[row.doctor_id] = (todayCountMap[row.doctor_id] ?? 0) + 1;
+    }
+
+    // Build profile map
+    const profileMap: Record<string, { in_session: boolean; max_appointments_per_day: number }> = {};
+    for (const p of profiles ?? []) {
+      profileMap[p.doctor_id] = {
+        in_session: p.in_session ?? false,
+        max_appointments_per_day: p.max_appointments_per_day ?? 10,
+      };
+    }
+
+    // Build response
+    const slots: Record<string, {
+      in_session: boolean;
+      today_booked: number;
+      max_per_day: number;
+      available_today: number;
+    }> = {};
+
     for (const id of doctor_ids) {
-      const used = usedMap[id] ?? 0;
+      const profile = profileMap[id] ?? { in_session: false, max_appointments_per_day: 10 };
+      const todayBooked = todayCountMap[id] ?? 0;
       slots[id] = {
-        used,
-        available: Math.max(0, MAX_DOCTOR_SLOTS - used),
-        total: MAX_DOCTOR_SLOTS,
+        in_session: profile.in_session,
+        today_booked: todayBooked,
+        max_per_day: profile.max_appointments_per_day,
+        available_today: Math.max(0, profile.max_appointments_per_day - todayBooked),
       };
     }
 

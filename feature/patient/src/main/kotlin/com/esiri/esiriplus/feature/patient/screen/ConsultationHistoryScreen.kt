@@ -182,7 +182,10 @@ private fun StatusChip(status: ConsultationStatus) {
     val (bgColor, textColor) = when (status) {
         ConsultationStatus.PENDING -> Color(0xFFFEF3C7) to Color(0xFF92400E)
         ConsultationStatus.ASSIGNED -> Color(0xFFDBEAFE) to Color(0xFF1E40AF)
+        ConsultationStatus.ACTIVE -> Color(0xFFD1FAE5) to Color(0xFF065F46)
         ConsultationStatus.IN_PROGRESS -> Color(0xFFD1FAE5) to Color(0xFF065F46)
+        ConsultationStatus.AWAITING_EXTENSION -> Color(0xFFFFF3CD) to Color(0xFF856404)
+        ConsultationStatus.GRACE_PERIOD -> Color(0xFFFFF3CD) to Color(0xFF856404)
         ConsultationStatus.COMPLETED -> Color(0xFFE0F2F1) to BrandTeal
         ConsultationStatus.CANCELLED -> Color(0xFFFEE2E2) to Color(0xFF991B1B)
     }

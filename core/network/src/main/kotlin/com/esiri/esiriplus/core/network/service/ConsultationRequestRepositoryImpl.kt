@@ -18,9 +18,25 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
         serviceType: String,
         consultationType: String,
         chiefComplaint: String,
+        symptoms: String?,
+        patientAgeGroup: String?,
+        patientSex: String?,
+        patientBloodGroup: String?,
+        patientAllergies: String?,
+        patientChronicConditions: String?,
     ): Result<ConsultationRequest> {
-        return service.createRequest(doctorId, serviceType, consultationType, chiefComplaint)
-            .map { it.toDomain() }
+        return service.createRequest(
+            doctorId = doctorId,
+            serviceType = serviceType,
+            consultationType = consultationType,
+            chiefComplaint = chiefComplaint,
+            symptoms = symptoms,
+            patientAgeGroup = patientAgeGroup,
+            patientSex = patientSex,
+            patientBloodGroup = patientBloodGroup,
+            patientAllergies = patientAllergies,
+            patientChronicConditions = patientChronicConditions,
+        ).map { it.toDomain() }
             .toDomainResult()
     }
 
@@ -38,6 +54,12 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
 
     override suspend fun expireRequest(requestId: String): Result<ConsultationRequest> {
         return service.expireRequest(requestId)
+            .map { it.toDomain() }
+            .toDomainResult()
+    }
+
+    override suspend fun checkRequestStatus(requestId: String): Result<ConsultationRequest> {
+        return service.checkRequestStatus(requestId)
             .map { it.toDomain() }
             .toDomainResult()
     }

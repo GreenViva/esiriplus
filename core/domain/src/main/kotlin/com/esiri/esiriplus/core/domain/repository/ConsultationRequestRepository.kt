@@ -10,6 +10,12 @@ interface ConsultationRequestRepository {
         serviceType: String,
         consultationType: String,
         chiefComplaint: String,
+        symptoms: String? = null,
+        patientAgeGroup: String? = null,
+        patientSex: String? = null,
+        patientBloodGroup: String? = null,
+        patientAllergies: String? = null,
+        patientChronicConditions: String? = null,
     ): Result<ConsultationRequest>
 
     /** Doctor accepts a pending request. Returns request with consultationId. */
@@ -20,4 +26,7 @@ interface ConsultationRequestRepository {
 
     /** Mark a request as expired (client-side fallback; server validates timestamp). */
     suspend fun expireRequest(requestId: String): Result<ConsultationRequest>
+
+    /** Poll current request status (fallback when Realtime is unreliable). */
+    suspend fun checkRequestStatus(requestId: String): Result<ConsultationRequest>
 }

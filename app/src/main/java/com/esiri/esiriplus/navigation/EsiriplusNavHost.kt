@@ -22,6 +22,7 @@ import com.esiri.esiriplus.feature.doctor.navigation.DoctorGraph
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorReportRoute
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorVideoCallRoute
 import com.esiri.esiriplus.feature.doctor.navigation.doctorGraph
+import com.esiri.esiriplus.feature.patient.navigation.ExtensionPaymentRoute
 import com.esiri.esiriplus.feature.patient.navigation.PatientConsultationRoute
 import com.esiri.esiriplus.feature.patient.navigation.PatientGraph
 import com.esiri.esiriplus.feature.patient.navigation.PatientPaymentRoute
@@ -73,7 +74,8 @@ fun EsiriplusNavHost(
             currentRoute.startsWith(PatientPaymentRoute::class.qualifiedName ?: "") ||
             currentRoute.startsWith(DoctorVideoCallRoute::class.qualifiedName ?: "") ||
             currentRoute.startsWith(PatientVideoCallRoute::class.qualifiedName ?: "") ||
-            currentRoute.startsWith(DoctorReportRoute::class.qualifiedName ?: "")
+            currentRoute.startsWith(DoctorReportRoute::class.qualifiedName ?: "") ||
+            currentRoute.startsWith(ExtensionPaymentRoute::class.qualifiedName ?: "")
 
         when (authState) {
             is AuthState.SessionExpired -> {

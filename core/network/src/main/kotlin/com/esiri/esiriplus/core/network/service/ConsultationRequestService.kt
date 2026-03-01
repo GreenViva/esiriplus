@@ -31,6 +31,12 @@ class ConsultationRequestService @Inject constructor(
         serviceType: String,
         consultationType: String,
         chiefComplaint: String,
+        symptoms: String? = null,
+        patientAgeGroup: String? = null,
+        patientSex: String? = null,
+        patientBloodGroup: String? = null,
+        patientAllergies: String? = null,
+        patientChronicConditions: String? = null,
     ): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
             put("action", "create")
@@ -38,6 +44,12 @@ class ConsultationRequestService @Inject constructor(
             put("service_type", serviceType)
             put("consultation_type", consultationType)
             put("chief_complaint", chiefComplaint)
+            if (!symptoms.isNullOrBlank()) put("symptoms", symptoms)
+            if (!patientAgeGroup.isNullOrBlank()) put("patient_age_group", patientAgeGroup)
+            if (!patientSex.isNullOrBlank()) put("patient_sex", patientSex)
+            if (!patientBloodGroup.isNullOrBlank()) put("patient_blood_group", patientBloodGroup)
+            if (!patientAllergies.isNullOrBlank()) put("patient_allergies", patientAllergies)
+            if (!patientChronicConditions.isNullOrBlank()) put("patient_chronic_conditions", patientChronicConditions)
         }
         return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
     }
@@ -96,6 +108,18 @@ class ConsultationRequestService @Inject constructor(
     suspend fun expireRequest(requestId: String): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
             put("action", "expire")
+            put("request_id", requestId)
+        }
+        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
+    }
+
+    /**
+     * Poll the current status of a consultation request.
+     * Used as a fallback when Realtime is unreliable.
+     */
+    suspend fun checkRequestStatus(requestId: String): ApiResult<ConsultationRequestRow> {
+        val body = buildJsonObject {
+            put("action", "status")
             put("request_id", requestId)
         }
         return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
