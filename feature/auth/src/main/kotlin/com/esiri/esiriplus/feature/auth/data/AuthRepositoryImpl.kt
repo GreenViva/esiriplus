@@ -88,6 +88,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun createPatientSession(): Result<Session> {
         val apiResult = edgeFunctionClient.invokeAndDecode<PatientSessionResponse>(
             functionName = "create-patient-session",
+            anonymous = true,
         )
 
         return when (apiResult) {
@@ -396,15 +397,56 @@ class AuthRepositoryImpl @Inject constructor(
         val currentRefreshToken = tokenManager.getRefreshTokenSync()
             ?: return Result.Error(IllegalStateException("No refresh token available"))
 
-        val request = RefreshTokenRequest(refreshToken = currentRefreshToken)
+        val accessToken = tokenManager.getAccessTokenSync()
+        val isPatient = accessToken != null &&
+            com.esiri.esiriplus.core.network.interceptor.JwtUtils.isPatientToken(accessToken)
+
+        val sessionId = if (isPatient && accessToken != null) {
+            extractClaimFromJwt(accessToken, "session_id")
+        } else {
+            null
+        }
+
+        val functionName = if (isPatient) "refresh-patient-session" else "refresh-session"
+        val request = RefreshTokenRequest(
+            refreshToken = currentRefreshToken,
+            sessionId = sessionId,
+        )
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
-        return handleSessionResponse(
-            edgeFunctionClient.invokeAndDecode<SessionResponse>(
-                functionName = "refresh-session",
+        return if (isPatient) {
+            when (val apiResult = edgeFunctionClient.invokeAndDecode<PatientSessionResponse>(
+                functionName = functionName,
                 body = body,
-            ),
-        )
+                patientAuth = true,
+            )) {
+                is ApiResult.Success -> {
+                    val session = saveSessionAndTokens(apiResult.data)
+                    Result.Success(session)
+                }
+                else -> apiResult.map { error("unreachable") }.toDomainResult()
+            }
+        } else {
+            handleSessionResponse(
+                edgeFunctionClient.invokeAndDecode<SessionResponse>(
+                    functionName = functionName,
+                    body = body,
+                ),
+            )
+        }
+    }
+
+    private fun extractClaimFromJwt(token: String, claim: String): String? {
+        return try {
+            val parts = token.split(".")
+            if (parts.size < 2) return null
+            val payload = String(
+                android.util.Base64.decode(parts[1], android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING),
+            )
+            org.json.JSONObject(payload).optString(claim, null)
+        } catch (_: Exception) {
+            null
+        }
     }
 
     override suspend fun logout() {
@@ -432,6 +474,7 @@ class AuthRepositoryImpl @Inject constructor(
         val apiResult = edgeFunctionClient.invokeAndDecode<RecoverByQuestionsResponse>(
             functionName = "recover-by-questions",
             body = body,
+            anonymous = true,
         )
 
         return when (apiResult) {
@@ -472,6 +515,7 @@ class AuthRepositoryImpl @Inject constructor(
         val apiResult = edgeFunctionClient.invoke(
             functionName = "setup-recovery",
             body = body,
+            patientAuth = true,
         )
 
         return apiResult.map { }.toDomainResult()
@@ -490,6 +534,7 @@ class AuthRepositoryImpl @Inject constructor(
         val apiResult = edgeFunctionClient.invokeAndDecode<RecoverByIdResponse>(
             functionName = "recover-by-id",
             body = body,
+            anonymous = true,
         )
 
         return when (apiResult) {

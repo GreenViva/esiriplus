@@ -18,5 +18,6 @@ class SecurityQuestionRepositoryImpl @Inject constructor(
     override suspend fun getSecurityQuestions(): Result<List<SecurityQuestion>> =
         edgeFunctionClient.invokeAndDecode<List<SecurityQuestionDto>>(
             functionName = "get-security-questions",
+            anonymous = true,
         ).map { dtos -> dtos.map { it.toDomain() } }.toDomainResult()
 }

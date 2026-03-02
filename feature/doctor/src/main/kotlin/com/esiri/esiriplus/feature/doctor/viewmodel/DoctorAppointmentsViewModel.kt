@@ -7,12 +7,21 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.Appointment
 import com.esiri.esiriplus.core.domain.model.AppointmentStatus
 import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.core.network.model.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import javax.inject.Inject
 
 enum class DoctorAppointmentTab { TODAY, UPCOMING, MISSED }
@@ -24,6 +33,7 @@ data class DoctorAppointmentsUiState(
     val missedAppointments: List<Appointment> = emptyList(),
     val isLoading: Boolean = true,
     val isRescheduling: String? = null,
+    val isStartingSession: String? = null,
     val errorMessage: String? = null,
     // Reschedule dialog state
     val showRescheduleDialog: Boolean = false,
@@ -32,13 +42,24 @@ data class DoctorAppointmentsUiState(
     val rescheduleReason: String = "",
 )
 
+@Serializable
+private data class StartSessionResponse(
+    @SerialName("consultation_id") val consultationId: String? = null,
+    val message: String? = null,
+)
+
 @HiltViewModel
 class DoctorAppointmentsViewModel @Inject constructor(
     private val appointmentRepository: AppointmentRepository,
+    private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorAppointmentsUiState())
     val uiState: StateFlow<DoctorAppointmentsUiState> = _uiState.asStateFlow()
+
+    /** Emits consultation ID when session starts successfully */
+    private val _sessionStarted = MutableSharedFlow<String>()
+    val sessionStarted: SharedFlow<String> = _sessionStarted.asSharedFlow()
 
     init {
         loadAppointments()
@@ -158,6 +179,57 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     }
                 }
                 is Result.Loading -> { /* no-op */ }
+            }
+        }
+    }
+
+    fun startSession(appointment: Appointment) {
+        if (_uiState.value.isStartingSession != null) return
+
+        _uiState.update { it.copy(isStartingSession = appointment.appointmentId, errorMessage = null) }
+
+        viewModelScope.launch {
+            // If the appointment already has a consultationId, navigate directly
+            val existingConsultationId = appointment.consultationId
+            if (!existingConsultationId.isNullOrBlank()) {
+                _uiState.update { it.copy(isStartingSession = null) }
+                _sessionStarted.emit(existingConsultationId)
+                return@launch
+            }
+
+            // Create consultation from appointment via edge function
+            val body = buildJsonObject {
+                put("appointment_id", JsonPrimitive(appointment.appointmentId))
+                put("service_type", JsonPrimitive(appointment.serviceType))
+                put("consultation_type", JsonPrimitive(appointment.consultationType))
+                put("chief_complaint", JsonPrimitive(appointment.chiefComplaint.ifBlank { "Scheduled appointment" }))
+                put("doctor_id", JsonPrimitive(appointment.doctorId))
+            }
+
+            when (val result = edgeFunctionClient.invokeAndDecode<StartSessionResponse>(
+                "create-consultation",
+                body,
+            )) {
+                is ApiResult.Success -> {
+                    val consultationId = result.data.consultationId
+                    _uiState.update { it.copy(isStartingSession = null) }
+                    if (consultationId != null) {
+                        _sessionStarted.emit(consultationId)
+                    } else {
+                        _uiState.update { it.copy(errorMessage = "Failed to start session") }
+                    }
+                    loadAppointments()
+                }
+                is ApiResult.Error -> {
+                    Log.w(TAG, "Failed to start session: ${result.message}")
+                    _uiState.update {
+                        it.copy(
+                            isStartingSession = null,
+                            errorMessage = result.message ?: "Failed to start session",
+                        )
+                    }
+                }
+                else -> { /* no-op */ }
             }
         }
     }

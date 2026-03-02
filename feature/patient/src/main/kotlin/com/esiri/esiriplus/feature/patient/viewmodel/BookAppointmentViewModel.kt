@@ -6,7 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
+import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.domain.repository.AvailableSlotsResponse
 import com.esiri.esiriplus.core.domain.repository.BookedSlot
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,6 +77,7 @@ class BookAppointmentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val appointmentRepository: AppointmentRepository,
     private val doctorProfileDao: DoctorProfileDao,
+    private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
 
     private val doctorId: String = savedStateHandle["doctorId"] ?: ""
@@ -96,7 +100,11 @@ class BookAppointmentViewModel @Inject constructor(
 
     private fun loadDoctorInfo() {
         viewModelScope.launch {
-            val doctor = doctorProfileDao.getById(doctorId)
+            var doctor = doctorProfileDao.getById(doctorId)
+            if (doctor == null) {
+                // Fallback: fetch from backend
+                doctor = fetchDoctorFromBackend(doctorId)
+            }
             if (doctor != null) {
                 _uiState.update {
                     it.copy(
@@ -111,6 +119,51 @@ class BookAppointmentViewModel @Inject constructor(
             } else {
                 _uiState.update { it.copy(isLoadingDoctor = false) }
             }
+        }
+    }
+
+    private suspend fun fetchDoctorFromBackend(id: String): DoctorProfileEntity? {
+        return try {
+            val body = kotlinx.serialization.json.buildJsonObject {
+                put("specialty", kotlinx.serialization.json.JsonPrimitive(serviceCategory.lowercase()))
+            }
+            when (val result = edgeFunctionClient.invoke("list-doctors", body)) {
+                is ApiResult.Success -> {
+                    val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; coerceInputValues = true }
+                    val response = json.decodeFromString<ListDoctorsForBooking>(result.data)
+                    val match = response.doctors.firstOrNull { it.doctor_id == id }
+                    match?.let {
+                        val now = System.currentTimeMillis()
+                        val entity = DoctorProfileEntity(
+                            doctorId = it.doctor_id,
+                            fullName = it.full_name,
+                            email = it.email ?: "",
+                            phone = it.phone ?: "",
+                            specialty = it.specialty ?: "",
+                            languages = emptyList(),
+                            bio = it.bio ?: "",
+                            licenseNumber = "",
+                            yearsExperience = 0,
+                            profilePhotoUrl = it.profile_photo_url,
+                            averageRating = it.average_rating ?: 0.0,
+                            totalRatings = it.total_ratings ?: 0,
+                            isVerified = it.is_verified ?: false,
+                            isAvailable = it.is_available ?: false,
+                            services = emptyList(),
+                            countryCode = "+255",
+                            country = "",
+                            createdAt = now,
+                            updatedAt = now,
+                        )
+                        doctorProfileDao.insert(entity)
+                        entity
+                    }
+                }
+                else -> null
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to fetch doctor from backend", e)
+            null
         }
     }
 
@@ -282,3 +335,21 @@ class BookAppointmentViewModel @Inject constructor(
         private const val TAG = "BookAppointmentVM"
     }
 }
+
+@kotlinx.serialization.Serializable
+private data class ListDoctorsForBooking(val doctors: List<DoctorRowForBooking> = emptyList())
+
+@kotlinx.serialization.Serializable
+private data class DoctorRowForBooking(
+    val doctor_id: String,
+    val full_name: String,
+    val email: String? = null,
+    val phone: String? = null,
+    val specialty: String? = null,
+    val bio: String? = null,
+    val profile_photo_url: String? = null,
+    val average_rating: Double? = null,
+    val total_ratings: Int? = null,
+    val is_verified: Boolean? = null,
+    val is_available: Boolean? = null,
+)

@@ -292,7 +292,6 @@ async function handleAccept(
   // DB trigger enforces one open consultation per patient (P0001).
   // Use atomic RPC that closes stale consultations + inserts new one in a single transaction.
   const patientSessionId = request.patient_session_id;
-  console.log("handleAccept: patient_session_id =", patientSessionId, "type =", typeof patientSessionId);
 
   const consultationFee = SERVICE_FEES[request.service_type] ?? 5000;
 
@@ -522,7 +521,7 @@ async function handleExpire(
   // Only expire if actually past the deadline and still pending
   const { data: request } = await supabase
     .from("consultation_requests")
-    .select("request_id, status, expires_at, patient_session_id")
+    .select("request_id, status, expires_at, patient_session_id, doctor_id")
     .eq("request_id", body.request_id)
     .single();
 
@@ -532,7 +531,7 @@ async function handleExpire(
 
   // Security: verify caller owns this request
   const isPatient = auth.sessionId === request.patient_session_id;
-  const isDoctor = auth.userId !== null; // Doctor can also trigger expire
+  const isDoctor = auth.userId === request.doctor_id;
   if (!isPatient && !isDoctor) {
     throw new ValidationError("Not authorized");
   }

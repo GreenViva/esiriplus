@@ -117,6 +117,8 @@ Deno.serve(async (req: Request) => {
           service_type: payment.service_type,
           amount: payment.amount,
           status: "completed",
+          access_granted: true,
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         });
       } else if (payment.payment_type === "call_recharge") {
         const minutes = RECHARGE_MINUTES[payment.amount] ?? 10;

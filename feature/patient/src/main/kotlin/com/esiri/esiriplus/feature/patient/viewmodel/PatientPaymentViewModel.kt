@@ -1,8 +1,12 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esiri.esiriplus.core.database.dao.PaymentDao
+import com.esiri.esiriplus.core.database.entity.PaymentEntity
+import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.service.PaymentService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -41,37 +46,63 @@ enum class PaymentStep {
 class PatientPaymentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val paymentService: PaymentService,
+    private val paymentDao: PaymentDao,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val consultationId: String = savedStateHandle["consultationId"] ?: ""
+    private val routeAmount: Int = savedStateHandle["amount"] ?: 0
+    private val routeServiceType: String = savedStateHandle["serviceType"] ?: ""
 
     private val _uiState = MutableStateFlow(PaymentUiState(consultationId = consultationId))
     val uiState: StateFlow<PaymentUiState> = _uiState.asStateFlow()
 
     private var pollingJob: Job? = null
 
-    // Dummy phone number for mock mode — no real number is collected from the patient.
-    // When switching to real M-Pesa, this will be replaced with a different flow
-    // (e.g. USSD-initiated payment or user-provided number at that point).
-    private val mockPhoneNumber = "255700000000"
+    private var patientPhone = "255700000000"
 
     init {
-        loadConsultationDetails()
+        loadPatientPhone()
+        checkExistingPayment()
     }
 
-    private fun loadConsultationDetails() {
-        // Default values — in a full implementation this would fetch the
-        // consultation's service tier and price from the backend.
-        _uiState.update {
-            it.copy(
-                amount = 1200,
-                serviceType = "gp",
-            )
+    private fun loadPatientPhone() {
+        viewModelScope.launch {
+            try {
+                val session = authRepository.currentSession.first()
+                val phone = session?.user?.phone
+                if (!phone.isNullOrBlank()) {
+                    patientPhone = phone
+                }
+            } catch (_: Exception) {
+                // Keep default phone
+            }
         }
     }
 
-    fun updateServiceDetails(serviceType: String, amount: Int) {
-        _uiState.update { it.copy(serviceType = serviceType, amount = amount) }
+    private fun checkExistingPayment() {
+        if (consultationId.isBlank()) {
+            loadConsultationDetails()
+            return
+        }
+        viewModelScope.launch {
+            val existing = paymentDao.getCompletedByConsultationId(consultationId)
+            if (existing != null) {
+                Log.d(TAG, "Found existing completed payment for consultation=$consultationId")
+                _uiState.update { it.copy(paymentStatus = PaymentStep.COMPLETED) }
+            } else {
+                loadConsultationDetails()
+            }
+        }
+    }
+
+    private fun loadConsultationDetails() {
+        _uiState.update {
+            it.copy(
+                amount = if (routeAmount > 0) routeAmount else 0,
+                serviceType = routeServiceType.ifBlank { "gp" },
+            )
+        }
     }
 
     fun initiatePayment() {
@@ -89,7 +120,7 @@ class PatientPaymentViewModel @Inject constructor(
             val idempotencyKey = UUID.randomUUID().toString()
 
             val result = paymentService.initiateServicePayment(
-                phoneNumber = mockPhoneNumber,
+                phoneNumber = patientPhone,
                 amount = state.amount,
                 serviceType = state.serviceType,
                 consultationId = state.consultationId.ifBlank { null },
@@ -144,25 +175,29 @@ class PatientPaymentViewModel @Inject constructor(
             // Poll every 3 seconds for up to 2 minutes
             repeat(40) {
                 delay(3000)
-                val payment = paymentService.getPaymentStatus(paymentId)
-                if (payment != null) {
-                    when (payment.status.lowercase()) {
-                        "completed" -> {
-                            _uiState.update {
-                                it.copy(paymentStatus = PaymentStep.COMPLETED)
+                when (val result = paymentService.getPaymentStatus(paymentId)) {
+                    is ApiResult.Success -> {
+                        val payment = result.data
+                        when (payment.status.lowercase()) {
+                            "completed" -> {
+                                _uiState.update {
+                                    it.copy(paymentStatus = PaymentStep.COMPLETED)
+                                }
+                                persistCompletedPayment(paymentId, payment.transactionId)
+                                return@launch
                             }
-                            return@launch
-                        }
-                        "failed" -> {
-                            _uiState.update {
-                                it.copy(
-                                    paymentStatus = PaymentStep.FAILED,
-                                    errorMessage = payment.failureReason ?: "Payment failed",
-                                )
+                            "failed" -> {
+                                _uiState.update {
+                                    it.copy(
+                                        paymentStatus = PaymentStep.FAILED,
+                                        errorMessage = payment.failureReason ?: "Payment failed",
+                                    )
+                                }
+                                return@launch
                             }
-                            return@launch
                         }
                     }
+                    else -> { /* continue polling */ }
                 }
             }
             // Timeout
@@ -171,6 +206,31 @@ class PatientPaymentViewModel @Inject constructor(
                     paymentStatus = PaymentStep.FAILED,
                     errorMessage = "Payment timed out. Please try again.",
                 )
+            }
+        }
+    }
+
+    private fun persistCompletedPayment(paymentId: String, transactionId: String?) {
+        viewModelScope.launch {
+            try {
+                val sessionId = authRepository.currentSession.first()?.user?.id ?: ""
+                val now = System.currentTimeMillis()
+                val entity = PaymentEntity(
+                    paymentId = paymentId,
+                    patientSessionId = sessionId,
+                    amount = _uiState.value.amount,
+                    paymentMethod = "MPESA",
+                    transactionId = transactionId,
+                    phoneNumber = patientPhone,
+                    status = "completed",
+                    createdAt = now,
+                    updatedAt = now,
+                    consultationId = consultationId,
+                )
+                paymentDao.insert(entity)
+                Log.d(TAG, "Persisted completed payment: $paymentId for consultation=$consultationId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to persist payment locally", e)
             }
         }
     }
@@ -194,5 +254,9 @@ class PatientPaymentViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         pollingJob?.cancel()
+    }
+
+    companion object {
+        private const val TAG = "PatientPaymentVM"
     }
 }

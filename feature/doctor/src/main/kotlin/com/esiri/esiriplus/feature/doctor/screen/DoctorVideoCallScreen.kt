@@ -1,18 +1,16 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.esiri.esiriplus.feature.chat.ui.VideoCallScreen
 
 @Composable
 fun DoctorVideoCallScreen(
     onCallEnded: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Doctor Video Call — TODO")
-    }
+    VideoCallScreen(
+        onCallEnded = onCallEnded,
+        modifier = modifier,
+    )
 }

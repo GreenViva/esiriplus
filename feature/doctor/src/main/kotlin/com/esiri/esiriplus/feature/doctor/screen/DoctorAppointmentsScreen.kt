@@ -19,15 +19,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -60,11 +65,31 @@ private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
 
 @Composable
 fun DoctorAppointmentsScreen(
+    onNavigateToConsultation: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoctorAppointmentsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Navigate to consultation when session starts
+    LaunchedEffect(Unit) {
+        viewModel.sessionStarted.collect { consultationId ->
+            onNavigateToConsultation(consultationId)
+        }
+    }
+
+    // Reschedule dialog
+    if (uiState.showRescheduleDialog) {
+        RescheduleDialog(
+            newTime = uiState.rescheduleNewTime,
+            reason = uiState.rescheduleReason,
+            onTimeChanged = viewModel::updateRescheduleTime,
+            onReasonChanged = viewModel::updateRescheduleReason,
+            onConfirm = viewModel::rescheduleAppointment,
+            onDismiss = viewModel::dismissRescheduleDialog,
+        )
+    }
 
     Column(
         modifier = modifier
@@ -182,6 +207,8 @@ fun DoctorAppointmentsScreen(
                         DoctorAppointmentCard(
                             appointment = appointment,
                             isRescheduling = uiState.isRescheduling == appointment.appointmentId,
+                            isStartingSession = uiState.isStartingSession == appointment.appointmentId,
+                            onStartSession = { viewModel.startSession(appointment) },
                             onReschedule = { viewModel.showRescheduleDialog(appointment.appointmentId) },
                         )
                     }
@@ -214,6 +241,8 @@ fun DoctorAppointmentsScreen(
 private fun DoctorAppointmentCard(
     appointment: Appointment,
     isRescheduling: Boolean,
+    isStartingSession: Boolean,
+    onStartSession: () -> Unit,
     onReschedule: () -> Unit,
 ) {
     val scheduledTime = Instant.ofEpochMilli(appointment.scheduledAt)
@@ -288,12 +317,23 @@ private fun DoctorAppointmentCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Button(
-                        onClick = { /* Start session - would create consultation */ },
+                        onClick = onStartSession,
+                        enabled = !isStartingSession,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                         modifier = Modifier.weight(1f),
                     ) {
-                        Text(text = "Start Session", fontSize = 13.sp, color = Color.White)
+                        if (isStartingSession) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp,
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(text = "Starting...", fontSize = 13.sp, color = Color.White)
+                        } else {
+                            Text(text = "Start Session", fontSize = 13.sp, color = Color.White)
+                        }
                     }
                 }
             }
@@ -324,4 +364,89 @@ private fun DoctorAppointmentCard(
             }
         }
     }
+}
+
+@Composable
+private fun RescheduleDialog(
+    newTime: String,
+    reason: String,
+    onTimeChanged: (String) -> Unit,
+    onReasonChanged: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Reschedule Appointment",
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = "Enter a new date and time for the appointment.",
+                    fontSize = 14.sp,
+                    color = SubtitleGrey,
+                )
+
+                Text(
+                    text = "New Date & Time",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                )
+                OutlinedTextField(
+                    value = newTime,
+                    onValueChange = onTimeChanged,
+                    placeholder = { Text("e.g. 2026-03-05T10:00", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BrandTeal,
+                        unfocusedBorderColor = CardBorder,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
+                )
+
+                Text(
+                    text = "Reason (optional)",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                )
+                OutlinedTextField(
+                    value = reason,
+                    onValueChange = onReasonChanged,
+                    placeholder = { Text("Reason for rescheduling...", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BrandTeal,
+                        unfocusedBorderColor = CardBorder,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                    ),
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+            ) {
+                Text("Reschedule")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = Color.Black)
+            }
+        },
+    )
 }

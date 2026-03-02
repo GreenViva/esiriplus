@@ -36,8 +36,8 @@ interface ConsultationDao {
     fun getByDoctorIdAndStatus(doctorId: String, status: String): Flow<List<ConsultationEntity>>
 
     @Query(
-        "SELECT * FROM consultations WHERE status IN ('ACTIVE', 'active', 'AWAITING_EXTENSION', " +
-            "'awaiting_extension', 'GRACE_PERIOD', 'grace_period') ORDER BY createdAt DESC LIMIT 1",
+        "SELECT * FROM consultations WHERE LOWER(status) IN ('active', 'awaiting_extension', 'grace_period') " +
+            "ORDER BY createdAt DESC LIMIT 1",
     )
     fun getActiveConsultation(): Flow<ConsultationEntity?>
 
@@ -74,6 +74,7 @@ interface ConsultationDao {
         "SELECT c.consultationId, c.patientSessionId, c.doctorId, c.status, " +
             "c.serviceType, c.consultationFee, c.sessionStartTime, c.sessionEndTime, " +
             "c.sessionDurationMinutes, c.requestExpiresAt, c.createdAt, c.updatedAt, " +
+            "c.scheduledEndAt, c.extensionCount, c.gracePeriodEndAt, c.originalDurationMinutes, " +
             "d.fullName, d.specialty, d.averageRating " +
             "FROM consultations c INNER JOIN doctor_profiles d ON c.doctorId = d.doctorId " +
             "WHERE c.patientSessionId = :sessionId ORDER BY c.createdAt DESC",

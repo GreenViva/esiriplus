@@ -258,9 +258,12 @@ class ChatRealtimeService @Inject constructor(
             currentConsultationId = null
             currentScope = null
         }
-        try {
-            kotlinx.coroutines.runBlocking { unsubscribeAll() }
-        } catch (_: Exception) { }
+        @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                unsubscribeAll()
+            } catch (_: Exception) { }
+        }
     }
 
     companion object {

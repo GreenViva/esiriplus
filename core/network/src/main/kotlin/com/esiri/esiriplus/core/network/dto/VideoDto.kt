@@ -12,4 +12,6 @@ data class VideoTokenRequest(
 data class VideoTokenResponse(
     val token: String,
     @SerialName("room_id") val roomId: String,
+    val permissions: List<String> = emptyList(),
+    @SerialName("expires_in") val expiresIn: Int = 7200,
 )

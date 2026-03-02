@@ -32,11 +32,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,19 +83,20 @@ fun ServiceLocationScreen(
     }
 
     // Track whether we've asked at least once (to detect "permanently denied")
-    var hasRequestedOnce by remember { mutableStateOf(false) }
-    var permanentlyDenied by remember { mutableStateOf(false) }
+    var hasRequestedOnce by rememberSaveable { mutableStateOf(false) }
+    var permanentlyDenied by rememberSaveable { mutableStateOf(false) }
+    var showInternationalDialog by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { results ->
         val anyGranted = results.values.any { it }
         locationGranted = anyGranted
-        hasRequestedOnce = true
-        if (!anyGranted) {
-            // If all denied after requesting, treat as permanently denied
+        if (!anyGranted && hasRequestedOnce) {
+            // Only treat as permanently denied after the second denial
             permanentlyDenied = true
         }
+        hasRequestedOnce = true
     }
 
     Box(
@@ -121,7 +125,7 @@ fun ServiceLocationScreen(
                 // ── Granted: show the normal Inside/Outside Tanzania UI ──
                 LocationSelectionContent(
                     onSelectInsideTanzania = onSelectInsideTanzania,
-                    onSelectOutsideTanzania = onSelectOutsideTanzania,
+                    onSelectOutsideTanzania = { showInternationalDialog = true },
                 )
             } else {
                 // ── Not granted: permission prompt ──
@@ -140,6 +144,25 @@ fun ServiceLocationScreen(
                 )
             }
         }
+    }
+
+    if (showInternationalDialog) {
+        AlertDialog(
+            onDismissRequest = { showInternationalDialog = false },
+            title = { Text("Not Yet Available", color = Color.Black) },
+            text = {
+                Text(
+                    "International consultations are not yet available. " +
+                        "We are working hard to bring this service to you soon.",
+                    color = Color.Black,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showInternationalDialog = false }) {
+                    Text("OK", color = BrandTeal)
+                }
+            },
+        )
     }
 }
 

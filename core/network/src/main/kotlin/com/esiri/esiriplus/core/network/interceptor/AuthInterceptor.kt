@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.core.network.interceptor
 
 import com.esiri.esiriplus.core.network.BuildConfig
+import com.esiri.esiriplus.core.network.EdgeFunctionClient.Companion.HEADER_SKIP_AUTH
 import com.esiri.esiriplus.core.network.TokenManager
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -14,6 +15,14 @@ class AuthInterceptor @Inject constructor(
         val originalRequest = chain.request()
         val requestBuilder = originalRequest.newBuilder()
             .header(HEADER_API_KEY, BuildConfig.SUPABASE_ANON_KEY)
+
+        // Anonymous edge function calls — keep the anon-key Authorization already set
+        // by EdgeFunctionClient and don't override with a user token.
+        val skipAuth = originalRequest.header(HEADER_SKIP_AUTH) != null
+        if (skipAuth) {
+            requestBuilder.removeHeader(HEADER_SKIP_AUTH)
+            return chain.proceed(requestBuilder.build())
+        }
 
         val token = tokenManager.getAccessTokenSync()
 

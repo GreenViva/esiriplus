@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
@@ -26,12 +27,14 @@ data class PatientHomeUiState(
 
 @HiltViewModel
 class PatientHomeViewModel @Inject constructor(
+    private val application: Application,
     private val authRepository: AuthRepository,
     private val logoutUseCase: LogoutUseCase,
     private val consultationDao: ConsultationDao,
 ) : ViewModel() {
 
-    private val _soundsEnabled = MutableStateFlow(true)
+    private val prefs = application.getSharedPreferences("patient_prefs", android.content.Context.MODE_PRIVATE)
+    private val _soundsEnabled = MutableStateFlow(prefs.getBoolean(KEY_SOUNDS_ENABLED, true))
 
     val uiState: StateFlow<PatientHomeUiState> = combine(
         authRepository.currentSession,
@@ -58,7 +61,9 @@ class PatientHomeViewModel @Inject constructor(
     )
 
     fun toggleSounds() {
-        _soundsEnabled.value = !_soundsEnabled.value
+        val newValue = !_soundsEnabled.value
+        _soundsEnabled.value = newValue
+        prefs.edit().putBoolean(KEY_SOUNDS_ENABLED, newValue).apply()
     }
 
     fun logout() {
@@ -66,6 +71,8 @@ class PatientHomeViewModel @Inject constructor(
     }
 
     companion object {
+        private const val KEY_SOUNDS_ENABLED = "sounds_enabled"
+
         /** Keeps prefix + last segment, masks the middle. e.g. "ESR-ABCDEF-P8FP" → "ESR-******-P8FP" */
         internal fun maskPatientId(id: String): String {
             val parts = id.split("-")

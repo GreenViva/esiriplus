@@ -6,11 +6,13 @@ import com.esiri.esiriplus.core.database.BuildConfig
 import com.esiri.esiriplus.core.database.EsiriplusDatabase
 import com.esiri.esiriplus.core.database.callback.DatabaseCallback
 import com.esiri.esiriplus.core.database.dao.AppConfigDao
+import com.esiri.esiriplus.core.database.dao.AppointmentDao
 import com.esiri.esiriplus.core.database.dao.AttachmentDao
 import com.esiri.esiriplus.core.database.dao.AuditLogDao
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DiagnosisDao
 import com.esiri.esiriplus.core.database.dao.DoctorAvailabilityDao
+import com.esiri.esiriplus.core.database.dao.DoctorAvailabilitySlotDao
 import com.esiri.esiriplus.core.database.dao.DoctorCredentialsDao
 import com.esiri.esiriplus.core.database.dao.DoctorEarningsDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
@@ -106,6 +108,8 @@ object DatabaseModule {
     @Provides fun provideVideoCallDao(db: EsiriplusDatabase): VideoCallDao = db.videoCallDao()
     @Provides fun providePatientReportDao(db: EsiriplusDatabase): PatientReportDao = db.patientReportDao()
     @Provides fun provideTypingIndicatorDao(db: EsiriplusDatabase): TypingIndicatorDao = db.typingIndicatorDao()
+    @Provides fun provideAppointmentDao(db: EsiriplusDatabase): AppointmentDao = db.appointmentDao()
+    @Provides fun provideDoctorAvailabilitySlotDao(db: EsiriplusDatabase): DoctorAvailabilitySlotDao = db.doctorAvailabilitySlotDao()
 
     private const val DATABASE_NAME = "esiriplus.db"
 }

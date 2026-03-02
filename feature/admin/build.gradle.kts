@@ -12,4 +12,6 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:network"))
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }

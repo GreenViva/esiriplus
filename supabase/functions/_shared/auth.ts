@@ -80,12 +80,21 @@ export async function sha256Hex(input: string): Promise<string> {
 
 // ── Main validator ────────────────────────────────────────────────────────────
 export async function validateAuth(req: Request): Promise<AuthResult> {
+  // Check for patient token in custom header first — this bypasses the
+  // Supabase gateway JWT verification (which rejects custom patient JWTs)
+  // while still allowing function-level auth.
+  const patientTokenHeader = req.headers.get("X-Patient-Token");
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+
+  let jwt: string;
+  if (patientTokenHeader?.trim()) {
+    jwt = patientTokenHeader.trim();
+  } else if (authHeader?.startsWith("Bearer ")) {
+    jwt = authHeader.replace("Bearer ", "").trim();
+  } else {
     throw new AuthError(401, "Missing or malformed Authorization header");
   }
 
-  const jwt = authHeader.replace("Bearer ", "").trim();
   if (!jwt) throw new AuthError(401, "Empty token");
 
   const claims = decodeJwtPayload(jwt);

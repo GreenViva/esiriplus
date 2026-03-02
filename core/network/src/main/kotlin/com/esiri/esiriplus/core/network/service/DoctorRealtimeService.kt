@@ -8,6 +8,7 @@ import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
 import io.github.jan.supabase.realtime.RealtimeChannel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -104,9 +105,13 @@ class DoctorRealtimeService @Inject constructor(
 
     /** Non-suspend variant safe to call from onCleared (where viewModelScope is cancelled). */
     fun unsubscribeAllSync() {
-        try {
-            kotlinx.coroutines.runBlocking { unsubscribeAll() }
-        } catch (_: Exception) { }
+        @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+        @Suppress("OPT_IN_USAGE")
+        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                unsubscribeAll()
+            } catch (_: Exception) { }
+        }
     }
 
     companion object {

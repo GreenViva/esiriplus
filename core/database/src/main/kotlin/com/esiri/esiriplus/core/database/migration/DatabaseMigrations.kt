@@ -750,6 +750,12 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_21_22 = object : Migration(21, 22) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `payments` ADD COLUMN `consultationId` TEXT DEFAULT ''")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -771,5 +777,6 @@ object DatabaseMigrations {
         MIGRATION_18_19,
         MIGRATION_19_20,
         MIGRATION_20_21,
+        MIGRATION_21_22,
     )
 }

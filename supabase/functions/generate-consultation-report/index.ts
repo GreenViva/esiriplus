@@ -39,8 +39,8 @@ Deno.serve(async (req: Request) => {
       .from("consultations")
       .select(`
         consultation_id, service_type, chief_complaint, status,
-        started_at, ended_at,
-        doctor_profiles (full_name, specialization)
+        session_start_time, session_end_time,
+        doctor_profiles (full_name, specialist_field)
       `)
       .eq("consultation_id", consultation_id)
       .eq("doctor_id", auth.userId)
@@ -68,18 +68,18 @@ Deno.serve(async (req: Request) => {
     // Fetch chat messages for context
     const { data: messages } = await supabase
       .from("messages")
-      .select("sender_role, content, created_at")
+      .select("sender_type, message_text, created_at")
       .eq("consultation_id", consultation_id)
       .order("created_at", { ascending: true })
       .limit(100);
 
     // Build prompt context
     const chatTranscript = (messages ?? [])
-      .map((m) => `[${m.sender_role.toUpperCase()}]: ${m.content}`)
+      .map((m) => `[${m.sender_type.toUpperCase()}]: ${m.message_text}`)
       .join("\n");
 
     const doctorProfile = (consultation as Record<string, unknown>)
-      ?.doctor_profiles as { full_name?: string; specialization?: string } | null;
+      ?.doctor_profiles as { full_name?: string; specialist_field?: string } | null;
     const doctorName = doctorProfile?.full_name ?? "Doctor";
 
     const prompt = `
@@ -88,7 +88,7 @@ You are a medical documentation assistant. Generate a structured clinical consul
 CONSULTATION DETAILS:
 - Service Type: ${consultation.service_type}
 - Chief Complaint: ${consultation.chief_complaint}
-- Duration: ${consultation.started_at} to ${consultation.ended_at ?? "ongoing"}
+- Duration: ${consultation.session_start_time} to ${consultation.session_end_time ?? "ongoing"}
 
 CHAT TRANSCRIPT:
 ${chatTranscript || "No chat messages recorded"}

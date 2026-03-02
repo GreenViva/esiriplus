@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.work.hilt)
     ksp(libs.work.hilt.compiler)
 
+    // VideoSDK (needed for initialization in Application class)
+    implementation(libs.videosdk.rtc)
+
     // Project modules
     implementation(project(":core:common"))
     implementation(project(":core:domain"))

@@ -8,28 +8,18 @@ import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.model.StringOrListSerializer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
 import javax.inject.Inject
 
 enum class AvailabilityFilter { ALL, ONLINE, OFFLINE }
@@ -41,7 +31,7 @@ data class FindDoctorUiState(
     val availabilityFilter: AvailabilityFilter = AvailabilityFilter.ALL,
     val serviceCategory: String = "",
     val isLoading: Boolean = true,
-    val slotCounts: Map<String, Int> = emptyMap(), // doctorId → used slots
+    val error: String? = null,
 )
 
 // Maps service tier category codes to the Postgres service_type_enum values
@@ -66,52 +56,9 @@ val specialtyDisplayNames = mapOf(
 )
 
 @Serializable
-private data class DoctorSlotsResponse(
-    val slots: Map<String, SlotInfo> = emptyMap(),
-)
-
-@Serializable
-private data class SlotInfo(
-    val used: Int = 0,
-    val available: Int = 10,
-    val total: Int = 10,
-)
-
-@Serializable
 private data class ListDoctorsResponse(
     val doctors: List<DoctorRow> = emptyList(),
 )
-
-/**
- * Handles JSON fields that may arrive as either a real JSON array `["a","b"]`
- * or a stringified JSON array `"[\"a\",\"b\"]"`.
- */
-private object StringOrListSerializer : KSerializer<List<String>> {
-    private val delegate = ListSerializer(String.serializer())
-    override val descriptor: SerialDescriptor = delegate.descriptor
-
-    override fun deserialize(decoder: Decoder): List<String> {
-        val jsonDecoder = decoder as kotlinx.serialization.json.JsonDecoder
-        return when (val element = jsonDecoder.decodeJsonElement()) {
-            is JsonArray -> element.jsonArray.map { it.jsonPrimitive.content }
-            is JsonPrimitive -> {
-                val text = element.content
-                if (text.startsWith("[")) {
-                    try {
-                        Json.decodeFromString(delegate, text)
-                    } catch (_: Exception) {
-                        emptyList()
-                    }
-                } else {
-                    emptyList()
-                }
-            }
-            else -> emptyList()
-        }
-    }
-
-    override fun serialize(encoder: Encoder, value: List<String>) = delegate.serialize(encoder, value)
-}
 
 @Serializable
 private data class DoctorRow(
@@ -173,31 +120,7 @@ class FindDoctorViewModel @Inject constructor(
                     it.copy(doctors = doctors, isLoading = false)
                 }
                 applyFilters()
-                // Fetch slot counts once we have doctor IDs
-                if (doctors.isNotEmpty()) {
-                    fetchSlotCounts(doctors.map { it.doctorId })
-                }
             }
-        }
-    }
-
-    private suspend fun fetchSlotCounts(doctorIds: List<String>) {
-        val body = buildJsonObject {
-            putJsonArray("doctor_ids") {
-                doctorIds.take(50).forEach { add(JsonPrimitive(it)) }
-            }
-        }
-        when (val result = edgeFunctionClient.invoke("get-doctor-slots", body)) {
-            is ApiResult.Success -> {
-                try {
-                    val response = json.decodeFromString<DoctorSlotsResponse>(result.data)
-                    val counts = response.slots.mapValues { (_, slot) -> slot.used }
-                    _uiState.update { it.copy(slotCounts = counts) }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Failed to parse slot response", e)
-                }
-            }
-            else -> Log.w(TAG, "Failed to fetch slot counts: $result")
         }
     }
 
@@ -217,7 +140,18 @@ class FindDoctorViewModel @Inject constructor(
                     Log.w(TAG, "Failed to parse list-doctors response", e)
                 }
             }
-            else -> Log.w(TAG, "Failed to fetch doctors from backend: $result")
+            is ApiResult.Error -> {
+                Log.w(TAG, "Failed to fetch doctors from backend: ${result.message}")
+                _uiState.update { it.copy(error = "Failed to load doctors. Please try again.") }
+            }
+            is ApiResult.NetworkError -> {
+                Log.w(TAG, "Network error fetching doctors", result.exception)
+                _uiState.update { it.copy(error = "Network error. Please check your connection.") }
+            }
+            is ApiResult.Unauthorized -> {
+                Log.w(TAG, "Unauthorized fetching doctors")
+                _uiState.update { it.copy(error = "Session expired. Please log in again.") }
+            }
         }
     }
 

@@ -57,14 +57,22 @@ class PaymentService @Inject constructor(
 
     /**
      * Poll payment status from the backend via PostgREST.
-     * Returns null if the payment is not found.
      */
-    suspend fun getPaymentStatus(paymentId: String): PaymentApiModel? {
+    suspend fun getPaymentStatus(paymentId: String): ApiResult<PaymentApiModel> {
         return try {
             val response = supabaseApi.getPayment(paymentIdFilter = "eq.$paymentId")
-            if (response.isSuccessful) response.body() else null
-        } catch (_: Exception) {
-            null
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    ApiResult.Success(body)
+                } else {
+                    ApiResult.Error(404, "Payment not found")
+                }
+            } else {
+                ApiResult.Error(response.code(), response.errorBody()?.string() ?: "Unknown error")
+            }
+        } catch (e: Exception) {
+            ApiResult.NetworkError(e, e.message ?: "Network error")
         }
     }
 }

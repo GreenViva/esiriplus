@@ -34,4 +34,5 @@ data class PaymentEntity(
     val createdAt: Long,
     val updatedAt: Long,
     @ColumnInfo(defaultValue = "0") val synced: Boolean = false,
+    @ColumnInfo(defaultValue = "") val consultationId: String? = null,
 )

@@ -50,5 +50,8 @@ app/google-services.json
 # Supabase local config
 supabase/.env.local
 
+# Firebase Admin SDK keys
+esiri-plus-firebase-adminsdk-*.json
+
 # Claude Code
 .claude/

@@ -23,8 +23,8 @@ import kotlinx.serialization.Serializable
 @Serializable object PatientGraph
 @Serializable object PatientHomeRoute
 @Serializable data class PatientConsultationRoute(val consultationId: String)
-@Serializable data class PatientPaymentRoute(val consultationId: String)
-@Serializable data class PatientVideoCallRoute(val consultationId: String)
+@Serializable data class PatientPaymentRoute(val consultationId: String, val amount: Int = 0, val serviceType: String = "")
+@Serializable data class PatientVideoCallRoute(val consultationId: String, val callType: String = "VIDEO")
 @Serializable object PatientProfileRoute
 @Serializable object ServiceLocationRoute
 @Serializable object ServicesRoute
@@ -124,8 +124,8 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
         composable<PatientConsultationRoute> {
             PatientConsultationScreen(
-                onNavigateToPayment = { consultationId ->
-                    navController.navigate(PatientPaymentRoute(consultationId))
+                onNavigateToPayment = { consultationId, amount, serviceType ->
+                    navController.navigate(PatientPaymentRoute(consultationId, amount, serviceType))
                 },
                 onNavigateToExtensionPayment = { consultationId, amount, serviceType ->
                     navController.navigate(
@@ -135,6 +135,9 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                             serviceType = serviceType,
                         ),
                     )
+                },
+                onStartCall = { consultationId, callType ->
+                    navController.navigate(PatientVideoCallRoute(consultationId, callType))
                 },
                 onBack = {
                     navController.popBackStack(PatientHomeRoute, inclusive = false)

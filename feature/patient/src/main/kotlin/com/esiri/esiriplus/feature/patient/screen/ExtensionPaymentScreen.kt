@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,6 +55,9 @@ fun ExtensionPaymentScreen(
     viewModel: ExtensionPaymentViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Block back navigation during payment processing
+    BackHandler(enabled = uiState.paymentStatus == PaymentStep.PROCESSING) { /* block */ }
 
     // Auto-navigate back to chat on payment completion
     LaunchedEffect(uiState.paymentStatus) {

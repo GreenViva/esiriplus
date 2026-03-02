@@ -9,4 +9,5 @@ interface VideoRepository {
 data class VideoToken(
     val token: String,
     val roomId: String,
+    val permissions: List<String> = emptyList(),
 )

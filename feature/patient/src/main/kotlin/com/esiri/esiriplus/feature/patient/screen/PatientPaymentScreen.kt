@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,6 +51,12 @@ fun PatientPaymentScreen(
     viewModel: PatientPaymentViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Block back press while payment is processing or during the success auto-navigate delay
+    BackHandler(
+        enabled = uiState.paymentStatus == PaymentStep.PROCESSING ||
+            uiState.paymentStatus == PaymentStep.COMPLETED,
+    ) { /* swallow — prevent losing a successful payment */ }
 
     // Auto-navigate on payment completion
     LaunchedEffect(uiState.paymentStatus) {

@@ -8,6 +8,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.esiri.esiriplus.worker.NotificationCleanupWorker
 import dagger.hilt.android.HiltAndroidApp
+import live.videosdk.rtc.android.VideoSDK
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -23,6 +24,7 @@ class EsiriplusApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        VideoSDK.initialize(applicationContext)
         createNotificationChannels()
         NotificationCleanupWorker.enqueue(this)
     }

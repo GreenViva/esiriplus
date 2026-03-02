@@ -195,6 +195,21 @@ Deno.serve(async (req: Request) => {
     const notification = validate(raw);
     const supabase = getServiceClient();
 
+    // Security: doctors can only push to patients in their own consultations
+    if (auth.role === "doctor" && notification.session_id) {
+      const { data: consultation } = await supabase
+        .from("consultations")
+        .select("consultation_id")
+        .eq("doctor_id", auth.userId)
+        .eq("patient_session_id", notification.session_id)
+        .in("status", ["active", "awaiting_extension", "grace_period"])
+        .limit(1)
+        .maybeSingle();
+      if (!consultation) {
+        throw new ValidationError("Not authorized to send notifications to this patient");
+      }
+    }
+
     let fcmTokens: string[] = [];
 
     if (notification.session_id) {

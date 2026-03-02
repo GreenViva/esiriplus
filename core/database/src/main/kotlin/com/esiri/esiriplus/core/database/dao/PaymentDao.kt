@@ -20,6 +20,9 @@ interface PaymentDao {
     @Query("SELECT * FROM payments WHERE status = :status ORDER BY createdAt DESC")
     fun getByStatus(status: String): Flow<List<PaymentEntity>>
 
+    @Query("SELECT * FROM payments WHERE consultationId = :consultationId AND status = 'completed' LIMIT 1")
+    suspend fun getCompletedByConsultationId(consultationId: String): PaymentEntity?
+
     @Query("SELECT * FROM payments ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
     fun getTransactionHistory(limit: Int, offset: Int): Flow<List<PaymentEntity>>
 

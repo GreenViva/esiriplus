@@ -120,27 +120,30 @@ class ExtensionPaymentViewModel @Inject constructor(
         pollingJob = viewModelScope.launch {
             repeat(40) {
                 delay(3000)
-                val payment = paymentService.getPaymentStatus(paymentId)
-                if (payment != null) {
-                    when (payment.status.lowercase()) {
-                        "completed" -> {
-                            _uiState.update {
-                                it.copy(paymentStatus = PaymentStep.COMPLETED)
+                when (val result = paymentService.getPaymentStatus(paymentId)) {
+                    is ApiResult.Success -> {
+                        val payment = result.data
+                        when (payment.status.lowercase()) {
+                            "completed" -> {
+                                _uiState.update {
+                                    it.copy(paymentStatus = PaymentStep.COMPLETED)
+                                }
+                                // Notify session manager that payment succeeded
+                                consultationSessionManager.paymentConfirmed(paymentId)
+                                return@launch
                             }
-                            // Notify session manager that payment succeeded
-                            consultationSessionManager.paymentConfirmed(paymentId)
-                            return@launch
-                        }
-                        "failed" -> {
-                            _uiState.update {
-                                it.copy(
-                                    paymentStatus = PaymentStep.FAILED,
-                                    errorMessage = payment.failureReason ?: "Payment failed",
-                                )
+                            "failed" -> {
+                                _uiState.update {
+                                    it.copy(
+                                        paymentStatus = PaymentStep.FAILED,
+                                        errorMessage = payment.failureReason ?: "Payment failed",
+                                    )
+                                }
+                                return@launch
                             }
-                            return@launch
                         }
                     }
+                    else -> { /* continue polling */ }
                 }
             }
             _uiState.update {

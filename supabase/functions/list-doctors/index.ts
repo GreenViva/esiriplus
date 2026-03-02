@@ -2,6 +2,8 @@
 // Called by patient clients after service selection.
 
 import { corsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rateLimit.ts";
+import { getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
 Deno.serve(async (req) => {
@@ -9,6 +11,9 @@ Deno.serve(async (req) => {
   if (preflight) return preflight;
 
   try {
+    const clientIp = getClientIp(req) ?? "unknown";
+    await checkRateLimit(`list-doctors:${clientIp}`, 30, 60);
+
     const { specialty } = await req.json();
 
     if (!specialty || typeof specialty !== "string") {

@@ -25,7 +25,7 @@ class VideoRepositoryImpl @Inject constructor(
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
         val apiResult = edgeFunctionClient.invokeAndDecode<VideoTokenResponse>(
-            functionName = "get-video-token",
+            functionName = "videosdk-token",
             body = body,
         )
 
@@ -33,6 +33,7 @@ class VideoRepositoryImpl @Inject constructor(
             VideoToken(
                 token = response.token,
                 roomId = response.roomId,
+                permissions = response.permissions,
             )
         }.toDomainResult()
     }

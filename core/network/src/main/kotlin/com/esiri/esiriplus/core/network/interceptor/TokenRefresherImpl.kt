@@ -6,10 +6,12 @@ import com.esiri.esiriplus.core.network.TokenManager
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
+import com.esiri.esiriplus.core.network.security.CertificatePinning
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TokenRefresherImpl @Inject constructor(
@@ -17,7 +19,11 @@ class TokenRefresherImpl @Inject constructor(
     private val moshi: Moshi,
 ) : TokenRefresher {
 
-    private val bareClient = OkHttpClient.Builder().build()
+    private val bareClient = OkHttpClient.Builder()
+        .certificatePinner(CertificatePinning.createCertificatePinner())
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
 
     companion object {
         private const val TAG = "TokenRefresher"
@@ -37,23 +43,24 @@ class TokenRefresherImpl @Inject constructor(
             .build()
 
         return try {
-            val response = bareClient.newCall(request).execute()
-            if (response.isSuccessful) {
-                val body = response.body?.string() ?: return false
-                val adapter = moshi.adapter(TokenRefreshResponse::class.java)
-                val tokenResponse = adapter.fromJson(body) ?: return false
+            bareClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val body = response.body?.string() ?: return false
+                    val adapter = moshi.adapter(TokenRefreshResponse::class.java)
+                    val tokenResponse = adapter.fromJson(body) ?: return false
 
-                val expiresAtMillis = System.currentTimeMillis() + (tokenResponse.expiresIn * 1000L)
-                tokenManager.saveTokens(
-                    accessToken = tokenResponse.accessToken,
-                    refreshToken = tokenResponse.refreshToken,
-                    expiresAtMillis = expiresAtMillis,
-                )
-                Log.d(TAG, "Token refreshed successfully, expires in ${tokenResponse.expiresIn}s")
-                true
-            } else {
-                Log.e(TAG, "Token refresh failed: HTTP ${response.code} - ${response.body?.string()}")
-                false
+                    val expiresAtMillis = System.currentTimeMillis() + (tokenResponse.expiresIn * 1000L)
+                    tokenManager.saveTokens(
+                        accessToken = tokenResponse.accessToken,
+                        refreshToken = tokenResponse.refreshToken,
+                        expiresAtMillis = expiresAtMillis,
+                    )
+                    Log.d(TAG, "Token refreshed successfully, expires in ${tokenResponse.expiresIn}s")
+                    true
+                } else {
+                    Log.e(TAG, "Token refresh failed: HTTP ${response.code} - ${response.body?.string()}")
+                    false
+                }
             }
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             Log.e(TAG, "Token refresh exception", e)

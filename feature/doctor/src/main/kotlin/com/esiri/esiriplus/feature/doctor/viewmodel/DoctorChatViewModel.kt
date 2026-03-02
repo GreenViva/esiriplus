@@ -48,6 +48,7 @@ data class DoctorChatUiState(
     val error: String? = null,
     val sendError: String? = null,
     val isUploading: Boolean = false,
+    val endError: String? = null,
 )
 
 @HiltViewModel
@@ -91,8 +92,22 @@ class DoctorChatViewModel @Inject constructor(
 
     fun endConsultation() {
         viewModelScope.launch(safeHandler) {
-            consultationSessionManager.endConsultation()
+            val result = consultationSessionManager.endConsultation()
+            if (result !is ApiResult.Success) {
+                val errorMsg = when (result) {
+                    is ApiResult.Error -> "Failed to end consultation (${result.code}): ${result.message}"
+                    is ApiResult.Unauthorized -> "Unauthorized — please log in again"
+                    is ApiResult.NetworkError -> "Network error — check your connection"
+                    else -> "Unknown error ending consultation"
+                }
+                Log.e(TAG, "endConsultation FAILED: $errorMsg")
+                _uiState.update { it.copy(endError = errorMsg) }
+            }
         }
+    }
+
+    fun dismissEndError() {
+        _uiState.update { it.copy(endError = null) }
     }
 
     private fun initChat() {

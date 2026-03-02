@@ -16,8 +16,6 @@ import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val lenientJson = Json { ignoreUnknownKeys = true }
-
 /**
  * Parse the `services` field which can be either:
  * - a JSON array: `["a","b"]`
@@ -32,7 +30,7 @@ fun parseServicesField(raw: JsonElement?): List<String> {
         // It's a JSON string containing an array — unwrap and parse
         try {
             val str = raw.jsonPrimitive.content
-            lenientJson.decodeFromString<List<String>>(str)
+            Json.decodeFromString<List<String>>(str)
         } catch (_: Exception) {
             emptyList()
         }

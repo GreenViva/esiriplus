@@ -11,7 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -40,8 +44,9 @@ private val BrandTeal = Color(0xFF2A9D8F)
 
 @Composable
 fun PatientConsultationScreen(
-    onNavigateToPayment: (String) -> Unit,
+    onNavigateToPayment: (String, Int, String) -> Unit,
     onNavigateToExtensionPayment: (String, Int, String) -> Unit,
+    onStartCall: (String, String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientConsultationViewModel = hiltViewModel(),
@@ -56,26 +61,26 @@ fun PatientConsultationScreen(
         // Swallow back press — patient must wait for doctor to end consultation
     }
 
-    // Auto-navigate back to dashboard when consultation ends
+    // Handle consultation phase transitions
     LaunchedEffect(sessionState.phase) {
-        if (sessionState.phase == ConsultationPhase.COMPLETED) {
-            onBack()
-        }
-    }
-
-    // Navigate to extension payment when patient accepts extension (grace period starts)
-    LaunchedEffect(sessionState.phase) {
-        if (sessionState.phase == ConsultationPhase.GRACE_PERIOD && sessionState.consultationId.isNotBlank()) {
-            onNavigateToExtensionPayment(
-                sessionState.consultationId,
-                sessionState.consultationFee,
-                sessionState.serviceType,
-            )
+        when (sessionState.phase) {
+            ConsultationPhase.COMPLETED -> onBack()
+            ConsultationPhase.GRACE_PERIOD -> {
+                if (sessionState.consultationId.isNotBlank()) {
+                    onNavigateToExtensionPayment(
+                        sessionState.consultationId,
+                        sessionState.consultationFee,
+                        sessionState.serviceType,
+                    )
+                }
+            }
+            else -> { /* no-op */ }
         }
     }
 
     val isInputEnabled = sessionState.phase == ConsultationPhase.ACTIVE
     var showAttachmentMenu by remember { mutableStateOf(false) }
+    var showCallTypeMenu by remember { mutableStateOf(false) }
 
     // Camera capture URI
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -138,6 +143,42 @@ fun PatientConsultationScreen(
         isInputEnabled = isInputEnabled,
         isUploading = uiState.isUploading,
         onAttachmentClick = { showAttachmentMenu = true },
+        topBarActions = {
+            Box {
+                IconButton(onClick = { showCallTypeMenu = true }) {
+                    Icon(
+                        Icons.Default.Phone,
+                        contentDescription = "Start Call",
+                        tint = BrandTeal,
+                    )
+                }
+                DropdownMenu(
+                    expanded = showCallTypeMenu,
+                    onDismissRequest = { showCallTypeMenu = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Voice Call", color = Color.Black) },
+                        onClick = {
+                            showCallTypeMenu = false
+                            onStartCall(uiState.consultationId, "AUDIO")
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Phone, contentDescription = null, tint = BrandTeal)
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Video Call", color = Color.Black) },
+                        onClick = {
+                            showCallTypeMenu = false
+                            onStartCall(uiState.consultationId, "VIDEO")
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Videocam, contentDescription = null, tint = BrandTeal)
+                        },
+                    )
+                }
+            }
+        },
         timerContent = {
             if (!sessionState.isLoading) {
                 ConsultationTimerBar(

@@ -36,6 +36,7 @@ data class UserDto(
 @Serializable
 data class RefreshTokenRequest(
     @SerialName("refresh_token") val refreshToken: String,
+    @SerialName("session_id") val sessionId: String? = null,
 )
 
 @Serializable

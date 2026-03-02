@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,7 +48,7 @@ private val BrandTeal = Color(0xFF2A9D8F)
 
 @Composable
 fun DoctorConsultationDetailScreen(
-    onStartVideoCall: (String) -> Unit,
+    onStartCall: (String, String) -> Unit,
     onWriteReport: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -74,6 +76,7 @@ fun DoctorConsultationDetailScreen(
         sessionState.phase == ConsultationPhase.AWAITING_EXTENSION
     var showEndDialog by remember { mutableStateOf(false) }
     var showAttachmentMenu by remember { mutableStateOf(false) }
+    var showCallTypeMenu by remember { mutableStateOf(false) }
 
     // Camera capture URI
     var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -140,6 +143,20 @@ fun DoctorConsultationDetailScreen(
         )
     }
 
+    // Show error dialog when ending consultation fails
+    uiState.endError?.let { errorMsg ->
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissEndError() },
+            title = { Text("Could Not End Consultation", color = Color.Black) },
+            text = { Text(errorMsg, color = Color.Black) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.dismissEndError() }) {
+                    Text("OK", color = BrandTeal)
+                }
+            },
+        )
+    }
+
     ChatContent(
         messages = uiState.messages,
         isLoading = uiState.isLoading,
@@ -158,12 +175,39 @@ fun DoctorConsultationDetailScreen(
         isUploading = uiState.isUploading,
         onAttachmentClick = { showAttachmentMenu = true },
         topBarActions = {
-            IconButton(onClick = { onStartVideoCall(uiState.consultationId) }) {
-                Icon(
-                    Icons.Default.Phone,
-                    contentDescription = "Video Call",
-                    tint = BrandTeal,
-                )
+            Box {
+                IconButton(onClick = { showCallTypeMenu = true }) {
+                    Icon(
+                        Icons.Default.Phone,
+                        contentDescription = "Start Call",
+                        tint = BrandTeal,
+                    )
+                }
+                DropdownMenu(
+                    expanded = showCallTypeMenu,
+                    onDismissRequest = { showCallTypeMenu = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Voice Call", color = Color.Black) },
+                        onClick = {
+                            showCallTypeMenu = false
+                            onStartCall(uiState.consultationId, "AUDIO")
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Phone, contentDescription = null, tint = BrandTeal)
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Video Call", color = Color.Black) },
+                        onClick = {
+                            showCallTypeMenu = false
+                            onStartCall(uiState.consultationId, "VIDEO")
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Videocam, contentDescription = null, tint = BrandTeal)
+                        },
+                    )
+                }
             }
             IconButton(onClick = { onWriteReport(uiState.consultationId) }) {
                 Icon(
