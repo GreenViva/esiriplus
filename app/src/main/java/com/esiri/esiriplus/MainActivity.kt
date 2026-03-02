@@ -1,8 +1,10 @@
 package com.esiri.esiriplus
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.WindowManager
 import androidx.activity.compose.setContent
@@ -51,6 +53,18 @@ class MainActivity : AppCompatActivity() {
         val config = Configuration(newBase.resources.configuration)
         config.setLocale(locale)
         super.attachBaseContext(newBase.createConfigurationContext(config))
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Handle bubble tap or notification tap that brings the app to foreground.
+        // The IncomingRequestViewModel (active on DoctorDashboardScreen) handles
+        // request display via its realtime subscription — just bringing the app
+        // to foreground is sufficient.
+        val action = intent.getStringExtra("action")
+        if (action == "incoming_request") {
+            Log.d("MainActivity", "Incoming request action received via onNewIntent")
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {

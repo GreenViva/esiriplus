@@ -29,20 +29,42 @@ class EsiriplusApp : Application(), Configuration.Provider {
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
+            val notificationManager = getSystemService(NotificationManager::class.java)
+
+            val mainChannel = NotificationChannel(
                 CHANNEL_ID,
                 "eSIRI+ Notifications",
                 NotificationManager.IMPORTANCE_HIGH,
             ).apply {
                 description = "General notifications from eSIRI+"
             }
+            notificationManager.createNotificationChannel(mainChannel)
 
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
+            val onlineChannel = NotificationChannel(
+                CHANNEL_DOCTOR_ONLINE,
+                "Doctor Online Status",
+                NotificationManager.IMPORTANCE_LOW,
+            ).apply {
+                description = "Persistent notification when doctor is available for consultations"
+                setShowBadge(false)
+            }
+            notificationManager.createNotificationChannel(onlineChannel)
+
+            val incomingChannel = NotificationChannel(
+                CHANNEL_INCOMING_REQUEST,
+                "Incoming Consultation Requests",
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = "Alerts when a patient sends a consultation request"
+                enableVibration(true)
+            }
+            notificationManager.createNotificationChannel(incomingChannel)
         }
     }
 
     companion object {
         const val CHANNEL_ID = "esiri_main"
+        const val CHANNEL_DOCTOR_ONLINE = "doctor_online"
+        const val CHANNEL_INCOMING_REQUEST = "doctor_incoming_request"
     }
 }

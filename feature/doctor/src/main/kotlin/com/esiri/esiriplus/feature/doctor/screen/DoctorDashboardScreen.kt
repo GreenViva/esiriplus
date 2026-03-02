@@ -1,8 +1,11 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -88,6 +91,7 @@ import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardUiState
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardViewModel
 import com.esiri.esiriplus.feature.doctor.viewmodel.EarningsTransaction
 import com.esiri.esiriplus.feature.doctor.viewmodel.IncomingRequestViewModel
+import com.esiri.esiriplus.feature.doctor.viewmodel.ServiceCommand
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val DarkText = Color.Black
@@ -144,6 +148,84 @@ fun DoctorDashboardScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    // ── Service control: start/stop DoctorOnlineService on toggle ─────────────
+    var showOverlayPermissionDialog by remember { mutableStateOf(false) }
+    var pendingServiceDoctorId by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.serviceCommand.collect { command ->
+            when (command) {
+                is ServiceCommand.Start -> {
+                    // Check overlay permission — if denied, show dialog but start service anyway
+                    if (!Settings.canDrawOverlays(context)) {
+                        pendingServiceDoctorId = command.doctorId
+                        showOverlayPermissionDialog = true
+                    }
+                    // Start service via Intent (works without overlay — graceful degradation)
+                    try {
+                        val intent = Intent().apply {
+                            setClassName(context.packageName, "com.esiri.esiriplus.service.DoctorOnlineService")
+                            action = "com.esiri.esiriplus.service.START"
+                            putExtra("doctor_id", command.doctorId)
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(intent)
+                        } else {
+                            context.startService(intent)
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.e("DoctorDashboard", "Failed to start service", e)
+                    }
+                }
+                is ServiceCommand.Stop -> {
+                    try {
+                        val intent = Intent().apply {
+                            setClassName(context.packageName, "com.esiri.esiriplus.service.DoctorOnlineService")
+                            action = "com.esiri.esiriplus.service.STOP"
+                        }
+                        context.startService(intent)
+                    } catch (e: Exception) {
+                        android.util.Log.e("DoctorDashboard", "Failed to stop service", e)
+                    }
+                }
+            }
+        }
+    }
+
+    // Overlay permission dialog
+    if (showOverlayPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showOverlayPermissionDialog = false },
+            title = { Text("Display Over Other Apps", color = DarkText, fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "To show a floating bubble when you receive consultation requests while using other apps, " +
+                        "please allow eSIRI+ to display over other apps. " +
+                        "You'll still receive notifications without this permission.",
+                    color = DarkText,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showOverlayPermissionDialog = false
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:${context.packageName}"),
+                    )
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    context.startActivity(intent)
+                }) {
+                    Text("Open Settings", color = BrandTeal, fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showOverlayPermissionDialog = false }) {
+                    Text("Not Now", color = DarkText)
+                }
+            },
+        )
     }
 
     // Navigate when doctor accepts a request and consultation is created

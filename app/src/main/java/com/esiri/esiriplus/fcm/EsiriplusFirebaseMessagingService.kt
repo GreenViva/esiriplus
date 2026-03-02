@@ -8,6 +8,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.esiri.esiriplus.EsiriplusApp
 import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
+import com.esiri.esiriplus.service.DoctorOnlineService
+import com.esiri.esiriplus.service.overlay.OverlayBubbleManager
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
 import com.esiri.esiriplus.core.domain.repository.NotificationRepository
@@ -45,6 +47,21 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
 
         val notificationId = remoteMessage.data["notification_id"]
         val type = remoteMessage.data["type"] ?: "GENERAL"
+
+        // FCM fallback for consultation requests when realtime service is dead
+        if (type.equals("CONSULTATION_REQUEST", ignoreCase = true) && DoctorOnlineService.isRunning) {
+            // Service is running with active realtime — skip FCM notification to avoid duplicates
+            Log.d(TAG, "Skipping CONSULTATION_REQUEST FCM — realtime service is active")
+            return
+        }
+
+        if (type.equals("CONSULTATION_REQUEST", ignoreCase = true) && !DoctorOnlineService.isRunning) {
+            // Realtime is dead — show high-priority notification as fallback
+            Log.d(TAG, "CONSULTATION_REQUEST FCM fallback — service not running")
+            val requestId = remoteMessage.data["request_id"] ?: notificationId ?: ""
+            showConsultationRequestFallback(requestId)
+            return
+        }
 
         if (notificationId != null) {
             // Privacy-first: fetch full content securely from Supabase
@@ -127,6 +144,39 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         super.onNewToken(token)
         Log.d(TAG, "New FCM token received")
         // Token will be pushed to Supabase by ViewModel on next app launch
+    }
+
+    private fun showConsultationRequestFallback(requestId: String) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(OverlayBubbleManager.EXTRA_ACTION, OverlayBubbleManager.ACTION_INCOMING_REQUEST)
+            putExtra(OverlayBubbleManager.EXTRA_REQUEST_ID, requestId)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            requestId.hashCode(),
+            intent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_REQUEST)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("New Consultation Request")
+            .setContentText("A patient is waiting for you")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+            .build()
+
+        try {
+            NotificationManagerCompat.from(this).notify(
+                requestId.hashCode(),
+                notification,
+            )
+        } catch (e: SecurityException) {
+            Log.w(TAG, "POST_NOTIFICATIONS permission not granted", e)
+        }
     }
 
     private fun showNotification(title: String, body: String, notificationId: String) {

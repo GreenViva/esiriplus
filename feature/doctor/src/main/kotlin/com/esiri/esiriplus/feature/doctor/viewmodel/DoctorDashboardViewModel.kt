@@ -33,8 +33,11 @@ import com.esiri.esiriplus.core.network.service.DoctorProfileService
 import com.esiri.esiriplus.core.network.service.DoctorRealtimeService
 import com.esiri.esiriplus.core.network.storage.FileUploadService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -161,6 +164,13 @@ data class DoctorDashboardUiState(
     val isLoadingAppointments: Boolean = false,
 )
 
+// ─── Service Command ────────────────────────────────────────────────────────────
+
+sealed class ServiceCommand {
+    data class Start(val doctorId: String) : ServiceCommand()
+    data object Stop : ServiceCommand()
+}
+
 // ─── ViewModel ──────────────────────────────────────────────────────────────────
 
 @HiltViewModel
@@ -190,6 +200,9 @@ class DoctorDashboardViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DoctorDashboardUiState())
     val uiState: StateFlow<DoctorDashboardUiState> = _uiState.asStateFlow()
+
+    private val _serviceCommand = MutableSharedFlow<ServiceCommand>(extraBufferCapacity = 1)
+    val serviceCommand: SharedFlow<ServiceCommand> = _serviceCommand.asSharedFlow()
 
     init {
         loadDoctorProfile()
@@ -974,6 +987,12 @@ class DoctorDashboardViewModel @Inject constructor(
                     profileAvailableForConsultations = newState,
                 )
             }
+            // Emit service command for foreground service
+            if (newState) {
+                _serviceCommand.tryEmit(ServiceCommand.Start(session.user.id))
+            } else {
+                _serviceCommand.tryEmit(ServiceCommand.Stop)
+            }
             // Sync to Supabase so patients can see the doctor's online status
             try {
                 profileService.updateAvailability(session.user.id, newState)
@@ -985,6 +1004,7 @@ class DoctorDashboardViewModel @Inject constructor(
     }
 
     fun onSignOut() {
+        _serviceCommand.tryEmit(ServiceCommand.Stop)
         viewModelScope.launch {
             logoutUseCase()
         }

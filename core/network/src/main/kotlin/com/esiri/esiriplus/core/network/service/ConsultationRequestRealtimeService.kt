@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,12 +53,15 @@ class ConsultationRequestRealtimeService @Inject constructor(
     val requestEvents: SharedFlow<RequestRealtimeEvent> = _requestEvents.asSharedFlow()
 
     private var channel: RealtimeChannel? = null
+    private val subscriberCount = AtomicInteger(0)
+    private var currentDoctorId: String? = null
 
     /**
      * Subscribe as a patient — listens for status changes on requests created by this session.
      */
     suspend fun subscribeAsPatient(patientSessionId: String, scope: CoroutineScope) {
-        subscribe(
+        // Patient subscriptions always create a fresh channel (no ref counting)
+        subscribeInternal(
             channelName = "patient-requests-$patientSessionId",
             filterColumn = "patient_session_id",
             filterValue = patientSessionId,
@@ -67,9 +71,19 @@ class ConsultationRequestRealtimeService @Inject constructor(
 
     /**
      * Subscribe as a doctor — listens for new incoming requests and status updates.
+     * Uses reference counting so both IncomingRequestViewModel and DoctorOnlineService
+     * can coexist on the same SharedFlow without fighting over the channel.
      */
     suspend fun subscribeAsDoctor(doctorId: String, scope: CoroutineScope) {
-        subscribe(
+        if (currentDoctorId == doctorId && subscriberCount.get() > 0) {
+            // Already subscribed for this doctor — just increment the reference count
+            subscriberCount.incrementAndGet()
+            Log.d(TAG, "Doctor subscription ref count incremented: ${subscriberCount.get()}")
+            return
+        }
+        subscriberCount.set(1)
+        currentDoctorId = doctorId
+        subscribeInternal(
             channelName = "doctor-requests-$doctorId",
             filterColumn = "doctor_id",
             filterValue = doctorId,
@@ -77,14 +91,18 @@ class ConsultationRequestRealtimeService @Inject constructor(
         )
     }
 
-    private suspend fun subscribe(
+    private suspend fun subscribeInternal(
         channelName: String,
         filterColumn: String,
         filterValue: String,
         scope: CoroutineScope,
     ) {
         try {
-            unsubscribe()
+            // Actually tear down any existing channel
+            channel?.let {
+                try { it.unsubscribe() } catch (_: Exception) { }
+            }
+            channel = null
 
             val ch = supabaseClientProvider.client.channel(channelName)
             channel = ch
@@ -143,12 +161,22 @@ class ConsultationRequestRealtimeService @Inject constructor(
         )
     }
 
+    /**
+     * Decrement the subscriber reference count. Only actually unsubscribes the
+     * Realtime channel when the count reaches 0.
+     */
     suspend fun unsubscribe() {
-        try {
-            channel?.unsubscribe()
-            channel = null
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to unsubscribe from request channel", e)
+        val remaining = subscriberCount.decrementAndGet()
+        Log.d(TAG, "Unsubscribe called, remaining subscribers: $remaining")
+        if (remaining <= 0) {
+            subscriberCount.set(0)
+            currentDoctorId = null
+            try {
+                channel?.unsubscribe()
+                channel = null
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to unsubscribe from request channel", e)
+            }
         }
     }
 
