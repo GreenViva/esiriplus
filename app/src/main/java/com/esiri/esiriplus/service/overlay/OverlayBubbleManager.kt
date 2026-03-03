@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -43,10 +44,17 @@ class OverlayBubbleManager @Inject constructor(
     private val badgeSizePx: Int =
         (BADGE_SIZE_DP * context.resources.displayMetrics.density).toInt()
 
+    /**
+     * Shows the floating bubble. Silently no-ops if overlay permission is not granted
+     * or if the bubble is already visible.
+     */
     fun show() {
         synchronized(lock) {
             if (bubbleView != null) return
-            if (!Settings.canDrawOverlays(context)) return
+            if (!Settings.canDrawOverlays(context)) {
+                Log.d(TAG, "show() skipped — overlay permission not granted")
+                return
+            }
 
             val container = createBubbleContainer()
             val params = createLayoutParams()
@@ -54,9 +62,25 @@ class OverlayBubbleManager @Inject constructor(
             try {
                 windowManager.addView(container, params)
                 bubbleView = container
+                Log.d(TAG, "Bubble shown successfully")
             } catch (e: Exception) {
-                // Permission may have been revoked between check and add
+                Log.e(TAG, "Failed to add bubble view", e)
                 bubbleView = null
+            }
+        }
+    }
+
+    /**
+     * Re-attempts showing the bubble. Called when the user returns from
+     * overlay permission settings — checks if permission is now granted
+     * and shows the bubble if the service is still running.
+     */
+    fun retryShowIfPermitted() {
+        synchronized(lock) {
+            if (bubbleView != null) return // already showing
+            if (Settings.canDrawOverlays(context)) {
+                Log.d(TAG, "Overlay permission now granted — showing bubble")
+                show()
             }
         }
     }
@@ -218,6 +242,7 @@ class OverlayBubbleManager @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "OverlayBubble"
         const val EXTRA_ACTION = "action"
         const val EXTRA_REQUEST_ID = "request_id"
         const val ACTION_INCOMING_REQUEST = "incoming_request"

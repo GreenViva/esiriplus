@@ -17,6 +17,7 @@ const TOKEN_EXPIRY_SECS = 60 * 60 * 2; // 2 hours
 interface VideoTokenRequest {
   consultation_id: string;
   room_id?: string; // optional: if already created
+  call_type?: string; // "VIDEO" or "VOICE"
 }
 
 /** Create a VideoSDK JWT using HS256 */
@@ -88,7 +89,7 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("consultation_id is required");
     }
 
-    const { consultation_id } = raw as VideoTokenRequest;
+    const { consultation_id, room_id: requestRoomId, call_type } = raw as VideoTokenRequest;
     const supabase = getServiceClient();
 
     // Verify the caller is a participant in this consultation
@@ -96,7 +97,7 @@ Deno.serve(async (req: Request) => {
     if (auth.role === "doctor") {
       const { data } = await supabase
         .from("consultations")
-        .select("consultation_id, status, video_room_id, patient_session_id")
+        .select("consultation_id, status, video_room_id, patient_session_id, doctor_id")
         .eq("consultation_id", consultation_id)
         .eq("doctor_id", auth.userId)
         .single();
@@ -104,7 +105,7 @@ Deno.serve(async (req: Request) => {
     } else {
       const { data } = await supabase
         .from("consultations")
-        .select("consultation_id, status, video_room_id, doctor_id")
+        .select("consultation_id, status, video_room_id, doctor_id, patient_session_id")
         .eq("consultation_id", consultation_id)
         .eq("patient_session_id", auth.sessionId)
         .single();
@@ -119,11 +120,14 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("Video calls are only available for active consultations");
     }
 
-    // Get or create a VideoSDK room
-    let roomId = consultation.video_room_id ?? raw.room_id;
+    let roomId: string;
 
-    if (!roomId) {
-      // Create a new room via VideoSDK API
+    if (requestRoomId) {
+      // Callee path: join the caller's existing room — do NOT create a new one
+      roomId = requestRoomId;
+      console.log(`[videosdk-token] Callee joining existing room: ${roomId}`);
+    } else {
+      // Caller path: create a fresh VideoSDK room
       const adminToken = await createVideoSDKToken(VIDEOSDK_API_KEY, VIDEOSDK_SECRET, ["allow_join"]);
       const roomRes = await fetch("https://api.videosdk.live/v2/rooms", {
         method: "POST",
@@ -137,19 +141,61 @@ Deno.serve(async (req: Request) => {
       const roomData = await roomRes.json();
       roomId = roomData.roomId;
 
-      // Persist room_id on the consultation
-      await supabase
-        .from("consultations")
-        .update({ video_room_id: roomId })
-        .eq("consultation_id", consultation_id);
-
-      // Also record in video_calls table
-      await supabase.from("video_calls").insert({
+      // Build notification payload BEFORE DB writes so we can send everything in parallel
+      const callerRole = auth.role ?? "patient";
+      const callTypeLabel = (call_type ?? "VIDEO") === "AUDIO" ? "Voice" : "Video";
+      const notifPayload: Record<string, unknown> = {
+        title: `Incoming ${callTypeLabel} Call`,
+        body: callerRole === "doctor" ? "Your doctor is calling" : "Your patient is calling",
+        type: "VIDEO_CALL_INCOMING",
         consultation_id,
-        room_id: roomId,
-        started_at: new Date().toISOString(),
-        status: "active",
-      });
+        data: {
+          consultation_id,
+          room_id: roomId,
+          call_type: call_type ?? "VIDEO",
+          caller_role: callerRole,
+        },
+      };
+      if (callerRole === "doctor") {
+        notifPayload.session_id = consultation.patient_session_id;
+      } else {
+        notifPayload.user_id = consultation.doctor_id;
+      }
+      const serviceKey = Deno.env.get("INTERNAL_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+
+      // Run DB writes + notification ALL in parallel for minimum latency
+      const notifTarget = callerRole === "doctor" ? consultation.patient_session_id : consultation.doctor_id;
+      console.log(`[videosdk-token] Sending call notification: role=${callerRole} target=${notifTarget} room=${roomId}`);
+
+      const [, , notifRes] = await Promise.all([
+        // 1. Persist room_id on consultation
+        supabase.from("consultations")
+          .update({ video_room_id: roomId })
+          .eq("consultation_id", consultation_id),
+        // 2. Record in video_calls table
+        supabase.from("video_calls").insert({
+          consultation_id,
+        }),
+        // 3. Send push notification to other party
+        fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${serviceKey}`,
+            "X-Service-Key": serviceKey,
+          },
+          body: JSON.stringify(notifPayload),
+        }).catch((err) => {
+          console.error("[videosdk-token] Notification fetch failed:", err);
+          return null;
+        }),
+      ]);
+
+      if (notifRes) {
+        const notifBody = await notifRes.text();
+        console.log(`[videosdk-token] Notification response: ${notifRes.status} ${notifBody}`);
+      }
     }
 
     // Assign permissions based on role

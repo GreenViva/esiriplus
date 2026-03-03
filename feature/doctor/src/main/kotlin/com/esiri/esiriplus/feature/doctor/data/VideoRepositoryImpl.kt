@@ -20,8 +20,8 @@ class VideoRepositoryImpl @Inject constructor(
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun getVideoToken(consultationId: String): Result<VideoToken> {
-        val request = VideoTokenRequest(consultationId = consultationId)
+    override suspend fun getVideoToken(consultationId: String, callType: String?, roomId: String?): Result<VideoToken> {
+        val request = VideoTokenRequest(consultationId = consultationId, callType = callType, roomId = roomId)
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
         val apiResult = edgeFunctionClient.invokeAndDecode<VideoTokenResponse>(

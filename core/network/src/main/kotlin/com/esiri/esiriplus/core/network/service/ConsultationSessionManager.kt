@@ -155,7 +155,9 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     private suspend fun onTimerReachedZero() {
-        val cid = currentConsultationId ?: return
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return
         val currentPhase = _state.value.phase
 
         when (currentPhase) {
@@ -226,7 +228,9 @@ class ConsultationSessionManager @Inject constructor(
     // ── Action methods (called from ViewModels) ──────────────────────────────
 
     suspend fun endConsultation(): ApiResult<ConsultationSyncResponse> {
-        val cid = currentConsultationId ?: return ApiResult.Error(0, "No active consultation")
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return ApiResult.Error(0, "No active consultation")
         val result = timerService.endConsultation(cid)
         if (result is ApiResult.Success) {
             timerJob?.cancel()
@@ -236,7 +240,9 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     suspend fun requestExtension(): ApiResult<ConsultationSyncResponse> {
-        val cid = currentConsultationId ?: return ApiResult.Error(0, "No active consultation")
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return ApiResult.Error(0, "No active consultation")
         val result = timerService.requestExtension(cid)
         if (result is ApiResult.Success) {
             _state.update { it.copy(extensionRequested = true) }
@@ -245,7 +251,9 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     suspend fun acceptExtension(): ApiResult<ConsultationSyncResponse> {
-        val cid = currentConsultationId ?: return ApiResult.Error(0, "No active consultation")
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return ApiResult.Error(0, "No active consultation")
         val result = timerService.acceptExtension(cid)
         if (result is ApiResult.Success) {
             val data = result.data
@@ -270,7 +278,9 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     suspend fun declineExtension(): ApiResult<ConsultationSyncResponse> {
-        val cid = currentConsultationId ?: return ApiResult.Error(0, "No active consultation")
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return ApiResult.Error(0, "No active consultation")
         val result = timerService.declineExtension(cid)
         if (result is ApiResult.Success) {
             _state.update { it.copy(patientDeclined = true) }
@@ -279,7 +289,9 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     suspend fun paymentConfirmed(paymentId: String): ApiResult<ConsultationSyncResponse> {
-        val cid = currentConsultationId ?: return ApiResult.Error(0, "No active consultation")
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return ApiResult.Error(0, "No active consultation")
         val result = timerService.paymentConfirmed(cid, paymentId)
         if (result is ApiResult.Success) {
             val data = result.data
@@ -296,7 +308,9 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     suspend fun cancelPayment(): ApiResult<ConsultationSyncResponse> {
-        val cid = currentConsultationId ?: return ApiResult.Error(0, "No active consultation")
+        val cid = currentConsultationId
+            ?: _state.value.consultationId.takeIf { it.isNotBlank() }
+            ?: return ApiResult.Error(0, "No active consultation")
         val result = timerService.cancelPayment(cid)
         if (result is ApiResult.Success) {
             timerJob?.cancel()

@@ -4,6 +4,7 @@ import com.esiri.esiriplus.core.database.dao.VideoCallDao
 import com.esiri.esiriplus.core.database.entity.VideoCallEntity
 import com.esiri.esiriplus.core.domain.model.CallQuality
 import com.esiri.esiriplus.core.domain.model.VideoCall
+import com.esiri.esiriplus.core.domain.model.VideoCallStatus
 import com.esiri.esiriplus.core.domain.repository.VideoCallRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -46,6 +47,14 @@ private fun VideoCallEntity.toDomain(): VideoCall = VideoCall(
     durationSeconds = durationSeconds,
     callQuality = CallQuality.valueOf(callQuality),
     createdAt = createdAt,
+    meetingId = meetingId,
+    initiatedBy = initiatedBy,
+    callType = callType,
+    status = try { VideoCallStatus.valueOf(status.uppercase()) } catch (_: Exception) { VideoCallStatus.INITIATED },
+    timeLimitSeconds = timeLimitSeconds,
+    timeUsedSeconds = timeUsedSeconds,
+    isTimeExpired = isTimeExpired,
+    totalRecharges = totalRecharges,
 )
 
 private fun VideoCall.toEntity(): VideoCallEntity = VideoCallEntity(
@@ -56,4 +65,12 @@ private fun VideoCall.toEntity(): VideoCallEntity = VideoCallEntity(
     durationSeconds = durationSeconds,
     callQuality = callQuality.name,
     createdAt = createdAt,
+    meetingId = meetingId,
+    initiatedBy = initiatedBy,
+    callType = callType,
+    status = status.name.lowercase(),
+    timeLimitSeconds = timeLimitSeconds,
+    timeUsedSeconds = timeUsedSeconds,
+    isTimeExpired = isTimeExpired,
+    totalRecharges = totalRecharges,
 )

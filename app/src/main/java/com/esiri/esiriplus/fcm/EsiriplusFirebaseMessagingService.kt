@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.fcm
 
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
@@ -8,6 +9,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.esiri.esiriplus.EsiriplusApp
 import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
+import com.esiri.esiriplus.call.IncomingCall
+import com.esiri.esiriplus.call.IncomingCallStateHolder
 import com.esiri.esiriplus.service.DoctorOnlineService
 import com.esiri.esiriplus.service.overlay.OverlayBubbleManager
 import com.esiri.esiriplus.core.database.dao.NotificationDao
@@ -39,6 +42,9 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var notificationRepository: NotificationRepository
 
+    @Inject
+    lateinit var incomingCallStateHolder: IncomingCallStateHolder
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -60,6 +66,26 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             Log.d(TAG, "CONSULTATION_REQUEST FCM fallback — service not running")
             val requestId = remoteMessage.data["request_id"] ?: notificationId ?: ""
             showConsultationRequestFallback(requestId)
+            return
+        }
+
+        // Incoming video/voice call — show full-screen call notification
+        if (type.equals("VIDEO_CALL_INCOMING", ignoreCase = true)) {
+            val consultationId = remoteMessage.data["consultation_id"] ?: ""
+            val roomId = remoteMessage.data["room_id"] ?: ""
+            val callType = remoteMessage.data["call_type"] ?: "VIDEO"
+            val callerRole = remoteMessage.data["caller_role"] ?: "doctor"
+            Log.d(TAG, "Incoming call: consultation=$consultationId room=$roomId type=$callType")
+
+            incomingCallStateHolder.showIncomingCall(
+                IncomingCall(
+                    consultationId = consultationId,
+                    roomId = roomId,
+                    callType = callType,
+                    callerRole = callerRole,
+                ),
+            )
+            showIncomingCallNotification(consultationId, callType, callerRole, roomId)
             return
         }
 
@@ -179,6 +205,62 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
+    private fun showIncomingCallNotification(
+        consultationId: String,
+        callType: String,
+        callerRole: String,
+        roomId: String,
+    ) {
+        val callLabel = if (callType == "AUDIO") "Voice" else "Video"
+        val callerLabel = if (callerRole == "doctor") "Your doctor" else "Your patient"
+
+        // Accept action → open MainActivity with accept_call action
+        val acceptIntent = Intent(this, MainActivity::class.java).apply {
+            action = ACTION_ACCEPT_CALL
+            putExtra(EXTRA_CONSULTATION_ID, consultationId)
+            putExtra(EXTRA_CALL_TYPE, callType)
+            putExtra(EXTRA_ROOM_ID, roomId)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val acceptPending = PendingIntent.getActivity(
+            this,
+            CALL_NOTIFICATION_ID,
+            acceptIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        // Decline action → broadcast to CallDeclineBroadcastReceiver
+        val declineIntent = Intent(this, CallDeclineBroadcastReceiver::class.java).apply {
+            action = ACTION_DECLINE_CALL
+        }
+        val declinePending = PendingIntent.getBroadcast(
+            this,
+            CALL_NOTIFICATION_ID + 1,
+            declineIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_CALL)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Incoming $callLabel Call")
+            .setContentText("$callerLabel is calling")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setOngoing(true)
+            .setAutoCancel(false)
+            .setTimeoutAfter(60_000)
+            .setFullScreenIntent(acceptPending, true)
+            .addAction(0, "Accept", acceptPending)
+            .addAction(0, "Decline", declinePending)
+            .build()
+
+        try {
+            NotificationManagerCompat.from(this).notify(CALL_NOTIFICATION_ID, notification)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "POST_NOTIFICATIONS permission not granted", e)
+        }
+    }
+
     private fun showNotification(title: String, body: String, notificationId: String) {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -229,5 +311,11 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "EsiriplusFCM"
+        const val ACTION_ACCEPT_CALL = "com.esiri.esiriplus.ACCEPT_CALL"
+        const val ACTION_DECLINE_CALL = "com.esiri.esiriplus.DECLINE_CALL"
+        const val EXTRA_CONSULTATION_ID = "consultation_id"
+        const val EXTRA_CALL_TYPE = "call_type"
+        const val EXTRA_ROOM_ID = "room_id"
+        const val CALL_NOTIFICATION_ID = 9999
     }
 }

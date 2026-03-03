@@ -80,4 +80,12 @@ interface ConsultationDao {
             "WHERE c.patientSessionId = :sessionId ORDER BY c.createdAt DESC",
     )
     fun getConsultationsWithDoctorInfo(sessionId: String): Flow<List<ConsultationWithDoctorInfo>>
+
+    @Query(
+        "SELECT c.* FROM consultations c " +
+            "LEFT JOIN doctor_ratings r ON c.consultationId = r.consultationId " +
+            "WHERE LOWER(c.status) = 'completed' AND r.ratingId IS NULL " +
+            "ORDER BY c.updatedAt DESC LIMIT 1",
+    )
+    suspend fun getUnratedCompletedConsultation(): ConsultationEntity?
 }

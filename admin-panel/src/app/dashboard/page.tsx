@@ -17,7 +17,8 @@ export default async function DashboardPage() {
     patientsRes,
     activeConsultationsRes,
     completedConsultationsRes,
-    revenueRes,
+    servicePaymentsRes,
+    earningsRes,
     pendingCredentialsRes,
   ] = await Promise.all([
     supabase.from("doctor_profiles").select("*", { count: "exact", head: true }),
@@ -44,6 +45,10 @@ export default async function DashboardPage() {
       .eq("status", "completed")
       .limit(1000),
     supabase
+      .from("doctor_earnings")
+      .select("amount")
+      .limit(1000),
+    supabase
       .from("doctor_profiles")
       .select("*", { count: "exact", head: true })
       .is("license_document_url", null),
@@ -57,7 +62,8 @@ export default async function DashboardPage() {
     patientsRes.error,
     activeConsultationsRes.error,
     completedConsultationsRes.error,
-    revenueRes.error,
+    servicePaymentsRes.error,
+    earningsRes.error,
     pendingCredentialsRes.error,
   ].filter(Boolean);
 
@@ -69,10 +75,22 @@ export default async function DashboardPage() {
   const completedConsultations = completedConsultationsRes.count ?? 0;
   const pendingCredentials = pendingCredentialsRes.count ?? 0;
 
-  const totalRevenue = (revenueRes.data ?? []).reduce(
+  // Revenue from service_access_payments (direct payment records)
+  const servicePaymentRevenue = (servicePaymentsRes.data ?? []).reduce(
     (sum, p) => sum + (p.amount ?? 0),
     0,
   );
+
+  // Revenue from doctor_earnings (doctor's 50% commission — double it for full revenue)
+  const doctorEarningsTotal = (earningsRes.data ?? []).reduce(
+    (sum, e) => sum + (e.amount ?? 0),
+    0,
+  );
+
+  // Use service payments if available, otherwise derive from doctor earnings
+  const totalRevenue = servicePaymentRevenue > 0
+    ? servicePaymentRevenue
+    : doctorEarningsTotal * 2;
 
   function formatRevenue(amount: number): string {
     if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M TZS`;

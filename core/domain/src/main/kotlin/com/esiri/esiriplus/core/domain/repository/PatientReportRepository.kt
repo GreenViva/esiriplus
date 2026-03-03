@@ -10,5 +10,8 @@ interface PatientReportRepository {
     fun getDownloadedReports(): Flow<List<PatientReport>>
     suspend fun markAsDownloaded(reportId: String, localFilePath: String)
     suspend fun saveReport(report: PatientReport)
+    suspend fun saveReports(reports: List<PatientReport>)
+    suspend fun fetchReportsFromServer(): List<PatientReport>
+    fun observeReportById(reportId: String): Flow<PatientReport?>
     suspend fun clearAll()
 }

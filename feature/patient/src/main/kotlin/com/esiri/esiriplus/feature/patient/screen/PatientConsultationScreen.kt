@@ -55,6 +55,8 @@ fun PatientConsultationScreen(
     val uiState by viewModel.uiState.collectAsState()
     val sessionState by viewModel.sessionState.collectAsState()
 
+    var showRatingSheet by remember { mutableStateOf(false) }
+
     // Block back navigation during active consultation
     val isActive = sessionState.phase != ConsultationPhase.COMPLETED
     BackHandler(enabled = isActive) {
@@ -64,7 +66,7 @@ fun PatientConsultationScreen(
     // Handle consultation phase transitions
     LaunchedEffect(sessionState.phase) {
         when (sessionState.phase) {
-            ConsultationPhase.COMPLETED -> onBack()
+            ConsultationPhase.COMPLETED -> { showRatingSheet = true }
             ConsultationPhase.GRACE_PERIOD -> {
                 if (sessionState.consultationId.isNotBlank()) {
                     onNavigateToExtensionPayment(
@@ -207,6 +209,17 @@ fun PatientConsultationScreen(
             }
         },
     )
+
+    // Rating bottom sheet
+    if (showRatingSheet) {
+        RatingBottomSheet(
+            consultationId = uiState.consultationId,
+            doctorId = uiState.doctorId,
+            patientSessionId = uiState.currentUserId,
+            onDismiss = { showRatingSheet = false; onBack() },
+            onSubmitSuccess = { showRatingSheet = false; onBack() },
+        )
+    }
 
     // Attachment popup menu
     DropdownMenu(

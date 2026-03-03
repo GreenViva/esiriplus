@@ -80,6 +80,26 @@ private data class ManageDoctorResponse(
     val action: String = "",
 )
 
+// ── Rating DTOs ──────────────────────────────────────────────────────────────
+
+@Serializable
+data class RatingDetailDto(
+    @SerialName("rating_id") val ratingId: String,
+    val rating: Int,
+    val comment: String? = null,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("is_flagged") val isFlagged: Boolean = false,
+)
+
+@Serializable
+data class RatingDistributionResponse(
+    @SerialName("doctor_id") val doctorId: String = "",
+    @SerialName("average_rating") val averageRating: Double = 0.0,
+    @SerialName("total_ratings") val totalRatings: Int = 0,
+    val distribution: Map<String, Int> = emptyMap(),
+    val ratings: List<RatingDetailDto> = emptyList(),
+)
+
 // ── UI State ─────────────────────────────────────────────────────────────────
 
 data class AdminDoctorUiState(
@@ -93,6 +113,8 @@ data class AdminDoctorUiState(
     val actionResult: ActionResult? = null,
     val error: String? = null,
     val selectedDoctorId: String? = null,
+    val ratingDetails: RatingDistributionResponse? = null,
+    val ratingsLoading: Boolean = false,
 )
 
 data class ActionResult(
@@ -150,7 +172,32 @@ class AdminDoctorViewModel @Inject constructor(
     }
 
     fun selectDoctor(doctorId: String) {
-        _uiState.update { it.copy(selectedDoctorId = doctorId) }
+        _uiState.update { it.copy(selectedDoctorId = doctorId, ratingDetails = null) }
+    }
+
+    fun loadDoctorRatings(doctorId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(ratingsLoading = true) }
+            val body = buildJsonObject {
+                put("doctor_id", doctorId)
+                put("limit", 20)
+            }
+            when (val result = edgeFunctionClient.invoke("get-doctor-ratings", body)) {
+                is ApiResult.Success -> {
+                    try {
+                        val response = json.decodeFromString<RatingDistributionResponse>(result.data)
+                        _uiState.update { it.copy(ratingsLoading = false, ratingDetails = response) }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed to parse ratings response", e)
+                        _uiState.update { it.copy(ratingsLoading = false) }
+                    }
+                }
+                else -> {
+                    Log.w(TAG, "Failed to load ratings: $result")
+                    _uiState.update { it.copy(ratingsLoading = false) }
+                }
+            }
+        }
     }
 
     fun getSelectedDoctor(): AdminDoctorRow? {

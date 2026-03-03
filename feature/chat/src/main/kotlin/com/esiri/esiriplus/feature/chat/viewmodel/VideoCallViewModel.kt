@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.feature.chat.viewmodel
 
 import android.content.Context
+import android.media.AudioManager
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -9,8 +10,11 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.CallQuality
 import com.esiri.esiriplus.core.domain.model.CallType
 import com.esiri.esiriplus.core.domain.model.VideoCall
+import com.esiri.esiriplus.core.domain.model.VideoCallStatus
+import com.esiri.esiriplus.core.domain.repository.CallRechargeRepository
 import com.esiri.esiriplus.core.domain.repository.VideoCallRepository
 import com.esiri.esiriplus.core.domain.repository.VideoRepository
+import com.esiri.esiriplus.core.domain.service.CallServiceController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -41,11 +45,22 @@ enum class CallPhase {
     ERROR,
 }
 
+enum class TimeWarning {
+    NONE,
+    LOW,      // ≤30 seconds remaining
+    CRITICAL, // ≤10 seconds remaining
+    EXPIRED,  // 0 seconds remaining
+}
+
 data class VideoCallUiState(
     val callPhase: CallPhase = CallPhase.REQUESTING_PERMISSIONS,
     val isMicEnabled: Boolean = true,
     val isCameraEnabled: Boolean = true,
+    val isSpeakerOn: Boolean = true,
     val callDurationSeconds: Int = 0,
+    val timeLimitSeconds: Int = 180,
+    val remainingSeconds: Int = 180,
+    val timeWarning: TimeWarning = TimeWarning.NONE,
     val remoteParticipantJoined: Boolean = false,
     val remoteParticipantName: String? = null,
     val error: String? = null,
@@ -58,19 +73,26 @@ class VideoCallViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val videoRepository: VideoRepository,
     private val videoCallRepository: VideoCallRepository,
+    private val callServiceController: CallServiceController,
+    private val callRechargeRepository: CallRechargeRepository,
 ) : ViewModel() {
 
     val consultationId: String = savedStateHandle["consultationId"] ?: ""
+    private val navRoomId: String = savedStateHandle["roomId"] ?: ""
     val callType: CallType = try {
         CallType.valueOf(savedStateHandle.get<String>("callType") ?: "VIDEO")
     } catch (_: IllegalArgumentException) {
         CallType.VIDEO
     }
 
+    private val audioManager = appContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val isVideoCall = callType == CallType.VIDEO
+
     private val _uiState = MutableStateFlow(
         VideoCallUiState(
             callType = callType,
-            isCameraEnabled = callType == CallType.VIDEO,
+            isCameraEnabled = isVideoCall,
+            isSpeakerOn = isVideoCall, // speaker on for video, earpiece for audio
         ),
     )
     val uiState: StateFlow<VideoCallUiState> = _uiState.asStateFlow()
@@ -79,7 +101,10 @@ class VideoCallViewModel @Inject constructor(
         private set
 
     private var timerJob: Job? = null
+    private var waitingTimeoutJob: Job? = null
     private var callStartTimeMillis: Long = 0L
+    private var meetingRoomId: String = ""
+    private var isTimeExpired: Boolean = false
 
     fun onPermissionsGranted() {
         if (_uiState.value.callPhase == CallPhase.REQUESTING_PERMISSIONS) {
@@ -106,8 +131,9 @@ class VideoCallViewModel @Inject constructor(
         }
         _uiState.update { it.copy(callPhase = CallPhase.CONNECTING) }
         viewModelScope.launch {
-            Log.d(TAG, "Fetching video token for consultation=$consultationId")
-            when (val result = videoRepository.getVideoToken(consultationId)) {
+            val roomIdParam = navRoomId.ifBlank { null }
+            Log.d(TAG, "Fetching video token for consultation=$consultationId callType=$callType roomId=$roomIdParam")
+            when (val result = videoRepository.getVideoToken(consultationId, callType.name, roomIdParam)) {
                 is Result.Success -> {
                     val token = result.data
                     Log.d(TAG, "Got video token, roomId=${token.roomId}")
@@ -129,6 +155,7 @@ class VideoCallViewModel @Inject constructor(
     }
 
     private fun initializeMeeting(token: String, roomId: String) {
+        meetingRoomId = roomId
         try {
             VideoSDK.config(token)
             @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -162,10 +189,12 @@ class VideoCallViewModel @Inject constructor(
         override fun onMeetingJoined() {
             Log.d(TAG, "Meeting joined")
             _uiState.update { it.copy(callPhase = CallPhase.WAITING_FOR_PARTICIPANT) }
+            startWaitingTimeout()
         }
 
         override fun onMeetingLeft() {
             Log.d(TAG, "Meeting left")
+            callServiceController.stopCallService()
             _uiState.update { it.copy(callPhase = CallPhase.ENDED) }
             saveCallRecord()
         }
@@ -173,6 +202,7 @@ class VideoCallViewModel @Inject constructor(
         override fun onParticipantJoined(participant: Participant) {
             if (participant.isLocal) return
             Log.d(TAG, "Remote participant joined: ${participant.displayName}")
+            waitingTimeoutJob?.cancel()
             callStartTimeMillis = System.currentTimeMillis()
             _uiState.update {
                 it.copy(
@@ -182,6 +212,10 @@ class VideoCallViewModel @Inject constructor(
                 )
             }
             participant.addEventListener(createParticipantEventListener())
+            // Start foreground service to prevent OS from killing the call
+            callServiceController.startCallService(consultationId, callType.name, isVideoCall)
+            // Set default audio routing: speaker for video, earpiece for audio
+            setAudioRouting(isVideoCall)
             startDurationTimer()
         }
 
@@ -197,6 +231,7 @@ class VideoCallViewModel @Inject constructor(
 
         override fun onError(error: JSONObject) {
             Log.e(TAG, "Meeting error: $error")
+            callServiceController.stopCallService()
             _uiState.update {
                 it.copy(
                     callPhase = CallPhase.ERROR,
@@ -232,8 +267,60 @@ class VideoCallViewModel @Inject constructor(
         meeting?.changeWebcam()
     }
 
+    fun toggleSpeaker() {
+        val newValue = !_uiState.value.isSpeakerOn
+        audioManager.isSpeakerphoneOn = newValue
+        _uiState.update { it.copy(isSpeakerOn = newValue) }
+    }
+
     fun endCall() {
         meeting?.leave()
+    }
+
+    fun addCallMinutes(minutes: Int) {
+        val additionalSeconds = minutes * 60
+        _uiState.update {
+            val newRemaining = it.remainingSeconds + additionalSeconds
+            it.copy(
+                timeLimitSeconds = it.timeLimitSeconds + additionalSeconds,
+                remainingSeconds = newRemaining,
+                timeWarning = computeTimeWarning(newRemaining),
+            )
+        }
+        Log.d(TAG, "Added $minutes minutes. New limit=${_uiState.value.timeLimitSeconds}s, remaining=${_uiState.value.remainingSeconds}s")
+    }
+
+    fun submitRecharge(minutes: Int, phoneNumber: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val success = callRechargeRepository.submitRecharge(consultationId, minutes, phoneNumber)
+            if (success) {
+                addCallMinutes(minutes)
+            }
+            onResult(success)
+        }
+    }
+
+    private fun setAudioRouting(speakerOn: Boolean) {
+        try {
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            audioManager.isSpeakerphoneOn = speakerOn
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to set audio routing", e)
+        }
+    }
+
+    private fun startWaitingTimeout() {
+        waitingTimeoutJob?.cancel()
+        waitingTimeoutJob = viewModelScope.launch {
+            delay(WAITING_TIMEOUT_MS)
+            if (_uiState.value.callPhase == CallPhase.WAITING_FOR_PARTICIPANT) {
+                Log.d(TAG, "Waiting timeout — no answer")
+                _uiState.update {
+                    it.copy(callPhase = CallPhase.ENDED, error = "No answer")
+                }
+                meeting?.leave()
+            }
+        }
     }
 
     private fun startDurationTimer() {
@@ -241,9 +328,34 @@ class VideoCallViewModel @Inject constructor(
         timerJob = viewModelScope.launch {
             while (isActive) {
                 delay(TIMER_INTERVAL_MS)
-                _uiState.update { it.copy(callDurationSeconds = it.callDurationSeconds + 1) }
+                _uiState.update { state ->
+                    val newDuration = state.callDurationSeconds + 1
+                    val newRemaining = (state.remainingSeconds - 1).coerceAtLeast(0)
+                    val warning = computeTimeWarning(newRemaining)
+                    state.copy(
+                        callDurationSeconds = newDuration,
+                        remainingSeconds = newRemaining,
+                        timeWarning = warning,
+                    )
+                }
+                // Update foreground service notification
+                callServiceController.updateCallDuration(_uiState.value.callDurationSeconds)
+
+                // Auto-end call when time expires
+                if (_uiState.value.remainingSeconds <= 0 && _uiState.value.timeWarning == TimeWarning.EXPIRED) {
+                    Log.d(TAG, "Call time expired, ending call")
+                    isTimeExpired = true
+                    endCall()
+                }
             }
         }
+    }
+
+    private fun computeTimeWarning(remainingSeconds: Int): TimeWarning = when {
+        remainingSeconds <= 0 -> TimeWarning.EXPIRED
+        remainingSeconds <= 10 -> TimeWarning.CRITICAL
+        remainingSeconds <= 30 -> TimeWarning.LOW
+        else -> TimeWarning.NONE
     }
 
     private fun saveCallRecord() {
@@ -251,8 +363,10 @@ class VideoCallViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val now = System.currentTimeMillis()
-                val duration = _uiState.value.callDurationSeconds
+                val state = _uiState.value
+                val duration = state.callDurationSeconds
                 val startedAt = if (callStartTimeMillis > 0) callStartTimeMillis else now - (duration * 1000L)
+                val timeUsed = state.timeLimitSeconds - state.remainingSeconds
                 val call = VideoCall(
                     callId = UUID.randomUUID().toString(),
                     consultationId = consultationId,
@@ -261,9 +375,17 @@ class VideoCallViewModel @Inject constructor(
                     durationSeconds = duration,
                     callQuality = CallQuality.GOOD,
                     createdAt = now,
+                    meetingId = meetingRoomId,
+                    initiatedBy = "",
+                    callType = callType.name,
+                    status = if (duration > 0) VideoCallStatus.COMPLETED else VideoCallStatus.MISSED,
+                    timeLimitSeconds = state.timeLimitSeconds,
+                    timeUsedSeconds = timeUsed,
+                    isTimeExpired = isTimeExpired,
+                    totalRecharges = 0,
                 )
                 videoCallRepository.saveVideoCall(call)
-                Log.d(TAG, "Saved call record: ${call.callId}, duration=${duration}s")
+                Log.d(TAG, "Saved call record: ${call.callId}, duration=${duration}s, timeUsed=${timeUsed}s, expired=$isTimeExpired")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save call record", e)
             }
@@ -272,6 +394,12 @@ class VideoCallViewModel @Inject constructor(
 
     override fun onCleared() {
         timerJob?.cancel()
+        waitingTimeoutJob?.cancel()
+        callServiceController.stopCallService()
+        try {
+            audioManager.mode = AudioManager.MODE_NORMAL
+            audioManager.isSpeakerphoneOn = false
+        } catch (_: Exception) { /* best effort */ }
         meeting?.leave()
         super.onCleared()
     }
@@ -279,5 +407,6 @@ class VideoCallViewModel @Inject constructor(
     companion object {
         private const val TAG = "VideoCallVM"
         private const val TIMER_INTERVAL_MS = 1000L
+        private const val WAITING_TIMEOUT_MS = 60_000L
     }
 }

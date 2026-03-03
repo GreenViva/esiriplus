@@ -113,6 +113,21 @@ fun PatientHomeScreen(
         )
     }
 
+    // Pending rating bottom sheet
+    val pendingRating = uiState.pendingRatingConsultation
+    var showPendingRating by remember(pendingRating?.consultationId) {
+        mutableStateOf(pendingRating != null)
+    }
+    if (showPendingRating && pendingRating != null) {
+        RatingBottomSheet(
+            consultationId = pendingRating.consultationId,
+            doctorId = pendingRating.doctorId,
+            patientSessionId = pendingRating.patientSessionId,
+            onDismiss = { showPendingRating = false; viewModel.dismissPendingRating() },
+            onSubmitSuccess = { showPendingRating = false; viewModel.clearPendingRating() },
+        )
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()

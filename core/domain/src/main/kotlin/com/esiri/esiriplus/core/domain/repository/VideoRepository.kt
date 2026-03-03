@@ -3,7 +3,7 @@ package com.esiri.esiriplus.core.domain.repository
 import com.esiri.esiriplus.core.common.result.Result
 
 interface VideoRepository {
-    suspend fun getVideoToken(consultationId: String): Result<VideoToken>
+    suspend fun getVideoToken(consultationId: String, callType: String? = null, roomId: String? = null): Result<VideoToken>
 }
 
 data class VideoToken(

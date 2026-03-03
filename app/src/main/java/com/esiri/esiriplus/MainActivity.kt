@@ -17,15 +17,22 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.esiri.esiriplus.call.IncomingCallOverlay
+import com.esiri.esiriplus.call.IncomingCallStateHolder
 import com.esiri.esiriplus.core.common.locale.LanguagePreferences
 import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.model.UserRole
+import com.esiri.esiriplus.fcm.EsiriplusFirebaseMessagingService
 import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
 import com.esiri.esiriplus.feature.auth.biometric.BiometricLockScreen
+import com.esiri.esiriplus.feature.doctor.navigation.DoctorVideoCallRoute
+import com.esiri.esiriplus.feature.patient.navigation.PatientVideoCallRoute
 import com.esiri.esiriplus.lifecycle.AppLifecycleObserver
 import com.esiri.esiriplus.lifecycle.BiometricLockStateHolder
 import com.esiri.esiriplus.navigation.EsiriplusNavHost
@@ -34,6 +41,7 @@ import com.esiri.esiriplus.ui.theme.EsiriplusTheme
 import com.esiri.esiriplus.viewmodel.AppInitState
 import com.esiri.esiriplus.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Locale
 import javax.inject.Inject
 
@@ -45,6 +53,10 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appLifecycleObserver: AppLifecycleObserver
     @Inject lateinit var biometricLockStateHolder: BiometricLockStateHolder
     @Inject lateinit var biometricAuthManager: BiometricAuthManager
+    @Inject lateinit var incomingCallStateHolder: IncomingCallStateHolder
+
+    private data class PendingCallNav(val consultationId: String, val callType: String, val roomId: String = "")
+    private val pendingCallNavigation = MutableStateFlow<PendingCallNav?>(null)
 
     override fun attachBaseContext(newBase: Context) {
         val languageCode = LanguagePreferences.getLanguageCode(newBase)
@@ -57,13 +69,36 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Handle bubble tap or notification tap that brings the app to foreground.
-        // The IncomingRequestViewModel (active on DoctorDashboardScreen) handles
-        // request display via its realtime subscription — just bringing the app
-        // to foreground is sufficient.
+        handleCallIntent(intent)
         val action = intent.getStringExtra("action")
         if (action == "incoming_request") {
             Log.d("MainActivity", "Incoming request action received via onNewIntent")
+        }
+    }
+
+    private fun handleCallIntent(intent: Intent?) {
+        if (intent?.action == EsiriplusFirebaseMessagingService.ACTION_ACCEPT_CALL) {
+            val consultationId = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_CONSULTATION_ID) ?: return
+            val callType = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_CALL_TYPE) ?: "VIDEO"
+            val roomId = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_ROOM_ID) ?: ""
+            Log.d("MainActivity", "Accept call: consultation=$consultationId type=$callType room=$roomId")
+            incomingCallStateHolder.dismiss()
+            NotificationManagerCompat.from(this).cancel(EsiriplusFirebaseMessagingService.CALL_NOTIFICATION_ID)
+            pendingCallNavigation.value = PendingCallNav(consultationId, callType, roomId)
+        }
+    }
+
+    private fun navigateToVideoCall(
+        navController: NavHostController,
+        consultationId: String,
+        callType: String,
+        userRole: UserRole?,
+        roomId: String = "",
+    ) {
+        when (userRole) {
+            UserRole.DOCTOR -> navController.navigate(DoctorVideoCallRoute(consultationId, callType, roomId))
+            UserRole.PATIENT -> navController.navigate(PatientVideoCallRoute(consultationId, callType, roomId))
+            else -> Log.w("MainActivity", "Cannot navigate to video call: unknown role $userRole")
         }
     }
 
@@ -82,6 +117,9 @@ class MainActivity : AppCompatActivity() {
 
         // Register process lifecycle observer for app resume lock
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
+
+        // Handle accept_call intent when app was killed (cold start)
+        handleCallIntent(intent)
 
         enableEdgeToEdge()
         setContent {
@@ -114,6 +152,23 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
+                        val incomingCall by incomingCallStateHolder.incomingCall
+                            .collectAsStateWithLifecycle()
+                        val pendingNav by pendingCallNavigation
+                            .collectAsStateWithLifecycle()
+
+                        // Handle pending call navigation (from notification accept action)
+                        // Key on both pendingNav AND authState so it re-fires when auth becomes Authenticated
+                        val currentAuth = authState.value
+                        LaunchedEffect(pendingNav, currentAuth) {
+                            val nav = pendingNav ?: return@LaunchedEffect
+                            val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
+                            if (role != null) {
+                                navigateToVideoCall(navController, nav.consultationId, nav.callType, role, nav.roomId)
+                                pendingCallNavigation.value = null
+                            }
+                        }
+
                         Box(modifier = Modifier.fillMaxSize()) {
                             EsiriplusNavHost(
                                 navController = navController,
@@ -125,7 +180,6 @@ class MainActivity : AppCompatActivity() {
                             )
 
                             // Overlay biometric lock screen for authenticated doctors
-                            val currentAuth = authState.value
                             if (isLocked && currentAuth is AuthState.Authenticated &&
                                 currentAuth.session.user.role == UserRole.DOCTOR
                             ) {
@@ -134,6 +188,26 @@ class MainActivity : AppCompatActivity() {
                                     doctorName = currentAuth.session.user.fullName,
                                     onUnlocked = { biometricLockStateHolder.unlock() },
                                     onSignOut = viewModel::onLogout,
+                                )
+                            }
+
+                            // Incoming call overlay
+                            val call = incomingCall
+                            if (call != null) {
+                                IncomingCallOverlay(
+                                    incomingCall = call,
+                                    onAccept = {
+                                        incomingCallStateHolder.dismiss()
+                                        NotificationManagerCompat.from(this@MainActivity)
+                                            .cancel(EsiriplusFirebaseMessagingService.CALL_NOTIFICATION_ID)
+                                        val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
+                                        navigateToVideoCall(navController, call.consultationId, call.callType, role, call.roomId)
+                                    },
+                                    onDecline = {
+                                        incomingCallStateHolder.dismiss()
+                                        NotificationManagerCompat.from(this@MainActivity)
+                                            .cancel(EsiriplusFirebaseMessagingService.CALL_NOTIFICATION_ID)
+                                    },
                                 )
                             }
                         }

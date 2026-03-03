@@ -15,7 +15,7 @@ export interface ConsultationRow {
   created_at: string;
   patient_sessions: {
     region: string | null;
-    age_group: string | null;
+    age: string | null;
     sex: string | null;
   } | null;
 }
@@ -42,7 +42,7 @@ export default async function HealthAnalyticsPage() {
     supabase
       .from("consultations")
       .select(
-        "consultation_id, patient_session_id, doctor_id, status, service_type, chief_complaint, consultation_type, created_at, patient_sessions(region, age_group, sex)"
+        "consultation_id, patient_session_id, doctor_id, status, service_type, chief_complaint, consultation_type, created_at, patient_sessions(region, age, sex)"
       )
       .order("created_at", { ascending: false })
       .limit(2000),

@@ -15,6 +15,7 @@ import com.esiri.esiriplus.feature.patient.screen.ExtensionPaymentScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientPaymentScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientProfileScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientVideoCallScreen
+import com.esiri.esiriplus.feature.patient.screen.ReportDetailScreen
 import com.esiri.esiriplus.feature.patient.screen.ReportsScreen
 import com.esiri.esiriplus.feature.patient.screen.ServiceLocationScreen
 import com.esiri.esiriplus.feature.patient.screen.ServicesScreen
@@ -24,7 +25,7 @@ import kotlinx.serialization.Serializable
 @Serializable object PatientHomeRoute
 @Serializable data class PatientConsultationRoute(val consultationId: String)
 @Serializable data class PatientPaymentRoute(val consultationId: String, val amount: Int = 0, val serviceType: String = "")
-@Serializable data class PatientVideoCallRoute(val consultationId: String, val callType: String = "VIDEO")
+@Serializable data class PatientVideoCallRoute(val consultationId: String, val callType: String = "VIDEO", val roomId: String = "")
 @Serializable object PatientProfileRoute
 @Serializable object ServiceLocationRoute
 @Serializable object ServicesRoute
@@ -47,6 +48,7 @@ import kotlinx.serialization.Serializable
 )
 @Serializable object ConsultationHistoryRoute
 @Serializable object ReportsRoute
+@Serializable data class ReportDetailRoute(val reportId: String)
 
 fun NavGraphBuilder.patientGraph(navController: NavController) {
     navigation<PatientGraph>(startDestination = PatientHomeRoute) {
@@ -164,7 +166,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
         composable<PatientVideoCallRoute> {
             PatientVideoCallScreen(
-                onCallEnded = { navController.popBackStack(PatientHomeRoute, false) },
+                onCallEnded = { navController.popBackStack() },
             )
         }
         composable<PatientProfileRoute> {
@@ -184,6 +186,14 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
         composable<ReportsRoute> {
             ReportsScreen(
+                onBack = { navController.popBackStack() },
+                onReportClick = { reportId ->
+                    navController.navigate(ReportDetailRoute(reportId))
+                },
+            )
+        }
+        composable<ReportDetailRoute> {
+            ReportDetailScreen(
                 onBack = { navController.popBackStack() },
             )
         }

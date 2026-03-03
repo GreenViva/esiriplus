@@ -49,6 +49,7 @@ data class ChatUiState(
     val currentUserType: String = "patient",
     val otherPartyTyping: Boolean = false,
     val consultationId: String = "",
+    val doctorId: String = "",
     val error: String? = null,
     val sendError: String? = null,
     val isUploading: Boolean = false,
@@ -143,8 +144,11 @@ class PatientConsultationViewModel @Inject constructor(
                             updatedAt = now,
                         ),
                     )
-                } else if (existing.status != "ACTIVE") {
-                    consultationDao.updateStatus(consultationId, "ACTIVE")
+                } else {
+                    _uiState.update { it.copy(doctorId = existing.doctorId) }
+                    if (existing.status != "ACTIVE") {
+                        consultationDao.updateStatus(consultationId, "ACTIVE")
+                    }
                 }
 
                 // Observe local messages reactively

@@ -17,6 +17,7 @@ import {
   Legend,
 } from "recharts";
 import type { ConsultationRow, DiagnosisRow, ReportRow } from "./page";
+import { generateHealthAnalytics, type HealthAnalyticsReport } from "./actions";
 
 /* ── Helpers ─────────────────────────────────────────── */
 
@@ -163,61 +164,6 @@ export default function HealthAnalyticsView({
       .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
   }, [diagnoses]);
 
-  /* ── AI Insights ───────────────────────────────── */
-
-  const insights = useMemo(() => {
-    const items: string[] = [];
-
-    // Top region
-    if (regionData.length > 0) {
-      items.push(
-        `The region with the highest consultation volume is "${regionData[0].name}" with ${regionData[0].count} consultations.`
-      );
-    }
-
-    // Top service
-    if (serviceData.length > 0) {
-      items.push(
-        `"${serviceData[0].name}" is the most used service category, accounting for ${serviceData[0].value} out of ${consultations.length} total consultations.`
-      );
-    }
-
-    // Gender split
-    const genderMap: Record<string, number> = {};
-    for (const c of consultations) {
-      const sex = c.patient_sessions?.sex || "unknown";
-      genderMap[sex] = (genderMap[sex] || 0) + 1;
-    }
-    const genderEntries = Object.entries(genderMap).sort((a, b) => b[1] - a[1]);
-    if (genderEntries.length > 0 && genderEntries[0][0] !== "unknown") {
-      const pct = Math.round((genderEntries[0][1] / consultations.length) * 100);
-      items.push(
-        `${pct}% of consultations are from ${genderEntries[0][0]} patients.`
-      );
-    }
-
-    // Severity
-    if (severityData.length > 0) {
-      items.push(
-        `Most common diagnosis severity is "${severityData[0].name}" (${severityData[0].value} diagnoses).`
-      );
-    }
-
-    // Report coverage
-    if (consultations.length > 0) {
-      const pct = Math.round((reports.length / consultations.length) * 100);
-      items.push(
-        `${pct}% of consultations have generated patient reports (${reports.length} reports from ${consultations.length} consultations).`
-      );
-    }
-
-    if (items.length === 0) {
-      items.push("Not enough data to generate insights yet. As consultations and diagnoses grow, patterns will appear here.");
-    }
-
-    return items;
-  }, [consultations, regionData, serviceData, severityData, reports]);
-
   /* ── Render ──────────────────────────────────────── */
 
   return (
@@ -334,7 +280,7 @@ export default function HealthAnalyticsView({
         <DiseaseTab serviceData={serviceData} severityData={severityData} diagnoses={diagnoses} />
       )}
       {activeTab === "trends" && <TrendsTab data={trendData} total={consultations.length} />}
-      {activeTab === "insights" && <InsightsTab insights={insights} />}
+      {activeTab === "insights" && <InsightsTab />}
     </div>
   );
 }
@@ -716,45 +662,216 @@ function TrendsTab({
 
 /* ── AI Insights Tab ────────────────────────────────── */
 
-function InsightsTab({ insights }: { insights: string[] }) {
+function InsightsTab() {
+  const [report, setReport] = useState<HealthAnalyticsReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await generateHealthAnalytics();
+      if (result.error) {
+        setError(result.error);
+      } else if (result.data) {
+        setReport(result.data);
+      }
+    } catch {
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial state — show generate button
+  if (!report && !loading && !error) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+            <svg className="h-5 w-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">AI Health Insights</h2>
+            <p className="text-sm text-gray-400">
+              Generate AI-powered health analytics from patient session data
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center py-12">
+          <p className="text-sm text-gray-500 mb-6 text-center max-w-md">
+            Analyze consultation data, diagnoses, and demographics across all regions using AI.
+            This uses patient location data to identify health patterns and generate public health recommendations.
+          </p>
+          <button
+            onClick={handleGenerate}
+            className="px-6 py-3 bg-teal-600 text-white font-medium rounded-xl hover:bg-teal-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+            </svg>
+            Generate AI Health Report
+          </button>
+          <p className="text-xs text-gray-400 mt-3">Typically takes 10-20 seconds</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <div className="flex flex-col items-center py-16">
+          <div className="animate-spin h-8 w-8 border-2 border-teal-600 border-t-transparent rounded-full mb-4" />
+          <p className="text-sm text-gray-700 font-medium">Analyzing health data across regions...</p>
+          <p className="text-xs text-gray-400 mt-1">This may take 10-20 seconds</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && !report) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <div className="flex flex-col items-center py-12">
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+            <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <p className="text-sm text-red-600 font-medium mb-2">Failed to generate report</p>
+          <p className="text-xs text-gray-500 mb-4">{error}</p>
+          <button
+            onClick={handleGenerate}
+            className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Report display
+  const r = report!.report;
+  const summary = report!.data_summary;
+
+  return (
+    <div className="space-y-4">
+      {/* Header with regenerate button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+            <svg className="h-5 w-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">AI Health Insights</h2>
+            <p className="text-xs text-gray-400">
+              Generated {new Date(report!.generated_at).toLocaleString()} — {summary.total_consultations} consultations, {summary.total_diagnoses} diagnoses, {summary.regions_count} regions
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+          </svg>
+          Regenerate
+        </button>
+      </div>
+
+      {/* Executive Summary */}
+      <ReportSection title="Executive Summary">
+        <p className="text-sm text-gray-700 leading-relaxed">{r.executive_summary}</p>
+      </ReportSection>
+
+      {/* Regional Hotspots */}
+      {r.regional_hotspots && r.regional_hotspots.length > 0 && (
+        <ReportSection title="Regional Hotspots">
+          <div className="space-y-3">
+            {r.regional_hotspots.map((hotspot, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <PriorityBadge priority={hotspot.priority} />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{hotspot.region}</p>
+                  <p className="text-sm text-gray-600 mt-0.5">{hotspot.concern}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ReportSection>
+      )}
+
+      {/* Disease Patterns */}
+      <ReportSection title="Disease Patterns">
+        <p className="text-sm text-gray-700 leading-relaxed">{r.disease_patterns}</p>
+      </ReportSection>
+
+      {/* Demographic Insights */}
+      <ReportSection title="Demographic Insights">
+        <p className="text-sm text-gray-700 leading-relaxed">{r.demographic_insights}</p>
+      </ReportSection>
+
+      {/* Service Utilization */}
+      <ReportSection title="Service Utilization">
+        <p className="text-sm text-gray-700 leading-relaxed">{r.service_utilization}</p>
+      </ReportSection>
+
+      {/* Recommendations */}
+      {r.recommendations && r.recommendations.length > 0 && (
+        <ReportSection title="Recommendations">
+          <div className="space-y-2">
+            {r.recommendations.map((rec, i) => (
+              <div key={i} className="flex gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-bold text-teal-700">{i + 1}</span>
+                </div>
+                <p className="text-sm text-gray-700">{rec}</p>
+              </div>
+            ))}
+          </div>
+        </ReportSection>
+      )}
+
+      {/* Data Quality Notes */}
+      <ReportSection title="Data Quality Notes">
+        <p className="text-sm text-gray-500 italic">{r.data_quality_notes}</p>
+      </ReportSection>
+    </div>
+  );
+}
+
+/* ── Report helpers ──────────────────────────────────── */
+
+function ReportSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-brand-teal/10 flex items-center justify-center">
-          <svg
-            className="h-5 w-5 text-brand-teal"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
-            />
-          </svg>
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-gray-900">Data Insights</h2>
-          <p className="text-sm text-gray-400">
-            Summary observations from your health data
-          </p>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {insights.map((insight, i) => (
-          <div
-            key={i}
-            className="flex gap-3 p-4 rounded-xl bg-gray-50 border border-gray-100"
-          >
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-teal/10 flex items-center justify-center mt-0.5">
-              <span className="text-xs font-bold text-brand-teal">{i + 1}</span>
-            </div>
-            <p className="text-sm text-gray-700 leading-relaxed">{insight}</p>
-          </div>
-        ))}
-      </div>
+      <h3 className="text-base font-bold text-gray-900 mb-3">{title}</h3>
+      {children}
     </div>
+  );
+}
+
+function PriorityBadge({ priority }: { priority: "high" | "medium" | "low" }) {
+  const styles = {
+    high: { bg: "bg-red-50", text: "text-red-700" },
+    medium: { bg: "bg-amber-50", text: "text-amber-700" },
+    low: { bg: "bg-green-50", text: "text-green-700" },
+  };
+  const s = styles[priority] ?? styles.low;
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0 ${s.bg} ${s.text}`}>
+      {priority.charAt(0).toUpperCase() + priority.slice(1)}
+    </span>
   );
 }

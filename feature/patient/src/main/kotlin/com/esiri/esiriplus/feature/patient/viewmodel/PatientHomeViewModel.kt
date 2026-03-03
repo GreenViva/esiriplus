@@ -1,11 +1,13 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
+import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +25,7 @@ data class PatientHomeUiState(
     val soundsEnabled: Boolean = true,
     val isLoading: Boolean = true,
     val activeConsultation: ConsultationEntity? = null,
+    val pendingRatingConsultation: ConsultationEntity? = null,
 )
 
 @HiltViewModel
@@ -31,16 +34,24 @@ class PatientHomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val logoutUseCase: LogoutUseCase,
     private val consultationDao: ConsultationDao,
+    private val doctorRatingRepository: DoctorRatingRepository,
 ) : ViewModel() {
 
     private val prefs = application.getSharedPreferences("patient_prefs", android.content.Context.MODE_PRIVATE)
     private val _soundsEnabled = MutableStateFlow(prefs.getBoolean(KEY_SOUNDS_ENABLED, true))
+    private val _pendingRating = MutableStateFlow<ConsultationEntity?>(null)
+
+    init {
+        checkPendingRatings()
+        syncUnsyncedRatings()
+    }
 
     val uiState: StateFlow<PatientHomeUiState> = combine(
         authRepository.currentSession,
         _soundsEnabled,
         consultationDao.getActiveConsultation(),
-    ) { session, soundsEnabled, activeConsultation ->
+        _pendingRating,
+    ) { session, soundsEnabled, activeConsultation, pendingRating ->
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -50,6 +61,7 @@ class PatientHomeViewModel @Inject constructor(
                 soundsEnabled = soundsEnabled,
                 isLoading = false,
                 activeConsultation = activeConsultation,
+                pendingRatingConsultation = pendingRating,
             )
         } else {
             PatientHomeUiState(isLoading = false)
@@ -59,6 +71,41 @@ class PatientHomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PatientHomeUiState(),
     )
+
+    fun dismissPendingRating() {
+        _pendingRating.value = null
+    }
+
+    fun clearPendingRating() {
+        _pendingRating.value = null
+    }
+
+    private fun checkPendingRatings() {
+        viewModelScope.launch {
+            try {
+                val unrated = consultationDao.getUnratedCompletedConsultation()
+                _pendingRating.value = unrated
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to check pending ratings", e)
+            }
+        }
+    }
+
+    private fun syncUnsyncedRatings() {
+        viewModelScope.launch {
+            try {
+                val unsynced = doctorRatingRepository.getUnsyncedRatings()
+                for (rating in unsynced) {
+                    val synced = doctorRatingRepository.submitRatingToServer(rating)
+                    if (synced) {
+                        doctorRatingRepository.markSynced(rating.ratingId)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to sync unsynced ratings", e)
+            }
+        }
+    }
 
     fun toggleSounds() {
         val newValue = !_soundsEnabled.value
@@ -71,6 +118,7 @@ class PatientHomeViewModel @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "PatientHomeVM"
         private const val KEY_SOUNDS_ENABLED = "sounds_enabled"
 
         /** Keeps prefix + last segment, masks the middle. e.g. "ESR-ABCDEF-P8FP" → "ESR-******-P8FP" */

@@ -12,5 +12,6 @@ fun DoctorVideoCallScreen(
     VideoCallScreen(
         onCallEnded = onCallEnded,
         modifier = modifier,
+        userType = "doctor",
     )
 }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -31,9 +32,53 @@ data class DoctorStats(
     val banned: Int = 0,
 )
 
+@Serializable
+private data class AdminStatsResponse(
+    val stats: AdminPlatformStats = AdminPlatformStats(),
+)
+
+@Serializable
+data class AdminPlatformStats(
+    val revenue: RevenueStats = RevenueStats(),
+    @SerialName("doctor_earnings") val doctorEarnings: EarningsStats = EarningsStats(),
+    val patients: PatientStats = PatientStats(),
+    val consultations: ConsultationStats = ConsultationStats(),
+)
+
+@Serializable
+data class RevenueStats(
+    val total: Long = 0,
+    @SerialName("platform_commission") val platformCommission: Long = 0,
+    val pending: Long = 0,
+    val currency: String = "TZS",
+    @SerialName("completed_payments") val completedPayments: Int = 0,
+    @SerialName("pending_payments") val pendingPayments: Int = 0,
+    @SerialName("total_payments") val totalPayments: Int = 0,
+)
+
+@Serializable
+data class EarningsStats(
+    val total: Long = 0,
+    val paid: Long = 0,
+    val unpaid: Long = 0,
+)
+
+@Serializable
+data class PatientStats(
+    val total: Int = 0,
+)
+
+@Serializable
+data class ConsultationStats(
+    val total: Int = 0,
+    val completed: Int = 0,
+)
+
 data class AdminDashboardUiState(
     val isLoading: Boolean = true,
     val stats: DoctorStats = DoctorStats(),
+    val platformStats: AdminPlatformStats = AdminPlatformStats(),
+    val platformError: String? = null,
     val error: String? = null,
 )
 
@@ -54,35 +99,67 @@ class AdminDashboardViewModel @Inject constructor(
     fun loadStats() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            when (val result = edgeFunctionClient.invoke("list-all-doctors")) {
+
+            // Fetch doctor stats and platform stats in parallel
+            val doctorsDeferred = async { edgeFunctionClient.invoke("list-all-doctors") }
+            val platformDeferred = async { edgeFunctionClient.invoke("get-admin-stats") }
+
+            val doctorsResult = doctorsDeferred.await()
+            val platformResult = platformDeferred.await()
+
+            // Parse doctor stats
+            var doctorStats = DoctorStats()
+            var error: String? = null
+            when (doctorsResult) {
                 is ApiResult.Success -> {
                     try {
-                        val response = json.decodeFromString<StatsResponse>(result.data)
-                        _uiState.update {
-                            it.copy(isLoading = false, stats = response.stats)
-                        }
+                        doctorStats = json.decodeFromString<StatsResponse>(doctorsResult.data).stats
                     } catch (e: Exception) {
-                        Log.w(TAG, "Failed to parse stats", e)
-                        _uiState.update {
-                            it.copy(isLoading = false, error = "Failed to parse stats")
-                        }
+                        Log.w(TAG, "Failed to parse doctor stats", e)
+                        error = "Failed to parse doctor stats"
+                    }
+                }
+                is ApiResult.Error -> error = doctorsResult.message
+                is ApiResult.NetworkError -> error = "Network error: ${doctorsResult.message}"
+                is ApiResult.Unauthorized -> error = "Unauthorized"
+            }
+
+            // Parse platform stats
+            var platformStats = AdminPlatformStats()
+            var platformError: String? = null
+            when (platformResult) {
+                is ApiResult.Success -> {
+                    Log.d(TAG, "Platform stats raw response: ${platformResult.data.take(500)}")
+                    try {
+                        platformStats = json.decodeFromString<AdminStatsResponse>(platformResult.data).stats
+                        Log.d(TAG, "Platform stats parsed: revenue=${platformStats.revenue.total}, consultations=${platformStats.consultations.completed}")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to parse platform stats", e)
+                        platformError = "Failed to parse revenue data"
                     }
                 }
                 is ApiResult.Error -> {
-                    _uiState.update {
-                        it.copy(isLoading = false, error = result.message)
-                    }
+                    Log.w(TAG, "Platform stats error: code=${platformResult.code}, msg=${platformResult.message}")
+                    platformError = "Revenue unavailable: ${platformResult.message}"
                 }
                 is ApiResult.NetworkError -> {
-                    _uiState.update {
-                        it.copy(isLoading = false, error = "Network error: ${result.message}")
-                    }
+                    Log.w(TAG, "Platform stats network error: ${platformResult.message}")
+                    platformError = "Revenue unavailable: network error"
                 }
                 is ApiResult.Unauthorized -> {
-                    _uiState.update {
-                        it.copy(isLoading = false, error = "Unauthorized")
-                    }
+                    Log.w(TAG, "Platform stats unauthorized")
+                    platformError = "Revenue unavailable: unauthorized"
                 }
+            }
+
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    stats = doctorStats,
+                    platformStats = platformStats,
+                    platformError = platformError,
+                    error = error,
+                )
             }
         }
     }

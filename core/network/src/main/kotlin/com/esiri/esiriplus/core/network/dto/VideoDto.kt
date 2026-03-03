@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VideoTokenRequest(
     @SerialName("consultation_id") val consultationId: String,
+    @SerialName("call_type") val callType: String? = null,
+    @SerialName("room_id") val roomId: String? = null,
 )
 
 @Serializable

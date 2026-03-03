@@ -5,6 +5,11 @@ import android.content.pm.PackageManager
 import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +32,8 @@ import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.VideocamOff
+import androidx.compose.material.icons.filled.VolumeOff
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,18 +45,24 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.domain.model.CallType
 import com.esiri.esiriplus.feature.chat.viewmodel.CallPhase
+import com.esiri.esiriplus.feature.chat.viewmodel.TimeWarning
 import com.esiri.esiriplus.feature.chat.viewmodel.VideoCallUiState
 import com.esiri.esiriplus.feature.chat.viewmodel.VideoCallViewModel
 import kotlinx.coroutines.delay
@@ -57,15 +70,19 @@ import live.videosdk.rtc.android.VideoView
 import org.webrtc.VideoTrack
 
 private val BrandTeal = Color(0xFF2A9D8F)
+private val WarningAmber = Color(0xFFF59E0B)
+private val WarningRed = Color(0xFFEF4444)
 
 @Composable
 fun VideoCallScreen(
     onCallEnded: () -> Unit,
     modifier: Modifier = Modifier,
+    userType: String = "",
     viewModel: VideoCallViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    var showRechargeModal by remember { mutableStateOf(false) }
 
     // Keep screen awake during call
     val activity = context as? android.app.Activity
@@ -140,10 +157,41 @@ fun VideoCallScreen(
                 onToggleMic = viewModel::toggleMic,
                 onToggleCamera = viewModel::toggleCamera,
                 onSwitchCamera = viewModel::switchCamera,
+                onToggleSpeaker = viewModel::toggleSpeaker,
                 onEndCall = viewModel::endCall,
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
+
+        // "Add Time" button for patients when time is running low
+        if (uiState.callPhase == CallPhase.IN_CALL &&
+            userType.equals("patient", ignoreCase = true) &&
+            uiState.timeWarning >= TimeWarning.LOW
+        ) {
+            TextButton(
+                onClick = { showRechargeModal = true },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = 48.dp, start = 16.dp)
+                    .background(BrandTeal, RoundedCornerShape(20.dp)),
+            ) {
+                Text(
+                    text = "Add Time",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
+
+    // Call recharge modal
+    if (showRechargeModal) {
+        CallRechargeModal(
+            consultationId = viewModel.consultationId,
+            onDismiss = { showRechargeModal = false },
+            onRechargeSuccess = { showRechargeModal = false },
+            onSubmitRecharge = viewModel::submitRecharge,
+        )
     }
 }
 
@@ -278,16 +326,13 @@ private fun VideoCallContent(uiState: VideoCallUiState, viewModel: VideoCallView
             }
         }
 
-        // Duration overlay
-        Text(
-            text = formatDuration(uiState.callDurationSeconds),
-            color = Color.White,
-            style = MaterialTheme.typography.bodyMedium,
+        // Countdown timer pill
+        CountdownTimerPill(
+            remainingSeconds = uiState.remainingSeconds,
+            timeWarning = uiState.timeWarning,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 48.dp)
-                .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-                .padding(horizontal = 16.dp, vertical = 6.dp),
+                .padding(top = 48.dp),
         )
     }
 }
@@ -314,11 +359,10 @@ private fun AudioCallContent(uiState: VideoCallUiState) {
             color = Color.White,
             style = MaterialTheme.typography.headlineMedium,
         )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = formatDuration(uiState.callDurationSeconds),
-            color = Color.White.copy(alpha = 0.7f),
-            style = MaterialTheme.typography.bodyLarge,
+        Spacer(Modifier.height(12.dp))
+        CountdownTimerPill(
+            remainingSeconds = uiState.remainingSeconds,
+            timeWarning = uiState.timeWarning,
         )
         Spacer(Modifier.height(4.dp))
         Text(
@@ -377,6 +421,7 @@ private fun CallControlBar(
     onToggleMic: () -> Unit,
     onToggleCamera: () -> Unit,
     onSwitchCamera: () -> Unit,
+    onToggleSpeaker: () -> Unit,
     onEndCall: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -411,6 +456,14 @@ private fun CallControlBar(
                 onClick = onSwitchCamera,
             )
         }
+
+        // Speaker toggle
+        CallControlButton(
+            icon = if (uiState.isSpeakerOn) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+            label = if (uiState.isSpeakerOn) "Speaker" else "Earpiece",
+            isActive = uiState.isSpeakerOn,
+            onClick = onToggleSpeaker,
+        )
 
         // End call
         CallControlButton(
@@ -456,6 +509,54 @@ private fun CallControlButton(
             style = MaterialTheme.typography.labelSmall,
         )
     }
+}
+
+@Composable
+private fun CountdownTimerPill(
+    remainingSeconds: Int,
+    timeWarning: TimeWarning,
+    modifier: Modifier = Modifier,
+) {
+    val backgroundColor = when (timeWarning) {
+        TimeWarning.NONE -> Color.Black.copy(alpha = 0.5f)
+        TimeWarning.LOW -> WarningAmber
+        TimeWarning.CRITICAL -> WarningRed
+        TimeWarning.EXPIRED -> WarningRed
+    }
+
+    // Pulse animation for CRITICAL warning
+    val alpha = if (timeWarning == TimeWarning.CRITICAL) {
+        val infiniteTransition = rememberInfiniteTransition(label = "timerPulse")
+        val animatedAlpha by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 0.4f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(500),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "pulseAlpha",
+        )
+        animatedAlpha
+    } else {
+        1f
+    }
+
+    val text = if (timeWarning == TimeWarning.EXPIRED) {
+        "Time Expired"
+    } else {
+        formatDuration(remainingSeconds)
+    }
+
+    Text(
+        text = text,
+        color = Color.White,
+        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = modifier
+            .alpha(alpha)
+            .background(backgroundColor, RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+    )
 }
 
 private fun formatDuration(totalSeconds: Int): String {

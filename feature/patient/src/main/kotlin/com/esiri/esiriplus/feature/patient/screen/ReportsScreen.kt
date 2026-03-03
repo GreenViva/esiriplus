@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.feature.patient.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +53,7 @@ private val SubtitleGrey = Color(0xFF1F2937)
 @Composable
 fun ReportsScreen(
     onBack: () -> Unit,
+    onReportClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ReportsViewModel = hiltViewModel(),
 ) {
@@ -132,7 +136,10 @@ fun ReportsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(uiState.reports, key = { it.reportId }) { report ->
-                            ReportItem(report)
+                            ReportItem(
+                                report = report,
+                                onClick = { onReportClick(report.reportId) },
+                            )
                         }
                     }
                 }
@@ -142,9 +149,14 @@ fun ReportsScreen(
 }
 
 @Composable
-private fun ReportItem(report: PatientReport) {
+private fun ReportItem(
+    report: PatientReport,
+    onClick: () -> Unit,
+) {
     OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(
@@ -154,39 +166,89 @@ private fun ReportItem(report: PatientReport) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                // Doctor name or consultation ID
                 Text(
-                    text = "Consultation: ${report.consultationId.take(8)}...",
+                    text = if (report.doctorName.isNotBlank()) {
+                        "Dr. ${report.doctorName}"
+                    } else {
+                        "Consultation Report"
+                    },
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
                     color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(4.dp))
+
+                // Category and severity
+                if (report.category.isNotBlank()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = report.category,
+                            fontSize = 13.sp,
+                            color = BrandTeal,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        if (report.severity.isNotBlank()) {
+                            Text(
+                                text = " · ",
+                                fontSize = 13.sp,
+                                color = SubtitleGrey,
+                            )
+                            SeverityChip(report.severity)
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                }
+
+                // Diagnosed problem preview
+                if (report.diagnosedProblem.isNotBlank()) {
+                    Text(
+                        text = report.diagnosedProblem,
+                        fontSize = 13.sp,
+                        color = SubtitleGrey,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
+
+                // Date
                 Text(
                     text = formatTimestamp(report.generatedAt),
-                    fontSize = 13.sp,
-                    color = SubtitleGrey,
+                    fontSize = 12.sp,
+                    color = Color(0xFF9CA3AF),
                 )
             }
-            DownloadStatusChip(report.isDownloaded)
+
+            Spacer(Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "View report",
+                tint = Color(0xFF9CA3AF),
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }
 
 @Composable
-private fun DownloadStatusChip(isDownloaded: Boolean) {
-    val (bgColor, textColor, label) = if (isDownloaded) {
-        Triple(Color(0xFFD1FAE5), Color(0xFF065F46), "Downloaded")
-    } else {
-        Triple(Color(0xFFFEF3C7), Color(0xFF92400E), "Pending")
+private fun SeverityChip(severity: String) {
+    val (bgColor, textColor) = when (severity.lowercase()) {
+        "severe" -> Color(0xFFFEE2E2) to Color(0xFFDC2626)
+        "moderate" -> Color(0xFFFEF3C7) to Color(0xFF92400E)
+        else -> Color(0xFFD1FAE5) to Color(0xFF065F46) // Mild
     }
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(6.dp),
         color = bgColor,
     ) {
         Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            fontSize = 12.sp,
+            text = severity,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = textColor,
         )
@@ -194,6 +256,7 @@ private fun DownloadStatusChip(isDownloaded: Boolean) {
 }
 
 private fun formatTimestamp(millis: Long): String {
+    if (millis == 0L) return ""
     val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
     return sdf.format(Date(millis))
 }

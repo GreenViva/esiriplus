@@ -756,6 +756,36 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_22_23 = object : Migration(22, 23) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `doctorName` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `consultationDate` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `diagnosedProblem` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `category` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `severity` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `presentingSymptoms` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `diagnosisAssessment` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `treatmentPlan` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `followUpInstructions` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `followUpRecommended` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `furtherNotes` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `verificationCode` TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
+    val MIGRATION_23_24 = object : Migration(23, 24) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `meetingId` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `initiatedBy` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `callType` TEXT NOT NULL DEFAULT 'VIDEO'")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `status` TEXT NOT NULL DEFAULT 'initiated'")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `timeLimitSeconds` INTEGER NOT NULL DEFAULT 180")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `timeUsedSeconds` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `isTimeExpired` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `video_calls` ADD COLUMN `totalRecharges` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -778,5 +808,7 @@ object DatabaseMigrations {
         MIGRATION_19_20,
         MIGRATION_20_21,
         MIGRATION_21_22,
+        MIGRATION_22_23,
+        MIGRATION_23_24,
     )
 }

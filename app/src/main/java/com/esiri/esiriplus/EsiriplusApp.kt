@@ -61,6 +61,28 @@ class EsiriplusApp : Application(), Configuration.Provider {
                 enableVibration(true)
             }
             notificationManager.createNotificationChannel(incomingChannel)
+
+            val callChannel = NotificationChannel(
+                CHANNEL_INCOMING_CALL,
+                "Incoming Calls",
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = "Alerts when you receive an incoming video or voice call"
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+            }
+            notificationManager.createNotificationChannel(callChannel)
+
+            val callServiceChannel = NotificationChannel(
+                CHANNEL_CALL_SERVICE,
+                "Active Call",
+                NotificationManager.IMPORTANCE_LOW,
+            ).apply {
+                description = "Persistent notification while a call is in progress"
+                setShowBadge(false)
+            }
+            notificationManager.createNotificationChannel(callServiceChannel)
         }
     }
 
@@ -68,5 +90,7 @@ class EsiriplusApp : Application(), Configuration.Provider {
         const val CHANNEL_ID = "esiri_main"
         const val CHANNEL_DOCTOR_ONLINE = "doctor_online"
         const val CHANNEL_INCOMING_REQUEST = "doctor_incoming_request"
+        const val CHANNEL_INCOMING_CALL = "esiri_incoming_call"
+        const val CHANNEL_CALL_SERVICE = "call_service"
     }
 }

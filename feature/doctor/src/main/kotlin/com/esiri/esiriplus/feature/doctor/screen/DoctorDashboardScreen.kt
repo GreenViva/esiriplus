@@ -150,6 +150,35 @@ fun DoctorDashboardScreen(
         }
     }
 
+    // ── Retry overlay bubble after user grants permission and returns ──────────
+    var sentToOverlaySettings by remember { mutableStateOf(false) }
+
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME && sentToOverlaySettings) {
+                sentToOverlaySettings = false
+                // Send RETRY_BUBBLE intent to running service
+                if (Settings.canDrawOverlays(context)) {
+                    try {
+                        val retryIntent = Intent().apply {
+                            setClassName(
+                                context.packageName,
+                                "com.esiri.esiriplus.service.DoctorOnlineService",
+                            )
+                            action = "com.esiri.esiriplus.service.RETRY_BUBBLE"
+                        }
+                        context.startService(retryIntent)
+                    } catch (e: Exception) {
+                        android.util.Log.e("DoctorDashboard", "Failed to retry bubble", e)
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     // ── Service control: start/stop DoctorOnlineService on toggle ─────────────
     var showOverlayPermissionDialog by remember { mutableStateOf(false) }
     var pendingServiceDoctorId by remember { mutableStateOf<String?>(null) }
@@ -210,6 +239,7 @@ fun DoctorDashboardScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showOverlayPermissionDialog = false
+                    sentToOverlaySettings = true
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:${context.packageName}"),

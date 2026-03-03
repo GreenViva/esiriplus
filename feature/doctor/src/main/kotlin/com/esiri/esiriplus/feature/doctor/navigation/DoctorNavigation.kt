@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 @Serializable object DoctorNotificationsRoute
 @Serializable object DoctorConsultationListRoute
 @Serializable data class DoctorConsultationDetailRoute(val consultationId: String)
-@Serializable data class DoctorVideoCallRoute(val consultationId: String, val callType: String = "VIDEO")
+@Serializable data class DoctorVideoCallRoute(val consultationId: String, val callType: String = "VIDEO", val roomId: String = "")
 @Serializable data class DoctorReportRoute(val consultationId: String)
 @Serializable object DoctorAppointmentsRoute
 @Serializable object DoctorAvailabilitySettingsRoute

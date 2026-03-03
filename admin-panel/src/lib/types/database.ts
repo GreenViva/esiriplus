@@ -31,6 +31,13 @@ export interface DoctorProfile {
   certificates_url: string | null;
   rejection_reason: string | null;
   suspended_until: string | null;
+  suspension_reason: string | null;
+  is_banned: boolean;
+  banned_at: string | null;
+  ban_reason: string | null;
+  verification_status: string | null;
+  warning_message: string | null;
+  warning_at: string | null;
 }
 
 export interface Consultation {

@@ -25,4 +25,12 @@ data class VideoCallEntity(
     val durationSeconds: Int,
     val callQuality: String,
     val createdAt: Long,
+    val meetingId: String = "",
+    val initiatedBy: String = "",
+    val callType: String = "VIDEO",
+    val status: String = "initiated",
+    val timeLimitSeconds: Int = 180,
+    val timeUsedSeconds: Int = 0,
+    val isTimeExpired: Boolean = false,
+    val totalRecharges: Int = 0,
 )

@@ -5,6 +5,10 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -46,6 +50,9 @@ class DoctorOnlineService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var tokenRefreshJob: Job? = null
     private var realtimeJob: Job? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var currentDoctorId: String? = null
+    private var reconnectAttempt = 0
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -62,6 +69,11 @@ class DoctorOnlineService : Service() {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
                 return START_NOT_STICKY
+            }
+            ACTION_RETRY_BUBBLE -> {
+                Log.d(TAG, "Received ACTION_RETRY_BUBBLE")
+                overlayBubbleManager.retryShowIfPermitted()
+                return START_STICKY
             }
             ACTION_START -> {
                 val doctorId = intent.getStringExtra(EXTRA_DOCTOR_ID)
@@ -125,10 +137,21 @@ class DoctorOnlineService : Service() {
     }
 
     private fun subscribeRealtime(doctorId: String) {
+        currentDoctorId = doctorId
+        reconnectAttempt = 0
         realtimeJob?.cancel()
         realtimeJob = serviceScope.launch {
+            subscribeWithRetry(doctorId)
+        }
+        registerNetworkCallback()
+    }
+
+    private suspend fun subscribeWithRetry(doctorId: String) {
+        while (true) {
             try {
+                Log.d(TAG, "Subscribing realtime for doctor=$doctorId (attempt=$reconnectAttempt)")
                 realtimeService.subscribeAsDoctor(doctorId, serviceScope)
+                reconnectAttempt = 0 // reset on successful subscribe
 
                 realtimeService.requestEvents.collect { event ->
                     when (event.status.uppercase()) {
@@ -144,10 +167,60 @@ class DoctorOnlineService : Service() {
                         }
                     }
                 }
+                // If collect completes normally (shouldn't for SharedFlow), reconnect
+                Log.w(TAG, "Realtime collect completed unexpectedly, reconnecting...")
             } catch (e: Exception) {
-                Log.e(TAG, "Realtime subscription error", e)
+                Log.e(TAG, "Realtime subscription error (attempt=$reconnectAttempt)", e)
+            }
+
+            // Exponential backoff: 2s, 4s, 8s, 16s, 30s max
+            reconnectAttempt++
+            val backoffMs = (INITIAL_BACKOFF_MS * (1L shl minOf(reconnectAttempt - 1, 4)))
+                .coerceAtMost(MAX_BACKOFF_MS)
+            Log.d(TAG, "Reconnecting in ${backoffMs}ms...")
+            delay(backoffMs)
+        }
+    }
+
+    private fun registerNetworkCallback() {
+        unregisterNetworkCallback()
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
+
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                Log.d(TAG, "Network available — triggering realtime reconnect")
+                val doctorId = currentDoctorId ?: return
+                // Cancel stale subscription and reconnect immediately
+                realtimeJob?.cancel()
+                reconnectAttempt = 0
+                realtimeJob = serviceScope.launch {
+                    // Small delay to let the network stabilize
+                    delay(1500)
+                    subscribeWithRetry(doctorId)
+                }
+            }
+
+            override fun onLost(network: Network) {
+                Log.w(TAG, "Network lost")
             }
         }
+        networkCallback = callback
+
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+        connectivityManager.registerNetworkCallback(request, callback)
+    }
+
+    private fun unregisterNetworkCallback() {
+        networkCallback?.let {
+            try {
+                val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                cm?.unregisterNetworkCallback(it)
+            } catch (_: Exception) { }
+        }
+        networkCallback = null
     }
 
     private fun startTokenRefresh() {
@@ -229,8 +302,10 @@ class DoctorOnlineService : Service() {
     private fun cleanup() {
         Log.d(TAG, "Cleaning up")
         isRunning = false
+        currentDoctorId = null
         tokenRefreshJob?.cancel()
         realtimeJob?.cancel()
+        unregisterNetworkCallback()
         overlayBubbleManager.hide()
         serviceScope.launch {
             try {
@@ -253,12 +328,15 @@ class DoctorOnlineService : Service() {
         private const val TAG = "DoctorOnlineService"
         const val ACTION_START = "com.esiri.esiriplus.service.START"
         const val ACTION_STOP = "com.esiri.esiriplus.service.STOP"
+        const val ACTION_RETRY_BUBBLE = "com.esiri.esiriplus.service.RETRY_BUBBLE"
         const val EXTRA_DOCTOR_ID = "doctor_id"
         const val CHANNEL_DOCTOR_ONLINE = "doctor_online"
         const val CHANNEL_INCOMING_REQUEST = "doctor_incoming_request"
         private const val NOTIFICATION_ID = 9001
         private const val INCOMING_NOTIFICATION_ID_BASE = 9100
         private const val TOKEN_REFRESH_INTERVAL_MS = 10 * 60 * 1000L // 10 minutes
+        private const val INITIAL_BACKOFF_MS = 2000L // 2 seconds
+        private const val MAX_BACKOFF_MS = 30000L    // 30 seconds max
 
         @Volatile
         var isRunning: Boolean = false
@@ -279,6 +357,14 @@ class DoctorOnlineService : Service() {
         fun stop(context: Context) {
             val intent = Intent(context, DoctorOnlineService::class.java).apply {
                 action = ACTION_STOP
+            }
+            context.startService(intent)
+        }
+
+        fun retryBubble(context: Context) {
+            if (!isRunning) return
+            val intent = Intent(context, DoctorOnlineService::class.java).apply {
+                action = ACTION_RETRY_BUBBLE
             }
             context.startService(intent)
         }

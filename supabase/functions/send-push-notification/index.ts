@@ -106,13 +106,20 @@ async function sendFCM(
         // Fallback title/body for inline display (used by admin direct pushes)
         title: notification.title,
         body: notification.body,
+        // Forward extra data fields (e.g. consultation_id, room_id, call_type)
+        ...(notification.data ?? {}),
       },
       android: {
         priority: "high",
-        notification: {
-          sound: "default",
-          channel_id: "esiri_main",
-        },
+        // For VIDEO_CALL_INCOMING: omit notification block so onMessageReceived()
+        // fires even when app is backgrounded/killed (data-only message).
+        // The Android client builds its own notification in showIncomingCallNotification().
+        ...(notification.type === "VIDEO_CALL_INCOMING" ? {} : {
+          notification: {
+            sound: "default",
+            channel_id: "esiri_main",
+          },
+        }),
       },
     },
   };
@@ -255,20 +262,28 @@ Deno.serve(async (req: Request) => {
     const targetUserId = notification.user_id ?? notification.session_id ?? null;
 
     // Insert notification record into Supabase (source of truth)
+    // Non-fatal: if this fails (e.g. enum mismatch), we still want to send FCM
     let notificationId: string | null = null;
     if (targetUserId) {
-      const { data: insertedNotif } = await supabase
-        .from("notifications")
-        .insert({
-          user_id: targetUserId,
-          title: notification.title,
-          body: notification.body,
-          type: notification.type,
-          data: JSON.stringify(notification.data ?? {}),
-        })
-        .select("notification_id")
-        .single();
-      notificationId = insertedNotif?.notification_id ?? null;
+      try {
+        const { data: insertedNotif, error: insertErr } = await supabase
+          .from("notifications")
+          .insert({
+            user_id: targetUserId,
+            title: notification.title,
+            body: notification.body,
+            type: notification.type,
+            data: JSON.stringify(notification.data ?? {}),
+          })
+          .select("notification_id")
+          .single();
+        if (insertErr) {
+          console.warn("Failed to insert notification record:", insertErr.message);
+        }
+        notificationId = insertedNotif?.notification_id ?? null;
+      } catch (e) {
+        console.warn("Notification insert error (non-fatal):", e);
+      }
     }
 
     if (fcmTokens.length === 0) {

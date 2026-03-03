@@ -35,6 +35,9 @@ interface DoctorRatingDao {
     @Delete
     suspend fun delete(rating: DoctorRatingEntity)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM doctor_ratings WHERE consultationId = :consultationId)")
+    suspend fun hasRating(consultationId: String): Boolean
+
     @Query("DELETE FROM doctor_ratings")
     suspend fun clearAll()
 }

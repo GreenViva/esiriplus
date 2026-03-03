@@ -60,9 +60,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.domain.model.DoctorStatus
 import com.esiri.esiriplus.feature.admin.viewmodel.AdminDoctorRow
 import com.esiri.esiriplus.feature.admin.viewmodel.AdminDoctorViewModel
+import com.esiri.esiriplus.feature.admin.viewmodel.AdminReportViewModel
+import com.esiri.esiriplus.feature.admin.viewmodel.RatingDistributionResponse
+import com.esiri.esiriplus.feature.admin.viewmodel.RatingDetailDto
 
 private val BrandTeal = Color(0xFF2A9D8F)
 
@@ -77,6 +81,10 @@ fun DoctorDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Report ViewModel
+    val reportViewModel: AdminReportViewModel = hiltViewModel()
+    val reportState by reportViewModel.uiState.collectAsState()
+
     // Dialog state
     var showRejectDialog by remember { mutableStateOf(false) }
     var showBanDialog by remember { mutableStateOf(false) }
@@ -87,6 +95,7 @@ fun DoctorDetailScreen(
 
     LaunchedEffect(doctorId) {
         viewModel.selectDoctor(doctorId)
+        viewModel.loadDoctorRatings(doctorId)
     }
 
     LaunchedEffect(uiState.actionResult) {
@@ -145,6 +154,31 @@ fun DoctorDetailScreen(
 
             // Status detail
             StatusDetailCard(doctor, status)
+
+            // Ratings detail
+            RatingsCard(
+                ratingDetails = uiState.ratingDetails,
+                isLoading = uiState.ratingsLoading,
+            )
+
+            // Generate Performance Report button
+            Button(
+                onClick = { reportViewModel.generatePerformanceReport(doctorId) },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1)),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !reportState.isGenerating,
+            ) {
+                if (reportState.isGenerating) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text("Generate AI Performance Report", color = Color.White, fontWeight = FontWeight.SemiBold)
+                }
+            }
 
             // Action buttons
             ActionButtons(
@@ -244,6 +278,24 @@ fun DoctorDetailScreen(
             confirmText = "Send Warning",
             confirmColor = Color(0xFFD97706),
         )
+    }
+
+    // Report dialog
+    if (reportState.showReport) {
+        ReportDialog(
+            title = reportState.reportTitle,
+            subtitle = reportState.reportSubtitle,
+            sections = reportState.sections,
+            onDismiss = { reportViewModel.dismissReport() },
+        )
+    }
+
+    // Report error snackbar
+    LaunchedEffect(reportState.error) {
+        reportState.error?.let {
+            snackbarHostState.showSnackbar(it)
+            reportViewModel.dismissError()
+        }
     }
 }
 
@@ -475,6 +527,177 @@ private fun StatusDetailCard(doctor: AdminDoctorRow, status: DoctorStatus) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RatingsCard(
+    ratingDetails: RatingDistributionResponse?,
+    isLoading: Boolean,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Patient Ratings", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Spacer(Modifier.height(12.dp))
+
+            if (isLoading) {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = BrandTeal, modifier = Modifier.size(24.dp))
+                }
+                return@Column
+            }
+
+            if (ratingDetails == null || ratingDetails.totalRatings == 0) {
+                Text("No ratings yet", color = Color(0xFF6B7280), fontSize = 14.sp)
+                return@Column
+            }
+
+            // Average + total
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    "%.1f".format(ratingDetails.averageRating),
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 36.sp,
+                )
+                Spacer(Modifier.width(8.dp))
+                Column {
+                    Row {
+                        for (i in 1..5) {
+                            Icon(
+                                Icons.Default.Star,
+                                contentDescription = null,
+                                tint = if (i <= ratingDetails.averageRating.toInt()) Color(0xFFF59E0B) else Color(0xFFE5E7EB),
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
+                    Text(
+                        "${ratingDetails.totalRatings} total ratings",
+                        color = Color(0xFF6B7280),
+                        fontSize = 12.sp,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Distribution bars (5 → 1)
+            for (star in 5 downTo 1) {
+                val count = ratingDetails.distribution["$star"] ?: 0
+                val fraction = if (ratingDetails.totalRatings > 0) count.toFloat() / ratingDetails.totalRatings else 0f
+                RatingDistributionBar(star = star, count = count, fraction = fraction)
+                if (star > 1) Spacer(Modifier.height(4.dp))
+            }
+
+            // Recent ratings list
+            if (ratingDetails.ratings.isNotEmpty()) {
+                Spacer(Modifier.height(16.dp))
+                Text("Recent Ratings", color = Color.Black, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Spacer(Modifier.height(8.dp))
+
+                ratingDetails.ratings.take(10).forEach { rating ->
+                    RatingItem(rating)
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RatingDistributionBar(star: Int, count: Int, fraction: Float) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text("$star", color = Color.Black, fontSize = 13.sp, modifier = Modifier.width(16.dp))
+        Icon(
+            Icons.Default.Star,
+            contentDescription = null,
+            tint = Color(0xFFF59E0B),
+            modifier = Modifier.size(14.dp),
+        )
+        Spacer(Modifier.width(8.dp))
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(8.dp)
+                .background(Color(0xFFE5E7EB), RoundedCornerShape(4.dp)),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fraction)
+                    .height(8.dp)
+                    .background(Color(0xFFF59E0B), RoundedCornerShape(4.dp)),
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Text("$count", color = Color(0xFF6B7280), fontSize = 12.sp, modifier = Modifier.width(28.dp))
+    }
+}
+
+@Composable
+private fun RatingItem(rating: RatingDetailDto) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FAFB)),
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row {
+                    for (i in 1..5) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = if (i <= rating.rating) Color(0xFFF59E0B) else Color(0xFFD1D5DB),
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
+                }
+                Row {
+                    if (rating.isFlagged) {
+                        Text(
+                            "FLAGGED",
+                            color = Color(0xFFDC2626),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(
+                        formatRatingDate(rating.createdAt),
+                        color = Color(0xFF9CA3AF),
+                        fontSize = 11.sp,
+                    )
+                }
+            }
+            if (!rating.comment.isNullOrBlank()) {
+                Spacer(Modifier.height(6.dp))
+                Text(rating.comment, color = Color.Black, fontSize = 13.sp)
+            }
+        }
+    }
+}
+
+private fun formatRatingDate(iso: String): String {
+    return try {
+        val instant = java.time.Instant.parse(iso)
+        val local = java.time.LocalDateTime.ofInstant(instant, java.time.ZoneId.systemDefault())
+        val formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")
+        local.format(formatter)
+    } catch (_: Exception) {
+        iso.take(10)
     }
 }
 

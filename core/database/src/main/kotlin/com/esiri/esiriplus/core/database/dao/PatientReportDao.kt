@@ -14,6 +14,9 @@ interface PatientReportDao {
     @Query("SELECT * FROM patient_reports WHERE reportId = :reportId")
     suspend fun getById(reportId: String): PatientReportEntity?
 
+    @Query("SELECT * FROM patient_reports WHERE reportId = :reportId")
+    fun observeById(reportId: String): Flow<PatientReportEntity?>
+
     @Query("SELECT * FROM patient_reports WHERE consultationId = :consultationId ORDER BY generatedAt DESC")
     fun getByConsultationId(consultationId: String): Flow<List<PatientReportEntity>>
 

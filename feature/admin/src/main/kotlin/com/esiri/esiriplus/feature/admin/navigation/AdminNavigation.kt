@@ -8,8 +8,10 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.esiri.esiriplus.feature.admin.screen.AdminDashboardScreen
 import com.esiri.esiriplus.feature.admin.screen.AdminManageUsersScreen
+import com.esiri.esiriplus.feature.admin.screen.AuditLogScreen
 import com.esiri.esiriplus.feature.admin.screen.DoctorDetailScreen
 import com.esiri.esiriplus.feature.admin.screen.DoctorManagementScreen
+import com.esiri.esiriplus.feature.admin.screen.RatingsFeedbackScreen
 import com.esiri.esiriplus.feature.admin.viewmodel.AdminDoctorViewModel
 import kotlinx.serialization.Serializable
 
@@ -18,12 +20,16 @@ import kotlinx.serialization.Serializable
 @Serializable object AdminManageUsersRoute
 @Serializable object AdminDoctorManagementRoute
 @Serializable data class AdminDoctorDetailRoute(val doctorId: String)
+@Serializable object AdminRatingsFeedbackRoute
+@Serializable object AdminAuditLogRoute
 
 fun NavGraphBuilder.adminGraph(navController: NavController) {
     navigation<AdminGraph>(startDestination = AdminDashboardRoute) {
         composable<AdminDashboardRoute> {
             AdminDashboardScreen(
                 onManageDoctors = { navController.navigate(AdminDoctorManagementRoute) },
+                onRatingsFeedback = { navController.navigate(AdminRatingsFeedbackRoute) },
+                onAuditLog = { navController.navigate(AdminAuditLogRoute) },
             )
         }
         composable<AdminManageUsersRoute> {
@@ -55,6 +61,16 @@ fun NavGraphBuilder.adminGraph(navController: NavController) {
             DoctorDetailScreen(
                 doctorId = route.doctorId,
                 viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<AdminRatingsFeedbackRoute> {
+            RatingsFeedbackScreen(
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<AdminAuditLogRoute> {
+            AuditLogScreen(
                 onBack = { navController.popBackStack() },
             )
         }
