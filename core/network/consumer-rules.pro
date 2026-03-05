@@ -6,9 +6,28 @@
 # Moshi codegen
 -keep @com.squareup.moshi.JsonClass class * { *; }
 
-# kotlinx.serialization DTOs
--keepclassmembers @kotlinx.serialization.Serializable class ** {
-    *** Companion;
+# kotlinx.serialization DTOs — keep Companion, serializer(), and generated $$serializer
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    static <1>$Companion Companion;
+}
+-if @kotlinx.serialization.Serializable class ** {
+    static **$Companion Companion;
+}
+-keepclassmembers class <2>$Companion {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-if @kotlinx.serialization.Serializable class **
+-keep class <1>$$serializer {
+    static <1>$$serializer INSTANCE;
+    *** childSerializers(...);
+    *** serialize(...);
+    *** deserialize(...);
+}
+# Keep @Serializable class fields for reflection-based serialization
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    <fields>;
 }
 
 # OkHttp

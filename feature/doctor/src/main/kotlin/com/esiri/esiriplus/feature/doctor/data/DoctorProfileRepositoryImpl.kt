@@ -12,8 +12,13 @@ import com.esiri.esiriplus.core.domain.model.DoctorCredentials
 import com.esiri.esiriplus.core.domain.model.DoctorProfile
 import com.esiri.esiriplus.core.domain.model.ServiceType
 import com.esiri.esiriplus.core.domain.repository.DoctorProfileRepository
+import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.service.DoctorProfileRow
+import com.esiri.esiriplus.core.network.service.DoctorProfileService
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,6 +27,7 @@ class DoctorProfileRepositoryImpl @Inject constructor(
     private val doctorProfileDao: DoctorProfileDao,
     private val doctorAvailabilityDao: DoctorAvailabilityDao,
     private val doctorCredentialsDao: DoctorCredentialsDao,
+    private val doctorProfileService: DoctorProfileService,
 ) : DoctorProfileRepository {
 
     @Volatile
@@ -67,10 +73,17 @@ class DoctorProfileRepositoryImpl @Inject constructor(
     // Cache management — stale-while-revalidate pattern
 
     override suspend fun refreshDoctors() {
-        // TODO: Fetch from API and insert into Room
-        // val doctors = api.getDoctors()
-        // doctorProfileDao.insertAll(doctors.map { it.toEntity() })
-        lastRefreshTimestamp = System.currentTimeMillis()
+        when (val result = doctorProfileService.getVerifiedDoctors()) {
+            is ApiResult.Success -> {
+                val entities = result.data.map { it.toEntity() }
+                doctorProfileDao.insertAll(entities)
+                lastRefreshTimestamp = System.currentTimeMillis()
+                Log.d(TAG, "Refreshed ${entities.size} doctor profiles from API")
+            }
+            else -> {
+                Log.w(TAG, "Failed to refresh doctors from API: $result")
+            }
+        }
     }
 
     override fun isCacheStale(): Boolean {
@@ -84,6 +97,7 @@ class DoctorProfileRepositoryImpl @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "DoctorProfileRepo"
         private const val CACHE_TTL_MS = 60 * 60 * 1000L // 1 hour
     }
 }
@@ -124,3 +138,39 @@ private fun DoctorCredentialsEntity.toDomain() = DoctorCredentials(
         ?: CredentialType.LICENSE,
     verifiedAt = verifiedAt,
 )
+
+private fun DoctorProfileRow.toEntity() = DoctorProfileEntity(
+    doctorId = doctorId,
+    fullName = fullName,
+    email = email,
+    phone = phone,
+    specialty = specialty,
+    specialistField = specialistField,
+    languages = languages,
+    bio = bio,
+    licenseNumber = licenseNumber,
+    yearsExperience = yearsExperience,
+    profilePhotoUrl = profilePhotoUrl,
+    averageRating = averageRating,
+    totalRatings = totalRatings,
+    isVerified = isVerified,
+    isAvailable = isAvailable,
+    services = services,
+    countryCode = countryCode,
+    country = country,
+    licenseDocumentUrl = licenseDocumentUrl,
+    certificatesUrl = certificatesUrl,
+    rejectionReason = rejectionReason,
+    isBanned = isBanned,
+    banReason = banReason,
+    createdAt = parseIsoToEpoch(createdAt),
+    updatedAt = parseIsoToEpoch(updatedAt),
+)
+
+private fun parseIsoToEpoch(iso: String): Long {
+    return try {
+        Instant.parse(iso).toEpochMilli()
+    } catch (_: Exception) {
+        System.currentTimeMillis()
+    }
+}

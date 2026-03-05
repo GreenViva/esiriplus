@@ -91,6 +91,19 @@ class DoctorProfileService @Inject constructor(
         }
     }
 
+    suspend fun getVerifiedDoctors(): ApiResult<List<DoctorProfileRow>> {
+        return safeApiCall {
+            val result = supabaseClientProvider.client.from("doctor_profiles")
+                .select {
+                    filter { eq("is_verified", true) }
+                    limit(200)
+                }
+                .decodeList<DoctorProfileRow>()
+            Log.d(TAG, "Fetched ${result.size} verified doctors")
+            result
+        }
+    }
+
     suspend fun getDoctorsBySpecialty(specialty: String): ApiResult<List<DoctorProfileRow>> {
         return safeApiCall {
             val result = supabaseClientProvider.client.from("doctor_profiles")

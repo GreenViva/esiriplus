@@ -32,10 +32,17 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const { doctor_id, device_fingerprint } = body;
 
-    if (!doctor_id || !device_fingerprint) {
-      throw new ValidationError(
-        "doctor_id and device_fingerprint are required",
-      );
+    if (typeof doctor_id !== "string" || !doctor_id.trim()) {
+      throw new ValidationError("doctor_id is required and must be a non-empty string");
+    }
+    if (typeof device_fingerprint !== "string" || !device_fingerprint.trim()) {
+      throw new ValidationError("device_fingerprint is required and must be a non-empty string");
+    }
+
+    // Basic UUID format check for doctor_id
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(doctor_id.trim())) {
+      throw new ValidationError("doctor_id must be a valid UUID");
     }
 
     const supabase = getServiceClient();

@@ -5,6 +5,7 @@ import android.util.Log
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.domain.model.ConsultationPhase
 import com.esiri.esiriplus.core.domain.model.ConsultationSessionState
+import com.esiri.esiriplus.core.network.di.ApplicationScope
 import com.esiri.esiriplus.core.network.model.ApiResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -23,22 +24,28 @@ class ConsultationSessionManager @Inject constructor(
     private val timerService: ConsultationTimerService,
     private val statusRealtimeService: ConsultationStatusRealtimeService,
     private val consultationDao: ConsultationDao,
+    @ApplicationScope private val appScope: CoroutineScope,
 ) {
     private val _state = MutableStateFlow(ConsultationSessionState())
     val state: StateFlow<ConsultationSessionState> = _state.asStateFlow()
 
+    private val lock = Any()
     private var timerJob: Job? = null
     private var realtimeJob: Job? = null
     private var scope: CoroutineScope? = null
-    private var currentConsultationId: String? = null
+    @Volatile private var currentConsultationId: String? = null
+    @Volatile private var stopped = false
 
     // Monotonic anchor: elapsedRealtime at the moment we synced
     private var anchorElapsedMs: Long = 0L
     private var anchorRemainingMs: Long = 0L
 
     fun start(consultationId: String, scope: CoroutineScope) {
-        this.scope = scope
-        this.currentConsultationId = consultationId
+        synchronized(lock) {
+            this.scope = scope
+            this.currentConsultationId = consultationId
+            this.stopped = false
+        }
 
         _state.update {
             ConsultationSessionState(
@@ -201,6 +208,7 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     private fun handleRealtimeEvent(event: ConsultationStatusEvent) {
+        if (stopped || currentConsultationId != event.consultationId) return
         val phase = mapStatusToPhase(event.status)
         val scheduledEndMs = event.scheduledEndAt?.let { parseIso(it) } ?: _state.value.scheduledEndAtEpochMs
         val gracePeriodEndMs = event.gracePeriodEndAt?.let { parseIso(it) } ?: 0L
@@ -326,12 +334,14 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     fun stop() {
-        timerJob?.cancel()
-        realtimeJob?.cancel()
-        scope?.launch {
-            statusRealtimeService.unsubscribe()
+        synchronized(lock) {
+            stopped = true
+            timerJob?.cancel()
+            realtimeJob?.cancel()
+            currentConsultationId = null
+            scope = null
         }
-        currentConsultationId = null
+        statusRealtimeService.unsubscribeSync()
         _state.value = ConsultationSessionState()
     }
 

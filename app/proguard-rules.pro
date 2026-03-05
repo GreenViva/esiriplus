@@ -48,21 +48,23 @@
 # ── kotlinx.serialization ────────────────────────────────────────────────────
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt
--keepclassmembers @kotlinx.serialization.Serializable class ** {
-    *** Companion;
-}
--keepclasseswithmembers class **$$serializer {
-    *** INSTANCE;
-}
 -if @kotlinx.serialization.Serializable class **
 -keepclassmembers class <1> {
     static <1>$Companion Companion;
+    <fields>;
 }
 -if @kotlinx.serialization.Serializable class ** {
-    static **$* *;
+    static **$Companion Companion;
 }
--keepclassmembers class <2>$<3> {
+-keepclassmembers class <2>$Companion {
     kotlinx.serialization.KSerializer serializer(...);
+}
+-if @kotlinx.serialization.Serializable class **
+-keep class <1>$$serializer {
+    static <1>$$serializer INSTANCE;
+    *** childSerializers(...);
+    *** serialize(...);
+    *** deserialize(...);
 }
 
 # ── SQLCipher ─────────────────────────────────────────────────────────────────
