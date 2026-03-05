@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotificationDao {
 
-    @Query("SELECT * FROM notifications WHERE userId = :userId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM notifications WHERE userId = :userId ORDER BY createdAt DESC LIMIT 100")
     fun getForUser(userId: String): Flow<List<NotificationEntity>>
 
-    @Query("SELECT * FROM notifications WHERE userId = :userId AND readAt IS NULL ORDER BY createdAt DESC")
+    @Query("SELECT * FROM notifications WHERE userId = :userId AND readAt IS NULL ORDER BY createdAt DESC LIMIT 100")
     fun getUnreadNotifications(userId: String): Flow<List<NotificationEntity>>
 
     @Query("SELECT COUNT(*) FROM notifications WHERE userId = :userId AND readAt IS NULL")

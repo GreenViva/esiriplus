@@ -316,6 +316,13 @@
     <string name="vm_failed_send_attachment">فشل إرسال المرفق.</string>
     <string name="vm_failed_send_attachment_retrying">فشل إرسال المرفق. جارٍ إعادة المحاولة\u2026</string>
     <string name="vm_failed_upload_file">فشل رفع الملف. يُرجى المحاولة مرة أخرى.</string>
+    <string name="vm_not_signed_in">لم يتم تسجيل الدخول</string>
+    <string name="vm_report_not_found">لم يتم العثور على التقرير</string>
+    <string name="vm_connection_lost">انقطع الاتصال \u2014 قد تتأخر الرسائل</string>
+    <string name="vm_reconnecting">جارٍ إعادة الاتصال\u2026</string>
+    <string name="vm_message_failed_retrying">فشل إرسال الرسالة. جارٍ إعادة المحاولة\u2026</string>
+    <string name="vm_network_error_retry">خطأ في الشبكة. ستتم إعادة إرسال الرسالة تلقائيًا.</string>
+    <string name="vm_file_too_large">الملف كبير جدًا. الحد الأقصى للحجم هو 10 ميغابايت.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

@@ -116,8 +116,9 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("Consultation not found or you are not a participant");
     }
 
-    if (!["active", "in_progress"].includes(consultation.status)) {
-      throw new ValidationError("Video calls are only available for active consultations");
+    const CALLABLE_STATUSES = ["active", "in_progress", "awaiting_extension", "grace_period"];
+    if (!CALLABLE_STATUSES.includes(consultation.status)) {
+      throw new ValidationError(`Video calls are only available for active consultations (current: ${consultation.status})`);
     }
 
     let roomId: string;
@@ -137,9 +138,18 @@ Deno.serve(async (req: Request) => {
         },
       });
 
-      if (!roomRes.ok) throw new Error("Failed to create VideoSDK room");
+      if (!roomRes.ok) {
+        const errBody = await roomRes.text().catch(() => "");
+        console.error(`[videosdk-token] Room creation failed: ${roomRes.status} ${errBody}`);
+        throw new Error(`Failed to create VideoSDK room (${roomRes.status})`);
+      }
       const roomData = await roomRes.json();
       roomId = roomData.roomId;
+
+      if (!roomId) {
+        console.error("[videosdk-token] Room created but no roomId returned:", roomData);
+        throw new Error("VideoSDK room creation returned no roomId");
+      }
 
       // Build notification payload BEFORE DB writes so we can send everything in parallel
       const callerRole = auth.role ?? "patient";

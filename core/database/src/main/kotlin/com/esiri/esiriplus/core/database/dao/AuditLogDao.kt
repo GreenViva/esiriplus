@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AuditLogDao {
-    @Query("SELECT * FROM audit_logs WHERE userId = :userId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM audit_logs WHERE userId = :userId ORDER BY createdAt DESC LIMIT 200")
     fun getForUser(userId: String): Flow<List<AuditLogEntity>>
 
     @Query("SELECT * FROM audit_logs ORDER BY createdAt DESC LIMIT :limit")

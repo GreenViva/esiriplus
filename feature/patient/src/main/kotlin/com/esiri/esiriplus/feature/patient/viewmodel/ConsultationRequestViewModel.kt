@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
+import com.esiri.esiriplus.feature.patient.R
 import org.json.JSONObject
 import com.esiri.esiriplus.core.network.service.RequestRealtimeEvent
 import dagger.hilt.android.lifecycle.HiltViewModel

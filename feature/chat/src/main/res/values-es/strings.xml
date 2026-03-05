@@ -90,5 +90,6 @@
     <string name="video_call_no_answer">Sin respuesta</string>
     <!-- %s = exception message -->
     <string name="video_call_error_start">Error al iniciar la llamada: %s</string>
+    <string name="video_call_error_connect_timeout">Se agot\u00F3 el tiempo de conexi\u00F3n. Verifica tu internet e int\u00E9ntalo de nuevo.</string>
 
 </resources>

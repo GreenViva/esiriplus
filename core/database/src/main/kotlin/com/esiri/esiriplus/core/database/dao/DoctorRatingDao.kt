@@ -20,7 +20,7 @@ interface DoctorRatingDao {
     @Query("SELECT * FROM doctor_ratings WHERE ratingId = :ratingId")
     suspend fun getById(ratingId: String): DoctorRatingEntity?
 
-    @Query("SELECT * FROM doctor_ratings WHERE doctorId = :doctorId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM doctor_ratings WHERE doctorId = :doctorId ORDER BY createdAt DESC LIMIT 200")
     fun getByDoctorId(doctorId: String): Flow<List<DoctorRatingEntity>>
 
     @Query("SELECT COALESCE(AVG(CAST(rating AS REAL)), 0.0) FROM doctor_ratings WHERE doctorId = :doctorId")

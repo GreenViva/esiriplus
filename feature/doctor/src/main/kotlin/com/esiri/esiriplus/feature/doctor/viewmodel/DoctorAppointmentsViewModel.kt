@@ -229,7 +229,24 @@ class DoctorAppointmentsViewModel @Inject constructor(
                         )
                     }
                 }
-                else -> { /* no-op */ }
+                is ApiResult.Unauthorized -> {
+                    Log.w(TAG, "Unauthorized when starting session")
+                    _uiState.update {
+                        it.copy(
+                            isStartingSession = null,
+                            errorMessage = "Session expired. Please log in again.",
+                        )
+                    }
+                }
+                is ApiResult.NetworkError -> {
+                    Log.w(TAG, "Network error starting session", result.exception)
+                    _uiState.update {
+                        it.copy(
+                            isStartingSession = null,
+                            errorMessage = "Network error. Please check your connection.",
+                        )
+                    }
+                }
             }
         }
     }

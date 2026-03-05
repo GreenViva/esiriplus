@@ -316,6 +316,13 @@
     <string name="vm_failed_send_attachment">Échec de l\'envoi de la pièce jointe.</string>
     <string name="vm_failed_send_attachment_retrying">Échec de l\'envoi de la pièce jointe. Nouvelle tentative\u2026</string>
     <string name="vm_failed_upload_file">Échec du téléversement du fichier. Veuillez réessayer.</string>
+    <string name="vm_not_signed_in">Non connecté</string>
+    <string name="vm_report_not_found">Rapport introuvable</string>
+    <string name="vm_connection_lost">Connexion perdue \u2014 les messages peuvent être retardés</string>
+    <string name="vm_reconnecting">Reconnexion\u2026</string>
+    <string name="vm_message_failed_retrying">Échec de l\'envoi du message. Nouvelle tentative\u2026</string>
+    <string name="vm_network_error_retry">Erreur réseau. Le message sera renvoyé automatiquement.</string>
+    <string name="vm_file_too_large">Fichier trop volumineux. La taille maximale est de 10 Mo.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

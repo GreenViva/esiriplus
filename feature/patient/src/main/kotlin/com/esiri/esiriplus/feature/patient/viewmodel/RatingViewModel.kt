@@ -1,10 +1,12 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.model.DoctorRating
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,10 +28,9 @@ data class RatingUiState(
     val patientSessionId: String = "",
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class RatingViewModel @Inject constructor(
+    private val application: Application,
     private val ratingRepository: DoctorRatingRepository,
 ) : ViewModel() {
 
@@ -66,11 +67,11 @@ class RatingViewModel @Inject constructor(
 
         // Validate (reset isSubmitting if validation fails)
         if (state.stars < 1) {
-            _uiState.update { it.copy(isSubmitting = false, error = "Please select a rating") }
+            _uiState.update { it.copy(isSubmitting = false, error = application.getString(R.string.vm_select_rating)) }
             return
         }
         if (state.stars <= 3 && state.comment.isBlank()) {
-            _uiState.update { it.copy(isSubmitting = false, commentError = "Please tell us what could be improved") }
+            _uiState.update { it.copy(isSubmitting = false, commentError = application.getString(R.string.vm_comment_required)) }
             return
         }
 
@@ -108,13 +109,13 @@ class RatingViewModel @Inject constructor(
                     Log.d(TAG, "Rating submitted: stars=${state.stars}, synced=$synced, savedLocally=$savedLocally")
                 } else {
                     _uiState.update {
-                        it.copy(isSubmitting = false, error = "Failed to submit rating. Please try again.")
+                        it.copy(isSubmitting = false, error = application.getString(R.string.vm_failed_submit_rating))
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to submit rating", e)
                 _uiState.update {
-                    it.copy(isSubmitting = false, error = "Failed to submit rating. Please try again.")
+                    it.copy(isSubmitting = false, error = application.getString(R.string.vm_failed_submit_rating))
                 }
             }
         }

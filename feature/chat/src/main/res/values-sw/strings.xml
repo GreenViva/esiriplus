@@ -90,5 +90,6 @@
     <string name="video_call_no_answer">Hakuna jibu</string>
     <!-- %s = ujumbe wa hitilafu -->
     <string name="video_call_error_start">Imeshindwa kuanza simu: %s</string>
+    <string name="video_call_error_connect_timeout">Muunganisho umechukua muda mrefu. Tafadhali angalia mtandao wako na ujaribu tena.</string>
 
 </resources>

@@ -1,11 +1,13 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.model.PatientReport
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,10 +25,9 @@ data class ReportsUiState(
     val error: String? = null,
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class ReportsViewModel @Inject constructor(
+    private val application: Application,
     private val patientReportRepository: PatientReportRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
@@ -42,7 +43,7 @@ class ReportsViewModel @Inject constructor(
         viewModelScope.launch {
             val session = authRepository.currentSession.firstOrNull()
             if (session == null) {
-                _uiState.update { it.copy(isLoading = false, error = "Not signed in") }
+                _uiState.update { it.copy(isLoading = false, error = application.getString(R.string.vm_not_signed_in)) }
                 return@launch
             }
 
@@ -61,7 +62,7 @@ class ReportsViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.w(TAG, "Server fetch failed: ${e.message}")
                 _uiState.update {
-                    it.copy(isLoading = false, error = "Failed to load reports")
+                    it.copy(isLoading = false, error = application.getString(R.string.vm_failed_load_reports))
                 }
             }
         }

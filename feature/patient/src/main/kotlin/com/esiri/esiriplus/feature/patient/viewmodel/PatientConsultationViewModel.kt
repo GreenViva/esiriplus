@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -22,6 +23,7 @@ import com.esiri.esiriplus.core.network.service.ConsultationSessionManager
 import com.esiri.esiriplus.core.network.service.MessageQueue
 import com.esiri.esiriplus.core.network.service.MessageService
 import com.esiri.esiriplus.core.network.service.RealtimeConnectionState
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
@@ -55,10 +57,9 @@ data class ChatUiState(
     val isUploading: Boolean = false,
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientConsultationViewModel @Inject constructor(
+    private val application: Application,
     savedStateHandle: SavedStateHandle,
     private val messageRepository: MessageRepository,
     private val messageService: MessageService,
@@ -243,8 +244,8 @@ class PatientConsultationViewModel @Inject constructor(
         }
         // 5.4: Show/hide connection error banner
         val errorMsg = when (state) {
-            RealtimeConnectionState.DISCONNECTED -> "Connection lost \u2014 messages may be delayed"
-            RealtimeConnectionState.CONNECTING -> "Reconnecting\u2026"
+            RealtimeConnectionState.DISCONNECTED -> application.getString(R.string.vm_connection_lost)
+            RealtimeConnectionState.CONNECTING -> application.getString(R.string.vm_reconnecting)
             RealtimeConnectionState.CONNECTED -> null
         }
         _uiState.update { it.copy(error = errorMsg) }
@@ -308,7 +309,7 @@ class PatientConsultationViewModel @Inject constructor(
         // Guard: cannot send without a valid user identity
         if (state.currentUserId.isBlank()) {
             Log.e(TAG, "sendMessage BLOCKED: currentUserId is blank (initChat may not have completed)")
-            _uiState.update { it.copy(sendError = "Session not ready. Please wait a moment and try again.") }
+            _uiState.update { it.copy(sendError = application.getString(R.string.vm_session_not_ready)) }
             return
         }
 
@@ -347,18 +348,18 @@ class PatientConsultationViewModel @Inject constructor(
                 }
                 is ApiResult.Error -> {
                     Log.e(TAG, "Failed to send message $messageId: code=${result.code}, msg=${result.message}")
-                    _uiState.update { it.copy(sendError = "Message failed to send. Retrying...") }
+                    _uiState.update { it.copy(sendError = application.getString(R.string.vm_message_failed_retrying)) }
                     messageQueue.processUnsynced()
                     delay(3000)
                     _uiState.update { it.copy(sendError = null) }
                 }
                 is ApiResult.Unauthorized -> {
                     Log.e(TAG, "Failed to send message $messageId: UNAUTHORIZED")
-                    _uiState.update { it.copy(sendError = "Session expired. Please re-open this consultation.") }
+                    _uiState.update { it.copy(sendError = application.getString(R.string.vm_session_expired_reopen)) }
                 }
                 is ApiResult.NetworkError -> {
                     Log.e(TAG, "Failed to send message $messageId: NETWORK", result.exception)
-                    _uiState.update { it.copy(sendError = "Network error. Message will retry automatically.") }
+                    _uiState.update { it.copy(sendError = application.getString(R.string.vm_network_error_retry)) }
                     messageQueue.processUnsynced()
                     delay(3000)
                     _uiState.update { it.copy(sendError = null) }
@@ -385,7 +386,7 @@ class PatientConsultationViewModel @Inject constructor(
 
                 if (bytes.size > 10 * 1024 * 1024) {
                     _uiState.update {
-                        it.copy(isUploading = false, sendError = "File too large. Maximum size is 10MB.")
+                        it.copy(isUploading = false, sendError = application.getString(R.string.vm_file_too_large))
                     }
                     delay(3000)
                     _uiState.update { it.copy(sendError = null) }
@@ -438,7 +439,7 @@ class PatientConsultationViewModel @Inject constructor(
                             }
                             else -> {
                                 Log.e(TAG, "Failed to send attachment message: $sendResult")
-                                _uiState.update { it.copy(sendError = "Failed to send attachment. Retrying...") }
+                                _uiState.update { it.copy(sendError = application.getString(R.string.vm_failed_send_attachment_retrying)) }
                                 messageQueue.processUnsynced()
                                 delay(3000)
                                 _uiState.update { it.copy(sendError = null) }
@@ -447,14 +448,14 @@ class PatientConsultationViewModel @Inject constructor(
                     }
                     else -> {
                         Log.e(TAG, "Failed to upload file: $uploadResult")
-                        _uiState.update { it.copy(sendError = "Failed to upload file. Please try again.") }
+                        _uiState.update { it.copy(sendError = application.getString(R.string.vm_failed_upload_file)) }
                         delay(3000)
                         _uiState.update { it.copy(sendError = null) }
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "sendAttachment failed", e)
-                _uiState.update { it.copy(sendError = "Failed to send attachment.") }
+                _uiState.update { it.copy(sendError = application.getString(R.string.vm_failed_send_attachment)) }
                 delay(3000)
                 _uiState.update { it.copy(sendError = null) }
             } finally {

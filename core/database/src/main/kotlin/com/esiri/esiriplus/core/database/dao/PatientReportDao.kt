@@ -20,10 +20,10 @@ interface PatientReportDao {
     @Query("SELECT * FROM patient_reports WHERE consultationId = :consultationId ORDER BY generatedAt DESC")
     fun getByConsultationId(consultationId: String): Flow<List<PatientReportEntity>>
 
-    @Query("SELECT * FROM patient_reports WHERE patientSessionId = :patientSessionId ORDER BY generatedAt DESC")
+    @Query("SELECT * FROM patient_reports WHERE patientSessionId = :patientSessionId ORDER BY generatedAt DESC LIMIT 200")
     fun getByPatientSessionId(patientSessionId: String): Flow<List<PatientReportEntity>>
 
-    @Query("SELECT * FROM patient_reports WHERE isDownloaded = 1 ORDER BY downloadedAt DESC")
+    @Query("SELECT * FROM patient_reports WHERE isDownloaded = 1 ORDER BY downloadedAt DESC LIMIT 200")
     fun getDownloadedReports(): Flow<List<PatientReportEntity>>
 
     @Query("UPDATE patient_reports SET isDownloaded = 1, localFilePath = :localFilePath, downloadedAt = :downloadedAt WHERE reportId = :reportId")

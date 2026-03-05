@@ -103,6 +103,7 @@ class VideoCallViewModel @Inject constructor(
 
     private var timerJob: Job? = null
     private var waitingTimeoutJob: Job? = null
+    private var joinTimeoutJob: Job? = null
     private var callStartTimeMillis: Long = 0L
     private var meetingRoomId: String = ""
     private var isTimeExpired: Boolean = false
@@ -178,6 +179,7 @@ class VideoCallViewModel @Inject constructor(
             )
             meeting?.addEventListener(createMeetingEventListener())
             meeting?.join()
+            startJoinTimeout()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize meeting", e)
             _uiState.update {
@@ -195,6 +197,7 @@ class VideoCallViewModel @Inject constructor(
     private fun createMeetingEventListener() = object : MeetingEventListener() {
         override fun onMeetingJoined() {
             Log.d(TAG, "Meeting joined")
+            joinTimeoutJob?.cancel()
             _uiState.update { it.copy(callPhase = CallPhase.WAITING_FOR_PARTICIPANT) }
             startWaitingTimeout()
         }
@@ -319,6 +322,23 @@ class VideoCallViewModel @Inject constructor(
         }
     }
 
+    private fun startJoinTimeout() {
+        joinTimeoutJob?.cancel()
+        joinTimeoutJob = viewModelScope.launch {
+            delay(JOIN_TIMEOUT_MS)
+            if (_uiState.value.callPhase == CallPhase.CONNECTING) {
+                Log.e(TAG, "Join timeout — meeting did not connect within ${JOIN_TIMEOUT_MS / 1000}s")
+                _uiState.update {
+                    it.copy(
+                        callPhase = CallPhase.ERROR,
+                        error = appContext.getString(R.string.video_call_error_connect_timeout),
+                    )
+                }
+                meeting?.leave()
+            }
+        }
+    }
+
     private fun startWaitingTimeout() {
         waitingTimeoutJob?.cancel()
         waitingTimeoutJob = viewModelScope.launch {
@@ -408,6 +428,7 @@ class VideoCallViewModel @Inject constructor(
     override fun onCleared() {
         timerJob?.cancel()
         waitingTimeoutJob?.cancel()
+        joinTimeoutJob?.cancel()
         callServiceController.stopCallService()
         try {
             audioManager.mode = AudioManager.MODE_NORMAL
@@ -421,5 +442,6 @@ class VideoCallViewModel @Inject constructor(
         private const val TAG = "VideoCallVM"
         private const val TIMER_INTERVAL_MS = 1000L
         private const val WAITING_TIMEOUT_MS = 60_000L
+        private const val JOIN_TIMEOUT_MS = 30_000L
     }
 }

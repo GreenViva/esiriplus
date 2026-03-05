@@ -90,5 +90,6 @@
     <string name="video_call_no_answer">Pas de r\u00E9ponse</string>
     <!-- %s = exception message -->
     <string name="video_call_error_start">\u00C9chec du d\u00E9marrage de l\'appel : %s</string>
+    <string name="video_call_error_connect_timeout">D\u00E9lai de connexion d\u00E9pass\u00E9. V\u00E9rifiez votre connexion Internet et r\u00E9essayez.</string>
 
 </resources>

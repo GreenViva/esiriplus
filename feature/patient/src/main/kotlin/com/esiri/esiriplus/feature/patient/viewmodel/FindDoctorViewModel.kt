@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.StringOrListSerializer
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -88,10 +90,9 @@ private data class DoctorRow(
     @SerialName("updated_at") val updatedAt: String = "",
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class FindDoctorViewModel @Inject constructor(
+    private val application: Application,
     savedStateHandle: SavedStateHandle,
     private val doctorProfileDao: DoctorProfileDao,
     private val edgeFunctionClient: EdgeFunctionClient,
@@ -148,15 +149,15 @@ class FindDoctorViewModel @Inject constructor(
             }
             is ApiResult.Error -> {
                 Log.w(TAG, "Failed to fetch doctors from backend: ${result.message}")
-                _uiState.update { it.copy(error = "Failed to load doctors. Please try again.") }
+                _uiState.update { it.copy(error = application.getString(R.string.vm_failed_load_doctors)) }
             }
             is ApiResult.NetworkError -> {
                 Log.w(TAG, "Network error fetching doctors", result.exception)
-                _uiState.update { it.copy(error = "Network error. Please check your connection.") }
+                _uiState.update { it.copy(error = application.getString(R.string.vm_network_error)) }
             }
             is ApiResult.Unauthorized -> {
                 Log.w(TAG, "Unauthorized fetching doctors")
-                _uiState.update { it.copy(error = "Session expired. Please log in again.") }
+                _uiState.update { it.copy(error = application.getString(R.string.vm_session_expired)) }
             }
         }
     }

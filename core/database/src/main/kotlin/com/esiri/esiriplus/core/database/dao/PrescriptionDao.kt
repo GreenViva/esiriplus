@@ -12,7 +12,7 @@ interface PrescriptionDao {
     @Query("SELECT * FROM prescriptions WHERE consultationId = :consultationId ORDER BY createdAt DESC")
     fun getForConsultation(consultationId: String): Flow<List<PrescriptionEntity>>
 
-    @Query("SELECT * FROM prescriptions WHERE patientId = :patientId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM prescriptions WHERE patientId = :patientId ORDER BY createdAt DESC LIMIT 200")
     fun getForPatient(patientId: String): Flow<List<PrescriptionEntity>>
 
     @Query("SELECT * FROM prescriptions WHERE id = :id")

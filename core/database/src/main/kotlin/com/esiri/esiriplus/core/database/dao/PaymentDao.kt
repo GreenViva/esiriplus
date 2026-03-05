@@ -14,10 +14,10 @@ interface PaymentDao {
     @Query("SELECT * FROM payments WHERE paymentId = :paymentId")
     suspend fun getById(paymentId: String): PaymentEntity?
 
-    @Query("SELECT * FROM payments WHERE patientSessionId = :sessionId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM payments WHERE patientSessionId = :sessionId ORDER BY createdAt DESC LIMIT 200")
     fun getByPatientSessionId(sessionId: String): Flow<List<PaymentEntity>>
 
-    @Query("SELECT * FROM payments WHERE status = :status ORDER BY createdAt DESC")
+    @Query("SELECT * FROM payments WHERE status = :status ORDER BY createdAt DESC LIMIT 200")
     fun getByStatus(status: String): Flow<List<PaymentEntity>>
 
     @Query("SELECT * FROM payments WHERE consultationId = :consultationId AND status = 'completed' LIMIT 1")

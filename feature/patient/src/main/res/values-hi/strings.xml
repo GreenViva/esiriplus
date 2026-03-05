@@ -316,6 +316,13 @@
     <string name="vm_failed_send_attachment">अटैचमेंट भेजने में विफल।</string>
     <string name="vm_failed_send_attachment_retrying">अटैचमेंट भेजने में विफल। पुनः प्रयास हो रहा है\u2026</string>
     <string name="vm_failed_upload_file">फ़ाइल अपलोड करने में विफल। कृपया पुनः प्रयास करें।</string>
+    <string name="vm_not_signed_in">साइन इन नहीं है</string>
+    <string name="vm_report_not_found">रिपोर्ट नहीं मिली</string>
+    <string name="vm_connection_lost">कनेक्शन टूट गया \u2014 संदेशों में देरी हो सकती है</string>
+    <string name="vm_reconnecting">पुनः कनेक्ट हो रहा है\u2026</string>
+    <string name="vm_message_failed_retrying">संदेश भेजने में विफल। पुनः प्रयास हो रहा है\u2026</string>
+    <string name="vm_network_error_retry">नेटवर्क त्रुटि। संदेश स्वचालित रूप से पुनः भेजा जाएगा।</string>
+    <string name="vm_file_too_large">फ़ाइल बहुत बड़ी है। अधिकतम आकार 10MB है।</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

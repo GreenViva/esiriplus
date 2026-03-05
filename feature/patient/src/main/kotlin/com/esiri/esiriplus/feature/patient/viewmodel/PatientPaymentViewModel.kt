@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.esiri.esiriplus.core.database.entity.PaymentEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.service.PaymentService
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,10 +44,9 @@ enum class PaymentStep {
     FAILED,
 }
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientPaymentViewModel @Inject constructor(
+    private val application: Application,
     savedStateHandle: SavedStateHandle,
     private val paymentService: PaymentService,
     private val paymentDao: PaymentDao,
@@ -112,7 +113,7 @@ class PatientPaymentViewModel @Inject constructor(
         if (state.isLoading) return
 
         if (state.amount <= 0) {
-            _uiState.update { it.copy(errorMessage = "Invalid payment amount") }
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_invalid_payment_amount)) }
             return
         }
 
@@ -153,7 +154,7 @@ class PatientPaymentViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = "Network error. Please check your connection.",
+                            errorMessage = application.getString(R.string.vm_network_error),
                             paymentStatus = PaymentStep.FAILED,
                         )
                     }
@@ -162,7 +163,7 @@ class PatientPaymentViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = "Session expired. Please log in again.",
+                            errorMessage = application.getString(R.string.vm_session_expired),
                             paymentStatus = PaymentStep.FAILED,
                         )
                     }
@@ -192,7 +193,7 @@ class PatientPaymentViewModel @Inject constructor(
                                 _uiState.update {
                                     it.copy(
                                         paymentStatus = PaymentStep.FAILED,
-                                        errorMessage = payment.failureReason ?: "Payment failed",
+                                        errorMessage = payment.failureReason ?: application.getString(R.string.vm_payment_failed),
                                     )
                                 }
                                 return@launch
@@ -206,7 +207,7 @@ class PatientPaymentViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     paymentStatus = PaymentStep.FAILED,
-                    errorMessage = "Payment timed out. Please try again.",
+                    errorMessage = application.getString(R.string.vm_payment_timed_out),
                 )
             }
         }

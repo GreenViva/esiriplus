@@ -19,10 +19,10 @@ interface AppointmentDao {
     @Query("SELECT * FROM appointments WHERE appointmentId = :id")
     suspend fun getById(id: String): AppointmentEntity?
 
-    @Query("SELECT * FROM appointments WHERE doctorId = :doctorId ORDER BY scheduledAt DESC")
+    @Query("SELECT * FROM appointments WHERE doctorId = :doctorId ORDER BY scheduledAt DESC LIMIT 200")
     fun getByDoctorId(doctorId: String): Flow<List<AppointmentEntity>>
 
-    @Query("SELECT * FROM appointments WHERE patientSessionId = :sessionId ORDER BY scheduledAt DESC")
+    @Query("SELECT * FROM appointments WHERE patientSessionId = :sessionId ORDER BY scheduledAt DESC LIMIT 200")
     fun getByPatientSessionId(sessionId: String): Flow<List<AppointmentEntity>>
 
     @Query("SELECT * FROM appointments WHERE doctorId = :doctorId AND status = :status ORDER BY scheduledAt ASC")

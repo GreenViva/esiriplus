@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReviewDao {
-    @Query("SELECT * FROM reviews WHERE doctorId = :doctorId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM reviews WHERE doctorId = :doctorId ORDER BY createdAt DESC LIMIT 200")
     fun getForDoctor(doctorId: String): Flow<List<ReviewEntity>>
 
     @Query("SELECT AVG(CAST(rating AS REAL)) FROM reviews WHERE doctorId = :doctorId")

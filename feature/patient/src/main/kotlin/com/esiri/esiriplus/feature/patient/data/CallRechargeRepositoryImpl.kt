@@ -31,8 +31,16 @@ class CallRechargeRepositoryImpl @Inject constructor(
                 Log.d(TAG, "Call recharge initiated: $minutes min for consultation $consultationId")
                 true
             }
-            else -> {
-                Log.e(TAG, "Call recharge failed: $result")
+            is ApiResult.Error -> {
+                Log.e(TAG, "Call recharge failed: code=${result.code}, msg=${result.message}")
+                false
+            }
+            is ApiResult.Unauthorized -> {
+                Log.e(TAG, "Call recharge unauthorized — session may have expired")
+                false
+            }
+            is ApiResult.NetworkError -> {
+                Log.e(TAG, "Call recharge network error", result.exception)
                 false
             }
         }

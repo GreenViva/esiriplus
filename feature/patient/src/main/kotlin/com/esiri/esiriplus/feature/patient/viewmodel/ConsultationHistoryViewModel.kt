@@ -1,10 +1,12 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.model.Consultation
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.ConsultationRepository
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +24,9 @@ data class ConsultationHistoryUiState(
     val error: String? = null,
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class ConsultationHistoryViewModel @Inject constructor(
+    private val application: Application,
     private val consultationRepository: ConsultationRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
@@ -35,7 +36,7 @@ class ConsultationHistoryViewModel @Inject constructor(
         .flatMapLatest { session ->
             val userId = session?.user?.id
             if (userId == null) {
-                flowOf(ConsultationHistoryUiState(isLoading = false, error = "Not signed in"))
+                flowOf(ConsultationHistoryUiState(isLoading = false, error = application.getString(R.string.vm_not_signed_in)))
             } else {
                 consultationRepository.getConsultationsForPatient(userId)
                     .map { consultations ->
@@ -50,7 +51,7 @@ class ConsultationHistoryViewModel @Inject constructor(
             emit(
                 ConsultationHistoryUiState(
                     isLoading = false,
-                    error = e.message ?: "Failed to load consultations",
+                    error = e.message ?: application.getString(R.string.vm_failed_load_consultations),
                 ),
             )
         }

@@ -316,6 +316,13 @@
     <string name="vm_failed_send_attachment">Error al enviar el archivo adjunto.</string>
     <string name="vm_failed_send_attachment_retrying">Error al enviar el archivo adjunto. Reintentando\u2026</string>
     <string name="vm_failed_upload_file">Error al subir el archivo. Por favor intente de nuevo.</string>
+    <string name="vm_not_signed_in">No ha iniciado sesi\u00F3n</string>
+    <string name="vm_report_not_found">Informe no encontrado</string>
+    <string name="vm_connection_lost">Conexi\u00F3n perdida \u2014 los mensajes pueden retrasarse</string>
+    <string name="vm_reconnecting">Reconectando\u2026</string>
+    <string name="vm_message_failed_retrying">Error al enviar el mensaje. Reintentando\u2026</string>
+    <string name="vm_network_error_retry">Error de red. El mensaje se reenviar\u00E1 autom\u00E1ticamente.</string>
+    <string name="vm_file_too_large">Archivo demasiado grande. El tama\u00F1o m\u00E1ximo es 10 MB.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

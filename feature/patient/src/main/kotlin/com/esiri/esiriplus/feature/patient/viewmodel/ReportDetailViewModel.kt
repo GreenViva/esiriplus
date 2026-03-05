@@ -1,11 +1,13 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.model.PatientReport
 import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,10 +23,9 @@ data class ReportDetailUiState(
     val error: String? = null,
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class ReportDetailViewModel @Inject constructor(
+    private val application: Application,
     savedStateHandle: SavedStateHandle,
     private val patientReportRepository: PatientReportRepository,
 ) : ViewModel() {
@@ -55,13 +56,13 @@ class ReportDetailViewModel @Inject constructor(
                     it.copy(
                         report = report,
                         isLoading = false,
-                        error = if (report == null) "Report not found" else null,
+                        error = if (report == null) application.getString(R.string.vm_report_not_found) else null,
                     )
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to fetch report from server: ${e.message}")
                 _uiState.update {
-                    it.copy(isLoading = false, error = "Failed to load report")
+                    it.copy(isLoading = false, error = application.getString(R.string.vm_failed_load_report))
                 }
             }
         }

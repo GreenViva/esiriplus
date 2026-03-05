@@ -316,6 +316,13 @@
     <string name="vm_failed_send_attachment">Imeshindwa kutuma kiambatisho.</string>
     <string name="vm_failed_send_attachment_retrying">Imeshindwa kutuma kiambatisho. Inajaribu tena\u2026</string>
     <string name="vm_failed_upload_file">Imeshindwa kupakia faili. Tafadhali jaribu tena.</string>
+    <string name="vm_not_signed_in">Haujaingia</string>
+    <string name="vm_report_not_found">Ripoti haijapatikana</string>
+    <string name="vm_connection_lost">Muunganisho umepotea \u2014 ujumbe unaweza kuchelewa</string>
+    <string name="vm_reconnecting">Inaunganisha tena\u2026</string>
+    <string name="vm_message_failed_retrying">Ujumbe umeshindwa kutumwa. Inajaribu tena\u2026</string>
+    <string name="vm_network_error_retry">Hitilafu ya mtandao. Ujumbe utajaribu tena kiotomatiki.</string>
+    <string name="vm_file_too_large">Faili ni kubwa mno. Ukubwa wa juu ni 10MB.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

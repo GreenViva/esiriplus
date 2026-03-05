@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.Appointment
 import com.esiri.esiriplus.core.domain.model.AppointmentStatus
 import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,10 +28,9 @@ data class PatientAppointmentsUiState(
     val errorMessage: String? = null,
 )
 
-// TODO: Localize hardcoded user-facing strings (error messages).
-//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientAppointmentsViewModel @Inject constructor(
+    private val application: Application,
     private val appointmentRepository: AppointmentRepository,
 ) : ViewModel() {
 
@@ -80,7 +81,7 @@ class PatientAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = result.message ?: "Failed to load appointments",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_load_appointments),
                         )
                     }
                 }
@@ -101,7 +102,7 @@ class PatientAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isCancelling = null,
-                            errorMessage = result.message ?: "Failed to cancel",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_cancel_appointment),
                         )
                     }
                 }

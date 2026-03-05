@@ -16,8 +16,11 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(messages: List<MessageEntity>)
 
-    @Query("SELECT * FROM messages WHERE consultationId = :consultationId ORDER BY createdAt ASC")
+    @Query("SELECT * FROM messages WHERE consultationId = :consultationId ORDER BY createdAt ASC LIMIT 500")
     fun getByConsultationId(consultationId: String): Flow<List<MessageEntity>>
+
+    @Query("SELECT * FROM messages WHERE consultationId = :consultationId ORDER BY createdAt ASC LIMIT :limit OFFSET :offset")
+    fun getByConsultationIdPaged(consultationId: String, limit: Int, offset: Int): Flow<List<MessageEntity>>
 
     @Query("SELECT * FROM messages WHERE messageId = :id")
     suspend fun getById(id: String): MessageEntity?

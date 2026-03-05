@@ -316,6 +316,13 @@
     <string name="vm_failed_send_attachment">Failed to send attachment.</string>
     <string name="vm_failed_send_attachment_retrying">Failed to send attachment. Retrying\u2026</string>
     <string name="vm_failed_upload_file">Failed to upload file. Please try again.</string>
+    <string name="vm_not_signed_in">Not signed in</string>
+    <string name="vm_report_not_found">Report not found</string>
+    <string name="vm_connection_lost">Connection lost \u2014 messages may be delayed</string>
+    <string name="vm_reconnecting">Reconnecting\u2026</string>
+    <string name="vm_message_failed_retrying">Message failed to send. Retrying\u2026</string>
+    <string name="vm_network_error_retry">Network error. Message will retry automatically.</string>
+    <string name="vm_file_too_large">File too large. Maximum size is 10MB.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>
