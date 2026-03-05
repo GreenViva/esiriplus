@@ -2,6 +2,7 @@ package com.esiri.esiriplus.core.network.service
 
 import android.util.Log
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.di.ApplicationScope
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.realtime.RealtimeChannel
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.util.concurrent.atomic.AtomicInteger
@@ -47,6 +49,7 @@ data class RequestRealtimeEvent(
 @Singleton
 class ConsultationRequestRealtimeService @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
+    @ApplicationScope private val appScope: CoroutineScope,
 ) {
 
     private val _requestEvents = MutableSharedFlow<RequestRealtimeEvent>(extraBufferCapacity = 16)
@@ -176,6 +179,22 @@ class ConsultationRequestRealtimeService @Inject constructor(
                 channel = null
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to unsubscribe from request channel", e)
+            }
+        }
+    }
+
+    /** Non-suspend variant safe to call from onCleared (where viewModelScope is cancelled). */
+    fun unsubscribeSync() {
+        val remaining = subscriberCount.decrementAndGet()
+        Log.d(TAG, "UnsubscribeSync called, remaining subscribers: $remaining")
+        if (remaining <= 0) {
+            subscriberCount.set(0)
+            currentDoctorId = null
+            appScope.launch {
+                try {
+                    channel?.unsubscribe()
+                    channel = null
+                } catch (_: Exception) {}
             }
         }
     }

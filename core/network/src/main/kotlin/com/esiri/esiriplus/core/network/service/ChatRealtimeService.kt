@@ -174,11 +174,18 @@ class ChatRealtimeService @Inject constructor(
             if (reconnectJob?.isActive == true) return
             val consultationId = currentConsultationId ?: return
             val scope = currentScope ?: return
+
+            if (reconnectAttempt >= MAX_RECONNECT_ATTEMPTS) {
+                Log.e(TAG, "Max reconnect attempts ($MAX_RECONNECT_ATTEMPTS) reached, giving up")
+                _connectionState.value = RealtimeConnectionState.DISCONNECTED
+                return
+            }
+
             val delayMs = backoffDelays[reconnectAttempt.coerceAtMost(backoffDelays.size - 1)]
             reconnectAttempt++
 
             reconnectJob = scope.launch {
-                Log.d(TAG, "Reconnecting in ${delayMs}ms (attempt $reconnectAttempt)")
+                Log.d(TAG, "Reconnecting in ${delayMs}ms (attempt $reconnectAttempt/$MAX_RECONNECT_ATTEMPTS)")
                 delay(delayMs)
                 if (!isActive) return@launch
                 doSubscribeMessages(consultationId, scope)
@@ -269,5 +276,6 @@ class ChatRealtimeService @Inject constructor(
 
     companion object {
         private const val TAG = "ChatRealtimeSvc"
+        private const val MAX_RECONNECT_ATTEMPTS = 10
     }
 }

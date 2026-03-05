@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.doctor.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.feature.doctor.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,6 +41,7 @@ data class DoctorReportUiState(
 
 @HiltViewModel
 class DoctorReportViewModel @Inject constructor(
+    private val application: Application,
     savedStateHandle: SavedStateHandle,
     private val consultationDao: ConsultationDao,
     private val edgeFunctionClient: EdgeFunctionClient,
@@ -100,19 +103,19 @@ class DoctorReportViewModel @Inject constructor(
     fun submitReport() {
         val state = _uiState.value
         if (state.diagnosedProblem.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Diagnosed problem is required") }
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_diagnosed_problem_required)) }
             return
         }
         if (state.category.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Category is required") }
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_category_required)) }
             return
         }
         if (state.category == "Other" && state.otherCategory.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Please specify the category") }
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_specify_category)) }
             return
         }
         if (state.treatmentPlan.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Treatment plan is required") }
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_treatment_plan_required)) }
             return
         }
         if (state.isSubmitting) return
@@ -160,7 +163,7 @@ class DoctorReportViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
-                            errorMessage = "Session expired. Please log in again.",
+                            errorMessage = application.getString(R.string.vm_session_expired),
                         )
                     }
                 }

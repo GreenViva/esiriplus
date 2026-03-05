@@ -298,4 +298,22 @@
     <string name="report_returning">Retour au tableau de bord\u2026</string>
     <string name="report_moved_hint">Cet \u00e9cran a \u00e9t\u00e9 d\u00e9plac\u00e9 vers la feuille inf\u00e9rieure. Veuillez utiliser l\'\u00e9cran de d\u00e9tail de la consultation.</string>
 
+    <!-- Messages ViewModel -->
+    <string name="vm_session_expired">Session expir\u00e9e. Veuillez vous reconnecter.</string>
+    <string name="vm_network_error">Erreur r\u00e9seau. Veuillez v\u00e9rifier votre connexion.</string>
+    <string name="vm_failed_load_appointments">Impossible de charger les rendez-vous</string>
+    <string name="vm_failed_reschedule">Impossible de reprogrammer</string>
+    <string name="vm_failed_start_session">Impossible de d\u00e9marrer la s\u00e9ance</string>
+    <string name="vm_enter_new_time">Veuillez entrer la nouvelle heure</string>
+    <string name="vm_diagnosed_problem_required">Le diagnostic est obligatoire</string>
+    <string name="vm_category_required">La cat\u00e9gorie est obligatoire</string>
+    <string name="vm_specify_category">Veuillez pr\u00e9ciser la cat\u00e9gorie</string>
+    <string name="vm_treatment_plan_required">Le plan de traitement est obligatoire</string>
+    <string name="vm_failed_load_availability">Impossible de charger la disponibilit\u00e9</string>
+    <string name="vm_failed_save_slot">Impossible d\'enregistrer le cr\u00e9neau</string>
+    <string name="vm_failed_delete_slot">Impossible de supprimer le cr\u00e9neau</string>
+    <string name="vm_slot_added">Cr\u00e9neau ajout\u00e9</string>
+    <string name="vm_failed_accept">Impossible d\'accepter. R\u00e9essayez.</string>
+    <string name="vm_failed_reject">Impossible de refuser.</string>
+
 </resources>

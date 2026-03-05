@@ -58,9 +58,46 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError(`Missing required fields: ${missing.join(", ")}`);
     }
 
+    // Email format
+    const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(body.email.trim())) {
+      throw new ValidationError("Invalid email address");
+    }
+
+    // Password complexity
     if (body.password.length < 8) {
       throw new ValidationError("Password must be at least 8 characters");
     }
+    if (!/[A-Z]/.test(body.password)) {
+      throw new ValidationError("Password must contain at least one uppercase letter");
+    }
+    if (!/[0-9]/.test(body.password)) {
+      throw new ValidationError("Password must contain at least one digit");
+    }
+
+    // Phone: digits only, 7-15 chars
+    const phoneDigits = (body.phone ?? "").replace(/\D/g, "");
+    if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+      throw new ValidationError("Phone number must be 7-15 digits");
+    }
+
+    // Full name length
+    const fullName = (body.full_name ?? "").trim();
+    if (fullName.length < 2 || fullName.length > 100) {
+      throw new ValidationError("Full name must be 2-100 characters");
+    }
+
+    // Years experience bounds
+    const yearsExp = Number(body.years_experience ?? 0);
+    if (!Number.isInteger(yearsExp) || yearsExp < 0 || yearsExp > 70) {
+      throw new ValidationError("Years of experience must be 0-70");
+    }
+
+    // Sanitize inputs
+    body.email = body.email.trim().toLowerCase();
+    body.full_name = fullName;
+    body.phone = phoneDigits;
+    body.years_experience = yearsExp;
 
     // Map specialty display name to Postgres enum value
     const specialtyEnum = SPECIALTY_TO_ENUM[body.specialty] ?? body.specialty.toLowerCase().replace(/\s+/g, "_");

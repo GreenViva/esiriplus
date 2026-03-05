@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.doctor.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
 import com.esiri.esiriplus.core.network.service.RequestRealtimeEvent
+import com.esiri.esiriplus.feature.doctor.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,6 +55,7 @@ data class ConsultationStartedEvent(
 
 @HiltViewModel
 class IncomingRequestViewModel @Inject constructor(
+    private val application: Application,
     private val consultationRequestRepository: ConsultationRequestRepository,
     private val realtimeService: ConsultationRequestRealtimeService,
     private val authRepository: AuthRepository,
@@ -211,7 +214,7 @@ class IncomingRequestViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isResponding = false,
-                        errorMessage = "Session expired. Please sign in again.",
+                        errorMessage = application.getString(R.string.vm_session_expired),
                         canRetry = true,
                     )
                 }
@@ -248,7 +251,7 @@ class IncomingRequestViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isResponding = false,
-                            errorMessage = result.message ?: "Failed to accept. Try again.",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_accept),
                             canRetry = true,
                         )
                     }
@@ -270,7 +273,7 @@ class IncomingRequestViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isResponding = false,
-                        errorMessage = "Session expired. Please sign in again.",
+                        errorMessage = application.getString(R.string.vm_session_expired),
                         canRetry = true,
                     )
                 }
@@ -294,7 +297,7 @@ class IncomingRequestViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isResponding = false,
-                            errorMessage = result.message ?: "Failed to reject.",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_reject),
                             canRetry = true,
                         )
                     }
@@ -312,9 +315,7 @@ class IncomingRequestViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopCountdown()
-        viewModelScope.launch {
-            realtimeService.unsubscribe()
-        }
+        realtimeService.unsubscribeSync()
     }
 
     /**

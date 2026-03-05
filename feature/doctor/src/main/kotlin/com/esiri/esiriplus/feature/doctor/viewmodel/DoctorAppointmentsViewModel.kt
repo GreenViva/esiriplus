@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.doctor.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import com.esiri.esiriplus.core.domain.model.AppointmentStatus
 import com.esiri.esiriplus.core.domain.repository.AppointmentRepository
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.feature.doctor.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +52,7 @@ private data class StartSessionResponse(
 
 @HiltViewModel
 class DoctorAppointmentsViewModel @Inject constructor(
+    private val application: Application,
     private val appointmentRepository: AppointmentRepository,
     private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
@@ -113,7 +116,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = result.message ?: "Failed to load appointments",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_load_appointments),
                         )
                     }
                 }
@@ -154,7 +157,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
         val state = _uiState.value
         val appointmentId = state.rescheduleAppointmentId ?: return
         if (state.rescheduleNewTime.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Please enter the new time") }
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_enter_new_time)) }
             return
         }
 
@@ -174,7 +177,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isRescheduling = null,
-                            errorMessage = result.message ?: "Failed to reschedule",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_reschedule),
                         )
                     }
                 }
@@ -216,7 +219,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     if (consultationId != null) {
                         _sessionStarted.emit(consultationId)
                     } else {
-                        _uiState.update { it.copy(errorMessage = "Failed to start session") }
+                        _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_failed_start_session)) }
                     }
                     loadAppointments()
                 }
@@ -225,7 +228,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isStartingSession = null,
-                            errorMessage = result.message ?: "Failed to start session",
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_start_session),
                         )
                     }
                 }
@@ -234,7 +237,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isStartingSession = null,
-                            errorMessage = "Session expired. Please log in again.",
+                            errorMessage = application.getString(R.string.vm_session_expired),
                         )
                     }
                 }
@@ -243,7 +246,7 @@ class DoctorAppointmentsViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isStartingSession = null,
-                            errorMessage = "Network error. Please check your connection.",
+                            errorMessage = application.getString(R.string.vm_network_error),
                         )
                     }
                 }

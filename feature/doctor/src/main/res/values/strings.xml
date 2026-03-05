@@ -298,4 +298,22 @@
     <string name="report_returning">Returning to dashboard\u2026</string>
     <string name="report_moved_hint">This screen has moved to the bottom sheet. Please use the consultation detail screen.</string>
 
+    <!-- ═══ ViewModel Error Messages ═══ -->
+    <string name="vm_session_expired">Session expired. Please log in again.</string>
+    <string name="vm_network_error">Network error. Please check your connection.</string>
+    <string name="vm_failed_load_appointments">Failed to load appointments</string>
+    <string name="vm_failed_reschedule">Failed to reschedule</string>
+    <string name="vm_failed_start_session">Failed to start session</string>
+    <string name="vm_enter_new_time">Please enter the new time</string>
+    <string name="vm_diagnosed_problem_required">Diagnosed problem is required</string>
+    <string name="vm_category_required">Category is required</string>
+    <string name="vm_specify_category">Please specify the category</string>
+    <string name="vm_treatment_plan_required">Treatment plan is required</string>
+    <string name="vm_failed_load_availability">Failed to load availability</string>
+    <string name="vm_failed_save_slot">Failed to save slot</string>
+    <string name="vm_failed_delete_slot">Failed to delete slot</string>
+    <string name="vm_slot_added">Slot added</string>
+    <string name="vm_failed_accept">Failed to accept. Try again.</string>
+    <string name="vm_failed_reject">Failed to reject.</string>
+
 </resources>

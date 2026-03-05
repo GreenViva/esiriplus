@@ -298,4 +298,22 @@
     <string name="report_returning">Regresando al panel principal\u2026</string>
     <string name="report_moved_hint">Esta pantalla se ha movido a la hoja inferior. Utilice la pantalla de detalle de consulta.</string>
 
+    <!-- Mensajes ViewModel -->
+    <string name="vm_session_expired">Sesi\u00F3n expirada. Por favor, inicie sesi\u00F3n de nuevo.</string>
+    <string name="vm_network_error">Error de red. Por favor, verifique su conexi\u00F3n.</string>
+    <string name="vm_failed_load_appointments">No se pudieron cargar las citas</string>
+    <string name="vm_failed_reschedule">No se pudo reprogramar</string>
+    <string name="vm_failed_start_session">No se pudo iniciar la sesi\u00F3n</string>
+    <string name="vm_enter_new_time">Por favor, ingrese la nueva hora</string>
+    <string name="vm_diagnosed_problem_required">El diagn\u00F3stico es obligatorio</string>
+    <string name="vm_category_required">La categor\u00EDa es obligatoria</string>
+    <string name="vm_specify_category">Por favor, especifique la categor\u00EDa</string>
+    <string name="vm_treatment_plan_required">El plan de tratamiento es obligatorio</string>
+    <string name="vm_failed_load_availability">No se pudo cargar la disponibilidad</string>
+    <string name="vm_failed_save_slot">No se pudo guardar el turno</string>
+    <string name="vm_failed_delete_slot">No se pudo eliminar el turno</string>
+    <string name="vm_slot_added">Turno agregado</string>
+    <string name="vm_failed_accept">No se pudo aceptar. Intente de nuevo.</string>
+    <string name="vm_failed_reject">No se pudo rechazar.</string>
+
 </resources>

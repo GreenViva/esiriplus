@@ -1,9 +1,11 @@
 package com.esiri.esiriplus.feature.doctor.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.service.AvailabilitySlotRow
@@ -36,6 +38,7 @@ private val DAY_NAMES = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thur
 
 @HiltViewModel
 class DoctorAvailabilityViewModel @Inject constructor(
+    private val application: Application,
     private val availabilityService: DoctorAvailabilityService,
     private val authRepository: AuthRepository,
     private val supabaseClientProvider: SupabaseClientProvider,
@@ -82,7 +85,7 @@ class DoctorAvailabilityViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to load availability slots", e)
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "Failed to load availability")
+                    it.copy(isLoading = false, errorMessage = application.getString(R.string.vm_failed_load_availability))
                 }
             }
         }
@@ -132,13 +135,13 @@ class DoctorAvailabilityViewModel @Inject constructor(
                 Log.d(TAG, "Slot inserted successfully")
 
                 _uiState.update {
-                    it.copy(isSaving = false, successMessage = "Slot added")
+                    it.copy(isSaving = false, successMessage = application.getString(R.string.vm_slot_added))
                 }
                 loadSlots()
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to save slot", e)
                 _uiState.update {
-                    it.copy(isSaving = false, errorMessage = "Failed to save slot: ${e.message}")
+                    it.copy(isSaving = false, errorMessage = application.getString(R.string.vm_failed_save_slot))
                 }
             }
         }
@@ -151,7 +154,7 @@ class DoctorAvailabilityViewModel @Inject constructor(
                 loadSlots()
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to delete slot", e)
-                _uiState.update { it.copy(errorMessage = "Failed to delete slot") }
+                _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_failed_delete_slot)) }
             }
         }
     }

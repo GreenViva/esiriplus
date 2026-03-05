@@ -147,7 +147,9 @@ class DoctorRegistrationViewModel @Inject constructor(
     }
 
     fun onPhoneChanged(phone: String) {
-        _uiState.update { it.copy(phone = phone) }
+        // Only allow digits, max 15 characters (E.164 max)
+        val filtered = phone.filter { it.isDigit() }.take(15)
+        _uiState.update { it.copy(phone = filtered) }
     }
 
     fun onCountryCodeChanged(countryCode: String) {
@@ -183,7 +185,9 @@ class DoctorRegistrationViewModel @Inject constructor(
     }
 
     fun onYearsExperienceChanged(yearsExperience: String) {
-        _uiState.update { it.copy(yearsExperience = yearsExperience) }
+        // Only allow digits, max 2 characters
+        val filtered = yearsExperience.filter { it.isDigit() }.take(2)
+        _uiState.update { it.copy(yearsExperience = filtered) }
     }
 
     fun onBioChanged(bio: String) {
@@ -248,16 +252,28 @@ data class DoctorRegistrationUiState(
 ) {
     val isCurrentStepValid: Boolean
         get() = when (currentStep) {
-            1 -> email.contains("@") && email.contains(".") &&
-                password.length >= 8 && confirmPassword == password
+            1 -> EMAIL_REGEX.matches(email.trim()) &&
+                password.length >= 8 &&
+                password.any { it.isUpperCase() } &&
+                password.any { it.isDigit() } &&
+                confirmPassword == password
             2 -> true // photo is optional
-            3 -> fullName.isNotBlank() && phone.isNotBlank() && specialty.isNotBlank() &&
+            3 -> fullName.trim().length in 2..100 &&
+                phone.trim().length in 7..15 &&
+                phone.trim().all { it.isDigit() } &&
+                specialty.isNotBlank() &&
                 (specialty != "Specialist" || customSpecialty.isNotBlank())
             4 -> selectedLanguages.isNotEmpty()
-            5 -> licenseNumber.isNotBlank() && bio.isNotBlank()
+            5 -> licenseNumber.isNotBlank() &&
+                bio.trim().length in 10..1000 &&
+                (yearsExperience.toIntOrNull()?.let { it in 0..70 } ?: false)
             6 -> selectedServices.isNotEmpty()
             7 -> licenseDocumentUri != null
             8 -> biometricEnrolled
             else -> false
         }
+
+    companion object {
+        private val EMAIL_REGEX = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    }
 }

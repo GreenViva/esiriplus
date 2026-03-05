@@ -445,9 +445,7 @@ class ConsultationRequestViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopCountdown()
-        viewModelScope.launch {
-            realtimeService.unsubscribe()
-        }
+        realtimeService.unsubscribeSync()
     }
 
     companion object {

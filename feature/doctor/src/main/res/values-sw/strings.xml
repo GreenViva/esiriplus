@@ -298,4 +298,22 @@
     <string name="report_returning">Inarudi kwenye dashibodi\u2026</string>
     <string name="report_moved_hint">Skrini hii imehamia sehemu ya chini. Tafadhali tumia skrini ya maelezo ya mashauriano.</string>
 
+    <!-- ═══ ViewModel Messages ═══ -->
+    <string name="vm_session_expired">Kazi iliyohifadhiwa imekwisha muda. Tafadhali ingia tena.</string>
+    <string name="vm_network_error">Hitilafu ya mtandao. Tafadhali angalia muunganisho wako.</string>
+    <string name="vm_failed_load_appointments">Kumeshindwa kupakia miadi</string>
+    <string name="vm_failed_reschedule">Kumeshindwa kupanga upya</string>
+    <string name="vm_failed_start_session">Kumeshindwa kuanza kazi</string>
+    <string name="vm_enter_new_time">Tafadhali ingiza saa mpya</string>
+    <string name="vm_diagnosed_problem_required">Tatizo lililogunduliwa ni lazima</string>
+    <string name="vm_category_required">Kategoria ni lazima</string>
+    <string name="vm_specify_category">Tafadhali bainisha kategoria</string>
+    <string name="vm_treatment_plan_required">Mpango wa matibabu ni lazima</string>
+    <string name="vm_failed_load_availability">Kumeshindwa kupakia upatikanaji</string>
+    <string name="vm_failed_save_slot">Kumeshindwa kuhifadhi nafasi</string>
+    <string name="vm_failed_delete_slot">Kumeshindwa kufuta nafasi</string>
+    <string name="vm_slot_added">Nafasi imeongezwa</string>
+    <string name="vm_failed_accept">Kumeshindwa kukubali. Jaribu tena.</string>
+    <string name="vm_failed_reject">Kumeshindwa kukataa.</string>
+
 </resources>

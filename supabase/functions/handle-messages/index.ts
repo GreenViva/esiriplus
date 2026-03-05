@@ -75,7 +75,7 @@ async function handleGet(
   await verifyConsultationParticipant(consultationId, auth);
 
   const since = body.since as string | undefined;
-  const limit = Math.min(Number(body.limit) || 100, 500);
+  const limit = Math.min(Math.max(1, Number(body.limit) || 100), 500);
 
   const supabase = getServiceClient();
   let query = supabase

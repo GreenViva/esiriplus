@@ -298,4 +298,22 @@
     <string name="report_returning">جارٍ العودة إلى لوحة التحكم\u2026</string>
     <string name="report_moved_hint">تم نقل هذه الشاشة إلى اللوحة السفلية. يرجى استخدام شاشة تفاصيل الاستشارة.</string>
 
+    <!-- رسائل ViewModel -->
+    <string name="vm_session_expired">انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.</string>
+    <string name="vm_network_error">خطأ في الشبكة. يرجى التحقق من اتصالك.</string>
+    <string name="vm_failed_load_appointments">فشل تحميل المواعيد</string>
+    <string name="vm_failed_reschedule">فشل إعادة الجدولة</string>
+    <string name="vm_failed_start_session">فشل بدء الجلسة</string>
+    <string name="vm_enter_new_time">يرجى إدخال الوقت الجديد</string>
+    <string name="vm_diagnosed_problem_required">المشكلة المشخّصة مطلوبة</string>
+    <string name="vm_category_required">الفئة مطلوبة</string>
+    <string name="vm_specify_category">يرجى تحديد الفئة</string>
+    <string name="vm_treatment_plan_required">خطة العلاج مطلوبة</string>
+    <string name="vm_failed_load_availability">فشل تحميل التوفر</string>
+    <string name="vm_failed_save_slot">فشل حفظ الفترة</string>
+    <string name="vm_failed_delete_slot">فشل حذف الفترة</string>
+    <string name="vm_slot_added">تمت إضافة الفترة</string>
+    <string name="vm_failed_accept">فشل القبول. حاول مرة أخرى.</string>
+    <string name="vm_failed_reject">فشل الرفض.</string>
+
 </resources>
