@@ -10,13 +10,13 @@ import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.service.ConsultationRow
 import com.esiri.esiriplus.core.network.service.DoctorConsultationService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -34,58 +34,43 @@ class DoctorConsultationListViewModel @Inject constructor(
     private val consultationService: DoctorConsultationService,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(DoctorConsultationListUiState())
-    val uiState: StateFlow<DoctorConsultationListUiState> = _uiState.asStateFlow()
-
-    private var doctorId: String = ""
-
-    init {
-        loadConsultations()
-    }
-
-    private fun loadConsultations() {
-        viewModelScope.launch {
-            val session = authRepository.currentSession.first()
-            doctorId = session?.user?.id ?: return@launch
-
-            // Observe local DB
-            consultationDao.getByDoctorId(doctorId)
-                .onEach { consultations ->
-                    _uiState.update {
-                        it.copy(
-                            consultations = consultations.sortedByDescending { c -> c.createdAt },
-                            isLoading = false,
-                        )
-                    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<DoctorConsultationListUiState> = authRepository.currentSession
+        .flatMapLatest { session ->
+            val id = session?.user?.id
+            if (id == null) {
+                flowOf(DoctorConsultationListUiState(isLoading = false))
+            } else {
+                // Trigger backend sync (fire-and-forget, results flow in via Room)
+                syncFromBackend(id)
+                consultationDao.getByDoctorId(id).map { consultations ->
+                    DoctorConsultationListUiState(
+                        consultations = consultations.sortedByDescending { c -> c.createdAt },
+                        isLoading = false,
+                    )
                 }
-                .launchIn(viewModelScope)
-
-            // Sync from backend
-            syncFromBackend()
+            }
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DoctorConsultationListUiState(),
+        )
 
-    private suspend fun syncFromBackend() {
-        when (val result = consultationService.getConsultationsForDoctor(doctorId)) {
-            is ApiResult.Success -> {
-                val entities = result.data.map { it.toEntity() }
-                if (entities.isNotEmpty()) {
-                    consultationDao.insertAll(entities)
-                }
-            }
-            is ApiResult.Error -> {
-                Log.w(TAG, "Failed to sync consultations: ${result.message}")
-                // Only show error if local DB is also empty
-                if (_uiState.value.consultations.isEmpty()) {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = "Failed to load consultations",
-                        )
+    private fun syncFromBackend(doctorId: String) {
+        viewModelScope.launch {
+            when (val result = consultationService.getConsultationsForDoctor(doctorId)) {
+                is ApiResult.Success -> {
+                    val entities = result.data.map { it.toEntity() }
+                    if (entities.isNotEmpty()) {
+                        consultationDao.insertAll(entities)
                     }
                 }
+                is ApiResult.Error -> {
+                    Log.w(TAG, "Failed to sync consultations: ${result.message}")
+                }
+                else -> { /* no-op */ }
             }
-            else -> { /* no-op */ }
         }
     }
 

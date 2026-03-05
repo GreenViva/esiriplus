@@ -26,6 +26,8 @@ data class RatingUiState(
     val patientSessionId: String = "",
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class RatingViewModel @Inject constructor(
     private val ratingRepository: DoctorRatingRepository,
@@ -53,20 +55,24 @@ class RatingViewModel @Inject constructor(
     }
 
     fun submit() {
-        val state = _uiState.value
-        if (state.isSubmitting || state.submitSuccess) return
+        // Atomically check and set isSubmitting to prevent double-submit
+        var snapshot: RatingUiState? = null
+        _uiState.update { state ->
+            if (state.isSubmitting || state.submitSuccess) return
+            snapshot = state
+            state.copy(isSubmitting = true, error = null, commentError = null)
+        }
+        val state = snapshot ?: return
 
-        // Validate
+        // Validate (reset isSubmitting if validation fails)
         if (state.stars < 1) {
-            _uiState.update { it.copy(error = "Please select a rating") }
+            _uiState.update { it.copy(isSubmitting = false, error = "Please select a rating") }
             return
         }
         if (state.stars <= 3 && state.comment.isBlank()) {
-            _uiState.update { it.copy(commentError = "Please tell us what could be improved") }
+            _uiState.update { it.copy(isSubmitting = false, commentError = "Please tell us what could be improved") }
             return
         }
-
-        _uiState.update { it.copy(isSubmitting = true, error = null, commentError = null) }
 
         viewModelScope.launch {
             try {

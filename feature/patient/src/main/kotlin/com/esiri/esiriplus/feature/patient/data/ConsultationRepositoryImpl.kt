@@ -115,7 +115,11 @@ class ConsultationRepositoryImpl @Inject constructor(
             )
         }.toDomainResult()
         if (domainResult is Result.Success) {
-            consultationDao.insert(domainResult.data.toEntity())
+            try {
+                consultationDao.insert(domainResult.data.toEntity())
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to cache created consultation locally", e)
+            }
         }
         return domainResult
     }
@@ -167,7 +171,11 @@ class ConsultationRepositoryImpl @Inject constructor(
         }.toDomainResult()
 
         if (domainResult is Result.Success) {
-            consultationDao.insert(domainResult.data.toEntity())
+            try {
+                consultationDao.insert(domainResult.data.toEntity())
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to cache booked appointment locally", e)
+            }
         }
         return domainResult
     }
@@ -184,9 +192,13 @@ class ConsultationRepositoryImpl @Inject constructor(
             response.toApiResult().getOrThrow().toDomain()
         }
         val domainResult = apiResult.toDomainResult()
-        // Update local cache
+        // Update local cache BEFORE returning to prevent inconsistent state on crash
         if (domainResult is Result.Success) {
-            consultationDao.updateStatus(consultationId, status)
+            try {
+                consultationDao.updateStatus(consultationId, status)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to update local cache for $consultationId", e)
+            }
         }
         return domainResult
     }

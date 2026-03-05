@@ -6,13 +6,14 @@ import com.esiri.esiriplus.core.domain.model.Consultation
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.ConsultationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 data class ConsultationHistoryUiState(
@@ -21,39 +22,41 @@ data class ConsultationHistoryUiState(
     val error: String? = null,
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class ConsultationHistoryViewModel @Inject constructor(
     private val consultationRepository: ConsultationRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ConsultationHistoryUiState())
-    val uiState: StateFlow<ConsultationHistoryUiState> = _uiState.asStateFlow()
-
-    init {
-        loadConsultations()
-    }
-
-    private fun loadConsultations() {
-        viewModelScope.launch {
-            val session = authRepository.currentSession.firstOrNull()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<ConsultationHistoryUiState> = authRepository.currentSession
+        .flatMapLatest { session ->
             val userId = session?.user?.id
             if (userId == null) {
-                _uiState.update { it.copy(isLoading = false, error = "Not signed in") }
-                return@launch
+                flowOf(ConsultationHistoryUiState(isLoading = false, error = "Not signed in"))
+            } else {
+                consultationRepository.getConsultationsForPatient(userId)
+                    .map { consultations ->
+                        ConsultationHistoryUiState(
+                            consultations = consultations,
+                            isLoading = false,
+                        )
+                    }
             }
-
-            consultationRepository.getConsultationsForPatient(userId)
-                .catch { e ->
-                    _uiState.update {
-                        it.copy(isLoading = false, error = e.message ?: "Failed to load consultations")
-                    }
-                }
-                .collect { consultations ->
-                    _uiState.update {
-                        it.copy(consultations = consultations, isLoading = false, error = null)
-                    }
-                }
         }
-    }
+        .catch { e ->
+            emit(
+                ConsultationHistoryUiState(
+                    isLoading = false,
+                    error = e.message ?: "Failed to load consultations",
+                ),
+            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ConsultationHistoryUiState(),
+        )
 }
