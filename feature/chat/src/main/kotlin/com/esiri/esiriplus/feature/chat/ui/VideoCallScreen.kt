@@ -55,12 +55,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.domain.model.CallType
+import com.esiri.esiriplus.feature.chat.R
 import com.esiri.esiriplus.feature.chat.viewmodel.CallPhase
 import com.esiri.esiriplus.feature.chat.viewmodel.TimeWarning
 import com.esiri.esiriplus.feature.chat.viewmodel.VideoCallUiState
@@ -132,8 +134,8 @@ fun VideoCallScreen(
             .background(Color(0xFF1A1A2E)),
     ) {
         when (uiState.callPhase) {
-            CallPhase.REQUESTING_PERMISSIONS -> ConnectingOverlay("Requesting permissions...")
-            CallPhase.CONNECTING -> ConnectingOverlay("Connecting...")
+            CallPhase.REQUESTING_PERMISSIONS -> ConnectingOverlay(stringResource(R.string.video_call_requesting_permissions))
+            CallPhase.CONNECTING -> ConnectingOverlay(stringResource(R.string.video_call_connecting))
             CallPhase.WAITING_FOR_PARTICIPANT -> WaitingOverlay(uiState)
             CallPhase.IN_CALL -> {
                 if (uiState.callType == CallType.VIDEO) {
@@ -176,7 +178,7 @@ fun VideoCallScreen(
                     .background(BrandTeal, RoundedCornerShape(20.dp)),
             ) {
                 Text(
-                    text = "Add Time",
+                    text = stringResource(R.string.video_call_add_time),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                 )
@@ -231,12 +233,16 @@ private fun WaitingOverlay(uiState: VideoCallUiState) {
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Waiting for participant to join...",
+                text = stringResource(R.string.video_call_waiting_participant),
                 color = Color.White,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(8.dp))
-            val callLabel = if (uiState.callType == CallType.VIDEO) "Video Call" else "Voice Call"
+            val callLabel = if (uiState.callType == CallType.VIDEO) {
+                stringResource(R.string.video_call_label)
+            } else {
+                stringResource(R.string.video_call_voice_label)
+            }
             Text(
                 text = callLabel,
                 color = Color.White.copy(alpha = 0.6f),
@@ -339,6 +345,7 @@ private fun VideoCallContent(uiState: VideoCallUiState, viewModel: VideoCallView
 
 @Composable
 private fun AudioCallContent(uiState: VideoCallUiState) {
+    val participantFallback = stringResource(R.string.video_call_participant)
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -355,7 +362,7 @@ private fun AudioCallContent(uiState: VideoCallUiState) {
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = uiState.remoteParticipantName ?: "Participant",
+            text = uiState.remoteParticipantName ?: participantFallback,
             color = Color.White,
             style = MaterialTheme.typography.headlineMedium,
         )
@@ -366,7 +373,7 @@ private fun AudioCallContent(uiState: VideoCallUiState) {
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "Voice Call",
+            text = stringResource(R.string.video_call_voice_label),
             color = Color.White.copy(alpha = 0.5f),
             style = MaterialTheme.typography.bodyMedium,
         )
@@ -381,7 +388,7 @@ private fun CallEndedOverlay(uiState: VideoCallUiState) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Call Ended",
+                text = stringResource(R.string.video_call_ended),
                 color = Color.White,
                 style = MaterialTheme.typography.headlineSmall,
             )
@@ -397,19 +404,20 @@ private fun CallEndedOverlay(uiState: VideoCallUiState) {
 
 @Composable
 private fun ErrorOverlay(error: String?, onBack: () -> Unit) {
+    val fallbackError = stringResource(R.string.video_call_something_wrong)
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = error ?: "Something went wrong",
+                text = error ?: fallbackError,
                 color = Color.White,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(16.dp))
             TextButton(onClick = onBack) {
-                Text("Go Back", color = BrandTeal)
+                Text(stringResource(R.string.video_call_go_back), color = BrandTeal)
             }
         }
     }
@@ -425,6 +433,15 @@ private fun CallControlBar(
     onEndCall: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val muteLabel = stringResource(R.string.video_call_mute)
+    val unmuteLabel = stringResource(R.string.video_call_unmute)
+    val camOffLabel = stringResource(R.string.video_call_cam_off)
+    val camOnLabel = stringResource(R.string.video_call_cam_on)
+    val flipLabel = stringResource(R.string.video_call_flip)
+    val speakerLabel = stringResource(R.string.video_call_speaker)
+    val earpieceLabel = stringResource(R.string.video_call_earpiece)
+    val endLabel = stringResource(R.string.video_call_end)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -435,7 +452,7 @@ private fun CallControlBar(
         // Mic toggle
         CallControlButton(
             icon = if (uiState.isMicEnabled) Icons.Default.Mic else Icons.Default.MicOff,
-            label = if (uiState.isMicEnabled) "Mute" else "Unmute",
+            label = if (uiState.isMicEnabled) muteLabel else unmuteLabel,
             isActive = uiState.isMicEnabled,
             onClick = onToggleMic,
         )
@@ -444,14 +461,14 @@ private fun CallControlBar(
             // Camera toggle
             CallControlButton(
                 icon = if (uiState.isCameraEnabled) Icons.Default.Videocam else Icons.Default.VideocamOff,
-                label = if (uiState.isCameraEnabled) "Cam Off" else "Cam On",
+                label = if (uiState.isCameraEnabled) camOffLabel else camOnLabel,
                 isActive = uiState.isCameraEnabled,
                 onClick = onToggleCamera,
             )
             // Flip camera
             CallControlButton(
                 icon = Icons.Default.FlipCameraAndroid,
-                label = "Flip",
+                label = flipLabel,
                 isActive = true,
                 onClick = onSwitchCamera,
             )
@@ -460,7 +477,7 @@ private fun CallControlBar(
         // Speaker toggle
         CallControlButton(
             icon = if (uiState.isSpeakerOn) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-            label = if (uiState.isSpeakerOn) "Speaker" else "Earpiece",
+            label = if (uiState.isSpeakerOn) speakerLabel else earpieceLabel,
             isActive = uiState.isSpeakerOn,
             onClick = onToggleSpeaker,
         )
@@ -468,7 +485,7 @@ private fun CallControlBar(
         // End call
         CallControlButton(
             icon = Icons.Default.CallEnd,
-            label = "End",
+            label = endLabel,
             isActive = false,
             backgroundColor = Color(0xFFDC2626),
             onClick = onEndCall,
@@ -542,7 +559,7 @@ private fun CountdownTimerPill(
     }
 
     val text = if (timeWarning == TimeWarning.EXPIRED) {
-        "Time Expired"
+        stringResource(R.string.video_call_time_expired)
     } else {
         formatDuration(remainingSeconds)
     }

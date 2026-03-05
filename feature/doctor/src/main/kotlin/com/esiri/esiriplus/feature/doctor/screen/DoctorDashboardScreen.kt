@@ -74,6 +74,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -82,6 +83,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.esiri.esiriplus.core.domain.model.Appointment
+import com.esiri.esiriplus.core.ui.LanguageSwitchButton
 import com.esiri.esiriplus.feature.doctor.R
 import java.time.Instant
 import java.time.ZoneId
@@ -104,16 +106,16 @@ private val NavItemSelectedBg = Color(0xFFE8F5F3)
 private val SubtitleGray = Color.Black
 private val SignOutRed = Color(0xFFDC2626)
 
-private enum class DoctorNavItem(val label: String, val iconRes: Int) {
-    DASHBOARD("Dashboard", R.drawable.ic_dashboard),
-    CONSULTATIONS("Consultations", R.drawable.ic_chat_bubble),
-    CHAT("Chat", R.drawable.ic_chat_bubble),
-    AVAILABILITY("Availability", R.drawable.ic_calendar),
-    PROFILE("Profile", R.drawable.ic_person_outline),
-    EARNINGS("Earnings", R.drawable.ic_trending_up),
+private enum class DoctorNavItem(val labelRes: Int, val iconRes: Int) {
+    DASHBOARD(R.string.nav_dashboard, R.drawable.ic_dashboard),
+    CONSULTATIONS(R.string.nav_consultations, R.drawable.ic_chat_bubble),
+    CHAT(R.string.nav_chat, R.drawable.ic_chat_bubble),
+    AVAILABILITY(R.string.nav_availability, R.drawable.ic_calendar),
+    PROFILE(R.string.nav_profile, R.drawable.ic_person_outline),
+    EARNINGS(R.string.nav_earnings, R.drawable.ic_trending_up),
 }
 
-private val TabLabels = listOf("All Consultations", "Availability", "Earnings", "Profile")
+private val TabLabelRes = listOf(R.string.tab_all_consultations, R.string.tab_availability, R.string.tab_earnings, R.string.tab_profile)
 
 @Composable
 fun DoctorDashboardScreen(
@@ -227,12 +229,10 @@ fun DoctorDashboardScreen(
     if (showOverlayPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showOverlayPermissionDialog = false },
-            title = { Text("Display Over Other Apps", color = DarkText, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.overlay_dialog_title), color = DarkText, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "To show a floating bubble when you receive consultation requests while using other apps, " +
-                        "please allow eSIRI+ to display over other apps. " +
-                        "You'll still receive notifications without this permission.",
+                    stringResource(R.string.overlay_dialog_message),
                     color = DarkText,
                 )
             },
@@ -247,12 +247,12 @@ fun DoctorDashboardScreen(
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(intent)
                 }) {
-                    Text("Open Settings", color = BrandTeal, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.overlay_dialog_open_settings), color = BrandTeal, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showOverlayPermissionDialog = false }) {
-                    Text("Not Now", color = DarkText)
+                    Text(stringResource(R.string.overlay_dialog_not_now), color = DarkText)
                 }
             },
         )
@@ -297,20 +297,20 @@ fun DoctorDashboardScreen(
     if (showSignOutDialog) {
         AlertDialog(
             onDismissRequest = { showSignOutDialog = false },
-            title = { Text("Sign Out", color = DarkText, fontWeight = FontWeight.Bold) },
-            text = { Text("Are you sure you want to sign out?", color = DarkText) },
+            title = { Text(stringResource(R.string.sign_out_dialog_title), color = DarkText, fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.sign_out_dialog_message), color = DarkText) },
             confirmButton = {
                 TextButton(onClick = {
                     showSignOutDialog = false
                     viewModel.onSignOut()
                     onSignOut()
                 }) {
-                    Text("Sign Out", color = SignOutRed, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.common_sign_out), color = SignOutRed, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSignOutDialog = false }) {
-                    Text("Cancel", color = DarkText)
+                    Text(stringResource(R.string.common_cancel), color = DarkText)
                 }
             },
         )
@@ -344,19 +344,19 @@ fun DoctorDashboardScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Active Consultation",
+                                stringResource(R.string.dashboard_active_consultation),
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                             )
                             Text(
-                                "Tap to resume your chat",
+                                stringResource(R.string.dashboard_tap_to_resume),
                                 color = Color.White.copy(alpha = 0.9f),
                                 fontSize = 12.sp,
                             )
                         }
                         Text(
-                            "Resume \u25B6",
+                            stringResource(R.string.dashboard_resume),
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
@@ -476,7 +476,7 @@ private fun SideNavigation(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Doctor Portal",
+                text = stringResource(R.string.sidebar_doctor_portal),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -488,7 +488,7 @@ private fun SideNavigation(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Close menu",
+                    contentDescription = stringResource(R.string.common_close_menu),
                     tint = DarkText,
                     modifier = Modifier.size(20.dp),
                 )
@@ -515,7 +515,7 @@ private fun SideNavigation(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "Verified",
+                    text = stringResource(R.string.sidebar_verified),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF16A34A),
@@ -548,7 +548,7 @@ private fun SideNavigation(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = item.label,
+                    text = stringResource(item.labelRes),
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     color = if (isSelected) BrandTeal else DarkText,
@@ -573,7 +573,7 @@ private fun SideNavigation(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = "English",
+                text = stringResource(R.string.common_english),
                 fontSize = 12.sp,
                 color = SubtitleGray,
             )
@@ -638,7 +638,7 @@ private fun SideNavigation(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = "Sign Out",
+                text = stringResource(R.string.common_sign_out),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = SignOutRed,
@@ -750,14 +750,14 @@ private fun TopBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Welcome back,",
+                text = stringResource(R.string.dashboard_welcome_back),
                 fontSize = 12.sp,
                 color = DarkText,
                 modifier = Modifier.weight(1f),
@@ -770,11 +770,15 @@ private fun TopBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
+                    contentDescription = stringResource(R.string.dashboard_notifications),
                     tint = DarkText,
                     modifier = Modifier.size(20.dp),
                 )
             }
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Language switch
+            LanguageSwitchButton(iconTint = DarkText)
             Spacer(modifier = Modifier.width(4.dp))
 
             if (isVerified && isSuspended) {
@@ -787,7 +791,7 @@ private fun TopBar(
                         .padding(horizontal = 10.dp, vertical = 4.dp),
                 ) {
                     Text(
-                        text = "Suspended",
+                        text = stringResource(R.string.dashboard_suspended),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFDC2626),
@@ -805,7 +809,7 @@ private fun TopBar(
                         Spacer(modifier = Modifier.width(4.dp))
                     }
                     Text(
-                        text = "Online",
+                        text = stringResource(R.string.dashboard_online),
                         fontSize = 12.sp,
                         color = DarkText,
                         fontWeight = FontWeight.Medium,
@@ -832,7 +836,7 @@ private fun TopBar(
                         .padding(horizontal = 10.dp, vertical = 4.dp),
                 ) {
                     Text(
-                        text = "Under Review",
+                        text = stringResource(R.string.dashboard_under_review),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFEA580C),
@@ -880,13 +884,13 @@ private fun VerifiedBanner(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
-                text = "Verified Doctor",
+                text = stringResource(R.string.banner_verified_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
             )
             Text(
-                text = "Your profile is verified. You can now accept patient consultations.",
+                text = stringResource(R.string.banner_verified_message),
                 fontSize = 12.sp,
                 color = DarkText,
                 lineHeight = 16.sp,
@@ -922,13 +926,13 @@ private fun PendingReviewBanner(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
-                text = "Application Under Review",
+                text = stringResource(R.string.banner_pending_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
             )
             Text(
-                text = "Your application is under review. This typically takes 1\u20135 business days. You\u2019ll be notified once approved.",
+                text = stringResource(R.string.banner_pending_message),
                 fontSize = 12.sp,
                 color = DarkText,
                 lineHeight = 16.sp,
@@ -964,7 +968,7 @@ private fun RejectedBanner(reason: String, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
-                text = "Application Not Approved",
+                text = stringResource(R.string.banner_rejected_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -977,7 +981,7 @@ private fun RejectedBanner(reason: String, modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Please review the reason and resubmit your credentials.",
+                text = stringResource(R.string.banner_rejected_resubmit),
                 fontSize = 11.sp,
                 color = Color(0xFF991B1B),
                 lineHeight = 14.sp,
@@ -996,7 +1000,7 @@ private fun TabChipRow(modifier: Modifier = Modifier) {
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        TabLabels.forEachIndexed { index, label ->
+        TabLabelRes.forEachIndexed { index, labelRes ->
             val isSelected = index == selectedTab
             Box(
                 modifier = Modifier
@@ -1009,7 +1013,7 @@ private fun TabChipRow(modifier: Modifier = Modifier) {
                     .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Text(
-                    text = label,
+                    text = stringResource(labelRes),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = if (isSelected) Color.White else DarkText,
@@ -1029,14 +1033,14 @@ private fun StatsGrid(uiState: DoctorDashboardUiState, modifier: Modifier = Modi
         ) {
             StatCard(
                 value = "${uiState.pendingRequests}",
-                label = "Pending Requests",
+                label = stringResource(R.string.stats_pending_requests),
                 iconColor = Color(0xFFF59E0B),
                 iconBg = Color(0xFFFEF3C7),
                 modifier = Modifier.weight(1f),
             )
             StatCard(
                 value = "${uiState.activeConsultations}",
-                label = "Active Consultations",
+                label = stringResource(R.string.stats_active_consultations),
                 iconColor = BrandTeal,
                 iconBg = Color(0xFFE0F2FE),
                 modifier = Modifier.weight(1f),
@@ -1049,14 +1053,14 @@ private fun StatsGrid(uiState: DoctorDashboardUiState, modifier: Modifier = Modi
         ) {
             StatCard(
                 value = uiState.todaysEarnings,
-                label = "Today's Earnings",
+                label = stringResource(R.string.stats_todays_earnings),
                 iconColor = Color(0xFF22C55E),
                 iconBg = Color(0xFFDCFCE7),
                 modifier = Modifier.weight(1f),
             )
             StatCard(
                 value = "${uiState.totalPatients}",
-                label = "Total Patients",
+                label = stringResource(R.string.stats_total_patients),
                 iconColor = Color(0xFF3B82F6),
                 iconBg = Color(0xFFDBEAFE),
                 modifier = Modifier.weight(1f),
@@ -1069,14 +1073,14 @@ private fun StatsGrid(uiState: DoctorDashboardUiState, modifier: Modifier = Modi
         ) {
             StatCard(
                 value = uiState.acceptanceRate,
-                label = "Acceptance Rate",
+                label = stringResource(R.string.stats_acceptance_rate),
                 iconColor = BrandTeal,
                 iconBg = Color(0xFFD1FAE5),
                 modifier = Modifier.weight(1f),
             )
             StatCard(
                 value = "${uiState.todayAppointments.size + uiState.upcomingAppointments.size}",
-                label = "Appointments",
+                label = stringResource(R.string.stats_appointments),
                 iconColor = Color(0xFF8B5CF6),
                 iconBg = Color(0xFFEDE9FE),
                 modifier = Modifier.weight(1f),
@@ -1155,7 +1159,7 @@ private fun AvailabilitySection(
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = "Today's Availability",
+                text = stringResource(R.string.availability_today_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -1177,7 +1181,7 @@ private fun AvailabilitySection(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = if (isAvailable) "Available today" else "Not available today",
+                text = if (isAvailable) stringResource(R.string.availability_available_today) else stringResource(R.string.availability_not_available_today),
                 fontSize = 13.sp,
                 color = SubtitleGray,
             )
@@ -1190,7 +1194,7 @@ private fun AvailabilitySection(
                     .padding(horizontal = 14.dp, vertical = 6.dp),
             ) {
                 Text(
-                    text = "Set Availability",
+                    text = stringResource(R.string.availability_set),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = DarkText,
@@ -1219,7 +1223,7 @@ private fun PendingRequestsSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Pending Requests",
+                text = stringResource(R.string.pending_requests_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -1230,7 +1234,7 @@ private fun PendingRequestsSection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "View All",
+                    text = stringResource(R.string.common_view_all),
                     fontSize = 12.sp,
                     color = DarkText,
                     fontWeight = FontWeight.Medium,
@@ -1258,7 +1262,7 @@ private fun PendingRequestsSection(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = if (count == 0) "No pending requests" else "$count pending request(s)",
+                text = if (count == 0) stringResource(R.string.pending_requests_none) else stringResource(R.string.pending_requests_count, count),
                 fontSize = 13.sp,
                 color = SubtitleGray,
             )
@@ -1293,7 +1297,7 @@ private fun AppointmentsSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Upcoming Appointments",
+                text = stringResource(R.string.appointments_upcoming_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -1304,7 +1308,7 @@ private fun AppointmentsSection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "View All",
+                    text = stringResource(R.string.common_view_all),
                     fontSize = 12.sp,
                     color = DarkText,
                     fontWeight = FontWeight.Medium,
@@ -1342,7 +1346,7 @@ private fun AppointmentsSection(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "No upcoming appointments",
+                    text = stringResource(R.string.appointments_none),
                     fontSize = 13.sp,
                     color = SubtitleGray,
                 )
@@ -1355,7 +1359,7 @@ private fun AppointmentsSection(
             }
             if (allAppointments.size > 3) {
                 Text(
-                    text = "+${allAppointments.size - 3} more",
+                    text = stringResource(R.string.appointments_more, allAppointments.size - 3),
                     fontSize = 12.sp,
                     color = BrandTeal,
                     fontWeight = FontWeight.Medium,
@@ -1401,7 +1405,7 @@ private fun AppointmentRow(appointment: Appointment) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = "$dateStr at $timeStr",
+                text = stringResource(R.string.appointments_date_at_time, dateStr, timeStr),
                 fontSize = 11.sp,
                 color = SubtitleGray,
             )
@@ -1435,11 +1439,11 @@ private fun AppointmentRow(appointment: Appointment) {
 
 // ─── Consultations Content ──────────────────────────────────────────────────────
 
-private enum class ConsultationTab(val label: String) {
-    PENDING("Pending"),
-    ACTIVE("Active"),
-    COMPLETED("Completed"),
-    CANCELLED("Cancelled"),
+private enum class ConsultationTab(val labelRes: Int) {
+    PENDING(R.string.consultations_tab_pending),
+    ACTIVE(R.string.consultations_tab_active),
+    COMPLETED(R.string.consultations_tab_completed),
+    CANCELLED(R.string.consultations_tab_cancelled),
 }
 
 @Composable
@@ -1462,7 +1466,7 @@ private fun ConsultationsContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
@@ -1470,13 +1474,13 @@ private fun ConsultationsContent(
             Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(
-                    text = "Consultations",
+                    text = stringResource(R.string.consultations_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
                 )
                 Text(
-                    text = "Manage your patient consultations",
+                    text = stringResource(R.string.consultations_subtitle),
                     fontSize = 12.sp,
                     color = BrandTeal,
                 )
@@ -1507,7 +1511,7 @@ private fun ConsultationsContent(
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                 ) {
                     Text(
-                        text = tab.label,
+                        text = stringResource(tab.labelRes),
                         fontSize = 13.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                         color = DarkText,
@@ -1542,7 +1546,7 @@ private fun ConsultationsContent(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "No ${selectedTab.label.lowercase()} consultations",
+                    text = stringResource(R.string.consultations_empty, stringResource(selectedTab.labelRes).lowercase()),
                     fontSize = 14.sp,
                     color = DarkText,
                 )
@@ -1612,12 +1616,12 @@ private fun ConsultationCard(
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Fee: TSh ${consultation.consultationFee}",
+            text = stringResource(R.string.consultation_fee, consultation.consultationFee),
             fontSize = 12.sp,
             color = DarkText,
         )
         Text(
-            text = "Duration: ${consultation.sessionDurationMinutes} min",
+            text = stringResource(R.string.consultation_duration, consultation.sessionDurationMinutes),
             fontSize = 12.sp,
             color = DarkText,
         )
@@ -1652,7 +1656,7 @@ private fun AvailabilitySettingsContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
@@ -1660,13 +1664,13 @@ private fun AvailabilitySettingsContent(
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Availability Settings",
+                    text = stringResource(R.string.availability_settings_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
                 )
                 Text(
-                    text = "Set your weekly consultation hours",
+                    text = stringResource(R.string.availability_settings_subtitle),
                     fontSize = 12.sp,
                     color = BrandTeal,
                 )
@@ -1680,7 +1684,7 @@ private fun AvailabilitySettingsContent(
                     .padding(horizontal = 14.dp, vertical = 8.dp),
             ) {
                 Text(
-                    text = if (uiState.availabilitySaved) "Saved" else "Save Changes",
+                    text = if (uiState.availabilitySaved) stringResource(R.string.availability_save_saved) else stringResource(R.string.availability_save_changes),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
@@ -1697,7 +1701,7 @@ private fun AvailabilitySettingsContent(
         ) {
             // Quick Presets
             Text(
-                text = "Quick Presets",
+                text = stringResource(R.string.availability_quick_presets),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -1707,9 +1711,9 @@ private fun AvailabilitySettingsContent(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
             ) {
-                PresetChip("Mon-Fri (9 AM - 5 PM)") { viewModel.applyPresetMonFri() }
-                PresetChip("Every Day (9 AM - 5 PM)") { viewModel.applyPresetEveryDay() }
-                PresetChip("Clear All") { viewModel.clearAllAvailability() }
+                PresetChip(stringResource(R.string.availability_preset_mon_fri)) { viewModel.applyPresetMonFri() }
+                PresetChip(stringResource(R.string.availability_preset_every_day)) { viewModel.applyPresetEveryDay() }
+                PresetChip(stringResource(R.string.availability_preset_clear_all)) { viewModel.clearAllAvailability() }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -1724,7 +1728,7 @@ private fun AvailabilitySettingsContent(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Weekly Schedule",
+                    text = stringResource(R.string.availability_weekly_schedule),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
@@ -1826,7 +1830,7 @@ private fun DayScheduleRow(
             )
         } else {
             Text(
-                text = "Off",
+                text = stringResource(R.string.common_off),
                 fontSize = 13.sp,
                 color = CardBorder,
                 modifier = Modifier.padding(start = 8.dp),
@@ -1932,7 +1936,7 @@ private fun ProfileSettingsContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
@@ -1940,13 +1944,13 @@ private fun ProfileSettingsContent(
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Profile Settings",
+                    text = stringResource(R.string.profile_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
                 )
                 Text(
-                    text = "View your profile and update preferences",
+                    text = stringResource(R.string.profile_subtitle),
                     fontSize = 12.sp,
                     color = BrandTeal,
                 )
@@ -1976,7 +1980,7 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Profile Photo", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_photo_title), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
@@ -2003,7 +2007,7 @@ private fun ProfileSettingsContent(
                         } else if (!uiState.profilePhotoUrl.isNullOrBlank()) {
                             AsyncImage(
                                 model = uiState.profilePhotoUrl,
-                                contentDescription = "Profile photo",
+                                contentDescription = stringResource(R.string.profile_photo_content_description),
                                 modifier = Modifier
                                     .size(56.dp)
                                     .clip(RoundedCornerShape(12.dp)),
@@ -2020,8 +2024,8 @@ private fun ProfileSettingsContent(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text("Tap to change photo", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = BrandTeal)
-                        Text("JPG, PNG, max 5MB", fontSize = 11.sp, color = SubtitleGray)
+                        Text(stringResource(R.string.profile_photo_tap_to_change), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = BrandTeal)
+                        Text(stringResource(R.string.profile_photo_size_hint), fontSize = 11.sp, color = SubtitleGray)
                     }
                 }
             }
@@ -2038,10 +2042,10 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Personal Information", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_personal_info), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
                 }
                 Text(
-                    text = "Set during registration",
+                    text = stringResource(R.string.profile_set_during_registration),
                     fontSize = 11.sp,
                     color = BrandTeal,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -2057,7 +2061,7 @@ private fun ProfileSettingsContent(
                     OutlinedTextField(
                         value = uiState.doctorName,
                         onValueChange = {},
-                        label = { Text("Full Name") },
+                        label = { Text(stringResource(R.string.profile_full_name)) },
                         enabled = false,
                         singleLine = true,
                         colors = fieldColors,
@@ -2066,7 +2070,7 @@ private fun ProfileSettingsContent(
                     OutlinedTextField(
                         value = uiState.profilePhone,
                         onValueChange = {},
-                        label = { Text("Phone Number") },
+                        label = { Text(stringResource(R.string.profile_phone_number)) },
                         enabled = false,
                         singleLine = true,
                         colors = fieldColors,
@@ -2080,7 +2084,7 @@ private fun ProfileSettingsContent(
                 OutlinedTextField(
                     value = uiState.profileEmail,
                     onValueChange = {},
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.profile_email)) },
                     enabled = false,
                     singleLine = true,
                     colors = fieldColors,
@@ -2100,10 +2104,10 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Professional Information", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_professional_info), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
                 }
                 Text(
-                    text = "Set during registration",
+                    text = stringResource(R.string.profile_set_during_registration),
                     fontSize = 11.sp,
                     color = BrandTeal,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -2119,7 +2123,7 @@ private fun ProfileSettingsContent(
                     OutlinedTextField(
                         value = uiState.profileSpecialty,
                         onValueChange = {},
-                        label = { Text("Specialty") },
+                        label = { Text(stringResource(R.string.profile_specialty)) },
                         enabled = false,
                         singleLine = true,
                         colors = fieldColors,
@@ -2128,7 +2132,7 @@ private fun ProfileSettingsContent(
                     OutlinedTextField(
                         value = uiState.profileLicenseNumber,
                         onValueChange = {},
-                        label = { Text("License Number") },
+                        label = { Text(stringResource(R.string.profile_license_number)) },
                         enabled = false,
                         singleLine = true,
                         colors = fieldColors,
@@ -2142,14 +2146,14 @@ private fun ProfileSettingsContent(
                 OutlinedTextField(
                     value = uiState.profileYearsExperience,
                     onValueChange = {},
-                    label = { Text("Years of Experience") },
+                    label = { Text(stringResource(R.string.profile_years_experience)) },
                     enabled = false,
                     singleLine = true,
                     colors = fieldColors,
                     modifier = Modifier.fillMaxWidth(0.48f),
                 )
                 Text(
-                    text = "Updates automatically each year",
+                    text = stringResource(R.string.profile_years_experience_auto),
                     fontSize = 11.sp,
                     color = BrandTeal,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -2159,7 +2163,7 @@ private fun ProfileSettingsContent(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Professional Bio (read-only)
-                Text("Professional Bio", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DarkText)
+                Text(stringResource(R.string.profile_bio), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DarkText)
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = uiState.profileBio,
@@ -2184,7 +2188,7 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Location & Languages", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_location_languages), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -2193,14 +2197,14 @@ private fun ProfileSettingsContent(
                 OutlinedTextField(
                     value = uiState.profileCountry,
                     onValueChange = {},
-                    label = { Text("Country") },
+                    label = { Text(stringResource(R.string.profile_country)) },
                     enabled = false,
                     singleLine = true,
                     colors = fieldColors,
                     modifier = Modifier.fillMaxWidth(0.48f),
                 )
                 Text(
-                    text = "Set during registration",
+                    text = stringResource(R.string.profile_set_during_registration),
                     fontSize = 11.sp,
                     color = BrandTeal,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -2210,10 +2214,10 @@ private fun ProfileSettingsContent(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Languages (editable)
-                Text("Languages You Speak", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DarkText)
+                Text(stringResource(R.string.profile_languages_title), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DarkText)
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text("COMMON LANGUAGES", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SubtitleGray)
+                Text(stringResource(R.string.profile_common_languages), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SubtitleGray)
                 Spacer(modifier = Modifier.height(4.dp))
                 WrappingRow(horizontalSpacing = 6.dp, verticalSpacing = 6.dp) {
                     CommonLanguages.forEach { lang ->
@@ -2227,7 +2231,7 @@ private fun ProfileSettingsContent(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text("OTHER LANGUAGES", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SubtitleGray)
+                Text(stringResource(R.string.profile_other_languages), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SubtitleGray)
                 Spacer(modifier = Modifier.height(4.dp))
                 WrappingRow(horizontalSpacing = 6.dp, verticalSpacing = 6.dp) {
                     OtherLanguages.forEach { lang ->
@@ -2241,7 +2245,7 @@ private fun ProfileSettingsContent(
 
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${uiState.profileLanguages.size} language(s) selected",
+                    text = stringResource(R.string.profile_languages_selected, uiState.profileLanguages.size),
                     fontSize = 11.sp,
                     color = BrandTeal,
                 )
@@ -2251,7 +2255,7 @@ private fun ProfileSettingsContent(
 
             // ── Services Offered ──────────────────────────────────────
             ProfileSectionCard {
-                Text("Services Offered", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                Text(stringResource(R.string.profile_services_offered), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
                 Spacer(modifier = Modifier.height(8.dp))
                 WrappingRow(horizontalSpacing = 6.dp, verticalSpacing = 6.dp) {
                     ServiceOptions.forEach { service ->
@@ -2273,9 +2277,9 @@ private fun ProfileSettingsContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Available for Consultations", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                        Text(stringResource(R.string.profile_available_for_consultations), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
                         Text(
-                            "Toggle off to temporarily hide your profile from patients",
+                            stringResource(R.string.profile_available_toggle_hint),
                             fontSize = 11.sp,
                             color = SubtitleGray,
                         )
@@ -2313,9 +2317,9 @@ private fun ProfileSettingsContent(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = when {
-                            uiState.profileSaved && uiState.profileSyncFailed -> "Saved Locally"
-                            uiState.profileSaved -> "Saved"
-                            else -> "Save Changes"
+                            uiState.profileSaved && uiState.profileSyncFailed -> stringResource(R.string.profile_saved_locally)
+                            uiState.profileSaved -> stringResource(R.string.profile_saved)
+                            else -> stringResource(R.string.availability_save_changes)
                         },
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -2327,7 +2331,7 @@ private fun ProfileSettingsContent(
             if (uiState.profileSyncFailed) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Changes saved locally but could not sync to server. They will sync on next launch.",
+                    text = stringResource(R.string.profile_sync_failed_hint),
                     fontSize = 11.sp,
                     color = Color(0xFFD97706),
                 )
@@ -2470,7 +2474,7 @@ private fun ActiveChatsContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
@@ -2478,13 +2482,13 @@ private fun ActiveChatsContent(
             Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(
-                    text = "Chat",
+                    text = stringResource(R.string.chat_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
                 )
                 Text(
-                    text = "Active consultations",
+                    text = stringResource(R.string.chat_subtitle),
                     fontSize = 12.sp,
                     color = BrandTeal,
                 )
@@ -2509,13 +2513,13 @@ private fun ActiveChatsContent(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "No active consultations",
+                    text = stringResource(R.string.chat_empty),
                     fontSize = 14.sp,
                     color = DarkText,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Active consultations will appear here",
+                    text = stringResource(R.string.chat_empty_hint),
                     fontSize = 12.sp,
                     color = Color(0xFF6B7280),
                 )
@@ -2561,7 +2565,7 @@ private fun EarningsContent(
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
@@ -2569,13 +2573,13 @@ private fun EarningsContent(
             Spacer(modifier = Modifier.width(4.dp))
             Column {
                 Text(
-                    text = "Earnings",
+                    text = stringResource(R.string.earnings_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
                 )
                 Text(
-                    text = "Track your consultation earnings",
+                    text = stringResource(R.string.earnings_subtitle),
                     fontSize = 12.sp,
                     color = Color(0xFF6B7280),
                 )
@@ -2595,7 +2599,7 @@ private fun EarningsContent(
             ) {
                 EarningsStatCard(
                     value = uiState.totalEarnings,
-                    label = "Total Earnings",
+                    label = stringResource(R.string.earnings_total),
                     iconRes = R.drawable.ic_dashboard,
                     iconColor = Color(0xFF22C55E),
                     iconBg = Color(0xFFDCFCE7),
@@ -2603,7 +2607,7 @@ private fun EarningsContent(
                 )
                 EarningsStatCard(
                     value = uiState.thisMonthEarnings,
-                    label = "This Month",
+                    label = stringResource(R.string.earnings_this_month),
                     iconRes = R.drawable.ic_calendar,
                     iconColor = Color(0xFF22C55E),
                     iconBg = Color(0xFFDCFCE7),
@@ -2616,7 +2620,7 @@ private fun EarningsContent(
             ) {
                 EarningsStatCard(
                     value = uiState.lastMonthEarnings,
-                    label = "Last Month",
+                    label = stringResource(R.string.earnings_last_month),
                     iconRes = R.drawable.ic_trending_up,
                     iconColor = Color(0xFF3B82F6),
                     iconBg = Color(0xFFDBEAFE),
@@ -2624,7 +2628,7 @@ private fun EarningsContent(
                 )
                 EarningsStatCard(
                     value = uiState.pendingPayout,
-                    label = "Pending Payout",
+                    label = stringResource(R.string.earnings_pending_payout),
                     iconRes = R.drawable.ic_trending_up,
                     iconColor = Color(0xFFF59E0B),
                     iconBg = Color(0xFFFEF3C7),
@@ -2646,14 +2650,14 @@ private fun EarningsContent(
                 .padding(14.dp),
         ) {
             Text(
-                text = "Payout Information",
+                text = stringResource(R.string.earnings_payout_info_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFFD97706),
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Payouts are processed automatically at the end of each month via M-Pesa. Ensure your phone number is correct in your profile settings.",
+                text = stringResource(R.string.earnings_payout_info_message),
                 fontSize = 12.sp,
                 color = Color(0xFF92400E),
                 lineHeight = 18.sp,
@@ -2673,7 +2677,7 @@ private fun EarningsContent(
                 .padding(14.dp),
         ) {
             Text(
-                text = "Recent Transactions",
+                text = stringResource(R.string.earnings_recent_transactions),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = DarkText,
@@ -2696,7 +2700,7 @@ private fun EarningsContent(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "No transactions yet",
+                        text = stringResource(R.string.earnings_no_transactions),
                         fontSize = 13.sp,
                         color = Color(0xFF9CA3AF),
                     )
@@ -2806,7 +2810,7 @@ private fun SectionContent(title: String, onOpenSidebar: () -> Unit) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Open menu",
+                    contentDescription = stringResource(R.string.common_open_menu),
                     tint = DarkText,
                     modifier = Modifier.size(22.dp),
                 )
@@ -2824,7 +2828,7 @@ private fun SectionContent(title: String, onOpenSidebar: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Coming Soon",
+                text = stringResource(R.string.common_coming_soon),
                 fontSize = 16.sp,
                 color = DarkText,
                 fontWeight = FontWeight.Medium,
@@ -2928,7 +2932,7 @@ private fun BanNoticeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Account Banned",
+                text = stringResource(R.string.ban_title),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFDC2626),
@@ -2937,7 +2941,7 @@ private fun BanNoticeScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Your account has been banned from using this application.",
+                text = stringResource(R.string.ban_message),
                 fontSize = 14.sp,
                 color = DarkText,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -2956,7 +2960,7 @@ private fun BanNoticeScreen(
                         .padding(16.dp),
                 ) {
                     Text(
-                        text = "Reason",
+                        text = stringResource(R.string.ban_reason_label),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFDC2626),
@@ -2982,7 +2986,7 @@ private fun BanNoticeScreen(
                     .padding(16.dp),
             ) {
                 Text(
-                    text = "Have a complaint?",
+                    text = stringResource(R.string.ban_appeal_title),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF0369A1),
@@ -2990,16 +2994,16 @@ private fun BanNoticeScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (appealDeadline != null) {
-                        "You may contact our support team to appeal this decision within 7 days (by $appealDeadline)."
+                        stringResource(R.string.ban_appeal_message_with_date, appealDeadline)
                     } else {
-                        "You may contact our support team to appeal this decision within 7 days of the ban."
+                        stringResource(R.string.ban_appeal_message_no_date)
                     },
                     fontSize = 13.sp,
                     color = DarkText,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "support@esiriplus.com",
+                    text = stringResource(R.string.ban_support_email),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF0369A1),
@@ -3011,7 +3015,7 @@ private fun BanNoticeScreen(
             // Sign out button
             TextButton(onClick = onSignOut) {
                 Text(
-                    text = "Sign Out",
+                    text = stringResource(R.string.common_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF6B7280),

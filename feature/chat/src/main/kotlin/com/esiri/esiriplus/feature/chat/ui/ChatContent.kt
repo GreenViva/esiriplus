@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,6 +65,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.esiri.esiriplus.core.domain.repository.MessageData
+import com.esiri.esiriplus.feature.chat.R
 import kotlinx.coroutines.delay
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -196,7 +198,7 @@ fun ChatContent(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "Uploading attachment...",
+                            text = stringResource(R.string.chat_uploading_attachment),
                             color = BrandTeal,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
@@ -245,21 +247,21 @@ private fun ChatTopBar(
         IconButton(onClick = onBack) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.chat_back),
                 tint = Color.Black,
             )
         }
         Spacer(Modifier.width(4.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Consultation",
+                text = stringResource(R.string.chat_consultation),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
             )
             if (consultationId.isNotBlank()) {
                 Text(
-                    text = "ID: ${consultationId.take(8)}...",
+                    text = stringResource(R.string.chat_consultation_id, consultationId.take(8)),
                     fontSize = 12.sp,
                     color = Color.Black,
                 )
@@ -319,6 +321,7 @@ private fun MessageBubble(
 
     val hasAttachment = !message.attachmentUrl.isNullOrBlank()
     val isImage = message.messageType == "image" && hasAttachment
+    val documentFallback = stringResource(R.string.chat_document)
 
     Column(
         modifier = Modifier
@@ -340,7 +343,7 @@ private fun MessageBubble(
                             .data(message.attachmentUrl)
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Attached image",
+                        contentDescription = stringResource(R.string.chat_attached_image),
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 100.dp, max = 200.dp)
@@ -374,14 +377,14 @@ private fun MessageBubble(
                         ) {
                             Icon(
                                 Icons.Default.Description,
-                                contentDescription = "Document",
+                                contentDescription = stringResource(R.string.chat_document),
                                 tint = if (isOwn) Color.White else BrandTeal,
                                 modifier = Modifier.size(28.dp),
                             )
                             Spacer(Modifier.width(8.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = extractFileName(message.messageText, message.attachmentUrl!!),
+                                    text = extractFileName(message.messageText, message.attachmentUrl!!, documentFallback),
                                     color = textColor,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
@@ -389,7 +392,7 @@ private fun MessageBubble(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
-                                    text = "Tap to open",
+                                    text = stringResource(R.string.chat_tap_to_open),
                                     color = if (isOwn) Color.White.copy(alpha = 0.7f) else Color(0xFF6B7280),
                                     fontSize = 11.sp,
                                 )
@@ -400,7 +403,7 @@ private fun MessageBubble(
                 }
 
                 // Text content (show if not empty, or if no attachment)
-                if (message.messageText.isNotBlank() && !(hasAttachment && message.messageText == extractFileName(message.messageText, message.attachmentUrl ?: ""))) {
+                if (message.messageText.isNotBlank() && !(hasAttachment && message.messageText == extractFileName(message.messageText, message.attachmentUrl ?: "", documentFallback))) {
                     if (!hasAttachment) {
                         // Pure text message
                         Text(
@@ -440,13 +443,13 @@ private fun MessageBubble(
 }
 
 /** Extract a display filename from the message text or attachment URL. */
-private fun extractFileName(messageText: String, attachmentUrl: String): String {
+private fun extractFileName(messageText: String, attachmentUrl: String, fallback: String): String {
     // If messageText looks like a filename, use it
     if (messageText.isNotBlank() && (messageText.contains('.') || messageText.length < 60)) {
         return messageText
     }
     // Fallback: extract from URL
-    return attachmentUrl.substringAfterLast('/').substringBefore('?').ifBlank { "Document" }
+    return attachmentUrl.substringAfterLast('/').substringBefore('?').ifBlank { fallback }
 }
 
 @Composable
@@ -460,6 +463,8 @@ private fun TypingIndicatorBubble() {
         }
     }
 
+    val typingText = stringResource(R.string.chat_typing)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -472,7 +477,7 @@ private fun TypingIndicatorBubble() {
             shadowElevation = 1.dp,
         ) {
             Text(
-                text = "Typing" + ".".repeat(dotCount),
+                text = typingText + ".".repeat(dotCount),
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 color = Color(0xFF6B7280),
                 fontSize = 13.sp,
@@ -489,14 +494,14 @@ private fun EmptyMessagesState(modifier: Modifier = Modifier) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "No messages yet",
+                text = stringResource(R.string.chat_no_messages),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 color = Color.Black,
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "Start the conversation below",
+                text = stringResource(R.string.chat_start_conversation),
                 fontSize = 14.sp,
                 color = Color(0xFF6B7280),
             )
@@ -530,7 +535,7 @@ private fun ChatInputBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.AttachFile,
-                    contentDescription = "Attach file",
+                    contentDescription = stringResource(R.string.chat_attach_file),
                     tint = if (isUploading) Color(0xFFE5E7EB) else BrandTeal,
                     modifier = Modifier.size(22.dp),
                 )
@@ -540,7 +545,7 @@ private fun ChatInputBar(
                 onValueChange = onValueChange,
                 modifier = Modifier.weight(1f),
                 placeholder = {
-                    Text("Type a message...", color = Color(0xFF9CA3AF), fontSize = 14.sp)
+                    Text(stringResource(R.string.chat_type_message), color = Color(0xFF9CA3AF), fontSize = 14.sp)
                 },
                 shape = RoundedCornerShape(24.dp),
                 maxLines = 4,
@@ -571,7 +576,7 @@ private fun ChatInputBar(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send",
+                    contentDescription = stringResource(R.string.chat_send),
                     tint = Color.White,
                     modifier = Modifier.size(20.dp),
                 )
@@ -594,7 +599,7 @@ private fun DisabledInputBar() {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Messaging paused \u2014 session time ended",
+                text = stringResource(R.string.chat_messaging_paused),
                 color = Color(0xFF6B7280),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,

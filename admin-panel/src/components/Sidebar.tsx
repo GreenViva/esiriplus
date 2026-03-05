@@ -19,14 +19,14 @@ const adminItems: NavItem[] = [
   { href: "/dashboard/doctors/management", label: "Doctor Management", icon: DoctorMgmtIcon },
   { href: "/dashboard/payments", label: "Payments", icon: PaymentsIcon },
   { href: "/dashboard/analytics", label: "Health Analytics", icon: AnalyticsIcon },
+  { href: "/dashboard/ratings", label: "Ratings & Feedback", icon: RatingsIcon },
   { href: "/dashboard/users", label: "Role Management", icon: RoleIcon },
 ];
 
 const hrItems: NavItem[] = [
-  { href: "/dashboard/hr", label: "HR Dashboard", icon: HRDashboardIcon },
-  { href: "/dashboard/hr/doctors", label: "Doctor Management", icon: DoctorMgmtIcon },
-  { href: "/dashboard/hr/ratings", label: "Ratings & Feedback", icon: RatingsIcon },
-  { href: "/dashboard/hr/audit", label: "Audit Log", icon: AuditLogIcon },
+  { href: "/dashboard/doctors", label: "Doctor Applications", icon: DoctorAppIcon },
+  { href: "/dashboard/doctors/management", label: "Doctor Management", icon: DoctorMgmtIcon },
+  { href: "/dashboard/ratings", label: "Ratings & Feedback", icon: RatingsIcon },
 ];
 
 const financeItems: NavItem[] = [
@@ -68,10 +68,6 @@ export default function Sidebar({ email, fullName, role = "admin" }: SidebarProp
   const config = portalConfig[role] ?? portalConfig.admin;
 
   function isActive(href: string) {
-    if (role === "hr") {
-      if (href === "/dashboard/hr") return pathname === "/dashboard/hr";
-      return pathname.startsWith(href);
-    }
     if (href === "/dashboard") return pathname === "/dashboard";
     // Exact match for /dashboard/doctors so it doesn't also match /dashboard/doctors/management
     if (href === "/dashboard/doctors") {

@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===== PatientHomeScreen ===== -->
+    <string name="home_welcome_back">वापसी पर स्वागत है \uD83D\uDC4B</string>
+    <string name="home_your_patient_id">आपकी मरीज़ आईडी:</string>
+    <string name="home_patient_id_copied">मरीज़ आईडी कॉपी हो गई</string>
+    <string name="home_copy_patient_id">मरीज़ आईडी कॉपी करें</string>
+    <string name="home_sounds">ध्वनियाँ</string>
+    <string name="home_log_out">लॉग आउट</string>
+    <string name="home_your_medical_info">आपकी चिकित्सा जानकारी</string>
+    <string name="home_edit">संपादित करें</string>
+    <string name="home_chip_services">सेवाएँ</string>
+    <string name="home_chip_new_consultation">नया परामर्श</string>
+    <string name="home_chip_reports">रिपोर्ट</string>
+    <string name="home_start_consultation">परामर्श शुरू करें</string>
+    <string name="home_start_consultation_subtitle">सेवा चुनें और सत्यापित डॉक्टरों से जुड़ें</string>
+    <string name="home_content_desc_start">शुरू करें</string>
+    <string name="home_consultation_history">परामर्श इतिहास</string>
+    <string name="home_consultation_history_subtitle">अपने पिछले परामर्श देखें</string>
+    <string name="home_reports">रिपोर्ट</string>
+    <string name="home_reports_subtitle">अपनी रिपोर्ट देखें और डाउनलोड करें</string>
+    <string name="home_my_appointments">मेरी अपॉइंटमेंट</string>
+    <string name="home_my_appointments_subtitle">अपनी अपॉइंटमेंट देखें और प्रबंधित करें</string>
+    <string name="home_content_desc_open">खोलें</string>
+    <string name="home_content_desc_active_consultation">सक्रिय परामर्श पर वापस जाएँ</string>
+    <string name="home_logout_title">लॉग आउट</string>
+    <string name="home_logout_message">क्या आप वाकई लॉग आउट करना चाहते हैं? वापस लॉग इन करने के लिए आपको अपनी मरीज़ आईडी की आवश्यकता होगी।</string>
+    <string name="home_logout_confirm">लॉग आउट</string>
+    <string name="home_logout_cancel">रद्द करें</string>
+
+    <!-- ===== PatientProfileScreen ===== -->
+    <string name="profile_back">वापस</string>
+    <string name="profile_title">स्वास्थ्य प्रोफ़ाइल</string>
+    <string name="profile_sex">लिंग</string>
+    <string name="profile_male">पुरुष</string>
+    <string name="profile_female">महिला</string>
+    <string name="profile_age_group">आयु वर्ग</string>
+    <string name="profile_select_age_group">आयु वर्ग चुनें</string>
+    <string name="profile_blood_type">रक्त समूह</string>
+    <string name="profile_select_blood_type">रक्त समूह चुनें</string>
+    <string name="profile_allergies">एलर्जी</string>
+    <string name="profile_allergies_placeholder">जैसे पेनिसिलिन, मूँगफली</string>
+    <string name="profile_chronic_conditions">पुरानी बीमारियाँ</string>
+    <string name="profile_chronic_conditions_placeholder">जैसे मधुमेह, उच्च रक्तचाप</string>
+    <string name="profile_save">सहेजें</string>
+    <string name="profile_age_under_18">18 से कम</string>
+    <string name="profile_age_18_24">18-24</string>
+    <string name="profile_age_25_34">25-34</string>
+    <string name="profile_age_35_44">35-44</string>
+    <string name="profile_age_45_54">45-54</string>
+    <string name="profile_age_55_64">55-64</string>
+    <string name="profile_age_65_plus">65+</string>
+
+    <!-- ===== ServicesScreen ===== -->
+    <string name="services_back">वापस</string>
+    <string name="services_title">हमारी सेवाएँ</string>
+    <string name="services_subtitle">अपनी ज़रूरत के अनुसार स्वास्थ्य सेवा प्रदाता चुनें \u2022 तंज़ानिया</string>
+    <string name="services_pay_to_continue">जारी रखने के लिए भुगतान करें</string>
+    <string name="services_payment_required">उपलब्ध स्वास्थ्य सेवा प्रदाताओं को देखने के लिए भुगतान आवश्यक है</string>
+    <string name="services_popular">\u2728 लोकप्रिय</string>
+    <string name="services_coming_soon">जल्द आ रहा है</string>
+    <string name="services_choose_payment_method">भुगतान विधि चुनें</string>
+    <string name="services_close">बंद करें</string>
+    <string name="services_mobile_money">मोबाइल मनी</string>
+    <string name="services_mobile_money_subtitle">M-Pesa, Airtel Money, HaloPesa, Yas</string>
+    <string name="services_card_payment">कार्ड भुगतान</string>
+    <string name="services_card_payment_subtitle">Visa, Mastercard</string>
+    <string name="services_bank_transfer">बैंक ट्रांसफ़र</string>
+    <string name="services_bank_transfer_subtitle">सीधा बैंक ट्रांसफ़र</string>
+    <string name="services_secure_payments">\uD83D\uDD12 सभी भुगतान सुरक्षित और एन्क्रिप्टेड हैं</string>
+    <string name="services_select_provider">अपना प्रदाता चुनें</string>
+    <string name="services_reference_number">संदर्भ संख्या</string>
+    <string name="services_amount_to_pay">भुगतान राशि</string>
+    <string name="services_follow_steps">अपने फ़ोन पर इन चरणों का पालन करें:</string>
+    <string name="services_exact_amount_warning">अनावश्यक देरी से बचने के लिए, कृपया अपनी चुनी हुई सेवा के लिए TSh %s की सटीक राशि का भुगतान करें।</string>
+    <string name="services_change_provider">प्रदाता\nबदलें</string>
+    <string name="services_i_have_paid">मैंने भुगतान कर दिया है</string>
+    <string name="services_verifying_payment">भुगतान सत्यापित हो रहा है\u2026</string>
+    <string name="services_please_wait_confirm">कृपया प्रतीक्षा करें, हम आपके भुगतान की पुष्टि कर रहे हैं</string>
+    <string name="services_payment_successful">भुगतान सफल!</string>
+    <string name="services_payment_confirmed_message">आपके भुगतान की पुष्टि हो गई है। अब आप उपलब्ध स्वास्थ्य सेवा प्रदाताओं को देख सकते हैं।</string>
+    <string name="services_continue">जारी रखें</string>
+    <string name="services_min_format">%d मिनट</string>
+
+    <!-- ===== FindDoctorScreen ===== -->
+    <string name="find_doctor_back">वापस</string>
+    <string name="find_doctor_title">डॉक्टर खोजें</string>
+    <string name="find_doctor_subtitle">हमारे सत्यापित स्वास्थ्य पेशेवरों को देखें</string>
+    <string name="find_doctor_tanzania">तंज़ानिया</string>
+    <string name="find_doctor_search_placeholder">नाम, विशेषज्ञता, या रेटिंग से खोजें\u2026</string>
+    <string name="find_doctor_filter_all">सभी</string>
+    <string name="find_doctor_filter_online">ऑनलाइन</string>
+    <string name="find_doctor_filter_offline">ऑफ़लाइन</string>
+    <string name="find_doctor_no_doctors_found">कोई डॉक्टर नहीं मिला</string>
+    <string name="find_doctor_no_doctors_hint">उपलब्ध स्वास्थ्य सेवा प्रदाताओं को खोजने के लिए अपनी खोज या फ़िल्टर बदलकर देखें।</string>
+    <string name="find_doctor_available">उपलब्ध</string>
+    <string name="find_doctor_in_session">सत्र में</string>
+    <string name="find_doctor_offline">ऑफ़लाइन</string>
+    <string name="find_doctor_reviews_format">(%d समीक्षाएँ)</string>
+    <string name="find_doctor_years_experience_format">%d वर्ष का अनुभव</string>
+    <string name="find_doctor_acceptance">100%% स्वीकृति</string>
+    <string name="find_doctor_consultation_fee">परामर्श शुल्क</string>
+    <string name="find_doctor_per_duration_format">/ %d मिनट</string>
+    <string name="find_doctor_sending">भेज रहे हैं\u2026</string>
+    <string name="find_doctor_waiting_format">प्रतीक्षा\u2026 %dसे</string>
+    <string name="find_doctor_request_active">अनुरोध सक्रिय</string>
+    <string name="find_doctor_request_consultation">परामर्श का अनुरोध करें</string>
+    <string name="find_doctor_book_appointment">अपॉइंटमेंट बुक करें</string>
+    <string name="find_doctor_waiting_response">डॉक्टर की प्रतिक्रिया की प्रतीक्षा\u2026</string>
+    <string name="find_doctor_dismiss">खारिज करें</string>
+    <!-- Category display names -->
+    <string name="category_nurse">नर्स</string>
+    <string name="category_clinical_officer">क्लीनिकल ऑफ़िसर</string>
+    <string name="category_pharmacist">फ़ार्मासिस्ट</string>
+    <string name="category_gp">सामान्य चिकित्सक</string>
+    <string name="category_specialist">विशेषज्ञ</string>
+    <string name="category_psychologist">मनोवैज्ञानिक</string>
+
+    <!-- ===== BookAppointmentScreen ===== -->
+    <string name="book_appointment_back">वापस</string>
+    <string name="book_appointment_title">अपॉइंटमेंट बुक करें</string>
+    <string name="book_appointment_subtitle">अपनी अपॉइंटमेंट के लिए तारीख और समय चुनें</string>
+    <string name="book_appointment_select_date">तारीख चुनें</string>
+    <string name="book_appointment_available_times">उपलब्ध समय</string>
+    <string name="book_appointment_no_slots">इस तारीख के लिए कोई उपलब्ध समय स्लॉट नहीं है। कोई अन्य दिन चुनें।</string>
+    <string name="book_appointment_chief_complaint">मुख्य शिकायत</string>
+    <string name="book_appointment_complaint_placeholder">अपने लक्षण या अपॉइंटमेंट का कारण बताएँ\u2026</string>
+    <string name="book_appointment_booking">बुक हो रहा है\u2026</string>
+    <string name="book_appointment_book_for_format">%s के लिए बुक करें</string>
+    <string name="book_appointment_select_time">समय चुनें</string>
+    <string name="book_appointment_char_count_format">%d/1000</string>
+
+    <!-- ===== PatientAppointmentsScreen ===== -->
+    <string name="appointments_back">वापस</string>
+    <string name="appointments_title">मेरी अपॉइंटमेंट</string>
+    <string name="appointments_tab_upcoming">आगामी</string>
+    <string name="appointments_tab_past">पिछली</string>
+    <string name="appointments_no_upcoming">कोई आगामी अपॉइंटमेंट नहीं</string>
+    <string name="appointments_no_past">कोई पिछली अपॉइंटमेंट नहीं</string>
+    <string name="appointments_status_booked">बुक की गई</string>
+    <string name="appointments_status_confirmed">पुष्टि हो गई</string>
+    <string name="appointments_status_in_progress">प्रगति में</string>
+    <string name="appointments_status_completed">पूर्ण</string>
+    <string name="appointments_status_missed">छूट गई</string>
+    <string name="appointments_status_cancelled">रद्द की गई</string>
+    <string name="appointments_status_rescheduled">पुनर्निर्धारित</string>
+    <string name="appointments_rescheduled_note">पिछली अपॉइंटमेंट से पुनर्निर्धारित</string>
+    <string name="appointments_cancelling">रद्द हो रहा है\u2026</string>
+    <string name="appointments_cancel">अपॉइंटमेंट रद्द करें</string>
+    <string name="appointments_duration_service_format">%1$d मिनट \u00B7 %2$s</string>
+
+    <!-- ===== ConsultationHistoryScreen ===== -->
+    <string name="history_back">वापस</string>
+    <string name="history_title">परामर्श इतिहास</string>
+    <string name="history_unknown_error">अज्ञात त्रुटि</string>
+    <string name="history_no_consultations">अभी तक कोई परामर्श नहीं</string>
+    <string name="history_general_consultation">सामान्य परामर्श</string>
+    <string name="history_specialist_consultation">विशेषज्ञ परामर्श</string>
+    <string name="history_follow_up">फ़ॉलो अप</string>
+    <string name="history_emergency">आपातकालीन</string>
+
+    <!-- ===== SymptomsEntryDialog ===== -->
+    <string name="symptoms_title">अपने लक्षण बताएँ</string>
+    <string name="symptoms_subtitle">इससे डॉक्टर को आपके परामर्श की तैयारी में मदद मिलती है।</string>
+    <string name="symptoms_profile_prefix">प्रोफ़ाइल: %s</string>
+    <string name="symptoms_label">आप किन लक्षणों का अनुभव कर रहे हैं?</string>
+    <string name="symptoms_placeholder">जैसे, 3 दिनों से सिरदर्द, हल्का बुखार\u2026</string>
+    <string name="symptoms_cancel">रद्द करें</string>
+    <string name="symptoms_skip">छोड़ें</string>
+    <string name="symptoms_send_request">अनुरोध भेजें</string>
+
+    <!-- ===== PatientPaymentScreen ===== -->
+    <string name="payment_title">भुगतान</string>
+    <string name="payment_back">वापस</string>
+    <string name="payment_consultation_payment">परामर्श भुगतान</string>
+    <string name="payment_charge_message">इस परामर्श सत्र के लिए आपसे शुल्क लिया जाएगा।</string>
+    <string name="payment_pay_now">अभी भुगतान करें</string>
+    <string name="payment_processing">भुगतान प्रक्रिया में</string>
+    <string name="payment_processing_message">आपका TZS %d का भुगतान प्रक्रिया में है। कृपया प्रतीक्षा करें\u2026</string>
+    <string name="payment_successful">भुगतान सफल</string>
+    <string name="payment_success_message">TZS %d का भुगतान सफल रहा।\nआपको डॉक्टर से जोड़ा जा रहा है\u2026</string>
+    <string name="payment_failed">भुगतान विफल</string>
+    <string name="payment_failed_default">भुगतान विफल रहा</string>
+    <string name="payment_try_again">पुनः प्रयास करें</string>
+
+    <!-- ===== ExtensionPaymentScreen ===== -->
+    <string name="extension_title">सत्र विस्तार भुगतान</string>
+    <string name="extension_back">वापस</string>
+    <string name="extension_fee_note">विस्तार शुल्क मूल परामर्श शुल्क के बराबर है।</string>
+    <string name="extension_extend_session">सत्र बढ़ाएँ</string>
+    <string name="extension_pay_description">अपने परामर्श सत्र को बढ़ाने के लिए भुगतान करें।</string>
+    <string name="extension_pay_now">अभी भुगतान करें</string>
+    <string name="extension_cancel">रद्द करें</string>
+    <string name="extension_processing">विस्तार भुगतान प्रक्रिया में</string>
+    <string name="extension_processing_message">आपका TZS %d का भुगतान प्रक्रिया में है\u2026</string>
+    <string name="extension_session_extended">सत्र बढ़ा दिया गया!</string>
+    <string name="extension_returning">परामर्श पर वापस जा रहे हैं\u2026</string>
+    <string name="extension_payment_failed">भुगतान विफल</string>
+    <string name="extension_payment_failed_default">भुगतान विफल रहा</string>
+    <string name="extension_try_again">पुनः प्रयास करें</string>
+
+    <!-- ===== ServiceLocationScreen ===== -->
+    <string name="location_back">वापस</string>
+    <string name="location_access_required">स्थान अनुमति आवश्यक</string>
+    <string name="location_access_description">आपको सर्वोत्तम अनुभव प्रदान करने के लिए, हम सेवा उपलब्धता का विश्लेषण करने, आपके निकट योग्य डॉक्टरों से मिलान करने, और आपके क्षेत्र के अनुसार स्वास्थ्य सुझाव देने के लिए आपके स्थान का उपयोग करते हैं।</string>
+    <string name="location_permission_denied">स्थान अनुमति अस्वीकार कर दी गई। जारी रखने के लिए कृपया अपनी डिवाइस सेटिंग में इसे सक्षम करें।</string>
+    <string name="location_open_settings">सेटिंग खोलें</string>
+    <string name="location_enable">स्थान सक्षम करें</string>
+    <string name="location_services_from">आप किस क्षेत्र से सेवाएँ चाहते हैं</string>
+    <string name="location_select_preferred">अपना पसंदीदा डॉक्टर स्थान चुनें</string>
+    <string name="location_inside_tanzania">तंज़ानिया के भीतर</string>
+    <string name="location_local_doctors">स्थानीय डॉक्टर</string>
+    <string name="location_outside_tanzania">तंज़ानिया के बाहर</string>
+    <string name="location_international_doctors">अंतर्राष्ट्रीय डॉक्टर</string>
+    <string name="location_content_desc_select">चुनें</string>
+    <string name="location_not_available_title">अभी उपलब्ध नहीं</string>
+    <string name="location_not_available_message">अंतर्राष्ट्रीय परामर्श अभी उपलब्ध नहीं है। हम जल्द ही यह सेवा आपके लिए लाने का प्रयास कर रहे हैं।</string>
+    <string name="location_ok">ठीक है</string>
+
+    <!-- ===== ReportsScreen ===== -->
+    <string name="reports_back">वापस</string>
+    <string name="reports_title">रिपोर्ट</string>
+    <string name="reports_unknown_error">अज्ञात त्रुटि</string>
+    <string name="reports_no_reports">अभी तक कोई रिपोर्ट नहीं</string>
+    <string name="reports_consultation_report">परामर्श रिपोर्ट</string>
+    <string name="reports_content_desc_view">रिपोर्ट देखें</string>
+
+    <!-- ===== ReportDetailScreen ===== -->
+    <string name="report_detail_back">वापस</string>
+    <string name="report_detail_title">परामर्श रिपोर्ट</string>
+    <string name="report_detail_share">साझा करें</string>
+    <string name="report_detail_error_default">त्रुटि</string>
+    <string name="report_detail_download_pdf">PDF डाउनलोड करें</string>
+    <string name="report_detail_esirii_health">ESIRII HEALTH</string>
+    <string name="report_detail_telemedicine_report">टेलीमेडिसिन परामर्श रिपोर्ट</string>
+    <string name="report_detail_consultation_report_label">परामर्श रिपोर्ट</string>
+    <string name="report_detail_ref_format">संदर्भ: %s</string>
+    <string name="report_detail_section_patient_info">1. मरीज़ की जानकारी</string>
+    <string name="report_detail_patient_id">मरीज़ आईडी</string>
+    <string name="report_detail_consultation_date">परामर्श तिथि</string>
+    <string name="report_detail_consultation_type">परामर्श प्रकार</string>
+    <string name="report_detail_telemedicine">टेलीमेडिसिन</string>
+    <string name="report_detail_section_symptoms">2. प्रस्तुत लक्षण</string>
+    <string name="report_detail_no_symptoms">कोई प्रस्तुत लक्षण दर्ज नहीं किए गए।</string>
+    <string name="report_detail_section_diagnosis">3. निदान और मूल्यांकन</string>
+    <string name="report_detail_primary_diagnosis">प्राथमिक निदान</string>
+    <string name="report_detail_category">श्रेणी</string>
+    <string name="report_detail_severity">गंभीरता</string>
+    <string name="report_detail_section_treatment">4. उपचार योजना</string>
+    <string name="report_detail_no_treatment">कोई उपचार योजना निर्दिष्ट नहीं है।</string>
+    <string name="report_detail_section_followup">5. फ़ॉलो-अप निर्देश</string>
+    <string name="report_detail_followup_recommended">फ़ॉलो-अप अनुशंसित</string>
+    <string name="report_detail_yes">हाँ</string>
+    <string name="report_detail_no">नहीं</string>
+    <string name="report_detail_additional_notes">अतिरिक्त नोट:</string>
+    <string name="report_detail_section_disclaimer">6. टेलीमेडिसिन अस्वीकरण</string>
+    <string name="report_detail_disclaimer_text">यह परामर्श टेलीमेडिसिन के माध्यम से किया गया था। मूल्यांकन और सिफ़ारिशें वर्चुअल परामर्श के दौरान प्रदान की गई जानकारी पर आधारित हैं। यदि लक्षण बने रहते हैं या बिगड़ जाते हैं, तो कृपया व्यक्तिगत रूप से चिकित्सा सहायता लें।</string>
+    <string name="report_detail_attending_physician">उपस्थित चिकित्सक</string>
+    <string name="report_detail_electronically_signed">इलेक्ट्रॉनिक रूप से हस्ताक्षरित</string>
+    <string name="report_detail_generated_by">ESIRII Health प्लेटफ़ॉर्म द्वारा निर्मित</string>
+    <string name="report_detail_share_chooser">रिपोर्ट साझा करें</string>
+    <string name="report_detail_pdf_error">PDF बनाने में विफल: %s</string>
+
+    <!-- ===== RatingBottomSheet ===== -->
+    <string name="rating_success_content_desc">सफल</string>
+    <string name="rating_thank_you">आपकी प्रतिक्रिया के लिए धन्यवाद!</string>
+    <string name="rating_title">आपका परामर्श कैसा रहा?</string>
+    <string name="rating_subtitle">आपकी रेटिंग हमें अपनी सेवा बेहतर बनाने में मदद करती है</string>
+    <string name="rating_star_format">%d स्टार</string>
+    <string name="rating_poor">खराब</string>
+    <string name="rating_fair">ठीक-ठाक</string>
+    <string name="rating_good">अच्छा</string>
+    <string name="rating_very_good">बहुत अच्छा</string>
+    <string name="rating_excellent">उत्कृष्ट</string>
+    <string name="rating_low_comment_label">हमें बताएँ कि क्या सुधार हो सकता है *</string>
+    <string name="rating_optional_comment_label">टिप्पणी दें (वैकल्पिक)</string>
+    <string name="rating_submitting">जमा हो रहा है\u2026</string>
+    <string name="rating_submit">रेटिंग जमा करें</string>
+    <string name="rating_remind_later">बाद में याद दिलाएँ</string>
+
+    <!-- ===== PatientConsultationScreen ===== -->
+    <string name="consultation_start_call">कॉल शुरू करें</string>
+    <string name="consultation_voice_call">वॉइस कॉल</string>
+    <string name="consultation_video_call">वीडियो कॉल</string>
+    <string name="consultation_camera">कैमरा</string>
+    <string name="consultation_gallery">गैलरी</string>
+    <string name="consultation_document">दस्तावेज़</string>
+
+    <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
+    <string name="vm_doctor_accepted">डॉक्टर ने स्वीकार किया! चैट खुल रहा है\u2026</string>
+    <string name="vm_doctor_declined">डॉक्टर ने अनुरोध अस्वीकार कर दिया। आप किसी अन्य डॉक्टर से अनुरोध कर सकते हैं।</string>
+    <string name="vm_doctor_no_response">डॉक्टर ने जवाब नहीं दिया। आप किसी अन्य डॉक्टर को आज़मा सकते हैं।</string>
+    <string name="vm_waiting_doctor_response">डॉक्टर की प्रतिक्रिया की प्रतीक्षा\u2026</string>
+    <string name="vm_failed_send_request">अनुरोध भेजने में विफल</string>
+    <string name="vm_failed_load_appointments">अपॉइंटमेंट लोड करने में विफल</string>
+    <string name="vm_failed_cancel_appointment">रद्द करने में विफल</string>
+    <string name="vm_failed_load_times">उपलब्ध समय लोड करने में विफल</string>
+    <string name="vm_select_date_time">कृपया तारीख और समय चुनें</string>
+    <string name="vm_complaint_too_short">कृपया अपनी शिकायत का वर्णन करें (कम से कम 10 अक्षर)</string>
+    <string name="vm_failed_book_appointment">अपॉइंटमेंट बुक करने में विफल</string>
+    <string name="vm_failed_load_consultations">परामर्श लोड करने में विफल</string>
+    <string name="vm_failed_load_doctors">डॉक्टरों को लोड करने में विफल। कृपया पुनः प्रयास करें।</string>
+    <string name="vm_session_expired">सत्र समाप्त हो गया। कृपया फिर से लॉग इन करें।</string>
+    <string name="vm_invalid_payment_amount">अमान्य भुगतान राशि</string>
+    <string name="vm_network_error">नेटवर्क त्रुटि। कृपया अपना कनेक्शन जाँचें।</string>
+    <string name="vm_payment_failed">भुगतान विफल रहा</string>
+    <string name="vm_payment_timed_out">भुगतान का समय समाप्त हो गया। कृपया पुनः प्रयास करें।</string>
+    <string name="vm_failed_load_report">रिपोर्ट लोड करने में विफल</string>
+    <string name="vm_failed_load_reports">रिपोर्ट लोड करने में विफल</string>
+    <string name="vm_select_rating">कृपया रेटिंग चुनें</string>
+    <string name="vm_comment_required">कृपया हमें बताएँ कि क्या सुधार हो सकता है</string>
+    <string name="vm_failed_submit_rating">रेटिंग जमा करने में विफल। कृपया पुनः प्रयास करें।</string>
+    <string name="vm_session_not_ready">सत्र तैयार नहीं है। कृपया एक क्षण प्रतीक्षा करें और पुनः प्रयास करें।</string>
+    <string name="vm_session_expired_reopen">सत्र समाप्त हो गया। कृपया इस परामर्श को फिर से खोलें।</string>
+    <string name="vm_failed_send_attachment">अटैचमेंट भेजने में विफल।</string>
+    <string name="vm_failed_send_attachment_retrying">अटैचमेंट भेजने में विफल। पुनः प्रयास हो रहा है\u2026</string>
+    <string name="vm_failed_upload_file">फ़ाइल अपलोड करने में विफल। कृपया पुनः प्रयास करें।</string>
+
+    <!-- ===== ReportPdfGenerator ===== -->
+    <string name="pdf_esirii_health">ESIRII HEALTH</string>
+    <string name="pdf_telemedicine_report">टेलीमेडिसिन परामर्श रिपोर्ट</string>
+    <string name="pdf_consultation_report">परामर्श रिपोर्ट</string>
+    <string name="pdf_ref_format">संदर्भ: %s</string>
+    <string name="pdf_section_patient_info">1. मरीज़ की जानकारी</string>
+    <string name="pdf_patient_id">मरीज़ आईडी</string>
+    <string name="pdf_consultation_date">परामर्श तिथि</string>
+    <string name="pdf_consultation_type">परामर्श प्रकार</string>
+    <string name="pdf_telemedicine">टेलीमेडिसिन</string>
+    <string name="pdf_section_symptoms">2. प्रस्तुत लक्षण</string>
+    <string name="pdf_no_symptoms">कोई प्रस्तुत लक्षण दर्ज नहीं किए गए।</string>
+    <string name="pdf_section_diagnosis">3. निदान और मूल्यांकन</string>
+    <string name="pdf_primary_diagnosis">प्राथमिक निदान</string>
+    <string name="pdf_category">श्रेणी</string>
+    <string name="pdf_severity">गंभीरता</string>
+    <string name="pdf_section_treatment">4. उपचार योजना</string>
+    <string name="pdf_no_treatment">कोई उपचार योजना निर्दिष्ट नहीं है।</string>
+    <string name="pdf_section_followup">5. फ़ॉलो-अप निर्देश</string>
+    <string name="pdf_followup_recommended">फ़ॉलो-अप अनुशंसित</string>
+    <string name="pdf_yes">हाँ</string>
+    <string name="pdf_no">नहीं</string>
+    <string name="pdf_additional_notes">अतिरिक्त नोट:</string>
+    <string name="pdf_section_disclaimer">6. टेलीमेडिसिन अस्वीकरण</string>
+    <string name="pdf_disclaimer_text">यह परामर्श टेलीमेडिसिन के माध्यम से किया गया था। मूल्यांकन और सिफ़ारिशें वर्चुअल परामर्श के दौरान प्रदान की गई जानकारी पर आधारित हैं। यदि लक्षण बने रहते हैं या बिगड़ जाते हैं, तो कृपया व्यक्तिगत रूप से चिकित्सा सहायता लें।</string>
+    <string name="pdf_attending_physician">उपस्थित चिकित्सक</string>
+    <string name="pdf_electronically_signed">इलेक्ट्रॉनिक रूप से हस्ताक्षरित</string>
+    <string name="pdf_generated_by">ESIRII Health प्लेटफ़ॉर्म द्वारा निर्मित</string>
+
+</resources>

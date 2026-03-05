@@ -72,6 +72,8 @@ data class BookAppointmentUiState(
 private val EAT = ZoneId.of("Africa/Nairobi")
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class BookAppointmentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

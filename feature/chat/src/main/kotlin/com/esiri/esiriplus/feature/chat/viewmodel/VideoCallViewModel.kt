@@ -15,6 +15,7 @@ import com.esiri.esiriplus.core.domain.repository.CallRechargeRepository
 import com.esiri.esiriplus.core.domain.repository.VideoCallRepository
 import com.esiri.esiriplus.core.domain.repository.VideoRepository
 import com.esiri.esiriplus.core.domain.service.CallServiceController
+import com.esiri.esiriplus.feature.chat.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -116,7 +117,7 @@ class VideoCallViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 callPhase = CallPhase.ERROR,
-                error = "Camera and microphone permissions are required for calls.",
+                error = appContext.getString(R.string.video_call_error_permissions),
             )
         }
     }
@@ -125,7 +126,10 @@ class VideoCallViewModel @Inject constructor(
         if (consultationId.isBlank()) {
             Log.e(TAG, "fetchTokenAndJoin: consultationId is blank!")
             _uiState.update {
-                it.copy(callPhase = CallPhase.ERROR, error = "No consultation ID provided.")
+                it.copy(
+                    callPhase = CallPhase.ERROR,
+                    error = appContext.getString(R.string.video_call_error_no_consultation),
+                )
             }
             return
         }
@@ -145,7 +149,7 @@ class VideoCallViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             callPhase = CallPhase.ERROR,
-                            error = "Failed to connect: $errorDetail",
+                            error = appContext.getString(R.string.video_call_error_connect, errorDetail),
                         )
                     }
                 }
@@ -179,7 +183,10 @@ class VideoCallViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     callPhase = CallPhase.ERROR,
-                    error = "Failed to start call: ${e.message ?: e.javaClass.simpleName}",
+                    error = appContext.getString(
+                        R.string.video_call_error_start,
+                        e.message ?: e.javaClass.simpleName,
+                    ),
                 )
             }
         }
@@ -235,7 +242,10 @@ class VideoCallViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     callPhase = CallPhase.ERROR,
-                    error = error.optString("message", "An error occurred during the call."),
+                    error = error.optString(
+                        "message",
+                        appContext.getString(R.string.video_call_error_generic),
+                    ),
                 )
             }
         }
@@ -316,7 +326,10 @@ class VideoCallViewModel @Inject constructor(
             if (_uiState.value.callPhase == CallPhase.WAITING_FOR_PARTICIPANT) {
                 Log.d(TAG, "Waiting timeout — no answer")
                 _uiState.update {
-                    it.copy(callPhase = CallPhase.ENDED, error = "No answer")
+                    it.copy(
+                        callPhase = CallPhase.ENDED,
+                        error = appContext.getString(R.string.video_call_no_answer),
+                    )
                 }
                 meeting?.leave()
             }

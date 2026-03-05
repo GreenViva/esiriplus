@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +71,7 @@ fun DoctorLoginScreen(
     // Device mismatch — show error screen
     if (uiState.deviceMismatch) {
         DeviceMismatchScreen(
-            error = uiState.deviceMismatchError ?: "Device bound to another doctor",
+            error = uiState.deviceMismatchError ?: stringResource(R.string.device_mismatch_default_error),
             onBack = onBack,
             modifier = modifier,
         )
@@ -148,7 +149,7 @@ fun DoctorLoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Doctor Portal",
+            text = stringResource(R.string.doctor_login_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -157,7 +158,7 @@ fun DoctorLoginScreen(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Sign in to manage your consultations",
+            text = stringResource(R.string.doctor_login_subtitle),
             fontSize = 14.sp,
             color = SubtitleGray,
         )
@@ -190,7 +191,7 @@ fun DoctorLoginScreen(
                         onClick = { /* already on sign in */ },
                     ) {
                         Text(
-                            text = "Sign In",
+                            text = stringResource(R.string.doctor_login_sign_in_tab),
                             modifier = Modifier.padding(vertical = 10.dp),
                             textAlign = TextAlign.Center,
                             fontSize = 14.sp,
@@ -206,7 +207,7 @@ fun DoctorLoginScreen(
                         onClick = onRegister,
                     ) {
                         Text(
-                            text = "Register",
+                            text = stringResource(R.string.doctor_login_register_tab),
                             modifier = Modifier.padding(vertical = 10.dp),
                             textAlign = TextAlign.Center,
                             fontSize = 14.sp,
@@ -219,7 +220,7 @@ fun DoctorLoginScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Email",
+                    text = stringResource(R.string.doctor_login_email_label),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
@@ -231,7 +232,7 @@ fun DoctorLoginScreen(
                     onValueChange = viewModel::onEmailChanged,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
-                        Text("doctor@example.com", color = SubtitleGray, fontSize = 14.sp)
+                        Text(stringResource(R.string.doctor_login_email_placeholder), color = SubtitleGray, fontSize = 14.sp)
                     },
                     leadingIcon = {
                         Icon(
@@ -254,7 +255,7 @@ fun DoctorLoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Password",
+                    text = stringResource(R.string.doctor_login_password_label),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
@@ -283,7 +284,7 @@ fun DoctorLoginScreen(
                                     if (passwordVisible) R.drawable.ic_visibility
                                     else R.drawable.ic_visibility_off,
                                 ),
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                contentDescription = if (passwordVisible) stringResource(R.string.doctor_login_hide_password) else stringResource(R.string.doctor_login_show_password),
                                 tint = SubtitleGray,
                                 modifier = Modifier.size(20.dp),
                             )
@@ -334,7 +335,7 @@ fun DoctorLoginScreen(
                         )
                     } else {
                         Text(
-                            text = "Sign In",
+                            text = stringResource(R.string.doctor_login_sign_in_button),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
@@ -378,7 +379,7 @@ private fun DeviceMismatchScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Device Not Authorized",
+            text = stringResource(R.string.device_mismatch_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -404,7 +405,7 @@ private fun DeviceMismatchScreen(
             colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
         ) {
             Text(
-                text = "Go Back",
+                text = stringResource(R.string.doctor_login_go_back),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,
@@ -464,7 +465,7 @@ private fun BannedDoctorScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Account Banned",
+                text = stringResource(R.string.banned_title),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFDC2626),
@@ -473,7 +474,7 @@ private fun BannedDoctorScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "You have been banned from using this application.",
+                text = stringResource(R.string.banned_message),
                 fontSize = 14.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -491,7 +492,7 @@ private fun BannedDoctorScreen(
                         .padding(16.dp),
                 ) {
                     Text(
-                        text = "Reason",
+                        text = stringResource(R.string.banned_reason_label),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFDC2626),
@@ -517,7 +518,7 @@ private fun BannedDoctorScreen(
                     .padding(16.dp),
             ) {
                 Text(
-                    text = "Have a complaint?",
+                    text = stringResource(R.string.banned_complaint_title),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF0369A1),
@@ -525,16 +526,16 @@ private fun BannedDoctorScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (appealDeadline != null) {
-                        "You may contact our support team to appeal this decision within 7 days (by $appealDeadline)."
+                        stringResource(R.string.banned_appeal_with_date, appealDeadline)
                     } else {
-                        "You may contact our support team to appeal this decision within 7 days of the ban."
+                        stringResource(R.string.banned_appeal_no_date)
                     },
                     fontSize = 13.sp,
                     color = Color.Black,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "support@esiriplus.com",
+                    text = stringResource(R.string.banned_support_email),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF0369A1),
@@ -545,7 +546,7 @@ private fun BannedDoctorScreen(
 
             TextButton(onClick = onSignOut) {
                 Text(
-                    text = "Sign Out",
+                    text = stringResource(R.string.banned_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF6B7280),
@@ -622,7 +623,7 @@ private fun SuspendedDoctorScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Account Suspended",
+                text = stringResource(R.string.suspended_title),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFEA580C),
@@ -631,7 +632,7 @@ private fun SuspendedDoctorScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Your account has been temporarily suspended.",
+                text = stringResource(R.string.suspended_message),
                 fontSize = 14.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -649,7 +650,7 @@ private fun SuspendedDoctorScreen(
                         .padding(16.dp),
                 ) {
                     Text(
-                        text = "Reason",
+                        text = stringResource(R.string.suspended_reason_label),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFEA580C),
@@ -675,7 +676,7 @@ private fun SuspendedDoctorScreen(
                     .padding(16.dp),
             ) {
                 Text(
-                    text = "Suspension Details",
+                    text = stringResource(R.string.suspended_details_title),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF0369A1),
@@ -683,7 +684,7 @@ private fun SuspendedDoctorScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 if (remainingTime != null) {
                     Text(
-                        text = "Time remaining: $remainingTime",
+                        text = stringResource(R.string.suspended_time_remaining, remainingTime),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black,
@@ -692,20 +693,20 @@ private fun SuspendedDoctorScreen(
                 }
                 if (suspensionEnd != null) {
                     Text(
-                        text = "Your suspension will be automatically lifted on $suspensionEnd.",
+                        text = stringResource(R.string.suspended_lifted_on, suspensionEnd),
                         fontSize = 13.sp,
                         color = Color.Black,
                     )
                 } else {
                     Text(
-                        text = "Your suspension will be automatically lifted when the period ends.",
+                        text = stringResource(R.string.suspended_lifted_when_ends),
                         fontSize = 13.sp,
                         color = Color.Black,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "support@esiriplus.com",
+                    text = stringResource(R.string.banned_support_email),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF0369A1),
@@ -716,7 +717,7 @@ private fun SuspendedDoctorScreen(
 
             TextButton(onClick = onSignOut) {
                 Text(
-                    text = "Sign Out",
+                    text = stringResource(R.string.banned_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF6B7280),
@@ -766,7 +767,7 @@ private fun WarningDoctorScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Warning Notice",
+                text = stringResource(R.string.warning_title),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFD97706),
@@ -775,7 +776,7 @@ private fun WarningDoctorScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "You have received a warning from the administration.",
+                text = stringResource(R.string.warning_message),
                 fontSize = 14.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -793,7 +794,7 @@ private fun WarningDoctorScreen(
                         .padding(16.dp),
                 ) {
                     Text(
-                        text = "Warning Details",
+                        text = stringResource(R.string.warning_details_label),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFD97706),
@@ -819,20 +820,20 @@ private fun WarningDoctorScreen(
                     .padding(16.dp),
             ) {
                 Text(
-                    text = "Please take note",
+                    text = stringResource(R.string.warning_take_note),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF0369A1),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Please review this warning carefully. Repeated violations may result in suspension or a permanent ban of your account.",
+                    text = stringResource(R.string.warning_review_text),
                     fontSize = 13.sp,
                     color = Color.Black,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "support@esiriplus.com",
+                    text = stringResource(R.string.banned_support_email),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF0369A1),
@@ -862,7 +863,7 @@ private fun WarningDoctorScreen(
                     )
                 } else {
                     Text(
-                        text = "I Understand",
+                        text = stringResource(R.string.warning_acknowledge_button),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
@@ -874,7 +875,7 @@ private fun WarningDoctorScreen(
 
             TextButton(onClick = onSignOut) {
                 Text(
-                    text = "Sign Out",
+                    text = stringResource(R.string.banned_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF6B7280),

@@ -55,6 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
@@ -74,22 +75,18 @@ private val SuccessGreen = Color(0xFF16A34A)
 private val WarningOrange = Color(0xFFEA580C)
 private val RatingAmber = Color(0xFFF59E0B)
 
-private val categoryDisplayNames = mapOf(
-    // Service tier category codes (from navigation params)
-    "NURSE" to "Nurse",
-    "CLINICAL_OFFICER" to "Clinical Officer",
-    "PHARMACIST" to "Pharmacist",
-    "GP" to "General Practitioner",
-    "SPECIALIST" to "Specialist",
-    "PSYCHOLOGIST" to "Psychologist",
-    // Postgres enum values (from doctor_profiles.specialty)
-    "nurse" to "Nurse",
-    "clinical_officer" to "Clinical Officer",
-    "pharmacist" to "Pharmacist",
-    "gp" to "General Practitioner",
-    "specialist" to "Specialist",
-    "psychologist" to "Psychologist",
-)
+@Composable
+private fun categoryDisplayName(code: String): String {
+    return when (code.lowercase()) {
+        "nurse" -> stringResource(R.string.category_nurse)
+        "clinical_officer" -> stringResource(R.string.category_clinical_officer)
+        "pharmacist" -> stringResource(R.string.category_pharmacist)
+        "gp" -> stringResource(R.string.category_gp)
+        "specialist" -> stringResource(R.string.category_specialist)
+        "psychologist" -> stringResource(R.string.category_psychologist)
+        else -> code
+    }
+}
 
 private val numberFormat = NumberFormat.getNumberInstance(Locale.US)
 
@@ -106,7 +103,7 @@ fun FindDoctorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val requestState by requestViewModel.uiState.collectAsState()
-    val categoryName = categoryDisplayNames[uiState.serviceCategory] ?: uiState.serviceCategory
+    val categoryName = categoryDisplayName(uiState.serviceCategory)
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Navigate on accepted consultation
@@ -142,13 +139,13 @@ fun FindDoctorScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.find_doctor_back),
                         tint = BrandTeal,
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = "Back",
+                        text = stringResource(R.string.find_doctor_back),
                         fontSize = 14.sp,
                         color = BrandTeal,
                     )
@@ -158,7 +155,7 @@ fun FindDoctorScreen(
 
                 // Title + subtitle
                 Text(
-                    text = "Find a Doctor",
+                    text = stringResource(R.string.find_doctor_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -167,7 +164,7 @@ fun FindDoctorScreen(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Browse our verified healthcare professionals",
+                    text = stringResource(R.string.find_doctor_subtitle),
                     fontSize = 14.sp,
                     color = SubtitleGrey,
                     modifier = Modifier.fillMaxWidth(),
@@ -198,7 +195,7 @@ fun FindDoctorScreen(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = "Tanzania",
+                                text = stringResource(R.string.find_doctor_tanzania),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = BrandTeal,
@@ -230,7 +227,7 @@ fun FindDoctorScreen(
                 onValueChange = { viewModel.updateSearchQuery(it) },
                 placeholder = {
                     Text(
-                        text = "Search by name, specialty, or rating...",
+                        text = stringResource(R.string.find_doctor_search_placeholder),
                         fontSize = 14.sp,
                         color = SubtitleGrey.copy(alpha = 0.6f),
                     )
@@ -268,9 +265,9 @@ fun FindDoctorScreen(
                 AvailabilityFilter.entries.forEach { filter ->
                     val isSelected = uiState.availabilityFilter == filter
                     val label = when (filter) {
-                        AvailabilityFilter.ALL -> "All"
-                        AvailabilityFilter.ONLINE -> "Online"
-                        AvailabilityFilter.OFFLINE -> "Offline"
+                        AvailabilityFilter.ALL -> stringResource(R.string.find_doctor_filter_all)
+                        AvailabilityFilter.ONLINE -> stringResource(R.string.find_doctor_filter_online)
+                        AvailabilityFilter.OFFLINE -> stringResource(R.string.find_doctor_filter_offline)
                     }
                     Surface(
                         shape = RoundedCornerShape(20.dp),
@@ -322,14 +319,14 @@ fun FindDoctorScreen(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "No doctors found",
+                            text = stringResource(R.string.find_doctor_no_doctors_found),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.Black,
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Try adjusting your search or filters to find available healthcare providers.",
+                            text = stringResource(R.string.find_doctor_no_doctors_hint),
                             fontSize = 14.sp,
                             color = SubtitleGrey,
                             textAlign = TextAlign.Center,
@@ -493,16 +490,16 @@ private fun DoctorCard(
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = categoryDisplayNames[doctor.specialty] ?: doctor.specialty,
+                            text = categoryDisplayName(doctor.specialty),
                             fontSize = 13.sp,
                             color = SubtitleGrey,
                         )
                         Spacer(Modifier.width(8.dp))
                         // Status badge: Available / In Session / Offline
                         val (badgeText, badgeColor) = when {
-                            doctor.isAvailable && !inSession -> "Available" to SuccessGreen
-                            doctor.isAvailable && inSession -> "In Session" to WarningOrange
-                            else -> "Offline" to SubtitleGrey
+                            doctor.isAvailable && !inSession -> stringResource(R.string.find_doctor_available) to SuccessGreen
+                            doctor.isAvailable && inSession -> stringResource(R.string.find_doctor_in_session) to WarningOrange
+                            else -> stringResource(R.string.find_doctor_offline) to SubtitleGrey
                         }
                         Surface(
                             shape = RoundedCornerShape(8.dp),
@@ -609,7 +606,7 @@ private fun DoctorCard(
                     color = Color.Black,
                 )
                 Text(
-                    text = " (${doctor.totalRatings} reviews)",
+                    text = " " + stringResource(R.string.find_doctor_reviews_format, doctor.totalRatings),
                     fontSize = 12.sp,
                     color = SubtitleGrey,
                 )
@@ -622,7 +619,7 @@ private fun DoctorCard(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "${doctor.yearsExperience} years experience",
+                    text = stringResource(R.string.find_doctor_years_experience_format, doctor.yearsExperience),
                     fontSize = 12.sp,
                     color = SubtitleGrey,
                 )
@@ -632,7 +629,7 @@ private fun DoctorCard(
             if (doctor.isVerified) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "100% acceptance",
+                    text = stringResource(R.string.find_doctor_acceptance),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = SuccessGreen,
@@ -651,7 +648,7 @@ private fun DoctorCard(
             ) {
                 Column {
                     Text(
-                        text = "Consultation fee",
+                        text = stringResource(R.string.find_doctor_consultation_fee),
                         fontSize = 11.sp,
                         color = SubtitleGrey,
                     )
@@ -662,7 +659,7 @@ private fun DoctorCard(
                         color = Color.Black,
                     )
                     Text(
-                        text = "/ $durationMinutes min",
+                        text = stringResource(R.string.find_doctor_per_duration_format, durationMinutes),
                         fontSize = 11.sp,
                         color = SubtitleGrey,
                     )
@@ -688,17 +685,17 @@ private fun DoctorCard(
                                     strokeWidth = 2.dp,
                                 )
                                 Spacer(Modifier.width(6.dp))
-                                Text("Sending...", fontSize = 13.sp, color = Color.White)
+                                Text(stringResource(R.string.find_doctor_sending), fontSize = 13.sp, color = Color.White)
                             } else if (isThisDoctorRequested) {
                                 Text(
-                                    text = "Waiting... ${secondsRemaining}s",
+                                    text = stringResource(R.string.find_doctor_waiting_format, secondsRemaining),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.White,
                                 )
                             } else {
                                 Text(
-                                    text = if (isRequestActive) "Request Active" else "Request Consultation",
+                                    text = if (isRequestActive) stringResource(R.string.find_doctor_request_active) else stringResource(R.string.find_doctor_request_consultation),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.White,
@@ -726,7 +723,7 @@ private fun DoctorCard(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = "Book Appointment",
+                                text = stringResource(R.string.find_doctor_book_appointment),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color.White,
@@ -747,7 +744,7 @@ private fun DoctorCard(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = "Book Appointment",
+                                text = stringResource(R.string.find_doctor_book_appointment),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = if (!isRequestActive) Color.Black else SubtitleGrey,
@@ -788,7 +785,7 @@ private fun RequestStatusBanner(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "Waiting for doctor response...",
+                        text = stringResource(R.string.find_doctor_waiting_response),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black,
@@ -830,7 +827,7 @@ private fun RequestStatusBanner(
                     )
                     if (status != ConsultationRequestStatus.ACCEPTED) {
                         Text(
-                            text = "Dismiss",
+                            text = stringResource(R.string.find_doctor_dismiss),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = BrandTeal,

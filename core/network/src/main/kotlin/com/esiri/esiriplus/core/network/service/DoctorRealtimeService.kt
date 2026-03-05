@@ -2,6 +2,7 @@ package com.esiri.esiriplus.core.network.service
 
 import android.util.Log
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.di.ApplicationScope
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.realtime.channel
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class DoctorRealtimeService @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
+    @ApplicationScope private val appScope: CoroutineScope,
 ) {
 
     private val _consultationEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 16)
@@ -105,9 +107,7 @@ class DoctorRealtimeService @Inject constructor(
 
     /** Non-suspend variant safe to call from onCleared (where viewModelScope is cancelled). */
     fun unsubscribeAllSync() {
-        @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
-        @Suppress("OPT_IN_USAGE")
-        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+        appScope.launch {
             try {
                 unsubscribeAll()
             } catch (_: Exception) { }

@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===== PatientHomeScreen ===== -->
+    <string name="home_welcome_back">Welcome Back \uD83D\uDC4B</string>
+    <string name="home_your_patient_id">Your Patient ID:</string>
+    <string name="home_patient_id_copied">Patient ID copied</string>
+    <string name="home_copy_patient_id">Copy Patient ID</string>
+    <string name="home_sounds">Sounds</string>
+    <string name="home_log_out">Log Out</string>
+    <string name="home_your_medical_info">Your Medical Info</string>
+    <string name="home_edit">Edit</string>
+    <string name="home_chip_services">Services</string>
+    <string name="home_chip_new_consultation">New Consultation</string>
+    <string name="home_chip_reports">Reports</string>
+    <string name="home_start_consultation">Start Consultation</string>
+    <string name="home_start_consultation_subtitle">Choose a service and connect with verified doctors</string>
+    <string name="home_content_desc_start">Start</string>
+    <string name="home_consultation_history">Consultation History</string>
+    <string name="home_consultation_history_subtitle">View your past consultations</string>
+    <string name="home_reports">Reports</string>
+    <string name="home_reports_subtitle">View and download your reports</string>
+    <string name="home_my_appointments">My Appointments</string>
+    <string name="home_my_appointments_subtitle">View and manage your appointments</string>
+    <string name="home_content_desc_open">Open</string>
+    <string name="home_content_desc_active_consultation">Return to active consultation</string>
+    <string name="home_logout_title">Log Out</string>
+    <string name="home_logout_message">Are you sure you want to log out? You will need your Patient ID to log back in.</string>
+    <string name="home_logout_confirm">Log Out</string>
+    <string name="home_logout_cancel">Cancel</string>
+
+    <!-- ===== PatientProfileScreen ===== -->
+    <string name="profile_back">Back</string>
+    <string name="profile_title">Health Profile</string>
+    <string name="profile_sex">Sex</string>
+    <string name="profile_male">Male</string>
+    <string name="profile_female">Female</string>
+    <string name="profile_age_group">Age Group</string>
+    <string name="profile_select_age_group">Select age group</string>
+    <string name="profile_blood_type">Blood Type</string>
+    <string name="profile_select_blood_type">Select blood type</string>
+    <string name="profile_allergies">Allergies</string>
+    <string name="profile_allergies_placeholder">e.g. Penicillin, Peanuts</string>
+    <string name="profile_chronic_conditions">Chronic Conditions</string>
+    <string name="profile_chronic_conditions_placeholder">e.g. Diabetes, Hypertension</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_age_under_18">Under 18</string>
+    <string name="profile_age_18_24">18-24</string>
+    <string name="profile_age_25_34">25-34</string>
+    <string name="profile_age_35_44">35-44</string>
+    <string name="profile_age_45_54">45-54</string>
+    <string name="profile_age_55_64">55-64</string>
+    <string name="profile_age_65_plus">65+</string>
+
+    <!-- ===== ServicesScreen ===== -->
+    <string name="services_back">Back</string>
+    <string name="services_title">Our Services</string>
+    <string name="services_subtitle">Choose the type of healthcare provider you need \u2022 Tanzania</string>
+    <string name="services_pay_to_continue">Pay to Continue</string>
+    <string name="services_payment_required">Payment required to view available healthcare providers</string>
+    <string name="services_popular">\u2728 Popular</string>
+    <string name="services_coming_soon">Coming Soon</string>
+    <string name="services_choose_payment_method">Choose Payment Method</string>
+    <string name="services_close">Close</string>
+    <string name="services_mobile_money">Mobile Money</string>
+    <string name="services_mobile_money_subtitle">M-Pesa, Airtel Money, HaloPesa, Yas</string>
+    <string name="services_card_payment">Card Payment</string>
+    <string name="services_card_payment_subtitle">Visa, Mastercard</string>
+    <string name="services_bank_transfer">Bank Transfer</string>
+    <string name="services_bank_transfer_subtitle">Direct bank transfer</string>
+    <string name="services_secure_payments">\uD83D\uDD12 All payments are secure and encrypted</string>
+    <string name="services_select_provider">Select Your Provider</string>
+    <string name="services_reference_number">Reference Number</string>
+    <string name="services_amount_to_pay">Amount to Pay</string>
+    <string name="services_follow_steps">Follow these steps on your phone:</string>
+    <string name="services_exact_amount_warning">To avoid unnecessary delays, please pay the exact amount of TSh %s for your chosen service.</string>
+    <string name="services_change_provider">Change\nProvider</string>
+    <string name="services_i_have_paid">I Have Paid</string>
+    <string name="services_verifying_payment">Verifying Payment\u2026</string>
+    <string name="services_please_wait_confirm">Please wait while we confirm your payment</string>
+    <string name="services_payment_successful">Payment Successful!</string>
+    <string name="services_payment_confirmed_message">Your payment has been confirmed. You can now browse available healthcare providers.</string>
+    <string name="services_continue">Continue</string>
+    <string name="services_min_format">%d min</string>
+
+    <!-- ===== FindDoctorScreen ===== -->
+    <string name="find_doctor_back">Back</string>
+    <string name="find_doctor_title">Find a Doctor</string>
+    <string name="find_doctor_subtitle">Browse our verified healthcare professionals</string>
+    <string name="find_doctor_tanzania">Tanzania</string>
+    <string name="find_doctor_search_placeholder">Search by name, specialty, or rating\u2026</string>
+    <string name="find_doctor_filter_all">All</string>
+    <string name="find_doctor_filter_online">Online</string>
+    <string name="find_doctor_filter_offline">Offline</string>
+    <string name="find_doctor_no_doctors_found">No doctors found</string>
+    <string name="find_doctor_no_doctors_hint">Try adjusting your search or filters to find available healthcare providers.</string>
+    <string name="find_doctor_available">Available</string>
+    <string name="find_doctor_in_session">In Session</string>
+    <string name="find_doctor_offline">Offline</string>
+    <string name="find_doctor_reviews_format">(%d reviews)</string>
+    <string name="find_doctor_years_experience_format">%d years experience</string>
+    <string name="find_doctor_acceptance">100%% acceptance</string>
+    <string name="find_doctor_consultation_fee">Consultation fee</string>
+    <string name="find_doctor_per_duration_format">/ %d min</string>
+    <string name="find_doctor_sending">Sending\u2026</string>
+    <string name="find_doctor_waiting_format">Waiting\u2026 %ds</string>
+    <string name="find_doctor_request_active">Request Active</string>
+    <string name="find_doctor_request_consultation">Request Consultation</string>
+    <string name="find_doctor_book_appointment">Book Appointment</string>
+    <string name="find_doctor_waiting_response">Waiting for doctor response\u2026</string>
+    <string name="find_doctor_dismiss">Dismiss</string>
+    <!-- Category display names -->
+    <string name="category_nurse">Nurse</string>
+    <string name="category_clinical_officer">Clinical Officer</string>
+    <string name="category_pharmacist">Pharmacist</string>
+    <string name="category_gp">General Practitioner</string>
+    <string name="category_specialist">Specialist</string>
+    <string name="category_psychologist">Psychologist</string>
+
+    <!-- ===== BookAppointmentScreen ===== -->
+    <string name="book_appointment_back">Back</string>
+    <string name="book_appointment_title">Book Appointment</string>
+    <string name="book_appointment_subtitle">Select a date and time for your appointment</string>
+    <string name="book_appointment_select_date">Select a Date</string>
+    <string name="book_appointment_available_times">Available Times</string>
+    <string name="book_appointment_no_slots">No available time slots for this date. Try a different day.</string>
+    <string name="book_appointment_chief_complaint">Chief Complaint</string>
+    <string name="book_appointment_complaint_placeholder">Describe your symptoms or reason for the appointment\u2026</string>
+    <string name="book_appointment_booking">Booking\u2026</string>
+    <string name="book_appointment_book_for_format">Book for %s</string>
+    <string name="book_appointment_select_time">Select a Time</string>
+    <string name="book_appointment_char_count_format">%d/1000</string>
+
+    <!-- ===== PatientAppointmentsScreen ===== -->
+    <string name="appointments_back">Back</string>
+    <string name="appointments_title">My Appointments</string>
+    <string name="appointments_tab_upcoming">Upcoming</string>
+    <string name="appointments_tab_past">Past</string>
+    <string name="appointments_no_upcoming">No upcoming appointments</string>
+    <string name="appointments_no_past">No past appointments</string>
+    <string name="appointments_status_booked">Booked</string>
+    <string name="appointments_status_confirmed">Confirmed</string>
+    <string name="appointments_status_in_progress">In Progress</string>
+    <string name="appointments_status_completed">Completed</string>
+    <string name="appointments_status_missed">Missed</string>
+    <string name="appointments_status_cancelled">Cancelled</string>
+    <string name="appointments_status_rescheduled">Rescheduled</string>
+    <string name="appointments_rescheduled_note">Rescheduled from a previous appointment</string>
+    <string name="appointments_cancelling">Cancelling\u2026</string>
+    <string name="appointments_cancel">Cancel Appointment</string>
+    <string name="appointments_duration_service_format">%1$d min \u00B7 %2$s</string>
+
+    <!-- ===== ConsultationHistoryScreen ===== -->
+    <string name="history_back">Back</string>
+    <string name="history_title">Consultation History</string>
+    <string name="history_unknown_error">Unknown error</string>
+    <string name="history_no_consultations">No consultations yet</string>
+    <string name="history_general_consultation">General Consultation</string>
+    <string name="history_specialist_consultation">Specialist Consultation</string>
+    <string name="history_follow_up">Follow Up</string>
+    <string name="history_emergency">Emergency</string>
+
+    <!-- ===== SymptomsEntryDialog ===== -->
+    <string name="symptoms_title">Describe Your Symptoms</string>
+    <string name="symptoms_subtitle">This helps the doctor prepare for your consultation.</string>
+    <string name="symptoms_profile_prefix">Profile: %s</string>
+    <string name="symptoms_label">What symptoms are you experiencing?</string>
+    <string name="symptoms_placeholder">e.g., headache for 3 days, mild fever\u2026</string>
+    <string name="symptoms_cancel">Cancel</string>
+    <string name="symptoms_skip">Skip</string>
+    <string name="symptoms_send_request">Send Request</string>
+
+    <!-- ===== PatientPaymentScreen ===== -->
+    <string name="payment_title">Payment</string>
+    <string name="payment_back">Back</string>
+    <string name="payment_consultation_payment">Consultation Payment</string>
+    <string name="payment_charge_message">You will be charged for this consultation session.</string>
+    <string name="payment_pay_now">Pay Now</string>
+    <string name="payment_processing">Processing Payment</string>
+    <string name="payment_processing_message">Your payment of TZS %d is being processed. Please wait\u2026</string>
+    <string name="payment_successful">Payment Successful</string>
+    <string name="payment_success_message">TZS %d paid successfully.\nConnecting you to your doctor\u2026</string>
+    <string name="payment_failed">Payment Failed</string>
+    <string name="payment_failed_default">Payment failed</string>
+    <string name="payment_try_again">Try Again</string>
+
+    <!-- ===== ExtensionPaymentScreen ===== -->
+    <string name="extension_title">Extension Payment</string>
+    <string name="extension_back">Back</string>
+    <string name="extension_fee_note">Extension fee equals the original consultation fee.</string>
+    <string name="extension_extend_session">Extend Session</string>
+    <string name="extension_pay_description">Pay to extend your consultation session.</string>
+    <string name="extension_pay_now">Pay Now</string>
+    <string name="extension_cancel">Cancel</string>
+    <string name="extension_processing">Processing Extension Payment</string>
+    <string name="extension_processing_message">Your payment of TZS %d is being processed\u2026</string>
+    <string name="extension_session_extended">Session Extended!</string>
+    <string name="extension_returning">Returning to consultation\u2026</string>
+    <string name="extension_payment_failed">Payment Failed</string>
+    <string name="extension_payment_failed_default">Payment failed</string>
+    <string name="extension_try_again">Try Again</string>
+
+    <!-- ===== ServiceLocationScreen ===== -->
+    <string name="location_back">Back</string>
+    <string name="location_access_required">Location Access Required</string>
+    <string name="location_access_description">To provide you with the best experience, we use your location to analyze service availability, match you with nearby qualified doctors, and tailor our healthcare recommendations to your region.</string>
+    <string name="location_permission_denied">Location permission was denied. Please enable it in your device settings to continue.</string>
+    <string name="location_open_settings">Open Settings</string>
+    <string name="location_enable">Enable Location</string>
+    <string name="location_services_from">Would you like services from</string>
+    <string name="location_select_preferred">Select your preferred doctor location</string>
+    <string name="location_inside_tanzania">Inside Tanzania</string>
+    <string name="location_local_doctors">Local doctors</string>
+    <string name="location_outside_tanzania">Outside Tanzania</string>
+    <string name="location_international_doctors">International doctors</string>
+    <string name="location_content_desc_select">Select</string>
+    <string name="location_not_available_title">Not Yet Available</string>
+    <string name="location_not_available_message">International consultations are not yet available. We are working hard to bring this service to you soon.</string>
+    <string name="location_ok">OK</string>
+
+    <!-- ===== ReportsScreen ===== -->
+    <string name="reports_back">Back</string>
+    <string name="reports_title">Reports</string>
+    <string name="reports_unknown_error">Unknown error</string>
+    <string name="reports_no_reports">No reports yet</string>
+    <string name="reports_consultation_report">Consultation Report</string>
+    <string name="reports_content_desc_view">View report</string>
+
+    <!-- ===== ReportDetailScreen ===== -->
+    <string name="report_detail_back">Back</string>
+    <string name="report_detail_title">Consultation Report</string>
+    <string name="report_detail_share">Share</string>
+    <string name="report_detail_error_default">Error</string>
+    <string name="report_detail_download_pdf">Download PDF</string>
+    <string name="report_detail_esirii_health">ESIRII HEALTH</string>
+    <string name="report_detail_telemedicine_report">Telemedicine Consultation Report</string>
+    <string name="report_detail_consultation_report_label">CONSULTATION REPORT</string>
+    <string name="report_detail_ref_format">Ref: %s</string>
+    <string name="report_detail_section_patient_info">1. Patient Information</string>
+    <string name="report_detail_patient_id">Patient ID</string>
+    <string name="report_detail_consultation_date">Consultation Date</string>
+    <string name="report_detail_consultation_type">Consultation Type</string>
+    <string name="report_detail_telemedicine">Telemedicine</string>
+    <string name="report_detail_section_symptoms">2. Presenting Symptoms</string>
+    <string name="report_detail_no_symptoms">No presenting symptoms recorded.</string>
+    <string name="report_detail_section_diagnosis">3. Diagnosis and Assessment</string>
+    <string name="report_detail_primary_diagnosis">Primary Diagnosis</string>
+    <string name="report_detail_category">Category</string>
+    <string name="report_detail_severity">Severity</string>
+    <string name="report_detail_section_treatment">4. Treatment Plan</string>
+    <string name="report_detail_no_treatment">No treatment plan specified.</string>
+    <string name="report_detail_section_followup">5. Follow-up Instructions</string>
+    <string name="report_detail_followup_recommended">Follow-up Recommended</string>
+    <string name="report_detail_yes">Yes</string>
+    <string name="report_detail_no">No</string>
+    <string name="report_detail_additional_notes">Additional Notes:</string>
+    <string name="report_detail_section_disclaimer">6. Telemedicine Disclaimer</string>
+    <string name="report_detail_disclaimer_text">This consultation was conducted via telemedicine. The assessment and recommendations are based on the information provided during the virtual consultation. If symptoms persist or worsen, please seek in-person medical attention.</string>
+    <string name="report_detail_attending_physician">Attending Physician</string>
+    <string name="report_detail_electronically_signed">Electronically signed</string>
+    <string name="report_detail_generated_by">Generated by ESIRII Health Platform</string>
+    <string name="report_detail_share_chooser">Share Report</string>
+    <string name="report_detail_pdf_error">Failed to generate PDF: %s</string>
+
+    <!-- ===== RatingBottomSheet ===== -->
+    <string name="rating_success_content_desc">Success</string>
+    <string name="rating_thank_you">Thank you for your feedback!</string>
+    <string name="rating_title">How was your consultation?</string>
+    <string name="rating_subtitle">Your rating helps us improve our service</string>
+    <string name="rating_star_format">%d star</string>
+    <string name="rating_poor">Poor</string>
+    <string name="rating_fair">Fair</string>
+    <string name="rating_good">Good</string>
+    <string name="rating_very_good">Very Good</string>
+    <string name="rating_excellent">Excellent</string>
+    <string name="rating_low_comment_label">Tell us what could be improved *</string>
+    <string name="rating_optional_comment_label">Leave a comment (optional)</string>
+    <string name="rating_submitting">Submitting\u2026</string>
+    <string name="rating_submit">Submit Rating</string>
+    <string name="rating_remind_later">Remind Me Later</string>
+
+    <!-- ===== PatientConsultationScreen ===== -->
+    <string name="consultation_start_call">Start Call</string>
+    <string name="consultation_voice_call">Voice Call</string>
+    <string name="consultation_video_call">Video Call</string>
+    <string name="consultation_camera">Camera</string>
+    <string name="consultation_gallery">Gallery</string>
+    <string name="consultation_document">Document</string>
+
+    <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
+    <string name="vm_doctor_accepted">Doctor accepted! Opening chat\u2026</string>
+    <string name="vm_doctor_declined">Doctor declined the request. You can request another doctor.</string>
+    <string name="vm_doctor_no_response">Doctor did not respond. You can try another doctor.</string>
+    <string name="vm_waiting_doctor_response">Waiting for doctor response\u2026</string>
+    <string name="vm_failed_send_request">Failed to send request</string>
+    <string name="vm_failed_load_appointments">Failed to load appointments</string>
+    <string name="vm_failed_cancel_appointment">Failed to cancel</string>
+    <string name="vm_failed_load_times">Failed to load available times</string>
+    <string name="vm_select_date_time">Please select a date and time</string>
+    <string name="vm_complaint_too_short">Please describe your complaint (at least 10 characters)</string>
+    <string name="vm_failed_book_appointment">Failed to book appointment</string>
+    <string name="vm_failed_load_consultations">Failed to load consultations</string>
+    <string name="vm_failed_load_doctors">Failed to load doctors. Please try again.</string>
+    <string name="vm_session_expired">Session expired. Please log in again.</string>
+    <string name="vm_invalid_payment_amount">Invalid payment amount</string>
+    <string name="vm_network_error">Network error. Please check your connection.</string>
+    <string name="vm_payment_failed">Payment failed</string>
+    <string name="vm_payment_timed_out">Payment timed out. Please try again.</string>
+    <string name="vm_failed_load_report">Failed to load report</string>
+    <string name="vm_failed_load_reports">Failed to load reports</string>
+    <string name="vm_select_rating">Please select a rating</string>
+    <string name="vm_comment_required">Please tell us what could be improved</string>
+    <string name="vm_failed_submit_rating">Failed to submit rating. Please try again.</string>
+    <string name="vm_session_not_ready">Session not ready. Please wait a moment and try again.</string>
+    <string name="vm_session_expired_reopen">Session expired. Please re-open this consultation.</string>
+    <string name="vm_failed_send_attachment">Failed to send attachment.</string>
+    <string name="vm_failed_send_attachment_retrying">Failed to send attachment. Retrying\u2026</string>
+    <string name="vm_failed_upload_file">Failed to upload file. Please try again.</string>
+
+    <!-- ===== ReportPdfGenerator ===== -->
+    <string name="pdf_esirii_health">ESIRII HEALTH</string>
+    <string name="pdf_telemedicine_report">Telemedicine Consultation Report</string>
+    <string name="pdf_consultation_report">CONSULTATION REPORT</string>
+    <string name="pdf_ref_format">Ref: %s</string>
+    <string name="pdf_section_patient_info">1. Patient Information</string>
+    <string name="pdf_patient_id">Patient ID</string>
+    <string name="pdf_consultation_date">Consultation Date</string>
+    <string name="pdf_consultation_type">Consultation Type</string>
+    <string name="pdf_telemedicine">Telemedicine</string>
+    <string name="pdf_section_symptoms">2. Presenting Symptoms</string>
+    <string name="pdf_no_symptoms">No presenting symptoms recorded.</string>
+    <string name="pdf_section_diagnosis">3. Diagnosis and Assessment</string>
+    <string name="pdf_primary_diagnosis">Primary Diagnosis</string>
+    <string name="pdf_category">Category</string>
+    <string name="pdf_severity">Severity</string>
+    <string name="pdf_section_treatment">4. Treatment Plan</string>
+    <string name="pdf_no_treatment">No treatment plan specified.</string>
+    <string name="pdf_section_followup">5. Follow-up Instructions</string>
+    <string name="pdf_followup_recommended">Follow-up Recommended</string>
+    <string name="pdf_yes">Yes</string>
+    <string name="pdf_no">No</string>
+    <string name="pdf_additional_notes">Additional Notes:</string>
+    <string name="pdf_section_disclaimer">6. Telemedicine Disclaimer</string>
+    <string name="pdf_disclaimer_text">This consultation was conducted via telemedicine. The assessment and recommendations are based on the information provided during the virtual consultation. If symptoms persist or worsen, please seek in-person medical attention.</string>
+    <string name="pdf_attending_physician">Attending Physician</string>
+    <string name="pdf_electronically_signed">Electronically signed</string>
+    <string name="pdf_generated_by">Generated by ESIRII Health Platform</string>
+
+</resources>

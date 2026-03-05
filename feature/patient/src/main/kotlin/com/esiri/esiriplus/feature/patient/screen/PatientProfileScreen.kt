@@ -40,18 +40,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientProfileViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
-
-private val ageGroupOptions = listOf(
-    "Under 18", "18-24", "25-34", "35-44", "45-54", "55-64", "65+",
-)
 
 private val bloodTypeOptions = listOf(
     "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-",
@@ -65,6 +63,23 @@ fun PatientProfileScreen(
     viewModel: PatientProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Localized age group labels mapped to their internal (backend) values
+    val ageGroupEntries = listOf(
+        stringResource(R.string.profile_age_under_18) to "Under 18",
+        stringResource(R.string.profile_age_18_24) to "18-24",
+        stringResource(R.string.profile_age_25_34) to "25-34",
+        stringResource(R.string.profile_age_35_44) to "35-44",
+        stringResource(R.string.profile_age_45_54) to "45-54",
+        stringResource(R.string.profile_age_55_64) to "55-64",
+        stringResource(R.string.profile_age_65_plus) to "65+",
+    )
+
+    // Localized sex labels mapped to their internal (backend) values
+    val sexEntries = listOf(
+        stringResource(R.string.profile_male) to "Male",
+        stringResource(R.string.profile_female) to "Female",
+    )
 
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) onBack()
@@ -91,7 +106,7 @@ fun PatientProfileScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.profile_back),
                         tint = Color.Black,
                     )
                 }
@@ -99,7 +114,7 @@ fun PatientProfileScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Health Profile",
+                    text = stringResource(R.string.profile_title),
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -109,7 +124,7 @@ fun PatientProfileScreen(
 
                 // Sex selection
                 Text(
-                    text = "Sex",
+                    text = stringResource(R.string.profile_sex),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.Black,
@@ -118,11 +133,11 @@ fun PatientProfileScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    listOf("Male", "Female").forEach { option ->
+                    sexEntries.forEach { (label, value) ->
                         FilterChip(
-                            selected = uiState.sex == option,
-                            onClick = { viewModel.onSexChanged(option) },
-                            label = { Text(option, color = Color.Black) },
+                            selected = uiState.sex == value,
+                            onClick = { viewModel.onSexChanged(value) },
+                            label = { Text(label, color = Color.Black) },
                             modifier = Modifier.padding(end = 12.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = BrandTeal.copy(alpha = 0.15f),
@@ -136,24 +151,27 @@ fun PatientProfileScreen(
 
                 // Age Group dropdown
                 Text(
-                    text = "Age Group",
+                    text = stringResource(R.string.profile_age_group),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.Black,
                 )
                 Spacer(Modifier.height(8.dp))
                 DropdownSelector(
-                    options = ageGroupOptions,
-                    selected = uiState.ageGroup,
-                    onSelected = viewModel::onAgeGroupChanged,
-                    placeholder = "Select age group",
+                    options = ageGroupEntries.map { it.first },
+                    selected = ageGroupEntries.firstOrNull { it.second == uiState.ageGroup }?.first ?: uiState.ageGroup,
+                    onSelected = { label ->
+                        val internalValue = ageGroupEntries.firstOrNull { it.first == label }?.second ?: label
+                        viewModel.onAgeGroupChanged(internalValue)
+                    },
+                    placeholder = stringResource(R.string.profile_select_age_group),
                 )
 
                 Spacer(Modifier.height(20.dp))
 
                 // Blood Type dropdown
                 Text(
-                    text = "Blood Type",
+                    text = stringResource(R.string.profile_blood_type),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.Black,
@@ -163,14 +181,14 @@ fun PatientProfileScreen(
                     options = bloodTypeOptions,
                     selected = uiState.bloodType,
                     onSelected = viewModel::onBloodTypeChanged,
-                    placeholder = "Select blood type",
+                    placeholder = stringResource(R.string.profile_select_blood_type),
                 )
 
                 Spacer(Modifier.height(20.dp))
 
                 // Allergies
                 Text(
-                    text = "Allergies",
+                    text = stringResource(R.string.profile_allergies),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.Black,
@@ -180,7 +198,7 @@ fun PatientProfileScreen(
                     value = uiState.allergies,
                     onValueChange = viewModel::onAllergiesChanged,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("e.g. Penicillin, Peanuts", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.profile_allergies_placeholder), color = Color.Gray) },
                     minLines = 2,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrandTeal,
@@ -193,7 +211,7 @@ fun PatientProfileScreen(
 
                 // Chronic Conditions
                 Text(
-                    text = "Chronic Conditions",
+                    text = stringResource(R.string.profile_chronic_conditions),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.Black,
@@ -203,7 +221,7 @@ fun PatientProfileScreen(
                     value = uiState.chronicConditions,
                     onValueChange = viewModel::onChronicConditionsChanged,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("e.g. Diabetes, Hypertension", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.profile_chronic_conditions_placeholder), color = Color.Gray) },
                     minLines = 2,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrandTeal,
@@ -231,7 +249,7 @@ fun PatientProfileScreen(
                         )
                     } else {
                         Text(
-                            text = "Save",
+                            text = stringResource(R.string.profile_save),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,

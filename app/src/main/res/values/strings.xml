@@ -41,4 +41,69 @@
     <string name="db_error_failed_title">Database Update Failed</string>
     <string name="db_error_failed_message">eSIRI Plus could not update its local data. Please restart the app. If the problem persists, reinstall the app.</string>
     <string name="db_error_ok_button">OK</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_main_name">eSIRI+ Notifications</string>
+    <string name="channel_main_description">General notifications from eSIRI+</string>
+    <string name="channel_doctor_online_name">Doctor Online Status</string>
+    <string name="channel_doctor_online_description">Persistent notification when doctor is available for consultations</string>
+    <string name="channel_incoming_request_name">Incoming Consultation Requests</string>
+    <string name="channel_incoming_request_description">Alerts when a patient sends a consultation request</string>
+    <string name="channel_incoming_call_name">Incoming Calls</string>
+    <string name="channel_incoming_call_description">Alerts when you receive an incoming video or voice call</string>
+    <string name="channel_call_service_name">Active Call</string>
+    <string name="channel_call_service_description">Persistent notification while a call is in progress</string>
+
+    <!-- Notification Titles (by type) -->
+    <string name="notification_new_consultation">New Consultation Request</string>
+    <string name="notification_consultation_accepted">Consultation Accepted</string>
+    <string name="notification_new_message">New Message</string>
+    <string name="notification_incoming_video_call">Incoming Video Call</string>
+    <string name="notification_report_ready">Report Ready</string>
+    <string name="notification_payment_update">Payment Update</string>
+    <string name="notification_application_update">Application Update</string>
+    <string name="notification_admin_warning">Warning from Administration</string>
+    <string name="notification_account_suspended">Account Suspended</string>
+    <string name="notification_account_reinstated">Account Reinstated</string>
+    <string name="notification_account_banned">Account Banned</string>
+    <string name="notification_default_title">eSIRI+ Notification</string>
+    <string name="notification_tap_to_view">Tap to view details</string>
+    <string name="notification_patient_waiting">A patient is waiting for you</string>
+
+    <!-- Call-Related -->
+    <string name="call_type_voice">Voice</string>
+    <string name="call_type_video">Video</string>
+    <string name="caller_your_doctor">Your doctor</string>
+    <string name="caller_your_patient">Your patient</string>
+    <string name="call_incoming_title">Incoming %1$s Call</string>
+    <string name="call_incoming_body">%1$s is calling</string>
+    <string name="call_in_progress_title">%1$s Call in Progress</string>
+    <string name="call_in_progress_duration">Duration: %1$s</string>
+
+    <!-- Common Actions -->
+    <string name="action_accept">Accept</string>
+    <string name="action_decline">Decline</string>
+    <string name="action_end_call">End Call</string>
+    <string name="action_back">Back</string>
+
+    <!-- Doctor Online Service -->
+    <string name="doctor_online_title">You are online</string>
+    <string name="doctor_online_body">Waiting for consultation requests\u2026</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Mark all read</string>
+    <string name="notifications_empty_title">No notifications yet</string>
+    <string name="notifications_empty_subtitle">You\'ll see updates here when they arrive.</string>
+
+    <!-- Relative Time -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_minutes_ago">%1$dm ago</string>
+    <string name="time_hours_ago">%1$dh ago</string>
+    <string name="time_days_ago">%1$dd ago</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_back">Back</string>
+    <string name="cd_incoming_call">Incoming call</string>
+    <string name="cd_notifications">Notifications</string>
 </resources>

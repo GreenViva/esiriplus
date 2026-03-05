@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ═══ Common / Shared ═══ -->
+    <string name="common_back">Back</string>
+    <string name="common_back_content_description">Back</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_ok">OK</string>
+    <string name="common_save">Save</string>
+    <string name="common_close">Close</string>
+    <string name="common_sign_out">Sign Out</string>
+    <string name="common_open_menu">Open menu</string>
+    <string name="common_close_menu">Close menu</string>
+    <string name="common_coming_soon">Coming Soon</string>
+    <string name="common_view_all">View All</string>
+    <string name="common_off">Off</string>
+    <string name="common_english">English</string>
+
+    <!-- ═══ Dashboard: Side Navigation ═══ -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_consultations">Consultations</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_availability">Availability</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_earnings">Earnings</string>
+    <string name="sidebar_doctor_portal">Doctor Portal</string>
+    <string name="sidebar_verified">Verified</string>
+
+    <!-- ═══ Dashboard: Top Bar ═══ -->
+    <string name="dashboard_welcome_back">Welcome back,</string>
+    <string name="dashboard_notifications">Notifications</string>
+    <string name="dashboard_online">Online</string>
+    <string name="dashboard_suspended">Suspended</string>
+    <string name="dashboard_under_review">Under Review</string>
+
+    <!-- ═══ Dashboard: Active Consultation Banner ═══ -->
+    <string name="dashboard_active_consultation">Active Consultation</string>
+    <string name="dashboard_tap_to_resume">Tap to resume your chat</string>
+    <string name="dashboard_resume">Resume \u25B6</string>
+
+    <!-- ═══ Dashboard: Sign Out Dialog ═══ -->
+    <string name="sign_out_dialog_title">Sign Out</string>
+    <string name="sign_out_dialog_message">Are you sure you want to sign out?</string>
+
+    <!-- ═══ Dashboard: Overlay Permission Dialog ═══ -->
+    <string name="overlay_dialog_title">Display Over Other Apps</string>
+    <string name="overlay_dialog_message">To show a floating bubble when you receive consultation requests while using other apps, please allow eSIRI+ to display over other apps. You\'ll still receive notifications without this permission.</string>
+    <string name="overlay_dialog_open_settings">Open Settings</string>
+    <string name="overlay_dialog_not_now">Not Now</string>
+
+    <!-- ═══ Dashboard: Verified Banner ═══ -->
+    <string name="banner_verified_title">Verified Doctor</string>
+    <string name="banner_verified_message">Your profile is verified. You can now accept patient consultations.</string>
+
+    <!-- ═══ Dashboard: Pending Review Banner ═══ -->
+    <string name="banner_pending_title">Application Under Review</string>
+    <string name="banner_pending_message">Your application is under review. This typically takes 1\u20135 business days. You\u2019ll be notified once approved.</string>
+
+    <!-- ═══ Dashboard: Rejected Banner ═══ -->
+    <string name="banner_rejected_title">Application Not Approved</string>
+    <string name="banner_rejected_resubmit">Please review the reason and resubmit your credentials.</string>
+
+    <!-- ═══ Dashboard: Stats Grid ═══ -->
+    <string name="stats_pending_requests">Pending Requests</string>
+    <string name="stats_active_consultations">Active Consultations</string>
+    <string name="stats_todays_earnings">Today\'s Earnings</string>
+    <string name="stats_total_patients">Total Patients</string>
+    <string name="stats_acceptance_rate">Acceptance Rate</string>
+    <string name="stats_appointments">Appointments</string>
+
+    <!-- ═══ Dashboard: Availability Section ═══ -->
+    <string name="availability_today_title">Today\'s Availability</string>
+    <string name="availability_available_today">Available today</string>
+    <string name="availability_not_available_today">Not available today</string>
+    <string name="availability_set">Set Availability</string>
+
+    <!-- ═══ Dashboard: Pending Requests Section ═══ -->
+    <string name="pending_requests_title">Pending Requests</string>
+    <string name="pending_requests_none">No pending requests</string>
+    <string name="pending_requests_count">%d pending request(s)</string>
+
+    <!-- ═══ Dashboard: Appointments Section ═══ -->
+    <string name="appointments_upcoming_title">Upcoming Appointments</string>
+    <string name="appointments_none">No upcoming appointments</string>
+    <string name="appointments_more">+%d more</string>
+    <string name="appointments_date_at_time">%1$s at %2$s</string>
+
+    <!-- ═══ Dashboard: Tab Chips ═══ -->
+    <string name="tab_all_consultations">All Consultations</string>
+    <string name="tab_availability">Availability</string>
+    <string name="tab_earnings">Earnings</string>
+    <string name="tab_profile">Profile</string>
+
+    <!-- ═══ Consultations Content ═══ -->
+    <string name="consultations_title">Consultations</string>
+    <string name="consultations_subtitle">Manage your patient consultations</string>
+    <string name="consultations_tab_pending">Pending</string>
+    <string name="consultations_tab_active">Active</string>
+    <string name="consultations_tab_completed">Completed</string>
+    <string name="consultations_tab_cancelled">Cancelled</string>
+    <string name="consultations_empty">No %s consultations</string>
+    <string name="consultation_fee">Fee: TSh %s</string>
+    <string name="consultation_duration">Duration: %s min</string>
+
+    <!-- ═══ Active Chats Content ═══ -->
+    <string name="chat_title">Chat</string>
+    <string name="chat_subtitle">Active consultations</string>
+    <string name="chat_empty">No active consultations</string>
+    <string name="chat_empty_hint">Active consultations will appear here</string>
+
+    <!-- ═══ Availability Settings Content ═══ -->
+    <string name="availability_settings_title">Availability Settings</string>
+    <string name="availability_settings_subtitle">Set your weekly consultation hours</string>
+    <string name="availability_save_saved">Saved</string>
+    <string name="availability_save_changes">Save Changes</string>
+    <string name="availability_quick_presets">Quick Presets</string>
+    <string name="availability_preset_mon_fri">Mon-Fri (9 AM - 5 PM)</string>
+    <string name="availability_preset_every_day">Every Day (9 AM - 5 PM)</string>
+    <string name="availability_preset_clear_all">Clear All</string>
+    <string name="availability_weekly_schedule">Weekly Schedule</string>
+
+    <!-- ═══ Profile Settings Content ═══ -->
+    <string name="profile_title">Profile Settings</string>
+    <string name="profile_subtitle">View your profile and update preferences</string>
+    <string name="profile_photo_title">Profile Photo</string>
+    <string name="profile_photo_content_description">Profile photo</string>
+    <string name="profile_photo_tap_to_change">Tap to change photo</string>
+    <string name="profile_photo_size_hint">JPG, PNG, max 5MB</string>
+    <string name="profile_personal_info">Personal Information</string>
+    <string name="profile_set_during_registration">Set during registration</string>
+    <string name="profile_full_name">Full Name</string>
+    <string name="profile_phone_number">Phone Number</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_professional_info">Professional Information</string>
+    <string name="profile_specialty">Specialty</string>
+    <string name="profile_license_number">License Number</string>
+    <string name="profile_years_experience">Years of Experience</string>
+    <string name="profile_years_experience_auto">Updates automatically each year</string>
+    <string name="profile_bio">Professional Bio</string>
+    <string name="profile_location_languages">Location &amp; Languages</string>
+    <string name="profile_country">Country</string>
+    <string name="profile_languages_title">Languages You Speak</string>
+    <string name="profile_common_languages">COMMON LANGUAGES</string>
+    <string name="profile_other_languages">OTHER LANGUAGES</string>
+    <string name="profile_languages_selected">%d language(s) selected</string>
+    <string name="profile_services_offered">Services Offered</string>
+    <string name="profile_available_for_consultations">Available for Consultations</string>
+    <string name="profile_available_toggle_hint">Toggle off to temporarily hide your profile from patients</string>
+    <string name="profile_saved_locally">Saved Locally</string>
+    <string name="profile_saved">Saved</string>
+    <string name="profile_sync_failed_hint">Changes saved locally but could not sync to server. They will sync on next launch.</string>
+
+    <!-- ═══ Earnings Content ═══ -->
+    <string name="earnings_title">Earnings</string>
+    <string name="earnings_subtitle">Track your consultation earnings</string>
+    <string name="earnings_total">Total Earnings</string>
+    <string name="earnings_this_month">This Month</string>
+    <string name="earnings_last_month">Last Month</string>
+    <string name="earnings_pending_payout">Pending Payout</string>
+    <string name="earnings_payout_info_title">Payout Information</string>
+    <string name="earnings_payout_info_message">Payouts are processed automatically at the end of each month via M-Pesa. Ensure your phone number is correct in your profile settings.</string>
+    <string name="earnings_recent_transactions">Recent Transactions</string>
+    <string name="earnings_no_transactions">No transactions yet</string>
+
+    <!-- ═══ Ban Notice Screen ═══ -->
+    <string name="ban_title">Account Banned</string>
+    <string name="ban_message">Your account has been banned from using this application.</string>
+    <string name="ban_reason_label">Reason</string>
+    <string name="ban_appeal_title">Have a complaint?</string>
+    <string name="ban_appeal_message_with_date">You may contact our support team to appeal this decision within 7 days (by %s).</string>
+    <string name="ban_appeal_message_no_date">You may contact our support team to appeal this decision within 7 days of the ban.</string>
+    <string name="ban_support_email">support@esiriplus.com</string>
+
+    <!-- ═══ Consultation List Screen ═══ -->
+    <string name="consultation_list_title">Consultation History</string>
+    <string name="consultation_list_empty">No consultations yet</string>
+
+    <!-- ═══ Consultation Detail Screen ═══ -->
+    <string name="consultation_detail_end_title">End Consultation</string>
+    <string name="consultation_detail_end_message">Are you sure you want to end this consultation?</string>
+    <string name="consultation_detail_end_button">End</string>
+    <string name="consultation_detail_end_error_title">Could Not End Consultation</string>
+    <string name="consultation_detail_start_call">Start Call</string>
+    <string name="consultation_detail_voice_call">Voice Call</string>
+    <string name="consultation_detail_video_call">Video Call</string>
+    <string name="consultation_detail_write_report">Write Report</string>
+    <string name="consultation_detail_patient_summary">Patient Summary</string>
+    <string name="consultation_detail_end_consultation">End Consultation</string>
+    <string name="consultation_detail_camera">Camera</string>
+    <string name="consultation_detail_gallery">Gallery</string>
+    <string name="consultation_detail_document">Document</string>
+    <string name="consultation_detail_summary_error_title">Summary Error</string>
+    <string name="consultation_detail_patient_medical_summary">Patient Medical Summary</string>
+
+    <!-- ═══ Appointments Screen ═══ -->
+    <string name="appointments_title">Appointments</string>
+    <string name="appointments_tab_today">Today</string>
+    <string name="appointments_tab_upcoming">Upcoming</string>
+    <string name="appointments_tab_missed">Missed</string>
+    <string name="appointments_no_today">No today appointments</string>
+    <string name="appointments_no_upcoming">No upcoming appointments</string>
+    <string name="appointments_no_missed">No missed appointments</string>
+    <string name="appointments_status_booked">Booked</string>
+    <string name="appointments_status_confirmed">Confirmed</string>
+    <string name="appointments_status_in_progress">In Progress</string>
+    <string name="appointments_status_completed">Completed</string>
+    <string name="appointments_status_missed">Missed</string>
+    <string name="appointments_status_cancelled">Cancelled</string>
+    <string name="appointments_status_rescheduled">Rescheduled</string>
+    <string name="appointments_min_duration">%1$d min \u00B7 %2$s</string>
+    <string name="appointments_start_session">Start Session</string>
+    <string name="appointments_starting">Starting\u2026</string>
+    <string name="appointments_reschedule">Reschedule</string>
+    <string name="appointments_rescheduling">Rescheduling\u2026</string>
+
+    <!-- ═══ Reschedule Dialog ═══ -->
+    <string name="reschedule_title">Reschedule Appointment</string>
+    <string name="reschedule_instruction">Enter a new date and time for the appointment.</string>
+    <string name="reschedule_new_datetime">New Date &amp; Time</string>
+    <string name="reschedule_datetime_placeholder">e.g. 2026-03-05T10:00</string>
+    <string name="reschedule_reason_label">Reason (optional)</string>
+    <string name="reschedule_reason_placeholder">Reason for rescheduling\u2026</string>
+    <string name="reschedule_button">Reschedule</string>
+
+    <!-- ═══ Notifications Screen ═══ -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Mark all read</string>
+    <string name="notifications_empty">No notifications yet</string>
+    <string name="notifications_time_just_now">Just now</string>
+    <string name="notifications_time_minutes_ago">%dm ago</string>
+    <string name="notifications_time_hours_ago">%dh ago</string>
+    <string name="notifications_time_days_ago">%dd ago</string>
+
+    <!-- ═══ Availability Settings Screen (standalone) ═══ -->
+    <string name="avail_settings_title">Availability Schedule</string>
+    <string name="avail_settings_add_slot">Add Slot</string>
+    <string name="avail_settings_subtitle">Set your weekly recurring availability for appointments</string>
+    <string name="avail_settings_no_slots_title">No availability slots configured</string>
+    <string name="avail_settings_no_slots_message">Add slots to let patients book appointments with you.</string>
+    <string name="avail_settings_buffer_minutes">%dmin buffer</string>
+    <string name="avail_settings_inactive">Inactive</string>
+    <string name="avail_settings_delete">Delete</string>
+    <string name="avail_settings_add_dialog_title">Add Availability Slot</string>
+    <string name="avail_settings_day_of_week">Day of Week</string>
+    <string name="avail_settings_start_time">Start Time (HH:mm)</string>
+    <string name="avail_settings_end_time">End Time (HH:mm)</string>
+    <string name="avail_settings_buffer_label">Buffer Minutes</string>
+
+    <!-- ═══ Day Names ═══ -->
+    <string name="day_sunday">Sunday</string>
+    <string name="day_monday">Monday</string>
+    <string name="day_tuesday">Tuesday</string>
+    <string name="day_wednesday">Wednesday</string>
+    <string name="day_thursday">Thursday</string>
+    <string name="day_friday">Friday</string>
+    <string name="day_saturday">Saturday</string>
+
+    <!-- ═══ Incoming Request Dialog ═══ -->
+    <string name="request_title_failed">Accept Failed</string>
+    <string name="request_title_accepted">Request Accepted</string>
+    <string name="request_title_declined">Request Declined</string>
+    <string name="request_title_expired">Request Expired</string>
+    <string name="request_title_incoming">Incoming Consultation Request</string>
+    <string name="request_subtitle_failed">Something went wrong. You can retry.</string>
+    <string name="request_subtitle_accepted">Redirecting to consultation\u2026</string>
+    <string name="request_subtitle_declined">The patient will be notified.</string>
+    <string name="request_subtitle_expired">The request time has passed.</string>
+    <string name="request_subtitle_pending">A patient is requesting a consultation. You have %d seconds to respond.</string>
+    <string name="request_seconds_remaining">%ds remaining</string>
+    <string name="request_dismiss">Dismiss</string>
+    <string name="request_retry">Retry</string>
+    <string name="request_decline">Decline</string>
+    <string name="request_accept">Accept</string>
+    <string name="request_patient_label">Patient: %s</string>
+    <string name="request_blood_label">Blood: %s</string>
+    <string name="request_symptoms_label">Symptoms: %s</string>
+    <string name="request_allergies_label">Allergies: %s</string>
+    <string name="request_conditions_label">Conditions: %s</string>
+
+    <!-- ═══ Report Screen / Bottom Sheet ═══ -->
+    <string name="report_submitted_title">Report Submitted</string>
+    <string name="report_submitted_message">Report generated and sent to patient</string>
+    <string name="report_title">Consultation Report</string>
+    <string name="report_instruction">Please complete this report before ending the consultation. This data helps improve healthcare services.</string>
+    <string name="report_diagnosed_problem">Diagnosed Problem</string>
+    <string name="report_diagnosed_placeholder">Describe the diagnosed condition\u2026</string>
+    <string name="report_category">Category</string>
+    <string name="report_category_placeholder">Select category\u2026</string>
+    <string name="report_other_category_placeholder">Specify category\u2026</string>
+    <string name="report_severity">Severity Level</string>
+    <string name="report_treatment_plan">Decision / Treatment Plan</string>
+    <string name="report_treatment_placeholder">Describe the treatment plan or recommendations\u2026</string>
+    <string name="report_further_notes">Further Notes (Optional)</string>
+    <string name="report_notes_placeholder">Any additional observations or notes\u2026</string>
+    <string name="report_follow_up">Follow-up consultation recommended</string>
+    <string name="report_generating">Generating Report\u2026</string>
+    <string name="report_submit_button">Submit &amp; Generate Report</string>
+    <string name="report_returning">Returning to dashboard\u2026</string>
+    <string name="report_moved_hint">This screen has moved to the bottom sheet. Please use the consultation detail screen.</string>
+
+</resources>

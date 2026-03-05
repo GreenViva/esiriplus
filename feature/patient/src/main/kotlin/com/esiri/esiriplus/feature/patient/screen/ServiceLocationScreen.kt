@@ -50,6 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.esiri.esiriplus.feature.patient.R
@@ -115,7 +116,7 @@ fun ServiceLocationScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.location_back),
                         tint = Color.Black,
                     )
                 }
@@ -149,17 +150,16 @@ fun ServiceLocationScreen(
     if (showInternationalDialog) {
         AlertDialog(
             onDismissRequest = { showInternationalDialog = false },
-            title = { Text("Not Yet Available", color = Color.Black) },
+            title = { Text(stringResource(R.string.location_not_available_title), color = Color.Black) },
             text = {
                 Text(
-                    "International consultations are not yet available. " +
-                        "We are working hard to bring this service to you soon.",
+                    stringResource(R.string.location_not_available_message),
                     color = Color.Black,
                 )
             },
             confirmButton = {
                 TextButton(onClick = { showInternationalDialog = false }) {
-                    Text("OK", color = BrandTeal)
+                    Text(stringResource(R.string.location_ok), color = BrandTeal)
                 }
             },
         )
@@ -193,7 +193,7 @@ private fun LocationPermissionPrompt(
     Spacer(Modifier.height(32.dp))
 
     Text(
-        text = "Location Access Required",
+        text = stringResource(R.string.location_access_required),
         fontSize = 22.sp,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
@@ -203,7 +203,7 @@ private fun LocationPermissionPrompt(
     Spacer(Modifier.height(12.dp))
 
     Text(
-        text = "To provide you with the best experience, we use your location to analyze service availability, match you with nearby qualified doctors, and tailor our healthcare recommendations to your region.",
+        text = stringResource(R.string.location_access_description),
         fontSize = 14.sp,
         color = Color.Black,
         textAlign = TextAlign.Center,
@@ -213,7 +213,7 @@ private fun LocationPermissionPrompt(
     if (permanentlyDenied) {
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Location permission was denied. Please enable it in your device settings to continue.",
+            text = stringResource(R.string.location_permission_denied),
             fontSize = 13.sp,
             color = Color(0xFFB91C1C),
             textAlign = TextAlign.Center,
@@ -233,7 +233,7 @@ private fun LocationPermissionPrompt(
         colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
     ) {
         Text(
-            text = if (permanentlyDenied) "Open Settings" else "Enable Location",
+            text = if (permanentlyDenied) stringResource(R.string.location_open_settings) else stringResource(R.string.location_enable),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.White,
@@ -267,7 +267,7 @@ private fun LocationSelectionContent(
     Spacer(Modifier.height(24.dp))
 
     Text(
-        text = "Would you like services from",
+        text = stringResource(R.string.location_services_from),
         fontSize = 22.sp,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
@@ -276,7 +276,7 @@ private fun LocationSelectionContent(
     Spacer(Modifier.height(8.dp))
 
     Text(
-        text = "Select your preferred doctor location",
+        text = stringResource(R.string.location_select_preferred),
         fontSize = 14.sp,
         color = Color.Gray,
     )
@@ -298,21 +298,21 @@ private fun LocationSelectionContent(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Inside Tanzania",
+                    text = stringResource(R.string.location_inside_tanzania),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color.White,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Local doctors",
+                    text = stringResource(R.string.location_local_doctors),
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.8f),
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Select",
+                contentDescription = stringResource(R.string.location_content_desc_select),
                 tint = Color.White,
             )
         }
@@ -336,21 +336,21 @@ private fun LocationSelectionContent(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Outside Tanzania",
+                    text = stringResource(R.string.location_outside_tanzania),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color.Black,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "International doctors",
+                    text = stringResource(R.string.location_international_doctors),
                     fontSize = 14.sp,
                     color = Color.Gray,
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Select",
+                contentDescription = stringResource(R.string.location_content_desc_select),
                 tint = Color.Gray,
             )
         }

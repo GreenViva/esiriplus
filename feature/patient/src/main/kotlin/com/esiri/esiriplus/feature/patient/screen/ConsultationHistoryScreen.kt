@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,13 +74,13 @@ fun ConsultationHistoryScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.history_back),
                         tint = Color.Black,
                     )
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Consultation History",
+                    text = stringResource(R.string.history_title),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -103,7 +104,7 @@ fun ConsultationHistoryScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = uiState.error ?: "Unknown error",
+                            text = uiState.error ?: stringResource(R.string.history_unknown_error),
                             color = Color.Red,
                             fontSize = 14.sp,
                         )
@@ -123,7 +124,7 @@ fun ConsultationHistoryScreen(
                             )
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                text = "No consultations yet",
+                                text = stringResource(R.string.history_no_consultations),
                                 color = SubtitleGrey,
                                 fontSize = 16.sp,
                             )
@@ -203,9 +204,10 @@ private fun StatusChip(status: ConsultationStatus) {
     }
 }
 
+@Composable
 private fun formatServiceType(serviceType: ServiceType): String = when (serviceType) {
-    ServiceType.GENERAL_CONSULTATION -> "General Consultation"
-    ServiceType.SPECIALIST_CONSULTATION -> "Specialist Consultation"
-    ServiceType.FOLLOW_UP -> "Follow Up"
-    ServiceType.EMERGENCY -> "Emergency"
+    ServiceType.GENERAL_CONSULTATION -> stringResource(R.string.history_general_consultation)
+    ServiceType.SPECIALIST_CONSULTATION -> stringResource(R.string.history_specialist_consultation)
+    ServiceType.FOLLOW_UP -> stringResource(R.string.history_follow_up)
+    ServiceType.EMERGENCY -> stringResource(R.string.history_emergency)
 }

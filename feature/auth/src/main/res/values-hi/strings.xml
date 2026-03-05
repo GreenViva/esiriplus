@@ -1,0 +1,247 @@
+<resources>
+    <!-- Recovery Questions -->
+    <string name="recovery_questions_title">रिकवरी प्रश्न</string>
+    <string name="recovery_questions_hint">अपनी मरीज़ आईडी खो जाने पर उसे पुनः प्राप्त करने के लिए प्रश्न सेट करें</string>
+    <string name="recovery_questions_warning">रिकवरी प्रश्नों के बिना, आप अपनी मरीज़ आईडी खो जाने पर उसे पुनः प्राप्त नहीं कर पाएंगे</string>
+    <string name="recovery_questions_saved">रिकवरी प्रश्न सहेजे गए</string>
+
+    <!-- LanguageSelectionScreen (bilingual - used before language is set) -->
+    <string name="lang_select_swahili_button">भाषा चुनें ></string>
+    <string name="lang_select_english_button">Choose your Language ></string>
+
+    <!-- LanguagePickerScreen (bilingual - used before language is set) -->
+    <string name="lang_picker_title">भाषा चुनें / Select Language</string>
+    <string name="lang_picker_subtitle">ऐप के लिए अपनी पसंदीदा भाषा चुनें</string>
+    <string name="lang_picker_recommended">अनुशंसित</string>
+    <string name="lang_picker_other_languages">अन्य भाषाएँ / OTHER LANGUAGES</string>
+    <string name="lang_picker_coming_soon">%1$s - जल्द आ रहा है / Coming Soon</string>
+    <string name="lang_picker_continue">जारी रखें / Continue ></string>
+    <string name="lang_picker_back">वापस / Back</string>
+
+    <!-- SplashScreen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_tagline_en">Your Health, Our Priority</string>
+    <string name="splash_tap_to_continue">जारी रखने के लिए कहीं भी टैप करें</string>
+
+    <!-- RoleSelectionScreen -->
+    <string name="role_welcome_title">eSIRI Plus में आपका स्वागत है</string>
+    <string name="role_welcome_subtitle">आप कैसे आगे बढ़ना चाहेंगे?</string>
+    <string name="role_for_patients">मरीज़ों के लिए</string>
+    <string name="role_new_platform">प्लेटफ़ॉर्म पर नए हैं?</string>
+    <string name="role_new_platform_subtitle">शुरू करने के लिए यहाँ क्लिक करें</string>
+    <string name="role_have_my_id">मेरे पास मेरी आईडी है</string>
+    <string name="role_access_records">मेरे रिकॉर्ड देखें</string>
+    <string name="role_id_recovery_note">अपनी मरीज़ आईडी से लॉग इन करने के लिए आपको रिकवरी प्रश्न सेट करने होंगे।</string>
+    <string name="role_forgot_patient_id">मरीज़ आईडी भूल गए?</string>
+    <string name="role_or_divider">या</string>
+    <string name="role_doctor_portal">डॉक्टर पोर्टल</string>
+    <string name="role_sign_in">साइन इन</string>
+    <string name="role_sign_up">साइन अप</string>
+    <string name="role_forgot_password">पासवर्ड भूल गए?</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. सर्वाधिकार सुरक्षित।</string>
+
+    <!-- DoctorLoginScreen -->
+    <string name="doctor_login_title">डॉक्टर पोर्टल</string>
+    <string name="doctor_login_subtitle">अपने परामर्श प्रबंधित करने के लिए साइन इन करें</string>
+    <string name="doctor_login_sign_in_tab">साइन इन</string>
+    <string name="doctor_login_register_tab">रजिस्टर</string>
+    <string name="doctor_login_email_label">ईमेल</string>
+    <string name="doctor_login_email_placeholder">doctor@example.com</string>
+    <string name="doctor_login_password_label">पासवर्ड</string>
+    <string name="doctor_login_hide_password">पासवर्ड छुपाएँ</string>
+    <string name="doctor_login_show_password">पासवर्ड दिखाएँ</string>
+    <string name="doctor_login_sign_in_button">साइन इन</string>
+    <string name="doctor_login_go_back">वापस जाएँ</string>
+
+    <!-- DeviceMismatchScreen -->
+    <string name="device_mismatch_title">डिवाइस अधिकृत नहीं है</string>
+    <string name="device_mismatch_default_error">डिवाइस किसी अन्य डॉक्टर से जुड़ा है</string>
+
+    <!-- BannedDoctorScreen -->
+    <string name="banned_title">खाता प्रतिबंधित</string>
+    <string name="banned_message">इस एप्लिकेशन का उपयोग करने से आपको प्रतिबंधित कर दिया गया है।</string>
+    <string name="banned_reason_label">कारण</string>
+    <string name="banned_complaint_title">कोई शिकायत है?</string>
+    <string name="banned_appeal_with_date">आप इस निर्णय के विरुद्ध 7 दिनों के भीतर (%1$s तक) हमारी सहायता टीम से संपर्क कर सकते हैं।</string>
+    <string name="banned_appeal_no_date">आप प्रतिबंध के 7 दिनों के भीतर इस निर्णय के विरुद्ध हमारी सहायता टीम से संपर्क कर सकते हैं।</string>
+    <string name="banned_support_email">support@esiriplus.com</string>
+    <string name="banned_sign_out">साइन आउट</string>
+
+    <!-- SuspendedDoctorScreen -->
+    <string name="suspended_title">खाता निलंबित</string>
+    <string name="suspended_message">आपका खाता अस्थायी रूप से निलंबित कर दिया गया है।</string>
+    <string name="suspended_reason_label">कारण</string>
+    <string name="suspended_details_title">निलंबन विवरण</string>
+    <string name="suspended_time_remaining">शेष समय: %1$s</string>
+    <string name="suspended_lifted_on">आपका निलंबन %1$s को स्वचालित रूप से हटा दिया जाएगा।</string>
+    <string name="suspended_lifted_when_ends">अवधि समाप्त होने पर आपका निलंबन स्वचालित रूप से हटा दिया जाएगा।</string>
+    <string name="suspended_sign_out">साइन आउट</string>
+
+    <!-- WarningDoctorScreen -->
+    <string name="warning_title">चेतावनी सूचना</string>
+    <string name="warning_message">आपको प्रशासन से एक चेतावनी प्राप्त हुई है।</string>
+    <string name="warning_details_label">चेतावनी विवरण</string>
+    <string name="warning_take_note">कृपया ध्यान दें</string>
+    <string name="warning_review_text">कृपया इस चेतावनी को ध्यान से पढ़ें। बार-बार उल्लंघन करने पर आपके खाते को निलंबित या स्थायी रूप से प्रतिबंधित किया जा सकता है।</string>
+    <string name="warning_acknowledge_button">मैं समझता/समझती हूँ</string>
+    <string name="warning_sign_out">साइन आउट</string>
+
+    <!-- PatientOnboardingScreen -->
+    <string name="patient_onboarding_title">मरीज़ पंजीकरण</string>
+    <string name="patient_onboarding_full_name">पूरा नाम</string>
+    <string name="patient_onboarding_phone">फ़ोन नंबर</string>
+    <string name="patient_onboarding_continue">जारी रखें</string>
+
+    <!-- PatientSetupScreen -->
+    <string name="patient_setup_title">मरीज़ सेटअप</string>
+    <string name="patient_setup_step">चरण 3 का 3</string>
+    <string name="patient_setup_creating_account">आपका खाता बनाया जा रहा है\u2026</string>
+    <string name="patient_setup_retry">पुनः प्रयास करें</string>
+    <string name="patient_setup_your_patient_id">आपकी मरीज़ आईडी</string>
+    <string name="patient_setup_copy">कॉपी करें</string>
+    <string name="patient_setup_save_id_hint">भविष्य में उपयोग के लिए यह आईडी सहेजें</string>
+    <string name="patient_setup_set_up">सेट अप करें \u203A</string>
+    <string name="patient_setup_health_profile_title">स्वास्थ्य प्रोफ़ाइल (वैकल्पिक)</string>
+    <string name="patient_setup_health_profile_subtitle">अपने डॉक्टर को बेहतर सेवा देने में मदद करें</string>
+    <string name="patient_setup_sex_label">लिंग</string>
+    <string name="patient_setup_male">पुरुष</string>
+    <string name="patient_setup_female">महिला</string>
+    <string name="patient_setup_age_group_label">आयु वर्ग</string>
+    <string name="patient_setup_age_group_placeholder">आयु वर्ग चुनें</string>
+    <string name="patient_setup_blood_type_label">रक्त समूह</string>
+    <string name="patient_setup_blood_type_placeholder">रक्त समूह चुनें</string>
+    <string name="patient_setup_allergies_label">एलर्जी</string>
+    <string name="patient_setup_allergies_placeholder">उदा. पेनिसिलिन, मूंगफली</string>
+    <string name="patient_setup_chronic_conditions_label">पुरानी बीमारियाँ</string>
+    <string name="patient_setup_chronic_conditions_placeholder">उदा. मधुमेह, उच्च रक्तचाप</string>
+    <string name="patient_setup_continue">जारी रखें</string>
+    <string name="patient_setup_generating_pdf">PDF बनाया जा रहा है\u2026</string>
+    <string name="patient_setup_download_id_card">\u2B07  आईडी कार्ड डाउनलोड करें</string>
+    <string name="patient_setup_fill_to_download">डाउनलोड करने के लिए लिंग और आयु वर्ग भरें</string>
+    <string name="patient_setup_clipboard_label">मरीज़ आईडी</string>
+    <string name="patient_setup_id_copied">मरीज़ आईडी कॉपी हो गई</string>
+    <string name="patient_setup_id_saved_toast">आईडी कार्ड डाउनलोड में सहेजा गया</string>
+
+    <!-- TermsScreen -->
+    <string name="terms_back_content_desc">वापस</string>
+    <string name="terms_title">नियम &amp; गोपनीयता नीति</string>
+    <string name="terms_subtitle">जारी रखने से पहले कृपया ध्यान से पढ़ें</string>
+    <string name="terms_legal_document">eSIRI Plus कानूनी दस्तावेज़</string>
+    <string name="terms_checkbox_text">मैंने सेवा की शर्तें, गोपनीयता नीति, चिकित्सा अस्वीकरण और सूचित सहमति को पढ़ लिया है, समझ लिया है और उनसे सहमत हूँ</string>
+    <string name="terms_agree_button">मैं सहमत हूँ &amp; जारी रखें</string>
+
+    <!-- DoctorTermsScreen -->
+    <string name="doctor_terms_title">प्रदाता नियम &amp; नीति</string>
+    <string name="doctor_terms_subtitle">जारी रखने से पहले कृपया ध्यान से पढ़ें</string>
+    <string name="doctor_terms_legal_document">eSIRI Plus प्रदाता दस्तावेज़</string>
+    <string name="doctor_terms_checkbox_text">मैंने प्रदाता सेवा की शर्तें, गोपनीयता नीति, चिकित्सा दिशानिर्देश और सूचित सहमति को पढ़ लिया है, समझ लिया है और उनसे सहमत हूँ</string>
+    <string name="doctor_terms_agree_button">मैं सहमत हूँ &amp; जारी रखें</string>
+    <string name="doctor_terms_back_content_desc">वापस</string>
+
+    <!-- SecurityQuestionsSetupScreen -->
+    <string name="security_setup_topbar_title">रिकवरी प्रश्न</string>
+    <string name="security_setup_title">सुरक्षा प्रश्न सेट करें</string>
+    <string name="security_setup_subtitle">यदि आप अपनी मरीज़ आईडी भूल जाते हैं तो ये प्रश्न उसे पुनः प्राप्त करने में आपकी मदद करेंगे।</string>
+    <string name="security_setup_question_progress">प्रश्न %1$d का %2$d</string>
+    <string name="security_setup_answer_label">आपका उत्तर</string>
+    <string name="security_setup_save_button">सुरक्षा प्रश्न सहेजें</string>
+    <string name="security_setup_next_button">अगला</string>
+    <string name="security_setup_skip">अभी छोड़ें</string>
+
+    <!-- PatientRecoveryScreen -->
+    <string name="recovery_topbar_title">मरीज़ आईडी पुनर्प्राप्ति</string>
+    <string name="recovery_back_content_desc">वापस</string>
+    <string name="recovery_rate_limited_title">बहुत अधिक प्रयास</string>
+    <string name="recovery_rate_limited_message">आपने पुनर्प्राप्ति प्रयासों की अधिकतम सीमा पार कर ली है। कृपया 24 घंटे बाद पुनः प्रयास करें।</string>
+    <string name="recovery_instructions">अपना खाता पुनर्प्राप्त करने के लिए सभी 5 सुरक्षा प्रश्नों का उत्तर दें</string>
+    <string name="recovery_question_progress">प्रश्न %1$d का %2$d</string>
+    <string name="recovery_answer_label">आपका उत्तर</string>
+    <string name="recovery_attempts_remaining">%1$d प्रयास शेष</string>
+    <string name="recovery_submit_button">खाता पुनर्प्राप्त करें</string>
+    <string name="recovery_next_button">अगला</string>
+    <string name="recovery_success_title">खाता पुनर्प्राप्त हो गया!</string>
+    <string name="recovery_success_message">आपकी मरीज़ आईडी पुनर्प्राप्त हो गई है। कृपया इसे किसी सुरक्षित स्थान पर सहेजें।</string>
+    <string name="recovery_your_patient_id">आपकी मरीज़ आईडी</string>
+    <string name="recovery_copy_to_clipboard">क्लिपबोर्ड पर कॉपी करें</string>
+    <string name="recovery_id_copied_toast">मरीज़ आईडी कॉपी हो गई!</string>
+    <string name="recovery_continue_to_dashboard">डैशबोर्ड पर जारी रखें</string>
+
+    <!-- AccessRecordsScreen -->
+    <string name="access_records_back_content_desc">वापस</string>
+    <string name="access_records_back_button">वापस</string>
+    <string name="access_records_title">अपने रिकॉर्ड देखें</string>
+    <string name="access_records_subtitle">अपना परामर्श इतिहास देखने के लिए अपनी मरीज़ आईडी दर्ज करें</string>
+    <string name="access_records_button">मेरे रिकॉर्ड देखें</string>
+    <string name="access_records_no_id">आईडी नहीं है?</string>
+
+    <!-- DoctorRegistrationScreen -->
+    <string name="doctor_reg_portal_title">डॉक्टर पोर्टल</string>
+    <string name="doctor_reg_portal_subtitle">सत्यापित स्वास्थ्य पेशेवरों के हमारे नेटवर्क से जुड़ें</string>
+    <string name="doctor_reg_sign_in_tab">साइन इन</string>
+    <string name="doctor_reg_register_tab">रजिस्टर</string>
+    <string name="doctor_reg_step1_title">अपना खाता बनाएँ</string>
+    <string name="doctor_reg_step1_subtitle">अपना ईमेल दर्ज करें और एक सुरक्षित पासवर्ड बनाएँ</string>
+    <string name="doctor_reg_step2_title">प्रोफ़ाइल फ़ोटो</string>
+    <string name="doctor_reg_step2_subtitle">अपनी एक पेशेवर फ़ोटो अपलोड करें</string>
+    <string name="doctor_reg_step3_title">व्यक्तिगत जानकारी</string>
+    <string name="doctor_reg_step3_subtitle">अपने बारे में बताएँ</string>
+    <string name="doctor_reg_step4_title">स्थान &amp; भाषाएँ</string>
+    <string name="doctor_reg_step4_subtitle">आप कहाँ स्थित हैं और कौन सी भाषाएँ बोलते हैं?</string>
+    <string name="doctor_reg_step5_title">पेशेवर विवरण</string>
+    <string name="doctor_reg_step5_subtitle">आपकी योग्यता और अनुभव</string>
+    <string name="doctor_reg_step6_title">प्रदान की जाने वाली सेवाएँ</string>
+    <string name="doctor_reg_step6_subtitle">आपकी विशेषज्ञता के लिए उपलब्ध सेवाएँ</string>
+    <string name="doctor_reg_step7_title">प्रमाण-पत्र अपलोड करें</string>
+    <string name="doctor_reg_step7_subtitle">सत्यापन के लिए अपना चिकित्सा लाइसेंस और प्रमाण-पत्र अपलोड करें</string>
+    <string name="doctor_reg_step8_title">बायोमेट्रिक सुरक्षा</string>
+    <string name="doctor_reg_step8_subtitle">अपने खाते के लिए फ़िंगरप्रिंट या फ़ेस अनलॉक सेट करें</string>
+    <string name="doctor_reg_email_label">ईमेल</string>
+    <string name="doctor_reg_password_label">पासवर्ड</string>
+    <string name="doctor_reg_confirm_password_label">पासवर्ड की पुष्टि करें</string>
+    <string name="doctor_reg_photo_hint">फ़ोटो चुनने के लिए टैप करें (JPG, PNG, अधिकतम 5MB)</string>
+    <string name="doctor_reg_profile_photo_cd">प्रोफ़ाइल फ़ोटो</string>
+    <string name="doctor_reg_select_photo_cd">फ़ोटो चुनें</string>
+    <string name="doctor_reg_full_name_label">पूरा नाम</string>
+    <string name="doctor_reg_full_name_placeholder">डॉ. जॉन डो</string>
+    <string name="doctor_reg_phone_label">फ़ोन नंबर</string>
+    <string name="doctor_reg_specialty_label">चिकित्सा विशेषज्ञता</string>
+    <string name="doctor_reg_specialty_placeholder">अपनी विशेषज्ञता चुनें</string>
+    <string name="doctor_reg_specialist_field_label">विशेषज्ञ क्षेत्र</string>
+    <string name="doctor_reg_specialist_field_placeholder">उदा. दंत चिकित्सक, हृदय रोग विशेषज्ञ, त्वचा रोग विशेषज्ञ</string>
+    <string name="doctor_reg_country_label">देश</string>
+    <string name="doctor_reg_languages_label">आप जो भाषाएँ बोलते हैं</string>
+    <string name="doctor_reg_common_languages">सामान्य भाषाएँ</string>
+    <string name="doctor_reg_other_languages">अन्य भाषाएँ</string>
+    <string name="doctor_reg_languages_selected">%1$d भाषा(एँ) चुनी गईं</string>
+    <string name="doctor_reg_license_label">चिकित्सा लाइसेंस संख्या</string>
+    <string name="doctor_reg_license_placeholder">उदा., TZ-MED-12345</string>
+    <string name="doctor_reg_experience_label">अनुभव के वर्ष</string>
+    <string name="doctor_reg_bio_label">पेशेवर परिचय</string>
+    <string name="doctor_reg_bio_placeholder">मरीज़ों को अपनी पृष्ठभूमि, दृष्टिकोण और विशेषज्ञता के क्षेत्रों के बारे में बताएँ\u2026</string>
+    <string name="doctor_reg_services_available">%1$d सेवाएँ उपलब्ध</string>
+    <string name="doctor_reg_select_services">आप जो सेवाएँ प्रदान करेंगे उन्हें चुनें:</string>
+    <string name="doctor_reg_services_selected">%2$d में से %1$d सेवा(एँ) चुनी गईं</string>
+    <string name="doctor_reg_license_upload_title">चिकित्सा लाइसेंस</string>
+    <string name="doctor_reg_license_upload_subtitle">PDF या छवि अपलोड करने के लिए क्लिक करें</string>
+    <string name="doctor_reg_certificates_upload_title">अतिरिक्त प्रमाण-पत्र</string>
+    <string name="doctor_reg_certificates_upload_subtitle">वैकल्पिक: विशेषज्ञता प्रमाण-पत्र</string>
+    <string name="doctor_reg_selected_suffix">(चुना गया)</string>
+    <string name="doctor_reg_credentials_review_notice">आपके प्रमाण-पत्रों की हमारी टीम द्वारा समीक्षा की जाएगी। आपकी प्रोफ़ाइल सत्यापित होने पर आपको सूचित किया जाएगा।</string>
+    <string name="doctor_reg_back_button">वापस</string>
+    <string name="doctor_reg_registering">पंजीकरण हो रहा है\u2026</string>
+    <string name="doctor_reg_complete_registration">पंजीकरण पूरा करें</string>
+    <string name="doctor_reg_continue">जारी रखें</string>
+    <string name="doctor_reg_hide_password">पासवर्ड छुपाएँ</string>
+    <string name="doctor_reg_show_password">पासवर्ड दिखाएँ</string>
+
+    <!-- ViewModel fallback error strings -->
+    <string name="error_login_failed">लॉगिन विफल</string>
+    <string name="error_generic">एक त्रुटि हुई</string>
+    <string name="error_registration_failed">पंजीकरण विफल</string>
+    <string name="error_session_create_failed">सत्र बनाने में विफल</string>
+    <string name="error_security_questions_failed">सुरक्षा प्रश्न सहेजने में विफल।</string>
+    <string name="error_recovery_failed">पुनर्प्राप्ति विफल। कृपया पुनः प्रयास करें।</string>
+    <string name="error_patient_id_not_found">मरीज़ आईडी नहीं मिली। कृपया अपनी आईडी जाँचें और पुनः प्रयास करें।</string>
+    <string name="error_pdf_generate_failed">PDF बनाने में विफल</string>
+</resources>

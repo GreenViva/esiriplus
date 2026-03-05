@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -74,13 +75,13 @@ fun ReportsScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.reports_back),
                         tint = Color.Black,
                     )
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Reports",
+                    text = stringResource(R.string.reports_title),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -104,7 +105,7 @@ fun ReportsScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = uiState.error ?: "Unknown error",
+                            text = uiState.error ?: stringResource(R.string.reports_unknown_error),
                             color = Color.Red,
                             fontSize = 14.sp,
                         )
@@ -124,7 +125,7 @@ fun ReportsScreen(
                             )
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                text = "No reports yet",
+                                text = stringResource(R.string.reports_no_reports),
                                 color = SubtitleGrey,
                                 fontSize = 16.sp,
                             )
@@ -171,7 +172,7 @@ private fun ReportItem(
                     text = if (report.doctorName.isNotBlank()) {
                         "Dr. ${report.doctorName}"
                     } else {
-                        "Consultation Report"
+                        stringResource(R.string.reports_consultation_report)
                     },
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
@@ -226,7 +227,7 @@ private fun ReportItem(
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = "View report",
+                contentDescription = stringResource(R.string.reports_content_desc_view),
                 tint = Color(0xFF9CA3AF),
                 modifier = Modifier.size(20.dp),
             )

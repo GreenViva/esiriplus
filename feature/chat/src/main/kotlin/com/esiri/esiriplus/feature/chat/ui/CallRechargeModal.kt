@@ -32,10 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.esiri.esiriplus.core.network.dto.CallRechargePackage
+import com.esiri.esiriplus.feature.chat.R
 
 private val BrandTeal = Color(0xFF2A9D8F)
 
@@ -53,11 +55,14 @@ fun CallRechargeModal(
 
     val packages = CallRechargePackage.ALL
 
+    val invalidPhoneMessage = stringResource(R.string.recharge_invalid_phone)
+    val paymentFailedMessage = stringResource(R.string.recharge_payment_failed)
+
     AlertDialog(
         onDismissRequest = { if (!isSubmitting) onDismiss() },
         title = {
             Text(
-                text = "Add More Call Time",
+                text = stringResource(R.string.recharge_add_call_time),
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
             )
@@ -65,7 +70,7 @@ fun CallRechargeModal(
         text = {
             Column {
                 Text(
-                    text = "Select a package and pay with M-Pesa",
+                    text = stringResource(R.string.recharge_select_package),
                     color = Color.Black,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -111,8 +116,8 @@ fun CallRechargeModal(
                         phoneNumber = filtered
                         error = null
                     },
-                    label = { Text("M-Pesa Phone Number", color = Color.Black) },
-                    placeholder = { Text("255XXXXXXXXX") },
+                    label = { Text(stringResource(R.string.recharge_phone_label), color = Color.Black) },
+                    placeholder = { Text(stringResource(R.string.recharge_phone_placeholder)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -133,7 +138,7 @@ fun CallRechargeModal(
                 onClick = {
                     val pkg = packages[selectedPackage]
                     if (!phoneNumber.matches(Regex("^2556\\d{8}$|^2557\\d{8}$"))) {
-                        error = "Enter a valid phone number (255XXXXXXXXX)"
+                        error = invalidPhoneMessage
                         return@Button
                     }
                     if (onSubmitRecharge != null) {
@@ -144,7 +149,7 @@ fun CallRechargeModal(
                             if (success) {
                                 onRechargeSuccess(pkg.minutes)
                             } else {
-                                error = "Payment initiation failed. Please try again."
+                                error = paymentFailedMessage
                             }
                         }
                     } else {
@@ -163,7 +168,7 @@ fun CallRechargeModal(
                         strokeWidth = 2.dp,
                     )
                 }
-                Text("Pay with M-Pesa", color = Color.White)
+                Text(stringResource(R.string.recharge_pay_mpesa), color = Color.White)
             }
         },
         dismissButton = {
@@ -171,7 +176,7 @@ fun CallRechargeModal(
                 onClick = onDismiss,
                 enabled = !isSubmitting,
             ) {
-                Text("Cancel", color = Color.Black)
+                Text(stringResource(R.string.recharge_cancel), color = Color.Black)
             }
         },
     )

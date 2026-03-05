@@ -4,4 +4,244 @@
     <string name="recovery_questions_hint">Weka maswali ya kupata Kitambulisho chako cha Mgonjwa ukipoteza</string>
     <string name="recovery_questions_warning">Bila maswali ya kupata tena, hutaweza kupata Kitambulisho chako cha Mgonjwa ukipoteza</string>
     <string name="recovery_questions_saved">Maswali ya kupata tena yamehifadhiwa</string>
+
+    <!-- LanguageSelectionScreen (bilingual - kept bilingual intentionally) -->
+    <string name="lang_select_swahili_button">Chagua lugha ></string>
+    <string name="lang_select_english_button">Choose your Language ></string>
+
+    <!-- LanguagePickerScreen (bilingual - kept bilingual intentionally) -->
+    <string name="lang_picker_title">Select Language / Chagua Lugha</string>
+    <string name="lang_picker_subtitle">Chagua lugha unayopendelea kwa programu</string>
+    <string name="lang_picker_recommended">ZINAZOPENDEKEZWA</string>
+    <string name="lang_picker_other_languages">OTHER LANGUAGES / LUGHA NYINGINE</string>
+    <string name="lang_picker_coming_soon">%1$s - Coming Soon / Inakuja Hivi Karibuni</string>
+    <string name="lang_picker_continue">Continue / Endelea ></string>
+    <string name="lang_picker_back">Back / Rudi</string>
+
+    <!-- SplashScreen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_tagline_en">Your Health, Our Priority</string>
+    <string name="splash_tap_to_continue">Gusa popote kuendelea</string>
+
+    <!-- RoleSelectionScreen -->
+    <string name="role_welcome_title">Karibu eSIRI Plus</string>
+    <string name="role_welcome_subtitle">Ungependa kuendelea vipi?</string>
+    <string name="role_for_patients">KWA WAGONJWA</string>
+    <string name="role_new_platform">Mpya kwenye jukwaa?</string>
+    <string name="role_new_platform_subtitle">Bofya hapa kuanza</string>
+    <string name="role_have_my_id">Nina Kitambulisho changu</string>
+    <string name="role_access_records">Fikia rekodi zangu</string>
+    <string name="role_id_recovery_note">Lazima uwe umeweka maswali ya kupata tena ili uingie kwa Kitambulisho cha Mgonjwa.</string>
+    <string name="role_forgot_patient_id">Umesahau Kitambulisho chako cha Mgonjwa?</string>
+    <string name="role_or_divider">au</string>
+    <string name="role_doctor_portal">LANGO LA DAKTARI</string>
+    <string name="role_sign_in">Ingia</string>
+    <string name="role_sign_up">Jisajili</string>
+    <string name="role_forgot_password">Umesahau nenosiri lako?</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. Haki zote zimehifadhiwa.</string>
+
+    <!-- DoctorLoginScreen -->
+    <string name="doctor_login_title">Lango la Daktari</string>
+    <string name="doctor_login_subtitle">Ingia kusimamia mashauriano yako</string>
+    <string name="doctor_login_sign_in_tab">Ingia</string>
+    <string name="doctor_login_register_tab">Jisajili</string>
+    <string name="doctor_login_email_label">Barua pepe</string>
+    <string name="doctor_login_email_placeholder">daktari@mfano.com</string>
+    <string name="doctor_login_password_label">Nenosiri</string>
+    <string name="doctor_login_hide_password">Ficha nenosiri</string>
+    <string name="doctor_login_show_password">Onyesha nenosiri</string>
+    <string name="doctor_login_sign_in_button">Ingia</string>
+    <string name="doctor_login_go_back">Rudi Nyuma</string>
+
+    <!-- DeviceMismatchScreen -->
+    <string name="device_mismatch_title">Kifaa Hakijaidhinishwa</string>
+    <string name="device_mismatch_default_error">Kifaa kimefungwa kwa daktari mwingine</string>
+
+    <!-- BannedDoctorScreen -->
+    <string name="banned_title">Akaunti Imezuiwa</string>
+    <string name="banned_message">Umezuiwa kutumia programu hii.</string>
+    <string name="banned_reason_label">Sababu</string>
+    <string name="banned_complaint_title">Una malalamiko?</string>
+    <string name="banned_appeal_with_date">Unaweza kuwasiliana na timu yetu ya msaada kukata rufaa kwa uamuzi huu ndani ya siku 7 (ifikapo %1$s).</string>
+    <string name="banned_appeal_no_date">Unaweza kuwasiliana na timu yetu ya msaada kukata rufaa kwa uamuzi huu ndani ya siku 7 baada ya kuzuiwa.</string>
+    <string name="banned_support_email">support@esiriplus.com</string>
+    <string name="banned_sign_out">Ondoka</string>
+
+    <!-- SuspendedDoctorScreen -->
+    <string name="suspended_title">Akaunti Imesimamishwa</string>
+    <string name="suspended_message">Akaunti yako imesimamishwa kwa muda.</string>
+    <string name="suspended_reason_label">Sababu</string>
+    <string name="suspended_details_title">Maelezo ya Kusimamishwa</string>
+    <string name="suspended_time_remaining">Muda uliobaki: %1$s</string>
+    <string name="suspended_lifted_on">Kusimamishwa kwako kutaondolewa moja kwa moja tarehe %1$s.</string>
+    <string name="suspended_lifted_when_ends">Kusimamishwa kwako kutaondolewa moja kwa moja muda utakapokwisha.</string>
+    <string name="suspended_sign_out">Ondoka</string>
+
+    <!-- WarningDoctorScreen -->
+    <string name="warning_title">Ilani ya Onyo</string>
+    <string name="warning_message">Umepokea onyo kutoka kwa utawala.</string>
+    <string name="warning_details_label">Maelezo ya Onyo</string>
+    <string name="warning_take_note">Tafadhali kumbuka</string>
+    <string name="warning_review_text">Tafadhali soma onyo hili kwa makini. Ukiukaji wa mara kwa mara unaweza kusababisha kusimamishwa au kuzuiwa kabisa kwa akaunti yako.</string>
+    <string name="warning_acknowledge_button">Naelewa</string>
+    <string name="warning_sign_out">Ondoka</string>
+
+    <!-- PatientOnboardingScreen -->
+    <string name="patient_onboarding_title">Usajili wa Mgonjwa</string>
+    <string name="patient_onboarding_full_name">Jina Kamili</string>
+    <string name="patient_onboarding_phone">Nambari ya Simu</string>
+    <string name="patient_onboarding_continue">Endelea</string>
+
+    <!-- PatientSetupScreen -->
+    <string name="patient_setup_title">Usanidi wa Mgonjwa</string>
+    <string name="patient_setup_step">Hatua ya 3 kati ya 3</string>
+    <string name="patient_setup_creating_account">Inaunda akaunti yako\u2026</string>
+    <string name="patient_setup_retry">Jaribu Tena</string>
+    <string name="patient_setup_your_patient_id">Kitambulisho chako cha Mgonjwa</string>
+    <string name="patient_setup_copy">Nakili</string>
+    <string name="patient_setup_save_id_hint">Hifadhi kitambulisho hiki kwa matumizi ya baadaye</string>
+    <string name="patient_setup_set_up">Weka \u203A</string>
+    <string name="patient_setup_health_profile_title">Wasifu wa Afya (Si Lazima)</string>
+    <string name="patient_setup_health_profile_subtitle">Msaidie daktari wako akuhudumie vizuri zaidi</string>
+    <string name="patient_setup_sex_label">Jinsia</string>
+    <string name="patient_setup_male">Me</string>
+    <string name="patient_setup_female">Ke</string>
+    <string name="patient_setup_age_group_label">Kundi la Umri</string>
+    <string name="patient_setup_age_group_placeholder">Chagua kundi la umri</string>
+    <string name="patient_setup_blood_type_label">Kundi la Damu</string>
+    <string name="patient_setup_blood_type_placeholder">Chagua kundi la damu</string>
+    <string name="patient_setup_allergies_label">Mzio</string>
+    <string name="patient_setup_allergies_placeholder">mfano Penicillin, Karanga</string>
+    <string name="patient_setup_chronic_conditions_label">Magonjwa Sugu</string>
+    <string name="patient_setup_chronic_conditions_placeholder">mfano Kisukari, Shinikizo la Damu</string>
+    <string name="patient_setup_continue">Endelea</string>
+    <string name="patient_setup_generating_pdf">Inaunda PDF\u2026</string>
+    <string name="patient_setup_download_id_card">\u2B07  Pakua Kadi ya Kitambulisho</string>
+    <string name="patient_setup_fill_to_download">Jaza Jinsia na Kundi la Umri kupakua</string>
+    <string name="patient_setup_clipboard_label">Kitambulisho cha Mgonjwa</string>
+    <string name="patient_setup_id_copied">Kitambulisho cha Mgonjwa kimenakiliwa</string>
+    <string name="patient_setup_id_saved_toast">Kadi ya Kitambulisho imehifadhiwa kwenye Vipakuliwa</string>
+
+    <!-- TermsScreen -->
+    <string name="terms_back_content_desc">Rudi</string>
+    <string name="terms_title">Masharti na Sera ya Faragha</string>
+    <string name="terms_subtitle">Tafadhali soma kwa makini kabla ya kuendelea</string>
+    <string name="terms_legal_document">Hati ya Kisheria ya eSIRI Plus</string>
+    <string name="terms_checkbox_text">Nimesoma, nimeelewa, na ninakubali Masharti ya Huduma, Sera ya Faragha, Kanusho la Matibabu, na Ridhaa ya Kujulishwa</string>
+    <string name="terms_agree_button">Nakubali na Kuendelea</string>
+
+    <!-- DoctorTermsScreen -->
+    <string name="doctor_terms_title">Masharti ya Mtoa Huduma na Sera</string>
+    <string name="doctor_terms_subtitle">Tafadhali soma kwa makini kabla ya kuendelea</string>
+    <string name="doctor_terms_legal_document">Hati ya Mtoa Huduma ya eSIRI Plus</string>
+    <string name="doctor_terms_checkbox_text">Nimesoma, nimeelewa, na ninakubali Masharti ya Huduma ya Mtoa Huduma, Sera ya Faragha, Miongozo ya Mazoezi, na Ridhaa ya Kujulishwa</string>
+    <string name="doctor_terms_agree_button">Nakubali na Kuendelea</string>
+    <string name="doctor_terms_back_content_desc">Rudi</string>
+
+    <!-- SecurityQuestionsSetupScreen -->
+    <string name="security_setup_topbar_title">Maswali ya Kupata Tena</string>
+    <string name="security_setup_title">Weka Maswali ya Usalama</string>
+    <string name="security_setup_subtitle">Maswali haya yatakusaidia kupata Kitambulisho chako cha Mgonjwa ukisahau.</string>
+    <string name="security_setup_question_progress">Swali la %1$d kati ya %2$d</string>
+    <string name="security_setup_answer_label">Jibu lako</string>
+    <string name="security_setup_save_button">Hifadhi Maswali ya Usalama</string>
+    <string name="security_setup_next_button">Endelea</string>
+    <string name="security_setup_skip">Ruka kwa sasa</string>
+
+    <!-- PatientRecoveryScreen -->
+    <string name="recovery_topbar_title">Pata Kitambulisho cha Mgonjwa</string>
+    <string name="recovery_back_content_desc">Rudi</string>
+    <string name="recovery_rate_limited_title">Majaribio mengi kupita kiasi</string>
+    <string name="recovery_rate_limited_message">Umezidi idadi ya juu ya majaribio ya kupata tena. Tafadhali jaribu tena baada ya masaa 24.</string>
+    <string name="recovery_instructions">Jibu maswali yote 5 ya usalama kupata akaunti yako</string>
+    <string name="recovery_question_progress">Swali la %1$d kati ya %2$d</string>
+    <string name="recovery_answer_label">Jibu lako</string>
+    <string name="recovery_attempts_remaining">Majaribio %1$d yamebaki</string>
+    <string name="recovery_submit_button">Pata Akaunti</string>
+    <string name="recovery_next_button">Endelea</string>
+    <string name="recovery_success_title">Akaunti Imepatikana!</string>
+    <string name="recovery_success_message">Kitambulisho chako cha Mgonjwa kimepatikana. Tafadhali kihifadhi mahali salama.</string>
+    <string name="recovery_your_patient_id">Kitambulisho chako cha Mgonjwa</string>
+    <string name="recovery_copy_to_clipboard">Nakili kwenye Ubao wa Kunakili</string>
+    <string name="recovery_id_copied_toast">Kitambulisho cha Mgonjwa kimenakiliwa!</string>
+    <string name="recovery_continue_to_dashboard">Endelea hadi Dashibodi</string>
+
+    <!-- AccessRecordsScreen -->
+    <string name="access_records_back_content_desc">Rudi</string>
+    <string name="access_records_back_button">Rudi</string>
+    <string name="access_records_title">Fikia Rekodi Zako</string>
+    <string name="access_records_subtitle">Ingiza kitambulisho chako cha mgonjwa kuona historia ya mashauriano yako</string>
+    <string name="access_records_button">Fikia Rekodi Zangu</string>
+    <string name="access_records_no_id">Huna kitambulisho?</string>
+
+    <!-- DoctorRegistrationScreen -->
+    <string name="doctor_reg_portal_title">Lango la Daktari</string>
+    <string name="doctor_reg_portal_subtitle">Jiunge na mtandao wetu wa wataalamu wa afya waliothibitishwa</string>
+    <string name="doctor_reg_sign_in_tab">Ingia</string>
+    <string name="doctor_reg_register_tab">Jisajili</string>
+    <string name="doctor_reg_step1_title">Unda Akaunti Yako</string>
+    <string name="doctor_reg_step1_subtitle">Ingiza barua pepe yako na uunde nenosiri salama</string>
+    <string name="doctor_reg_step2_title">Picha ya Wasifu</string>
+    <string name="doctor_reg_step2_subtitle">Pakia picha yako ya kitaalamu</string>
+    <string name="doctor_reg_step3_title">Taarifa Binafsi</string>
+    <string name="doctor_reg_step3_subtitle">Tuambie kuhusu wewe</string>
+    <string name="doctor_reg_step4_title">Eneo na Lugha</string>
+    <string name="doctor_reg_step4_subtitle">Uko wapi na unazungumza lugha gani?</string>
+    <string name="doctor_reg_step5_title">Maelezo ya Kitaalamu</string>
+    <string name="doctor_reg_step5_subtitle">Sifa zako na uzoefu wako</string>
+    <string name="doctor_reg_step6_title">Huduma Zinazotolewa</string>
+    <string name="doctor_reg_step6_subtitle">Huduma zinazopatikana kwa utaalamu wako</string>
+    <string name="doctor_reg_step7_title">Pakia Vyeti</string>
+    <string name="doctor_reg_step7_subtitle">Pakia leseni yako ya matibabu na vyeti kwa uhakiki</string>
+    <string name="doctor_reg_step8_title">Usalama wa Kibayometri</string>
+    <string name="doctor_reg_step8_subtitle">Weka alama ya kidole au kutambua uso kwa akaunti yako</string>
+    <string name="doctor_reg_email_label">Barua pepe</string>
+    <string name="doctor_reg_password_label">Nenosiri</string>
+    <string name="doctor_reg_confirm_password_label">Thibitisha Nenosiri</string>
+    <string name="doctor_reg_photo_hint">Gusa kuchagua picha (JPG, PNG, max 5MB)</string>
+    <string name="doctor_reg_profile_photo_cd">Picha ya wasifu</string>
+    <string name="doctor_reg_select_photo_cd">Chagua picha</string>
+    <string name="doctor_reg_full_name_label">Jina Kamili</string>
+    <string name="doctor_reg_full_name_placeholder">Dkt. John Doe</string>
+    <string name="doctor_reg_phone_label">Nambari ya Simu</string>
+    <string name="doctor_reg_specialty_label">Utaalamu wa Kimatibabu</string>
+    <string name="doctor_reg_specialty_placeholder">Chagua utaalamu wako</string>
+    <string name="doctor_reg_specialist_field_label">Fani ya Mtaalamu</string>
+    <string name="doctor_reg_specialist_field_placeholder">mfano Daktari wa Meno, Daktari wa Moyo, Daktari wa Ngozi</string>
+    <string name="doctor_reg_country_label">Nchi</string>
+    <string name="doctor_reg_languages_label">Lugha Unazozungumza</string>
+    <string name="doctor_reg_common_languages">LUGHA ZA KAWAIDA</string>
+    <string name="doctor_reg_other_languages">LUGHA NYINGINE</string>
+    <string name="doctor_reg_languages_selected">Lugha %1$d zimechaguliwa</string>
+    <string name="doctor_reg_license_label">Nambari ya Leseni ya Kimatibabu</string>
+    <string name="doctor_reg_license_placeholder">mfano TZ-MED-12345</string>
+    <string name="doctor_reg_experience_label">Miaka ya Uzoefu</string>
+    <string name="doctor_reg_bio_label">Wasifu wa Kitaalamu</string>
+    <string name="doctor_reg_bio_placeholder">Waambie wagonjwa kuhusu uzoefu wako, mbinu yako, na maeneo yako ya utaalamu\u2026</string>
+    <string name="doctor_reg_services_available">Huduma %1$d zinapatikana</string>
+    <string name="doctor_reg_select_services">Chagua huduma utakazotoa:</string>
+    <string name="doctor_reg_services_selected">%1$d kati ya %2$d huduma zimechaguliwa</string>
+    <string name="doctor_reg_license_upload_title">Leseni ya Kimatibabu</string>
+    <string name="doctor_reg_license_upload_subtitle">Bofya kupakia PDF au picha</string>
+    <string name="doctor_reg_certificates_upload_title">Vyeti vya Ziada</string>
+    <string name="doctor_reg_certificates_upload_subtitle">Si lazima: vyeti vya utaalamu</string>
+    <string name="doctor_reg_selected_suffix">(imechaguliwa)</string>
+    <string name="doctor_reg_credentials_review_notice">Vyeti vyako vitapitiwa na timu yetu. Utaarifiwa mara wasifu wako utakapothibitishwa.</string>
+    <string name="doctor_reg_back_button">Rudi</string>
+    <string name="doctor_reg_registering">Inasajili\u2026</string>
+    <string name="doctor_reg_complete_registration">Kamilisha Usajili</string>
+    <string name="doctor_reg_continue">Endelea</string>
+    <string name="doctor_reg_hide_password">Ficha nenosiri</string>
+    <string name="doctor_reg_show_password">Onyesha nenosiri</string>
+
+    <!-- ViewModel fallback error strings -->
+    <string name="error_login_failed">Kuingia kumeshindikana</string>
+    <string name="error_generic">Hitilafu imetokea</string>
+    <string name="error_registration_failed">Usajili umeshindikana</string>
+    <string name="error_session_create_failed">Imeshindwa kuunda kipindi</string>
+    <string name="error_security_questions_failed">Imeshindwa kuhifadhi maswali ya usalama.</string>
+    <string name="error_recovery_failed">Kupata tena kumeshindikana. Tafadhali jaribu tena.</string>
+    <string name="error_patient_id_not_found">Kitambulisho cha Mgonjwa hakijapatikana. Tafadhali angalia kitambulisho chako na ujaribu tena.</string>
+    <string name="error_pdf_generate_failed">Imeshindwa kuunda PDF</string>
 </resources>

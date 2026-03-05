@@ -47,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.feature.patient.R
@@ -103,18 +104,18 @@ fun BookAppointmentScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.book_appointment_back),
                         tint = BrandTeal,
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(text = "Back", fontSize = 14.sp, color = BrandTeal)
+                    Text(text = stringResource(R.string.book_appointment_back), fontSize = 14.sp, color = BrandTeal)
                 }
 
                 Spacer(Modifier.height(16.dp))
 
                 Text(
-                    text = "Book Appointment",
+                    text = stringResource(R.string.book_appointment_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -123,7 +124,7 @@ fun BookAppointmentScreen(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Select a date and time for your appointment",
+                    text = stringResource(R.string.book_appointment_subtitle),
                     fontSize = 14.sp,
                     color = SubtitleGrey,
                     modifier = Modifier.fillMaxWidth(),
@@ -287,7 +288,7 @@ private fun DoctorInfoCard(
                         color = Color.Black,
                     )
                     Text(
-                        text = " ($totalRatings reviews)",
+                        text = " " + stringResource(R.string.find_doctor_reviews_format, totalRatings),
                         fontSize = 12.sp,
                         color = SubtitleGrey,
                     )
@@ -298,7 +299,7 @@ private fun DoctorInfoCard(
                             color = Color(0xFFFFF7ED),
                         ) {
                             Text(
-                                text = "In Session",
+                                text = stringResource(R.string.find_doctor_in_session),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
@@ -320,7 +321,7 @@ private fun DatePickerSection(
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = selectedDate?.format(monthFormatter) ?: "Select a Date",
+            text = selectedDate?.format(monthFormatter) ?: stringResource(R.string.book_appointment_select_date),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black,
@@ -388,7 +389,7 @@ private fun TimeSlotsSection(
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = "Available Times",
+            text = stringResource(R.string.book_appointment_available_times),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black,
@@ -411,7 +412,7 @@ private fun TimeSlotsSection(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = "No available time slots for this date. Try a different day.",
+                    text = stringResource(R.string.book_appointment_no_slots),
                     modifier = Modifier.padding(16.dp),
                     fontSize = 14.sp,
                     color = Color(0xFFEA580C),
@@ -481,7 +482,7 @@ private fun BookingFormSection(
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(
-            text = "Chief Complaint",
+            text = stringResource(R.string.book_appointment_chief_complaint),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.Black,
@@ -492,7 +493,7 @@ private fun BookingFormSection(
             onValueChange = { if (it.length <= 1000) onChiefComplaintChange(it) },
             placeholder = {
                 Text(
-                    text = "Describe your symptoms or reason for the appointment...",
+                    text = stringResource(R.string.book_appointment_complaint_placeholder),
                     fontSize = 14.sp,
                     color = SubtitleGrey.copy(alpha = 0.6f),
                 )
@@ -510,7 +511,7 @@ private fun BookingFormSection(
             maxLines = 4,
         )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            Text(text = "${chiefComplaint.length}/1000", fontSize = 11.sp, color = SubtitleGrey)
+            Text(text = stringResource(R.string.book_appointment_char_count_format, chiefComplaint.length), fontSize = 11.sp, color = SubtitleGrey)
         }
 
         // Error message
@@ -554,7 +555,7 @@ private fun BookingFormSection(
                     strokeWidth = 2.dp,
                 )
                 Spacer(Modifier.width(10.dp))
-                Text(text = "Booking...", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(text = stringResource(R.string.book_appointment_booking), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
             } else {
                 Icon(
                     painter = painterResource(R.drawable.ic_calendar),
@@ -564,7 +565,7 @@ private fun BookingFormSection(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = if (timeLabel.isNotEmpty()) "Book for $timeLabel" else "Select a Time",
+                    text = if (timeLabel.isNotEmpty()) stringResource(R.string.book_appointment_book_for_format, timeLabel) else stringResource(R.string.book_appointment_select_time),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,

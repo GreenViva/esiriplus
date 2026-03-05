@@ -1,0 +1,247 @@
+<resources>
+    <!-- Recovery Questions -->
+    <string name="recovery_questions_title">Preguntas de recuperaci\u00F3n</string>
+    <string name="recovery_questions_hint">Configure preguntas para recuperar su ID de paciente en caso de p\u00E9rdida</string>
+    <string name="recovery_questions_warning">Sin preguntas de recuperaci\u00F3n, no podr\u00E1 recuperar su ID de paciente en caso de p\u00E9rdida</string>
+    <string name="recovery_questions_saved">Preguntas de recuperaci\u00F3n guardadas</string>
+
+    <!-- LanguageSelectionScreen (bilingual - used before language is set) -->
+    <string name="lang_select_swahili_button">Chagua lugha ></string>
+    <string name="lang_select_english_button">Elija su idioma ></string>
+
+    <!-- LanguagePickerScreen (bilingual - used before language is set) -->
+    <string name="lang_picker_title">Seleccionar idioma / Chagua Lugha</string>
+    <string name="lang_picker_subtitle">Elija su idioma preferido para la aplicaci\u00F3n</string>
+    <string name="lang_picker_recommended">RECOMENDADO</string>
+    <string name="lang_picker_other_languages">OTROS IDIOMAS / LUGHA NYINGINE</string>
+    <string name="lang_picker_coming_soon">%1$s - Pr\u00F3ximamente / Inakuja Hivi Karibuni</string>
+    <string name="lang_picker_continue">Continuar / Endelea ></string>
+    <string name="lang_picker_back">Atr\u00E1s / Rudi</string>
+
+    <!-- SplashScreen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_tagline_en">Su salud, nuestra prioridad</string>
+    <string name="splash_tap_to_continue">Toque en cualquier lugar para continuar</string>
+
+    <!-- RoleSelectionScreen -->
+    <string name="role_welcome_title">Bienvenido a eSIRI Plus</string>
+    <string name="role_welcome_subtitle">\u00BFC\u00F3mo desea continuar?</string>
+    <string name="role_for_patients">PARA PACIENTES</string>
+    <string name="role_new_platform">\u00BFEs nuevo en la plataforma?</string>
+    <string name="role_new_platform_subtitle">Pulse aqu\u00ED para comenzar</string>
+    <string name="role_have_my_id">Tengo mi ID</string>
+    <string name="role_access_records">Acceder a mis registros</string>
+    <string name="role_id_recovery_note">Debe haber configurado preguntas de recuperaci\u00F3n para iniciar sesi\u00F3n con su ID de paciente.</string>
+    <string name="role_forgot_patient_id">\u00BFOlvid\u00F3 su ID de paciente?</string>
+    <string name="role_or_divider">o</string>
+    <string name="role_doctor_portal">PORTAL M\u00C9DICO</string>
+    <string name="role_sign_in">Iniciar sesi\u00F3n</string>
+    <string name="role_sign_up">Registrarse</string>
+    <string name="role_forgot_password">\u00BFOlvid\u00F3 su contrase\u00F1a?</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. Todos los derechos reservados.</string>
+
+    <!-- DoctorLoginScreen -->
+    <string name="doctor_login_title">Portal m\u00E9dico</string>
+    <string name="doctor_login_subtitle">Inicie sesi\u00F3n para gestionar sus consultas</string>
+    <string name="doctor_login_sign_in_tab">Iniciar sesi\u00F3n</string>
+    <string name="doctor_login_register_tab">Registrarse</string>
+    <string name="doctor_login_email_label">Correo electr\u00F3nico</string>
+    <string name="doctor_login_email_placeholder">doctor@example.com</string>
+    <string name="doctor_login_password_label">Contrase\u00F1a</string>
+    <string name="doctor_login_hide_password">Ocultar contrase\u00F1a</string>
+    <string name="doctor_login_show_password">Mostrar contrase\u00F1a</string>
+    <string name="doctor_login_sign_in_button">Iniciar sesi\u00F3n</string>
+    <string name="doctor_login_go_back">Volver</string>
+
+    <!-- DeviceMismatchScreen -->
+    <string name="device_mismatch_title">Dispositivo no autorizado</string>
+    <string name="device_mismatch_default_error">Dispositivo vinculado a otro m\u00E9dico</string>
+
+    <!-- BannedDoctorScreen -->
+    <string name="banned_title">Cuenta suspendida permanentemente</string>
+    <string name="banned_message">Se le ha prohibido el uso de esta aplicaci\u00F3n.</string>
+    <string name="banned_reason_label">Motivo</string>
+    <string name="banned_complaint_title">\u00BFTiene una queja?</string>
+    <string name="banned_appeal_with_date">Puede comunicarse con nuestro equipo de soporte para apelar esta decisi\u00F3n dentro de 7 d\u00EDas (antes del %1$s).</string>
+    <string name="banned_appeal_no_date">Puede comunicarse con nuestro equipo de soporte para apelar esta decisi\u00F3n dentro de los 7 d\u00EDas posteriores a la suspensi\u00F3n.</string>
+    <string name="banned_support_email">support@esiriplus.com</string>
+    <string name="banned_sign_out">Cerrar sesi\u00F3n</string>
+
+    <!-- SuspendedDoctorScreen -->
+    <string name="suspended_title">Cuenta suspendida</string>
+    <string name="suspended_message">Su cuenta ha sido suspendida temporalmente.</string>
+    <string name="suspended_reason_label">Motivo</string>
+    <string name="suspended_details_title">Detalles de la suspensi\u00F3n</string>
+    <string name="suspended_time_remaining">Tiempo restante: %1$s</string>
+    <string name="suspended_lifted_on">Su suspensi\u00F3n se levantar\u00E1 autom\u00E1ticamente el %1$s.</string>
+    <string name="suspended_lifted_when_ends">Su suspensi\u00F3n se levantar\u00E1 autom\u00E1ticamente cuando finalice el per\u00EDodo.</string>
+    <string name="suspended_sign_out">Cerrar sesi\u00F3n</string>
+
+    <!-- WarningDoctorScreen -->
+    <string name="warning_title">Aviso de advertencia</string>
+    <string name="warning_message">Ha recibido una advertencia de la administraci\u00F3n.</string>
+    <string name="warning_details_label">Detalles de la advertencia</string>
+    <string name="warning_take_note">Tome nota, por favor</string>
+    <string name="warning_review_text">Revise esta advertencia cuidadosamente. Las infracciones reiteradas pueden resultar en la suspensi\u00F3n o prohibici\u00F3n permanente de su cuenta.</string>
+    <string name="warning_acknowledge_button">Entendido</string>
+    <string name="warning_sign_out">Cerrar sesi\u00F3n</string>
+
+    <!-- PatientOnboardingScreen -->
+    <string name="patient_onboarding_title">Registro de paciente</string>
+    <string name="patient_onboarding_full_name">Nombre completo</string>
+    <string name="patient_onboarding_phone">N\u00FAmero de tel\u00E9fono</string>
+    <string name="patient_onboarding_continue">Continuar</string>
+
+    <!-- PatientSetupScreen -->
+    <string name="patient_setup_title">Configuraci\u00F3n del paciente</string>
+    <string name="patient_setup_step">Paso 3 de 3</string>
+    <string name="patient_setup_creating_account">Creando su cuenta\u2026</string>
+    <string name="patient_setup_retry">Reintentar</string>
+    <string name="patient_setup_your_patient_id">Su ID de paciente</string>
+    <string name="patient_setup_copy">Copiar</string>
+    <string name="patient_setup_save_id_hint">Guarde este ID para acceso futuro</string>
+    <string name="patient_setup_set_up">Configurar \u203A</string>
+    <string name="patient_setup_health_profile_title">Perfil de salud (Opcional)</string>
+    <string name="patient_setup_health_profile_subtitle">Ayude a su m\u00E9dico a atenderle mejor</string>
+    <string name="patient_setup_sex_label">Sexo</string>
+    <string name="patient_setup_male">Masculino</string>
+    <string name="patient_setup_female">Femenino</string>
+    <string name="patient_setup_age_group_label">Grupo de edad</string>
+    <string name="patient_setup_age_group_placeholder">Seleccione grupo de edad</string>
+    <string name="patient_setup_blood_type_label">Tipo de sangre</string>
+    <string name="patient_setup_blood_type_placeholder">Seleccione tipo de sangre</string>
+    <string name="patient_setup_allergies_label">Alergias</string>
+    <string name="patient_setup_allergies_placeholder">Ej. Penicilina, Cacahuetes</string>
+    <string name="patient_setup_chronic_conditions_label">Enfermedades cr\u00F3nicas</string>
+    <string name="patient_setup_chronic_conditions_placeholder">Ej. Diabetes, Hipertensi\u00F3n</string>
+    <string name="patient_setup_continue">Continuar</string>
+    <string name="patient_setup_generating_pdf">Generando PDF\u2026</string>
+    <string name="patient_setup_download_id_card">\u2B07  Descargar tarjeta de identificaci\u00F3n</string>
+    <string name="patient_setup_fill_to_download">Complete Sexo y Grupo de edad para descargar</string>
+    <string name="patient_setup_clipboard_label">ID de paciente</string>
+    <string name="patient_setup_id_copied">ID de paciente copiado</string>
+    <string name="patient_setup_id_saved_toast">Tarjeta de identificaci\u00F3n guardada en Descargas</string>
+
+    <!-- TermsScreen -->
+    <string name="terms_back_content_desc">Atr\u00E1s</string>
+    <string name="terms_title">T\u00E9rminos y pol\u00EDtica de privacidad</string>
+    <string name="terms_subtitle">Lea atentamente antes de continuar</string>
+    <string name="terms_legal_document">Documento legal de eSIRI Plus</string>
+    <string name="terms_checkbox_text">He le\u00EDdo, comprendido y acepto los T\u00E9rminos de servicio, la Pol\u00EDtica de privacidad, el Descargo de responsabilidad m\u00E9dica y el Consentimiento informado</string>
+    <string name="terms_agree_button">Acepto y continuar</string>
+
+    <!-- DoctorTermsScreen -->
+    <string name="doctor_terms_title">T\u00E9rminos y pol\u00EDtica del proveedor</string>
+    <string name="doctor_terms_subtitle">Lea atentamente antes de continuar</string>
+    <string name="doctor_terms_legal_document">Documento del proveedor de eSIRI Plus</string>
+    <string name="doctor_terms_checkbox_text">He le\u00EDdo, comprendido y acepto los T\u00E9rminos de servicio del proveedor, la Pol\u00EDtica de privacidad, las Directrices de pr\u00E1ctica y el Consentimiento informado</string>
+    <string name="doctor_terms_agree_button">Acepto y continuar</string>
+    <string name="doctor_terms_back_content_desc">Atr\u00E1s</string>
+
+    <!-- SecurityQuestionsSetupScreen -->
+    <string name="security_setup_topbar_title">Preguntas de recuperaci\u00F3n</string>
+    <string name="security_setup_title">Configurar preguntas de seguridad</string>
+    <string name="security_setup_subtitle">Estas preguntas le ayudar\u00E1n a recuperar su ID de paciente si lo olvida.</string>
+    <string name="security_setup_question_progress">Pregunta %1$d de %2$d</string>
+    <string name="security_setup_answer_label">Su respuesta</string>
+    <string name="security_setup_save_button">Guardar preguntas de seguridad</string>
+    <string name="security_setup_next_button">Siguiente</string>
+    <string name="security_setup_skip">Omitir por ahora</string>
+
+    <!-- PatientRecoveryScreen -->
+    <string name="recovery_topbar_title">Recuperar ID de paciente</string>
+    <string name="recovery_back_content_desc">Atr\u00E1s</string>
+    <string name="recovery_rate_limited_title">Demasiados intentos</string>
+    <string name="recovery_rate_limited_message">Ha excedido el n\u00FAmero m\u00E1ximo de intentos de recuperaci\u00F3n. Int\u00E9ntelo de nuevo en 24 horas.</string>
+    <string name="recovery_instructions">Responda las 5 preguntas de seguridad para recuperar su cuenta</string>
+    <string name="recovery_question_progress">Pregunta %1$d de %2$d</string>
+    <string name="recovery_answer_label">Su respuesta</string>
+    <string name="recovery_attempts_remaining">%1$d intento(s) restante(s)</string>
+    <string name="recovery_submit_button">Recuperar cuenta</string>
+    <string name="recovery_next_button">Siguiente</string>
+    <string name="recovery_success_title">\u00A1Cuenta recuperada!</string>
+    <string name="recovery_success_message">Su ID de paciente ha sido recuperado. Gu\u00E1rdelo en un lugar seguro.</string>
+    <string name="recovery_your_patient_id">Su ID de paciente</string>
+    <string name="recovery_copy_to_clipboard">Copiar al portapapeles</string>
+    <string name="recovery_id_copied_toast">\u00A1ID de paciente copiado!</string>
+    <string name="recovery_continue_to_dashboard">Continuar al panel principal</string>
+
+    <!-- AccessRecordsScreen -->
+    <string name="access_records_back_content_desc">Atr\u00E1s</string>
+    <string name="access_records_back_button">Atr\u00E1s</string>
+    <string name="access_records_title">Acceder a sus registros</string>
+    <string name="access_records_subtitle">Ingrese su ID de paciente para ver su historial de consultas</string>
+    <string name="access_records_button">Acceder a mis registros</string>
+    <string name="access_records_no_id">\u00BFNo tiene un ID?</string>
+
+    <!-- DoctorRegistrationScreen -->
+    <string name="doctor_reg_portal_title">Portal m\u00E9dico</string>
+    <string name="doctor_reg_portal_subtitle">\u00DAnase a nuestra red de profesionales de salud verificados</string>
+    <string name="doctor_reg_sign_in_tab">Iniciar sesi\u00F3n</string>
+    <string name="doctor_reg_register_tab">Registrarse</string>
+    <string name="doctor_reg_step1_title">Cree su cuenta</string>
+    <string name="doctor_reg_step1_subtitle">Ingrese su correo electr\u00F3nico y cree una contrase\u00F1a segura</string>
+    <string name="doctor_reg_step2_title">Foto de perfil</string>
+    <string name="doctor_reg_step2_subtitle">Suba una foto profesional de usted</string>
+    <string name="doctor_reg_step3_title">Informaci\u00F3n personal</string>
+    <string name="doctor_reg_step3_subtitle">Cu\u00E9ntenos sobre usted</string>
+    <string name="doctor_reg_step4_title">Ubicaci\u00F3n e idiomas</string>
+    <string name="doctor_reg_step4_subtitle">\u00BFD\u00F3nde se encuentra y qu\u00E9 idiomas habla?</string>
+    <string name="doctor_reg_step5_title">Datos profesionales</string>
+    <string name="doctor_reg_step5_subtitle">Sus calificaciones y experiencia</string>
+    <string name="doctor_reg_step6_title">Servicios ofrecidos</string>
+    <string name="doctor_reg_step6_subtitle">Servicios disponibles para su especialidad</string>
+    <string name="doctor_reg_step7_title">Subir credenciales</string>
+    <string name="doctor_reg_step7_subtitle">Suba su licencia m\u00E9dica y certificados para verificaci\u00F3n</string>
+    <string name="doctor_reg_step8_title">Seguridad biom\u00E9trica</string>
+    <string name="doctor_reg_step8_subtitle">Configure el desbloqueo por huella dactilar o reconocimiento facial para su cuenta</string>
+    <string name="doctor_reg_email_label">Correo electr\u00F3nico</string>
+    <string name="doctor_reg_password_label">Contrase\u00F1a</string>
+    <string name="doctor_reg_confirm_password_label">Confirmar contrase\u00F1a</string>
+    <string name="doctor_reg_photo_hint">Toque para seleccionar una foto (JPG, PNG, m\u00E1x. 5 MB)</string>
+    <string name="doctor_reg_profile_photo_cd">Foto de perfil</string>
+    <string name="doctor_reg_select_photo_cd">Seleccionar foto</string>
+    <string name="doctor_reg_full_name_label">Nombre completo</string>
+    <string name="doctor_reg_full_name_placeholder">Dr. Juan P\u00E9rez</string>
+    <string name="doctor_reg_phone_label">N\u00FAmero de tel\u00E9fono</string>
+    <string name="doctor_reg_specialty_label">Especialidad m\u00E9dica</string>
+    <string name="doctor_reg_specialty_placeholder">Seleccione su especialidad</string>
+    <string name="doctor_reg_specialist_field_label">Campo de especializaci\u00F3n</string>
+    <string name="doctor_reg_specialist_field_placeholder">Ej. Dentista, Cardi\u00F3logo, Dermat\u00F3logo</string>
+    <string name="doctor_reg_country_label">Pa\u00EDs</string>
+    <string name="doctor_reg_languages_label">Idiomas que habla</string>
+    <string name="doctor_reg_common_languages">IDIOMAS COMUNES</string>
+    <string name="doctor_reg_other_languages">OTROS IDIOMAS</string>
+    <string name="doctor_reg_languages_selected">%1$d idioma(s) seleccionado(s)</string>
+    <string name="doctor_reg_license_label">N\u00FAmero de licencia m\u00E9dica</string>
+    <string name="doctor_reg_license_placeholder">Ej. TZ-MED-12345</string>
+    <string name="doctor_reg_experience_label">A\u00F1os de experiencia</string>
+    <string name="doctor_reg_bio_label">Biograf\u00EDa profesional</string>
+    <string name="doctor_reg_bio_placeholder">Cuente a los pacientes sobre su formaci\u00F3n, enfoque y \u00E1reas de especializaci\u00F3n\u2026</string>
+    <string name="doctor_reg_services_available">%1$d servicios disponibles</string>
+    <string name="doctor_reg_select_services">Seleccione los servicios que ofrecer\u00E1:</string>
+    <string name="doctor_reg_services_selected">%1$d de %2$d servicio(s) seleccionado(s)</string>
+    <string name="doctor_reg_license_upload_title">Licencia m\u00E9dica</string>
+    <string name="doctor_reg_license_upload_subtitle">Pulse para subir PDF o imagen</string>
+    <string name="doctor_reg_certificates_upload_title">Certificados adicionales</string>
+    <string name="doctor_reg_certificates_upload_subtitle">Opcional: certificados de especializaci\u00F3n</string>
+    <string name="doctor_reg_selected_suffix">(seleccionado)</string>
+    <string name="doctor_reg_credentials_review_notice">Nuestro equipo revisar\u00E1 sus credenciales. Se le notificar\u00E1 una vez que su perfil sea verificado.</string>
+    <string name="doctor_reg_back_button">Atr\u00E1s</string>
+    <string name="doctor_reg_registering">Registrando\u2026</string>
+    <string name="doctor_reg_complete_registration">Completar registro</string>
+    <string name="doctor_reg_continue">Continuar</string>
+    <string name="doctor_reg_hide_password">Ocultar contrase\u00F1a</string>
+    <string name="doctor_reg_show_password">Mostrar contrase\u00F1a</string>
+
+    <!-- ViewModel fallback error strings -->
+    <string name="error_login_failed">Error de inicio de sesi\u00F3n</string>
+    <string name="error_generic">Se produjo un error</string>
+    <string name="error_registration_failed">Error de registro</string>
+    <string name="error_session_create_failed">Error al crear la sesi\u00F3n</string>
+    <string name="error_security_questions_failed">Error al guardar las preguntas de seguridad.</string>
+    <string name="error_recovery_failed">Error de recuperaci\u00F3n. Int\u00E9ntelo de nuevo.</string>
+    <string name="error_patient_id_not_found">ID de paciente no encontrado. Verifique su ID e int\u00E9ntelo de nuevo.</string>
+    <string name="error_pdf_generate_failed">Error al generar el PDF</string>
+</resources>

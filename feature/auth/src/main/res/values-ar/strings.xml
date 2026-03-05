@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Recovery Questions -->
+    <string name="recovery_questions_title">أسئلة الاسترداد</string>
+    <string name="recovery_questions_hint">قم بإعداد أسئلة لاسترداد رقم المريض الخاص بك في حال فقدانه</string>
+    <string name="recovery_questions_warning">بدون أسئلة الاسترداد، لن تتمكن من استرداد رقم المريض الخاص بك في حال فقدانه</string>
+    <string name="recovery_questions_saved">تم حفظ أسئلة الاسترداد</string>
+
+    <!-- LanguageSelectionScreen (bilingual - used before language is set) -->
+    <string name="lang_select_swahili_button">Chagua lugha ></string>
+    <string name="lang_select_english_button">اختر لغتك / Choose your Language ></string>
+
+    <!-- LanguagePickerScreen (bilingual - used before language is set) -->
+    <string name="lang_picker_title">اختر اللغة / Select Language</string>
+    <string name="lang_picker_subtitle">اختر لغتك المفضلة للتطبيق</string>
+    <string name="lang_picker_recommended">موصى بها</string>
+    <string name="lang_picker_other_languages">لغات أخرى / OTHER LANGUAGES</string>
+    <string name="lang_picker_coming_soon">%1$s - قريبًا / Coming Soon</string>
+    <string name="lang_picker_continue">متابعة / Continue ></string>
+    <string name="lang_picker_back">رجوع / Back</string>
+
+    <!-- SplashScreen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_tagline_en">Your Health, Our Priority</string>
+    <string name="splash_tap_to_continue">انقر في أي مكان للمتابعة</string>
+
+    <!-- RoleSelectionScreen -->
+    <string name="role_welcome_title">مرحبًا بك في eSIRI Plus</string>
+    <string name="role_welcome_subtitle">كيف تود المتابعة؟</string>
+    <string name="role_for_patients">للمرضى</string>
+    <string name="role_new_platform">جديد على المنصة؟</string>
+    <string name="role_new_platform_subtitle">انقر هنا للبدء</string>
+    <string name="role_have_my_id">لدي رقم المريض الخاص بي</string>
+    <string name="role_access_records">الوصول إلى سجلاتي</string>
+    <string name="role_id_recovery_note">يجب أن تكون قد أعددت أسئلة الاسترداد لتسجيل الدخول برقم المريض الخاص بك.</string>
+    <string name="role_forgot_patient_id">هل نسيت رقم المريض الخاص بك؟</string>
+    <string name="role_or_divider">أو</string>
+    <string name="role_doctor_portal">بوابة الطبيب</string>
+    <string name="role_sign_in">تسجيل الدخول</string>
+    <string name="role_sign_up">إنشاء حساب</string>
+    <string name="role_forgot_password">هل نسيت كلمة المرور؟</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. جميع الحقوق محفوظة.</string>
+
+    <!-- DoctorLoginScreen -->
+    <string name="doctor_login_title">بوابة الطبيب</string>
+    <string name="doctor_login_subtitle">سجّل دخولك لإدارة استشاراتك</string>
+    <string name="doctor_login_sign_in_tab">تسجيل الدخول</string>
+    <string name="doctor_login_register_tab">التسجيل</string>
+    <string name="doctor_login_email_label">البريد الإلكتروني</string>
+    <string name="doctor_login_email_placeholder">doctor@example.com</string>
+    <string name="doctor_login_password_label">كلمة المرور</string>
+    <string name="doctor_login_hide_password">إخفاء كلمة المرور</string>
+    <string name="doctor_login_show_password">إظهار كلمة المرور</string>
+    <string name="doctor_login_sign_in_button">تسجيل الدخول</string>
+    <string name="doctor_login_go_back">رجوع</string>
+
+    <!-- DeviceMismatchScreen -->
+    <string name="device_mismatch_title">الجهاز غير مصرّح</string>
+    <string name="device_mismatch_default_error">هذا الجهاز مرتبط بطبيب آخر</string>
+
+    <!-- BannedDoctorScreen -->
+    <string name="banned_title">الحساب محظور</string>
+    <string name="banned_message">تم حظرك من استخدام هذا التطبيق.</string>
+    <string name="banned_reason_label">السبب</string>
+    <string name="banned_complaint_title">هل لديك شكوى؟</string>
+    <string name="banned_appeal_with_date">يمكنك التواصل مع فريق الدعم لاستئناف هذا القرار خلال 7 أيام (بحلول %1$s).</string>
+    <string name="banned_appeal_no_date">يمكنك التواصل مع فريق الدعم لاستئناف هذا القرار خلال 7 أيام من تاريخ الحظر.</string>
+    <string name="banned_support_email">support@esiriplus.com</string>
+    <string name="banned_sign_out">تسجيل الخروج</string>
+
+    <!-- SuspendedDoctorScreen -->
+    <string name="suspended_title">الحساب موقوف</string>
+    <string name="suspended_message">تم تعليق حسابك مؤقتًا.</string>
+    <string name="suspended_reason_label">السبب</string>
+    <string name="suspended_details_title">تفاصيل التعليق</string>
+    <string name="suspended_time_remaining">الوقت المتبقي: %1$s</string>
+    <string name="suspended_lifted_on">سيتم رفع التعليق تلقائيًا في %1$s.</string>
+    <string name="suspended_lifted_when_ends">سيتم رفع التعليق تلقائيًا عند انتهاء المدة.</string>
+    <string name="suspended_sign_out">تسجيل الخروج</string>
+
+    <!-- WarningDoctorScreen -->
+    <string name="warning_title">إشعار تحذيري</string>
+    <string name="warning_message">لقد تلقيت تحذيرًا من الإدارة.</string>
+    <string name="warning_details_label">تفاصيل التحذير</string>
+    <string name="warning_take_note">يرجى الانتباه</string>
+    <string name="warning_review_text">يرجى مراجعة هذا التحذير بعناية. قد تؤدي المخالفات المتكررة إلى تعليق حسابك أو حظره نهائيًا.</string>
+    <string name="warning_acknowledge_button">أفهم ذلك</string>
+    <string name="warning_sign_out">تسجيل الخروج</string>
+
+    <!-- PatientOnboardingScreen -->
+    <string name="patient_onboarding_title">تسجيل المريض</string>
+    <string name="patient_onboarding_full_name">الاسم الكامل</string>
+    <string name="patient_onboarding_phone">رقم الهاتف</string>
+    <string name="patient_onboarding_continue">متابعة</string>
+
+    <!-- PatientSetupScreen -->
+    <string name="patient_setup_title">إعداد المريض</string>
+    <string name="patient_setup_step">الخطوة 3 من 3</string>
+    <string name="patient_setup_creating_account">جارٍ إنشاء حسابك\u2026</string>
+    <string name="patient_setup_retry">إعادة المحاولة</string>
+    <string name="patient_setup_your_patient_id">رقم المريض الخاص بك</string>
+    <string name="patient_setup_copy">نسخ</string>
+    <string name="patient_setup_save_id_hint">احفظ هذا الرقم للوصول مستقبلاً</string>
+    <string name="patient_setup_set_up">إعداد \u203A</string>
+    <string name="patient_setup_health_profile_title">الملف الصحي (اختياري)</string>
+    <string name="patient_setup_health_profile_subtitle">ساعد طبيبك على تقديم خدمة أفضل لك</string>
+    <string name="patient_setup_sex_label">الجنس</string>
+    <string name="patient_setup_male">ذكر</string>
+    <string name="patient_setup_female">أنثى</string>
+    <string name="patient_setup_age_group_label">الفئة العمرية</string>
+    <string name="patient_setup_age_group_placeholder">اختر الفئة العمرية</string>
+    <string name="patient_setup_blood_type_label">فصيلة الدم</string>
+    <string name="patient_setup_blood_type_placeholder">اختر فصيلة الدم</string>
+    <string name="patient_setup_allergies_label">الحساسية</string>
+    <string name="patient_setup_allergies_placeholder">مثال: البنسلين، الفول السوداني</string>
+    <string name="patient_setup_chronic_conditions_label">الأمراض المزمنة</string>
+    <string name="patient_setup_chronic_conditions_placeholder">مثال: السكري، ارتفاع ضغط الدم</string>
+    <string name="patient_setup_continue">متابعة</string>
+    <string name="patient_setup_generating_pdf">جارٍ إنشاء ملف PDF\u2026</string>
+    <string name="patient_setup_download_id_card">\u2B07  تحميل بطاقة الهوية</string>
+    <string name="patient_setup_fill_to_download">أدخل الجنس والفئة العمرية للتحميل</string>
+    <string name="patient_setup_clipboard_label">رقم المريض</string>
+    <string name="patient_setup_id_copied">تم نسخ رقم المريض</string>
+    <string name="patient_setup_id_saved_toast">تم حفظ بطاقة الهوية في التنزيلات</string>
+
+    <!-- TermsScreen -->
+    <string name="terms_back_content_desc">رجوع</string>
+    <string name="terms_title">الشروط &amp; سياسة الخصوصية</string>
+    <string name="terms_subtitle">يرجى القراءة بعناية قبل المتابعة</string>
+    <string name="terms_legal_document">الوثيقة القانونية لـ eSIRI Plus</string>
+    <string name="terms_checkbox_text">لقد قرأت وفهمت ووافقت على شروط الخدمة وسياسة الخصوصية وإخلاء المسؤولية الطبية والموافقة المستنيرة</string>
+    <string name="terms_agree_button">أوافق &amp; متابعة</string>
+
+    <!-- DoctorTermsScreen -->
+    <string name="doctor_terms_title">شروط &amp; سياسة مقدم الخدمة</string>
+    <string name="doctor_terms_subtitle">يرجى القراءة بعناية قبل المتابعة</string>
+    <string name="doctor_terms_legal_document">وثيقة مقدم الخدمة لـ eSIRI Plus</string>
+    <string name="doctor_terms_checkbox_text">لقد قرأت وفهمت ووافقت على شروط خدمة مقدم الخدمة وسياسة الخصوصية وإرشادات الممارسة الطبية والموافقة المستنيرة</string>
+    <string name="doctor_terms_agree_button">أوافق &amp; متابعة</string>
+    <string name="doctor_terms_back_content_desc">رجوع</string>
+
+    <!-- SecurityQuestionsSetupScreen -->
+    <string name="security_setup_topbar_title">أسئلة الاسترداد</string>
+    <string name="security_setup_title">إعداد أسئلة الأمان</string>
+    <string name="security_setup_subtitle">ستساعدك هذه الأسئلة على استرداد رقم المريض الخاص بك في حال نسيانه.</string>
+    <string name="security_setup_question_progress">السؤال %1$d من %2$d</string>
+    <string name="security_setup_answer_label">إجابتك</string>
+    <string name="security_setup_save_button">حفظ أسئلة الأمان</string>
+    <string name="security_setup_next_button">التالي</string>
+    <string name="security_setup_skip">تخطي الآن</string>
+
+    <!-- PatientRecoveryScreen -->
+    <string name="recovery_topbar_title">استرداد رقم المريض</string>
+    <string name="recovery_back_content_desc">رجوع</string>
+    <string name="recovery_rate_limited_title">محاولات كثيرة جدًا</string>
+    <string name="recovery_rate_limited_message">لقد تجاوزت الحد الأقصى لمحاولات الاسترداد. يرجى المحاولة مرة أخرى بعد 24 ساعة.</string>
+    <string name="recovery_instructions">أجب عن جميع أسئلة الأمان الخمسة لاسترداد حسابك</string>
+    <string name="recovery_question_progress">السؤال %1$d من %2$d</string>
+    <string name="recovery_answer_label">إجابتك</string>
+    <string name="recovery_attempts_remaining">%1$d محاولة/محاولات متبقية</string>
+    <string name="recovery_submit_button">استرداد الحساب</string>
+    <string name="recovery_next_button">التالي</string>
+    <string name="recovery_success_title">تم استرداد الحساب!</string>
+    <string name="recovery_success_message">تم استرداد رقم المريض الخاص بك. يرجى حفظه في مكان آمن.</string>
+    <string name="recovery_your_patient_id">رقم المريض الخاص بك</string>
+    <string name="recovery_copy_to_clipboard">نسخ إلى الحافظة</string>
+    <string name="recovery_id_copied_toast">تم نسخ رقم المريض!</string>
+    <string name="recovery_continue_to_dashboard">المتابعة إلى لوحة التحكم</string>
+
+    <!-- AccessRecordsScreen -->
+    <string name="access_records_back_content_desc">رجوع</string>
+    <string name="access_records_back_button">رجوع</string>
+    <string name="access_records_title">الوصول إلى سجلاتك</string>
+    <string name="access_records_subtitle">أدخل رقم المريض الخاص بك لعرض سجل الاستشارات</string>
+    <string name="access_records_button">الوصول إلى سجلاتي</string>
+    <string name="access_records_no_id">ليس لديك رقم مريض؟</string>
+
+    <!-- DoctorRegistrationScreen -->
+    <string name="doctor_reg_portal_title">بوابة الطبيب</string>
+    <string name="doctor_reg_portal_subtitle">انضم إلى شبكتنا من المتخصصين المعتمدين في الرعاية الصحية</string>
+    <string name="doctor_reg_sign_in_tab">تسجيل الدخول</string>
+    <string name="doctor_reg_register_tab">التسجيل</string>
+    <string name="doctor_reg_step1_title">إنشاء حسابك</string>
+    <string name="doctor_reg_step1_subtitle">أدخل بريدك الإلكتروني وأنشئ كلمة مرور آمنة</string>
+    <string name="doctor_reg_step2_title">الصورة الشخصية</string>
+    <string name="doctor_reg_step2_subtitle">قم بتحميل صورة مهنية لنفسك</string>
+    <string name="doctor_reg_step3_title">المعلومات الشخصية</string>
+    <string name="doctor_reg_step3_subtitle">أخبرنا عن نفسك</string>
+    <string name="doctor_reg_step4_title">الموقع &amp; اللغات</string>
+    <string name="doctor_reg_step4_subtitle">أين تقيم وما اللغات التي تتحدثها؟</string>
+    <string name="doctor_reg_step5_title">التفاصيل المهنية</string>
+    <string name="doctor_reg_step5_subtitle">مؤهلاتك وخبراتك</string>
+    <string name="doctor_reg_step6_title">الخدمات المقدمة</string>
+    <string name="doctor_reg_step6_subtitle">الخدمات المتاحة لتخصصك</string>
+    <string name="doctor_reg_step7_title">تحميل الوثائق</string>
+    <string name="doctor_reg_step7_subtitle">قم بتحميل الرخصة الطبية والشهادات للتحقق</string>
+    <string name="doctor_reg_step8_title">الأمان البيومتري</string>
+    <string name="doctor_reg_step8_subtitle">قم بإعداد بصمة الإصبع أو التعرف على الوجه لحسابك</string>
+    <string name="doctor_reg_email_label">البريد الإلكتروني</string>
+    <string name="doctor_reg_password_label">كلمة المرور</string>
+    <string name="doctor_reg_confirm_password_label">تأكيد كلمة المرور</string>
+    <string name="doctor_reg_photo_hint">انقر لاختيار صورة (JPG، PNG، الحد الأقصى 5 ميغابايت)</string>
+    <string name="doctor_reg_profile_photo_cd">الصورة الشخصية</string>
+    <string name="doctor_reg_select_photo_cd">اختيار صورة</string>
+    <string name="doctor_reg_full_name_label">الاسم الكامل</string>
+    <string name="doctor_reg_full_name_placeholder">د. محمد أحمد</string>
+    <string name="doctor_reg_phone_label">رقم الهاتف</string>
+    <string name="doctor_reg_specialty_label">التخصص الطبي</string>
+    <string name="doctor_reg_specialty_placeholder">اختر تخصصك</string>
+    <string name="doctor_reg_specialist_field_label">مجال التخصص</string>
+    <string name="doctor_reg_specialist_field_placeholder">مثال: طبيب أسنان، طبيب قلب، طبيب جلدية</string>
+    <string name="doctor_reg_country_label">الدولة</string>
+    <string name="doctor_reg_languages_label">اللغات التي تتحدثها</string>
+    <string name="doctor_reg_common_languages">اللغات الشائعة</string>
+    <string name="doctor_reg_other_languages">لغات أخرى</string>
+    <string name="doctor_reg_languages_selected">تم اختيار %1$d لغة/لغات</string>
+    <string name="doctor_reg_license_label">رقم الرخصة الطبية</string>
+    <string name="doctor_reg_license_placeholder">مثال: TZ-MED-12345</string>
+    <string name="doctor_reg_experience_label">سنوات الخبرة</string>
+    <string name="doctor_reg_bio_label">السيرة المهنية</string>
+    <string name="doctor_reg_bio_placeholder">أخبر المرضى عن خلفيتك ومنهجك ومجالات خبرتك\u2026</string>
+    <string name="doctor_reg_services_available">%1$d خدمة متاحة</string>
+    <string name="doctor_reg_select_services">اختر الخدمات التي ستقدمها:</string>
+    <string name="doctor_reg_services_selected">تم اختيار %1$d من %2$d خدمة/خدمات</string>
+    <string name="doctor_reg_license_upload_title">الرخصة الطبية</string>
+    <string name="doctor_reg_license_upload_subtitle">انقر لتحميل ملف PDF أو صورة</string>
+    <string name="doctor_reg_certificates_upload_title">شهادات إضافية</string>
+    <string name="doctor_reg_certificates_upload_subtitle">اختياري: شهادات التخصص</string>
+    <string name="doctor_reg_selected_suffix">(تم الاختيار)</string>
+    <string name="doctor_reg_credentials_review_notice">سيتم مراجعة وثائقك من قبل فريقنا. سيتم إخطارك بمجرد التحقق من ملفك الشخصي.</string>
+    <string name="doctor_reg_back_button">رجوع</string>
+    <string name="doctor_reg_registering">جارٍ التسجيل\u2026</string>
+    <string name="doctor_reg_complete_registration">إتمام التسجيل</string>
+    <string name="doctor_reg_continue">متابعة</string>
+    <string name="doctor_reg_hide_password">إخفاء كلمة المرور</string>
+    <string name="doctor_reg_show_password">إظهار كلمة المرور</string>
+
+    <!-- ViewModel fallback error strings -->
+    <string name="error_login_failed">فشل تسجيل الدخول</string>
+    <string name="error_generic">حدث خطأ</string>
+    <string name="error_registration_failed">فشل التسجيل</string>
+    <string name="error_session_create_failed">فشل إنشاء الجلسة</string>
+    <string name="error_security_questions_failed">فشل حفظ أسئلة الأمان.</string>
+    <string name="error_recovery_failed">فشل الاسترداد. يرجى المحاولة مرة أخرى.</string>
+    <string name="error_patient_id_not_found">رقم المريض غير موجود. يرجى التحقق من الرقم والمحاولة مرة أخرى.</string>
+    <string name="error_pdf_generate_failed">فشل إنشاء ملف PDF</string>
+</resources>

@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(libs.room.runtime)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.biometric)
     implementation(libs.security.crypto)
     implementation(libs.coil.compose)

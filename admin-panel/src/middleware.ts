@@ -59,6 +59,7 @@ export async function middleware(request: NextRequest) {
   const routeRules: { prefix: string; roles: string[] }[] = [
     { prefix: "/dashboard/users", roles: ["admin"] },
     { prefix: "/dashboard/doctors", roles: ["admin", "hr"] },
+    { prefix: "/dashboard/ratings", roles: ["admin", "hr"] },
     { prefix: "/dashboard/payments", roles: ["admin", "finance"] },
     { prefix: "/dashboard/analytics", roles: ["admin", "finance"] },
     { prefix: "/dashboard/hr/audit", roles: ["admin", "hr", "audit"] },

@@ -1,13 +1,12 @@
 package com.esiri.esiriplus.feature.auth.navigation
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.esiri.esiriplus.core.common.locale.LanguagePreferences
 import com.esiri.esiriplus.feature.auth.screen.DoctorLoginScreen
 import com.esiri.esiriplus.feature.auth.screen.DoctorRegistrationScreen
 import com.esiri.esiriplus.feature.auth.screen.DoctorTermsScreen
@@ -44,10 +43,9 @@ fun NavGraphBuilder.authGraph(
 ) {
     navigation<AuthGraph>(startDestination = SplashRoute) {
         composable<SplashRoute> {
-            val context = LocalContext.current
             SplashScreen(
                 onContinue = {
-                    val destination = if (LanguagePreferences.hasLanguageBeenSelected(context)) {
+                    val destination = if (!AppCompatDelegate.getApplicationLocales().isEmpty) {
                         RoleSelectionRoute
                     } else {
                         LanguageSelectionRoute

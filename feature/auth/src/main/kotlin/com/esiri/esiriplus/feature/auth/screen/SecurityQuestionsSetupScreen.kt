@@ -30,12 +30,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.esiri.esiriplus.core.common.util.SecurityQuestions
+import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 import com.esiri.esiriplus.feature.auth.viewmodel.SecurityQuestionsSetupViewModel
 
@@ -81,7 +83,7 @@ fun SecurityQuestionsSetupScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Recovery Questions",
+                    text = stringResource(R.string.security_setup_topbar_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = DarkText,
@@ -98,14 +100,14 @@ fun SecurityQuestionsSetupScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Set Up Security Questions",
+                    text = stringResource(R.string.security_setup_title),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkText,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "These questions will help you recover your Patient ID if you forget it.",
+                    text = stringResource(R.string.security_setup_subtitle),
                     fontSize = 14.sp,
                     color = SubtitleGray,
                 )
@@ -124,7 +126,7 @@ fun SecurityQuestionsSetupScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Question ${state.currentQuestionIndex + 1} of ${SecurityQuestions.ALL.size}",
+                    text = stringResource(R.string.security_setup_question_progress, state.currentQuestionIndex + 1, SecurityQuestions.ALL.size),
                     fontSize = 13.sp,
                     color = SubtitleGray,
                 )
@@ -146,7 +148,7 @@ fun SecurityQuestionsSetupScreen(
                     onValueChange = viewModel::onAnswerChanged,
                     label = {
                         Text(
-                            "Your answer",
+                            stringResource(R.string.security_setup_answer_label),
                             color = SubtitleGray,
                         )
                     },
@@ -197,7 +199,7 @@ fun SecurityQuestionsSetupScreen(
                         )
                     } else {
                         Text(
-                            text = if (isLastQuestion) "Save Security Questions" else "Next",
+                            text = if (isLastQuestion) stringResource(R.string.security_setup_save_button) else stringResource(R.string.security_setup_next_button),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                         )
@@ -206,7 +208,7 @@ fun SecurityQuestionsSetupScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 TextButton(onClick = onSkip) {
                     Text(
-                        text = "Skip for now",
+                        text = stringResource(R.string.security_setup_skip),
                         color = SubtitleGray,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,

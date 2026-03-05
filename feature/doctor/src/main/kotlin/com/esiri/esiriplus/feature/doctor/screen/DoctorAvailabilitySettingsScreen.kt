@@ -47,8 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.core.network.service.AvailabilitySlotRow
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorAvailabilityViewModel
 
@@ -58,7 +60,8 @@ private val SubtitleGrey = Color(0xFF374151)
 private val SuccessGreen = Color(0xFF16A34A)
 private val ErrorRed = Color(0xFFDC2626)
 
-private val DAY_NAMES = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+// Day names are resolved from string resources in composable scope; keep this for dropdown indices
+private val DAY_NAMES_EN = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
 
 @Composable
 fun DoctorAvailabilitySettingsScreen(
@@ -81,12 +84,12 @@ fun DoctorAvailabilitySettingsScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.common_back_content_description),
                     tint = BrandTeal,
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = "Back", fontSize = 14.sp, color = BrandTeal)
+                Text(text = stringResource(R.string.common_back), fontSize = 14.sp, color = BrandTeal)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -97,7 +100,7 @@ fun DoctorAvailabilitySettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Availability Schedule",
+                    text = stringResource(R.string.avail_settings_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -114,13 +117,13 @@ fun DoctorAvailabilitySettingsScreen(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(text = "Add Slot", fontSize = 13.sp, color = Color.White)
+                    Text(text = stringResource(R.string.avail_settings_add_slot), fontSize = 13.sp, color = Color.White)
                 }
             }
 
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Set your weekly recurring availability for appointments",
+                text = stringResource(R.string.avail_settings_subtitle),
                 fontSize = 14.sp,
                 color = SubtitleGrey,
             )
@@ -144,14 +147,14 @@ fun DoctorAvailabilitySettingsScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "No availability slots configured",
+                        text = stringResource(R.string.avail_settings_no_slots_title),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.Black,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Add slots to let patients book appointments with you.",
+                        text = stringResource(R.string.avail_settings_no_slots_message),
                         fontSize = 14.sp,
                         color = SubtitleGrey,
                         textAlign = TextAlign.Center,
@@ -161,6 +164,7 @@ fun DoctorAvailabilitySettingsScreen(
         } else {
             // Group by day of week
             val groupedSlots = uiState.slots.groupBy { it.dayOfWeek }
+            val dayNames = dayNamesList()
 
             LazyColumn(
                 modifier = Modifier
@@ -172,7 +176,7 @@ fun DoctorAvailabilitySettingsScreen(
                     val daySlots = groupedSlots[day] ?: return@forEach
                     item(key = "day_$day") {
                         DaySlotGroup(
-                            dayName = DAY_NAMES[day],
+                            dayName = dayNames[day],
                             slots = daySlots,
                             onDeleteSlot = viewModel::deleteSlot,
                         )
@@ -275,7 +279,7 @@ private fun DaySlotGroup(
                             color = BrandTeal.copy(alpha = 0.1f),
                         ) {
                             Text(
-                                text = "${slot.bufferMinutes}min buffer",
+                                text = stringResource(R.string.avail_settings_buffer_minutes, slot.bufferMinutes),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                 fontSize = 11.sp,
                                 color = BrandTeal,
@@ -288,7 +292,7 @@ private fun DaySlotGroup(
                                 color = SubtitleGrey.copy(alpha = 0.1f),
                             ) {
                                 Text(
-                                    text = "Inactive",
+                                    text = stringResource(R.string.avail_settings_inactive),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                     fontSize = 11.sp,
                                     color = SubtitleGrey,
@@ -303,7 +307,7 @@ private fun DaySlotGroup(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.avail_settings_delete),
                             tint = Color(0xFFDC2626),
                             modifier = Modifier.size(18.dp),
                         )
@@ -331,12 +335,13 @@ private fun AddSlotDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Availability Slot", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.avail_settings_add_dialog_title), fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 // Day picker
-                Text(text = "Day of Week", fontSize = 13.sp, color = SubtitleGrey)
+                Text(text = stringResource(R.string.avail_settings_day_of_week), fontSize = 13.sp, color = SubtitleGrey)
                 Box {
+                    val dayNames = dayNamesList()
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, CardBorder),
@@ -345,7 +350,7 @@ private fun AddSlotDialog(
                             .clickable { showDayDropdown = true },
                     ) {
                         Text(
-                            text = DAY_NAMES[dayOfWeek],
+                            text = dayNames[dayOfWeek],
                             modifier = Modifier.padding(12.dp),
                             fontSize = 14.sp,
                             color = Color.Black,
@@ -355,7 +360,7 @@ private fun AddSlotDialog(
                         expanded = showDayDropdown,
                         onDismissRequest = { showDayDropdown = false },
                     ) {
-                        DAY_NAMES.forEachIndexed { index, name ->
+                        dayNames.forEachIndexed { index, name ->
                             DropdownMenuItem(
                                 text = { Text(name) },
                                 onClick = {
@@ -371,7 +376,7 @@ private fun AddSlotDialog(
                 OutlinedTextField(
                     value = startTime,
                     onValueChange = onStartTimeChange,
-                    label = { Text("Start Time (HH:mm)") },
+                    label = { Text(stringResource(R.string.avail_settings_start_time)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -385,7 +390,7 @@ private fun AddSlotDialog(
                 OutlinedTextField(
                     value = endTime,
                     onValueChange = onEndTimeChange,
-                    label = { Text("End Time (HH:mm)") },
+                    label = { Text(stringResource(R.string.avail_settings_end_time)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -399,7 +404,7 @@ private fun AddSlotDialog(
                 OutlinedTextField(
                     value = bufferMinutes.toString(),
                     onValueChange = { onBufferChange(it.toIntOrNull() ?: 5) },
-                    label = { Text("Buffer Minutes") },
+                    label = { Text(stringResource(R.string.avail_settings_buffer_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -415,13 +420,24 @@ private fun AddSlotDialog(
                 onClick = onSave,
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
             ) {
-                Text("Save", color = Color.White)
+                Text(stringResource(R.string.common_save), color = Color.White)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = SubtitleGrey)
+                Text(stringResource(R.string.common_cancel), color = SubtitleGrey)
             }
         },
     )
 }
+
+@Composable
+private fun dayNamesList(): List<String> = listOf(
+    stringResource(R.string.day_sunday),
+    stringResource(R.string.day_monday),
+    stringResource(R.string.day_tuesday),
+    stringResource(R.string.day_wednesday),
+    stringResource(R.string.day_thursday),
+    stringResource(R.string.day_friday),
+    stringResource(R.string.day_saturday),
+)

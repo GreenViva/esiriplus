@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,7 +77,7 @@ fun LanguageSelectionScreen(
                 ),
             ) {
                 Text(
-                    text = "Chagua lugha >",
+                    text = stringResource(R.string.lang_select_swahili_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                 )
@@ -94,7 +95,7 @@ fun LanguageSelectionScreen(
                 border = BorderStroke(1.dp, BrandTeal),
             ) {
                 Text(
-                    text = "Choose your Language >",
+                    text = stringResource(R.string.lang_select_english_button),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = BrandTeal,

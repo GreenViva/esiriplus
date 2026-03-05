@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================ -->
+    <!-- ConsultationTimerBar                                         -->
+    <!-- ============================================================ -->
+    <string name="timer_time_ended">\u0627\u0646\u062A\u0647\u0649 \u0627\u0644\u0648\u0642\u062A</string>
+    <string name="timer_grace_period">\u0641\u062A\u0631\u0629 \u0633\u0645\u0627\u062D</string>
+    <string name="timer_completed">\u0645\u0643\u062A\u0645\u0644</string>
+    <!-- %d = extension count -->
+    <string name="timer_extension_count">+%d \u062A\u0645\u062F\u064A\u062F</string>
+
+    <!-- ============================================================ -->
+    <!-- ExtensionOverlays                                            -->
+    <!-- ============================================================ -->
+    <string name="extension_session_time_ended">\u0627\u0646\u062A\u0647\u0649 \u0648\u0642\u062A \u0627\u0644\u062C\u0644\u0633\u0629</string>
+    <string name="extension_patient_declined">\u0631\u0641\u0636 \u0627\u0644\u0645\u0631\u064A\u0636 \u0627\u0644\u062A\u0645\u062F\u064A\u062F.</string>
+    <string name="extension_end_consultation">\u0625\u0646\u0647\u0627\u0621 \u0627\u0644\u0627\u0633\u062A\u0634\u0627\u0631\u0629</string>
+    <string name="extension_waiting_for_patient">\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0642\u0631\u0627\u0631 \u0627\u0644\u0645\u0631\u064A\u0636\u2026</string>
+    <string name="extension_times_up">\u0627\u0646\u062A\u0647\u0649 \u0627\u0644\u0648\u0642\u062A!</string>
+    <!-- %1$d = duration minutes, %2$s = formatted fee -->
+    <string name="extension_prompt_message">\u0627\u0646\u062A\u0647\u0649 \u0648\u0642\u062A \u062C\u0644\u0633\u062A\u0643. \u0647\u0644 \u062A\u0631\u063A\u0628 \u0641\u064A \u0627\u0644\u062A\u0645\u062F\u064A\u062F \u0644\u0645\u062F\u0629 %1$d \u062F\u0642\u064A\u0642\u0629 \u0645\u0642\u0627\u0628\u0644 %2$s TZS\u061F</string>
+    <string name="extension_yes_extend">\u0646\u0639\u0645\u060C \u0645\u062F\u0651\u062F</string>
+    <string name="extension_no_thanks">\u0644\u0627\u060C \u0634\u0643\u0631\u0627\u064B</string>
+    <!-- %1$d = minutes, %2$d = seconds -->
+    <string name="extension_processing_payment">\u062C\u0627\u0631\u064D \u0645\u0639\u0627\u0644\u062C\u0629 \u062F\u0641\u0639 \u0627\u0644\u062A\u0645\u062F\u064A\u062F\u2026 (%1$02d:%2$02d)</string>
+
+    <!-- ============================================================ -->
+    <!-- ChatContent                                                  -->
+    <!-- ============================================================ -->
+    <string name="chat_back">\u0631\u062C\u0648\u0639</string>
+    <string name="chat_consultation">\u0627\u0633\u062A\u0634\u0627\u0631\u0629</string>
+    <!-- %s = truncated consultation ID -->
+    <string name="chat_consultation_id">\u0627\u0644\u0645\u0639\u0631\u0651\u0641: %s\u2026</string>
+    <string name="chat_attached_image">\u0635\u0648\u0631\u0629 \u0645\u0631\u0641\u0642\u0629</string>
+    <string name="chat_document">\u0645\u0633\u062A\u0646\u062F</string>
+    <string name="chat_tap_to_open">\u0627\u0646\u0642\u0631 \u0644\u0644\u0641\u062A\u062D</string>
+    <string name="chat_typing">\u064A\u0643\u062A\u0628</string>
+    <string name="chat_no_messages">\u0644\u0627 \u062A\u0648\u062C\u062F \u0631\u0633\u0627\u0626\u0644 \u0628\u0639\u062F</string>
+    <string name="chat_start_conversation">\u0627\u0628\u062F\u0623 \u0627\u0644\u0645\u062D\u0627\u062F\u062B\u0629 \u0623\u062F\u0646\u0627\u0647</string>
+    <string name="chat_attach_file">\u0625\u0631\u0641\u0627\u0642 \u0645\u0644\u0641</string>
+    <string name="chat_type_message">\u0627\u0643\u062A\u0628 \u0631\u0633\u0627\u0644\u0629\u2026</string>
+    <string name="chat_send">\u0625\u0631\u0633\u0627\u0644</string>
+    <string name="chat_uploading_attachment">\u062C\u0627\u0631\u064D \u0631\u0641\u0639 \u0627\u0644\u0645\u0631\u0641\u0642\u2026</string>
+    <string name="chat_messaging_paused">\u0627\u0644\u0645\u0631\u0627\u0633\u0644\u0629 \u0645\u062A\u0648\u0642\u0641\u0629 \u2014 \u0627\u0646\u062A\u0647\u0649 \u0648\u0642\u062A \u0627\u0644\u062C\u0644\u0633\u0629</string>
+
+    <!-- ============================================================ -->
+    <!-- CallRechargeModal                                            -->
+    <!-- ============================================================ -->
+    <string name="recharge_add_call_time">\u0625\u0636\u0627\u0641\u0629 \u0648\u0642\u062A \u0645\u0643\u0627\u0644\u0645\u0629</string>
+    <string name="recharge_select_package">\u0627\u062E\u062A\u0631 \u0628\u0627\u0642\u0629 \u0648\u0627\u062F\u0641\u0639 \u0639\u0628\u0631 M-Pesa</string>
+    <string name="recharge_phone_label">\u0631\u0642\u0645 \u0647\u0627\u062A\u0641 M-Pesa</string>
+    <string name="recharge_phone_placeholder">255XXXXXXXXX</string>
+    <string name="recharge_invalid_phone">\u0623\u062F\u062E\u0644 \u0631\u0642\u0645 \u0647\u0627\u062A\u0641 \u0635\u062D\u064A\u062D (255XXXXXXXXX)</string>
+    <string name="recharge_payment_failed">\u0641\u0634\u0644 \u0628\u062F\u0621 \u0627\u0644\u062F\u0641\u0639. \u064A\u0631\u062C\u0649 \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062E\u0631\u0649.</string>
+    <string name="recharge_pay_mpesa">\u0627\u0644\u062F\u0641\u0639 \u0639\u0628\u0631 M-Pesa</string>
+    <string name="recharge_cancel">\u0625\u0644\u063A\u0627\u0621</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallScreen                                              -->
+    <!-- ============================================================ -->
+    <string name="video_call_requesting_permissions">\u062C\u0627\u0631\u064D \u0637\u0644\u0628 \u0627\u0644\u0623\u0630\u0648\u0646\u0627\u062A\u2026</string>
+    <string name="video_call_connecting">\u062C\u0627\u0631\u064D \u0627\u0644\u0627\u062A\u0635\u0627\u0644\u2026</string>
+    <string name="video_call_waiting_participant">\u0628\u0627\u0646\u062A\u0638\u0627\u0631 \u0627\u0646\u0636\u0645\u0627\u0645 \u0627\u0644\u0645\u0634\u0627\u0631\u0643\u2026</string>
+    <string name="video_call_label">\u0645\u0643\u0627\u0644\u0645\u0629 \u0641\u064A\u062F\u064A\u0648</string>
+    <string name="video_call_voice_label">\u0645\u0643\u0627\u0644\u0645\u0629 \u0635\u0648\u062A\u064A\u0629</string>
+    <string name="video_call_participant">\u0645\u0634\u0627\u0631\u0643</string>
+    <string name="video_call_ended">\u0627\u0646\u062A\u0647\u062A \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0629</string>
+    <string name="video_call_something_wrong">\u062D\u062F\u062B \u062E\u0637\u0623</string>
+    <string name="video_call_go_back">\u0631\u062C\u0648\u0639</string>
+    <string name="video_call_add_time">\u0625\u0636\u0627\u0641\u0629 \u0648\u0642\u062A</string>
+    <string name="video_call_mute">\u0643\u062A\u0645</string>
+    <string name="video_call_unmute">\u0625\u0644\u063A\u0627\u0621 \u0627\u0644\u0643\u062A\u0645</string>
+    <string name="video_call_cam_off">\u0625\u064A\u0642\u0627\u0641 \u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627</string>
+    <string name="video_call_cam_on">\u062A\u0634\u063A\u064A\u0644 \u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627</string>
+    <string name="video_call_flip">\u0639\u0643\u0633</string>
+    <string name="video_call_speaker">\u0645\u0643\u0628\u0631 \u0627\u0644\u0635\u0648\u062A</string>
+    <string name="video_call_earpiece">\u0633\u0645\u0627\u0639\u0629 \u0627\u0644\u0623\u0630\u0646</string>
+    <string name="video_call_end">\u0625\u0646\u0647\u0627\u0621</string>
+    <string name="video_call_time_expired">\u0627\u0646\u062A\u0647\u0649 \u0627\u0644\u0648\u0642\u062A</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallViewModel (error messages)                          -->
+    <!-- ============================================================ -->
+    <string name="video_call_error_permissions">\u064A\u0644\u0632\u0645 \u0625\u0630\u0646 \u0627\u0644\u0643\u0627\u0645\u064A\u0631\u0627 \u0648\u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646 \u0644\u0625\u062C\u0631\u0627\u0621 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0627\u062A.</string>
+    <string name="video_call_error_no_consultation">\u0644\u0645 \u064A\u062A\u0645 \u062A\u0642\u062F\u064A\u0645 \u0645\u0639\u0631\u0651\u0641 \u0627\u0633\u062A\u0634\u0627\u0631\u0629.</string>
+    <!-- %s = error detail -->
+    <string name="video_call_error_connect">\u0641\u0634\u0644 \u0627\u0644\u0627\u062A\u0635\u0627\u0644: %s</string>
+    <string name="video_call_error_generic">\u062D\u062F\u062B \u062E\u0637\u0623 \u0623\u062B\u0646\u0627\u0621 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0629.</string>
+    <string name="video_call_no_answer">\u0644\u0627 \u0625\u062C\u0627\u0628\u0629</string>
+    <!-- %s = exception message -->
+    <string name="video_call_error_start">\u0641\u0634\u0644 \u0628\u062F\u0621 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0629: %s</string>
+
+</resources>

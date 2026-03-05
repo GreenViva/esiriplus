@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.esiri.esiriplus.core.common.util.SecurityQuestions
+import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.viewmodel.PatientRecoveryViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -67,11 +69,11 @@ fun PatientRecoveryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Recover Patient ID") },
+                title = { Text(stringResource(R.string.recovery_topbar_title)) },
                 navigationIcon = {
                     if (state.recoveredPatientId == null) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.recovery_back_content_desc))
                         }
                     }
                 },
@@ -100,13 +102,13 @@ fun PatientRecoveryScreen(
                 state.isRateLimited -> {
                     Spacer(modifier = Modifier.height(48.dp))
                     Text(
-                        text = "Too many attempts",
+                        text = stringResource(R.string.recovery_rate_limited_title),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.error,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "You have exceeded the maximum number of recovery attempts. Please try again in 24 hours.",
+                        text = stringResource(R.string.recovery_rate_limited_message),
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.Black,
                     )
@@ -115,7 +117,7 @@ fun PatientRecoveryScreen(
                 // Security questions
                 else -> {
                     Text(
-                        text = "Answer all 5 security questions to recover your account",
+                        text = stringResource(R.string.recovery_instructions),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
@@ -131,7 +133,7 @@ fun PatientRecoveryScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Question ${state.currentQuestionIndex + 1} of ${SecurityQuestions.ALL.size}",
+                        text = stringResource(R.string.recovery_question_progress, state.currentQuestionIndex + 1, SecurityQuestions.ALL.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Black,
                     )
@@ -150,7 +152,7 @@ fun PatientRecoveryScreen(
                     OutlinedTextField(
                         value = state.currentAnswer,
                         onValueChange = viewModel::onAnswerChanged,
-                        label = { Text("Your answer") },
+                        label = { Text(stringResource(R.string.recovery_answer_label)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isLoading,
@@ -165,7 +167,7 @@ fun PatientRecoveryScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "${state.remainingAttempts} attempt(s) remaining",
+                            text = stringResource(R.string.recovery_attempts_remaining, state.remainingAttempts),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Black,
                         )
@@ -188,7 +190,7 @@ fun PatientRecoveryScreen(
                             )
                         } else {
                             Text(
-                                if (isLastQuestion) "Recover Account" else "Next",
+                                if (isLastQuestion) stringResource(R.string.recovery_submit_button) else stringResource(R.string.recovery_next_button),
                                 color = Color.White,
                             )
                         }
@@ -217,14 +219,14 @@ private fun RecoverySuccessContent(
     Spacer(modifier = Modifier.height(16.dp))
 
     Text(
-        text = "Account Recovered!",
+        text = stringResource(R.string.recovery_success_title),
         fontSize = 22.sp,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = "Your Patient ID has been recovered. Please save it somewhere safe.",
+        text = stringResource(R.string.recovery_success_message),
         fontSize = 14.sp,
         color = Color.Black,
         textAlign = TextAlign.Center,
@@ -248,7 +250,7 @@ private fun RecoverySuccessContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Your Patient ID",
+            text = stringResource(R.string.recovery_your_patient_id),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = Color.Black,
@@ -270,7 +272,7 @@ private fun RecoverySuccessContent(
                 clipboard.setPrimaryClip(
                     ClipData.newPlainText("Patient ID", patientId),
                 )
-                Toast.makeText(context, "Patient ID copied!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.recovery_id_copied_toast), Toast.LENGTH_SHORT).show()
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = BrandTeal,
@@ -278,7 +280,7 @@ private fun RecoverySuccessContent(
             ),
             shape = RoundedCornerShape(8.dp),
         ) {
-            Text("Copy to Clipboard")
+            Text(stringResource(R.string.recovery_copy_to_clipboard))
         }
     }
 
@@ -296,7 +298,7 @@ private fun RecoverySuccessContent(
         ),
     ) {
         Text(
-            text = "Continue to Dashboard",
+            text = stringResource(R.string.recovery_continue_to_dashboard),
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
         )

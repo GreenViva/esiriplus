@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================ -->
+    <!-- ConsultationTimerBar                                         -->
+    <!-- ============================================================ -->
+    <string name="timer_time_ended">Temps \u00E9coul\u00E9</string>
+    <string name="timer_grace_period">P\u00E9riode de gr\u00E2ce</string>
+    <string name="timer_completed">Termin\u00E9</string>
+    <!-- %d = extension count -->
+    <string name="timer_extension_count">+%d ext</string>
+
+    <!-- ============================================================ -->
+    <!-- ExtensionOverlays                                            -->
+    <!-- ============================================================ -->
+    <string name="extension_session_time_ended">Le temps de la session est \u00E9coul\u00E9</string>
+    <string name="extension_patient_declined">Le patient a refus\u00E9 la prolongation.</string>
+    <string name="extension_end_consultation">Terminer la consultation</string>
+    <string name="extension_waiting_for_patient">En attente de la d\u00E9cision du patient\u2026</string>
+    <string name="extension_times_up">Temps \u00E9coul\u00E9 !</string>
+    <!-- %1$d = duration minutes, %2$s = formatted fee -->
+    <string name="extension_prompt_message">Le temps de votre session est \u00E9coul\u00E9. Souhaitez-vous prolonger de %1$d minutes pour %2$s TZS ?</string>
+    <string name="extension_yes_extend">Oui, prolonger</string>
+    <string name="extension_no_thanks">Non, merci</string>
+    <!-- %1$d = minutes, %2$d = seconds -->
+    <string name="extension_processing_payment">Traitement du paiement de prolongation\u2026 (%1$02d:%2$02d)</string>
+
+    <!-- ============================================================ -->
+    <!-- ChatContent                                                  -->
+    <!-- ============================================================ -->
+    <string name="chat_back">Retour</string>
+    <string name="chat_consultation">Consultation</string>
+    <!-- %s = truncated consultation ID -->
+    <string name="chat_consultation_id">ID : %s\u2026</string>
+    <string name="chat_attached_image">Image jointe</string>
+    <string name="chat_document">Document</string>
+    <string name="chat_tap_to_open">Appuyez pour ouvrir</string>
+    <string name="chat_typing">En train d\'\u00E9crire</string>
+    <string name="chat_no_messages">Aucun message</string>
+    <string name="chat_start_conversation">D\u00E9marrez la conversation ci-dessous</string>
+    <string name="chat_attach_file">Joindre un fichier</string>
+    <string name="chat_type_message">\u00C9crivez un message\u2026</string>
+    <string name="chat_send">Envoyer</string>
+    <string name="chat_uploading_attachment">Envoi de la pi\u00E8ce jointe\u2026</string>
+    <string name="chat_messaging_paused">Messagerie en pause \u2014 le temps de la session est \u00E9coul\u00E9</string>
+
+    <!-- ============================================================ -->
+    <!-- CallRechargeModal                                            -->
+    <!-- ============================================================ -->
+    <string name="recharge_add_call_time">Ajouter du temps d\'appel</string>
+    <string name="recharge_select_package">S\u00E9lectionnez un forfait et payez par M-Pesa</string>
+    <string name="recharge_phone_label">Num\u00E9ro de t\u00E9l\u00E9phone M-Pesa</string>
+    <string name="recharge_phone_placeholder">255XXXXXXXXX</string>
+    <string name="recharge_invalid_phone">Entrez un num\u00E9ro de t\u00E9l\u00E9phone valide (255XXXXXXXXX)</string>
+    <string name="recharge_payment_failed">Le paiement a \u00E9chou\u00E9. Veuillez r\u00E9essayer.</string>
+    <string name="recharge_pay_mpesa">Payer par M-Pesa</string>
+    <string name="recharge_cancel">Annuler</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallScreen                                              -->
+    <!-- ============================================================ -->
+    <string name="video_call_requesting_permissions">Demande de permissions\u2026</string>
+    <string name="video_call_connecting">Connexion\u2026</string>
+    <string name="video_call_waiting_participant">En attente du participant\u2026</string>
+    <string name="video_call_label">Appel vid\u00E9o</string>
+    <string name="video_call_voice_label">Appel vocal</string>
+    <string name="video_call_participant">Participant</string>
+    <string name="video_call_ended">Appel termin\u00E9</string>
+    <string name="video_call_something_wrong">Une erreur est survenue</string>
+    <string name="video_call_go_back">Retour</string>
+    <string name="video_call_add_time">Ajouter du temps</string>
+    <string name="video_call_mute">Muet</string>
+    <string name="video_call_unmute">R\u00E9activer</string>
+    <string name="video_call_cam_off">Cam\u00E9ra d\u00E9sactiv\u00E9e</string>
+    <string name="video_call_cam_on">Cam\u00E9ra activ\u00E9e</string>
+    <string name="video_call_flip">Inverser</string>
+    <string name="video_call_speaker">Haut-parleur</string>
+    <string name="video_call_earpiece">\u00C9couteur</string>
+    <string name="video_call_end">Raccrocher</string>
+    <string name="video_call_time_expired">Temps \u00E9coul\u00E9</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallViewModel (error messages)                          -->
+    <!-- ============================================================ -->
+    <string name="video_call_error_permissions">Les permissions cam\u00E9ra et microphone sont requises pour les appels.</string>
+    <string name="video_call_error_no_consultation">Aucun identifiant de consultation fourni.</string>
+    <!-- %s = error detail -->
+    <string name="video_call_error_connect">\u00C9chec de la connexion : %s</string>
+    <string name="video_call_error_generic">Une erreur est survenue pendant l\'appel.</string>
+    <string name="video_call_no_answer">Pas de r\u00E9ponse</string>
+    <!-- %s = exception message -->
+    <string name="video_call_error_start">\u00C9chec du d\u00E9marrage de l\'appel : %s</string>
+
+</resources>

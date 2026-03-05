@@ -32,11 +32,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 import com.esiri.esiriplus.feature.auth.viewmodel.AccessRecordsViewModel
 
@@ -82,13 +84,13 @@ fun AccessRecordsScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.access_records_back_content_desc),
                     tint = Color.Black,
                     modifier = Modifier.size(20.dp),
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Back",
+                    text = stringResource(R.string.access_records_back_button),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Black,
@@ -99,7 +101,7 @@ fun AccessRecordsScreen(
 
             // Title
             Text(
-                text = "Access Your Records",
+                text = stringResource(R.string.access_records_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -110,7 +112,7 @@ fun AccessRecordsScreen(
 
             // Subtitle
             Text(
-                text = "Enter your patient ID to view your consultation history",
+                text = stringResource(R.string.access_records_subtitle),
                 fontSize = 15.sp,
                 color = SubtitleGrey,
                 textAlign = TextAlign.Center,
@@ -178,7 +180,7 @@ fun AccessRecordsScreen(
                     )
                 } else {
                     Text(
-                        text = "Access My Records",
+                        text = stringResource(R.string.access_records_button),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
@@ -197,7 +199,7 @@ fun AccessRecordsScreen(
 
             // Don't have an ID? link
             Text(
-                text = "Don't have an ID?",
+                text = stringResource(R.string.access_records_no_id),
                 fontSize = 14.sp,
                 color = SubtitleGrey,
                 modifier = Modifier.clickable(onClick = onDontHaveId),

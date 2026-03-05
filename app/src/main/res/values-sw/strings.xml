@@ -39,4 +39,69 @@
     <string name="db_error_failed_title">Kusasisha Data Kumeshindikana</string>
     <string name="db_error_failed_message">eSIRI Plus imeshindwa kusasisha data yake ya ndani. Tafadhali anzisha upya programu. Tatizo likiendelea, sakinisha upya programu.</string>
     <string name="db_error_ok_button">Sawa</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_main_name">Arifa za eSIRI+</string>
+    <string name="channel_main_description">Arifa za kawaida kutoka eSIRI+</string>
+    <string name="channel_doctor_online_name">Hali ya Daktari Mtandaoni</string>
+    <string name="channel_doctor_online_description">Arifa ya kudumu daktari anapokuwa tayari kwa mashauriano</string>
+    <string name="channel_incoming_request_name">Maombi ya Mashauriano Yanayoingia</string>
+    <string name="channel_incoming_request_description">Tahadhari mgonjwa anapotuma ombi la mashauriano</string>
+    <string name="channel_incoming_call_name">Simu Zinazoingia</string>
+    <string name="channel_incoming_call_description">Tahadhari unapopokea simu ya video au sauti</string>
+    <string name="channel_call_service_name">Simu Inayoendelea</string>
+    <string name="channel_call_service_description">Arifa ya kudumu wakati simu inaendelea</string>
+
+    <!-- Notification Titles (by type) -->
+    <string name="notification_new_consultation">Ombi Jipya la Mashauriano</string>
+    <string name="notification_consultation_accepted">Mashauriano Yamekubaliwa</string>
+    <string name="notification_new_message">Ujumbe Mpya</string>
+    <string name="notification_incoming_video_call">Simu ya Video Inaingia</string>
+    <string name="notification_report_ready">Ripoti Iko Tayari</string>
+    <string name="notification_payment_update">Sasisha Malipo</string>
+    <string name="notification_application_update">Sasisha Maombi</string>
+    <string name="notification_admin_warning">Onyo kutoka kwa Utawala</string>
+    <string name="notification_account_suspended">Akaunti Imesimamishwa</string>
+    <string name="notification_account_reinstated">Akaunti Imerejeshwa</string>
+    <string name="notification_account_banned">Akaunti Imefungwa</string>
+    <string name="notification_default_title">Arifa ya eSIRI+</string>
+    <string name="notification_tap_to_view">Gusa kuona maelezo</string>
+    <string name="notification_patient_waiting">Mgonjwa anakusubiri</string>
+
+    <!-- Call-Related -->
+    <string name="call_type_voice">Sauti</string>
+    <string name="call_type_video">Video</string>
+    <string name="caller_your_doctor">Daktari wako</string>
+    <string name="caller_your_patient">Mgonjwa wako</string>
+    <string name="call_incoming_title">Simu ya %1$s Inaingia</string>
+    <string name="call_incoming_body">%1$s anakupigia</string>
+    <string name="call_in_progress_title">Simu ya %1$s Inaendelea</string>
+    <string name="call_in_progress_duration">Muda: %1$s</string>
+
+    <!-- Common Actions -->
+    <string name="action_accept">Kubali</string>
+    <string name="action_decline">Kataa</string>
+    <string name="action_end_call">Maliza Simu</string>
+    <string name="action_back">Rudi</string>
+
+    <!-- Doctor Online Service -->
+    <string name="doctor_online_title">Uko mtandaoni</string>
+    <string name="doctor_online_body">Unasubiri maombi ya mashauriano\u2026</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Arifa</string>
+    <string name="notifications_mark_all_read">Soma zote</string>
+    <string name="notifications_empty_title">Hakuna arifa bado</string>
+    <string name="notifications_empty_subtitle">Utaona masasisho hapa yatakapofika.</string>
+
+    <!-- Relative Time -->
+    <string name="time_just_now">Sasa hivi</string>
+    <string name="time_minutes_ago">dakika %1$d zilizopita</string>
+    <string name="time_hours_ago">saa %1$d zilizopita</string>
+    <string name="time_days_ago">siku %1$d zilizopita</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_back">Rudi</string>
+    <string name="cd_incoming_call">Simu inaingia</string>
+    <string name="cd_notifications">Arifa</string>
 </resources>

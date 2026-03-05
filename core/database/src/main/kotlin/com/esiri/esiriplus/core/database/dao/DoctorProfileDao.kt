@@ -22,8 +22,11 @@ interface DoctorProfileDao {
     @Query("SELECT * FROM doctor_profiles WHERE email = :email LIMIT 1")
     suspend fun getByEmail(email: String): DoctorProfileEntity?
 
-    @Query("SELECT * FROM doctor_profiles WHERE specialty = :specialty")
+    @Query("SELECT * FROM doctor_profiles WHERE specialty = :specialty AND isBanned = 0")
     fun getBySpecialty(specialty: String): Flow<List<DoctorProfileEntity>>
+
+    @Query("DELETE FROM doctor_profiles WHERE specialty = :specialty AND doctorId NOT IN (:keepIds)")
+    suspend fun deleteStaleBySpecialty(specialty: String, keepIds: List<String>)
 
     @Query("SELECT * FROM doctor_profiles WHERE isVerified = 1 AND isAvailable = 1")
     fun getAvailableDoctors(): Flow<List<DoctorProfileEntity>>

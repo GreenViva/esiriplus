@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -93,7 +94,7 @@ fun SplashScreen(
 
             // App name
             Text(
-                text = "eSIRI Plus",
+                text = stringResource(R.string.splash_app_name),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
@@ -103,7 +104,7 @@ fun SplashScreen(
 
             // Swahili tagline
             Text(
-                text = "Afya yako, Kipaumbele chetu",
+                text = stringResource(R.string.splash_tagline_sw),
                 fontSize = 16.sp,
                 fontStyle = FontStyle.Italic,
                 color = BrandTeal,
@@ -113,7 +114,7 @@ fun SplashScreen(
 
             // English subtitle
             Text(
-                text = "Your Health, Our Priority",
+                text = stringResource(R.string.splash_tagline_en),
                 fontSize = 14.sp,
                 color = GrayText,
             )
@@ -135,7 +136,7 @@ fun SplashScreen(
 
             // Tap to continue
             Text(
-                text = "Tap anywhere to continue",
+                text = stringResource(R.string.splash_tap_to_continue),
                 fontSize = 12.sp,
                 color = LightGrayText,
             )

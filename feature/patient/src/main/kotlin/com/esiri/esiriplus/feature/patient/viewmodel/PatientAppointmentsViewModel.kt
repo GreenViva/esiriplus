@@ -26,6 +26,8 @@ data class PatientAppointmentsUiState(
     val errorMessage: String? = null,
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientAppointmentsViewModel @Inject constructor(
     private val appointmentRepository: AppointmentRepository,

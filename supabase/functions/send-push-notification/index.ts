@@ -188,7 +188,7 @@ Deno.serve(async (req: Request) => {
     const serviceRoleKey = Deno.env.get("INTERNAL_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     if (internalKey && internalKey === serviceRoleKey) {
       // Internal call from admin panel — skip JWT auth
-      auth = { userId: "service-role", sessionToken: null, sessionId: null, role: "admin" as const, jwt: "" };
+      auth = { userId: "service-role", sessionId: null, role: "admin" as const, jwt: "" };
     } else {
       auth = await validateAuth(req);
       if (auth.role !== "doctor" && auth.role !== "admin" && auth.role !== "hr") {

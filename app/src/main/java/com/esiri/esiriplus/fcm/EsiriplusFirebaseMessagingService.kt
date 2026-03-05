@@ -2,6 +2,7 @@ package com.esiri.esiriplus.fcm
 
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -11,6 +12,7 @@ import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
 import com.esiri.esiriplus.call.IncomingCall
 import com.esiri.esiriplus.call.IncomingCallStateHolder
+import com.esiri.esiriplus.core.common.locale.LocaleHelper
 import com.esiri.esiriplus.service.DoctorOnlineService
 import com.esiri.esiriplus.service.overlay.OverlayBubbleManager
 import com.esiri.esiriplus.core.database.dao.NotificationDao
@@ -46,6 +48,10 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
     lateinit var incomingCallStateHolder: IncomingCallStateHolder
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /** Locale-aware context for resolving string resources in this service. */
+    private val localizedContext: Context
+        get() = LocaleHelper.getLocalizedContext(this)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
@@ -103,10 +109,11 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
      * We fetch the full notification content from Supabase via authenticated API.
      */
     private fun handleSecureFetch(notificationId: String, type: String) {
+        val ctx = localizedContext
         // Show a generic notification immediately so user sees something
         showNotification(
-            title = getGenericTitle(type),
-            body = "Tap to view details",
+            title = getGenericTitle(ctx, type),
+            body = ctx.getString(R.string.notification_tap_to_view),
             notificationId = notificationId,
         )
 
@@ -173,6 +180,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun showConsultationRequestFallback(requestId: String) {
+        val ctx = localizedContext
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(OverlayBubbleManager.EXTRA_ACTION, OverlayBubbleManager.ACTION_INCOMING_REQUEST)
@@ -187,8 +195,8 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
 
         val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_REQUEST)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("New Consultation Request")
-            .setContentText("A patient is waiting for you")
+            .setContentTitle(ctx.getString(R.string.notification_new_consultation))
+            .setContentText(ctx.getString(R.string.notification_patient_waiting))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
@@ -211,8 +219,9 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         callerRole: String,
         roomId: String,
     ) {
-        val callLabel = if (callType == "AUDIO") "Voice" else "Video"
-        val callerLabel = if (callerRole == "doctor") "Your doctor" else "Your patient"
+        val ctx = localizedContext
+        val callLabel = if (callType == "AUDIO") ctx.getString(R.string.call_type_voice) else ctx.getString(R.string.call_type_video)
+        val callerLabel = if (callerRole == "doctor") ctx.getString(R.string.caller_your_doctor) else ctx.getString(R.string.caller_your_patient)
 
         // Accept action → open MainActivity with accept_call action
         val acceptIntent = Intent(this, MainActivity::class.java).apply {
@@ -242,16 +251,16 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
 
         val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_CALL)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Incoming $callLabel Call")
-            .setContentText("$callerLabel is calling")
+            .setContentTitle(ctx.getString(R.string.call_incoming_title, callLabel))
+            .setContentText(ctx.getString(R.string.call_incoming_body, callerLabel))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setOngoing(true)
             .setAutoCancel(false)
             .setTimeoutAfter(60_000)
             .setFullScreenIntent(acceptPending, true)
-            .addAction(0, "Accept", acceptPending)
-            .addAction(0, "Decline", declinePending)
+            .addAction(0, ctx.getString(R.string.action_accept), acceptPending)
+            .addAction(0, ctx.getString(R.string.action_decline), declinePending)
             .build()
 
         try {
@@ -292,21 +301,21 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun getGenericTitle(type: String): String = when (type.uppercase()) {
-        "CONSULTATION_REQUEST" -> "New Consultation Request"
-        "CONSULTATION_ACCEPTED" -> "Consultation Accepted"
-        "MESSAGE_RECEIVED" -> "New Message"
-        "VIDEO_CALL_INCOMING" -> "Incoming Video Call"
-        "REPORT_READY" -> "Report Ready"
-        "PAYMENT_STATUS" -> "Payment Update"
-        "DOCTOR_APPROVED" -> "Application Update"
-        "DOCTOR_REJECTED" -> "Application Update"
-        "DOCTOR_WARNED" -> "Warning from Administration"
-        "DOCTOR_SUSPENDED" -> "Account Suspended"
-        "DOCTOR_UNSUSPENDED" -> "Account Reinstated"
-        "DOCTOR_BANNED" -> "Account Banned"
-        "DOCTOR_UNBANNED" -> "Account Reinstated"
-        else -> "eSIRI+ Notification"
+    private fun getGenericTitle(ctx: Context, type: String): String = when (type.uppercase()) {
+        "CONSULTATION_REQUEST" -> ctx.getString(R.string.notification_new_consultation)
+        "CONSULTATION_ACCEPTED" -> ctx.getString(R.string.notification_consultation_accepted)
+        "MESSAGE_RECEIVED" -> ctx.getString(R.string.notification_new_message)
+        "VIDEO_CALL_INCOMING" -> ctx.getString(R.string.notification_incoming_video_call)
+        "REPORT_READY" -> ctx.getString(R.string.notification_report_ready)
+        "PAYMENT_STATUS" -> ctx.getString(R.string.notification_payment_update)
+        "DOCTOR_APPROVED" -> ctx.getString(R.string.notification_application_update)
+        "DOCTOR_REJECTED" -> ctx.getString(R.string.notification_application_update)
+        "DOCTOR_WARNED" -> ctx.getString(R.string.notification_admin_warning)
+        "DOCTOR_SUSPENDED" -> ctx.getString(R.string.notification_account_suspended)
+        "DOCTOR_UNSUSPENDED" -> ctx.getString(R.string.notification_account_reinstated)
+        "DOCTOR_BANNED" -> ctx.getString(R.string.notification_account_banned)
+        "DOCTOR_UNBANNED" -> ctx.getString(R.string.notification_account_reinstated)
+        else -> ctx.getString(R.string.notification_default_title)
     }
 
     companion object {

@@ -2,6 +2,7 @@ package com.esiri.esiriplus.core.network.service
 
 import android.util.Log
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.network.di.ApplicationScope
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.realtime.RealtimeChannel
@@ -48,6 +49,7 @@ enum class RealtimeConnectionState { CONNECTING, CONNECTED, DISCONNECTED }
 @Singleton
 class ChatRealtimeService @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
+    @ApplicationScope private val appScope: CoroutineScope,
 ) {
 
     private val _messageEvents = MutableSharedFlow<ChatMessageEvent>(extraBufferCapacity = 64)
@@ -258,8 +260,7 @@ class ChatRealtimeService @Inject constructor(
             currentConsultationId = null
             currentScope = null
         }
-        @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
-        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+        appScope.launch {
             try {
                 unsubscribeAll()
             } catch (_: Exception) { }

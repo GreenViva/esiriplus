@@ -28,6 +28,8 @@ data class ExtensionPaymentUiState(
     val errorMessage: String? = null,
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class ExtensionPaymentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

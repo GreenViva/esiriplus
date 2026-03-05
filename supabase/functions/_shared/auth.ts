@@ -2,7 +2,7 @@
 // Validates Bearer JWTs on every request.
 // Handles TWO types of tokens:
 //   1. Patient JWTs — custom HS256 signed by create-patient-session
-//      Contains: { sub (session_id), session_id, session_token, role: "authenticated", app_role: "patient", exp, iat }
+//      Contains: { sub (session_id), session_id, role: "authenticated", app_role: "patient", exp, iat }
 //      (Also supports legacy format: { session_id, session_token, role: "patient", exp, iat })
 //   2. Doctor/Admin JWTs — issued by Supabase Auth
 //      Contains: { sub (auth.uid), role, exp, iat }
@@ -15,7 +15,6 @@ const JWT_SECRET             = Deno.env.get("JWT_SECRET") ?? Deno.env.get("SUPAB
 
 export interface AuthResult {
   userId: string | null;
-  sessionToken: string | null;
   sessionId: string | null;
   role: "doctor" | "patient" | "admin" | "hr" | "finance" | "audit";
   jwt: string;
@@ -105,17 +104,15 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
     throw new AuthError(401, "Token has expired");
   }
 
-  // ── Path A: Patient JWT (has session_token claim) ─────────────────────────
-  // Supports both old format (role:"patient") and new format (role:"authenticated", app_role:"patient")
+  // ── Path A: Patient JWT (app_role:"patient" or legacy role:"patient") ─────
   const isPatientJwt = (claims.app_role === "patient" || claims.role === "patient") &&
-    claims.session_token && claims.session_id;
+    claims.session_id;
   if (isPatientJwt) {
     // Verify our custom HS256 signature
     const valid = await verifyHS256(jwt, JWT_SECRET);
     if (!valid) throw new AuthError(401, "Invalid patient token signature");
 
-    const sessionId    = claims.session_id as string;
-    const sessionToken = claims.session_token as string;
+    const sessionId = claims.session_id as string;
 
     // Verify session exists and is active in DB
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -134,7 +131,6 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
 
     return {
       userId:       null,
-      sessionToken: sessionToken,
       sessionId:    sessionId,
       role:         "patient",
       jwt,
@@ -162,7 +158,6 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
 
   return {
     userId:       user.id,
-    sessionToken: null,
     sessionId:    null,
     role,
     jwt,

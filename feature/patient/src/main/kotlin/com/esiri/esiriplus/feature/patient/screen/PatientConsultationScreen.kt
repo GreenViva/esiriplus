@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +38,7 @@ import com.esiri.esiriplus.feature.chat.ui.ChatContent
 import com.esiri.esiriplus.feature.chat.ui.ConsultationTimerBar
 import com.esiri.esiriplus.feature.chat.ui.GracePeriodBanner
 import com.esiri.esiriplus.feature.chat.ui.PatientExtensionPrompt
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientConsultationViewModel
 import java.io.File
 
@@ -150,7 +152,7 @@ fun PatientConsultationScreen(
                 IconButton(onClick = { showCallTypeMenu = true }) {
                     Icon(
                         Icons.Default.Phone,
-                        contentDescription = "Start Call",
+                        contentDescription = stringResource(R.string.consultation_start_call),
                         tint = BrandTeal,
                     )
                 }
@@ -159,7 +161,7 @@ fun PatientConsultationScreen(
                     onDismissRequest = { showCallTypeMenu = false },
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Voice Call", color = Color.Black) },
+                        text = { Text(stringResource(R.string.consultation_voice_call), color = Color.Black) },
                         onClick = {
                             showCallTypeMenu = false
                             onStartCall(uiState.consultationId, "AUDIO")
@@ -169,7 +171,7 @@ fun PatientConsultationScreen(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text("Video Call", color = Color.Black) },
+                        text = { Text(stringResource(R.string.consultation_video_call), color = Color.Black) },
                         onClick = {
                             showCallTypeMenu = false
                             onStartCall(uiState.consultationId, "VIDEO")
@@ -227,7 +229,7 @@ fun PatientConsultationScreen(
         onDismissRequest = { showAttachmentMenu = false },
     ) {
         DropdownMenuItem(
-            text = { Text("Camera", color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_camera), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
                 val hasCameraPermission = ContextCompat.checkSelfPermission(
@@ -247,7 +249,7 @@ fun PatientConsultationScreen(
             },
         )
         DropdownMenuItem(
-            text = { Text("Gallery", color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_gallery), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -268,7 +270,7 @@ fun PatientConsultationScreen(
             },
         )
         DropdownMenuItem(
-            text = { Text("Document", color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_document), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
                 documentPickerLauncher.launch("application/*")

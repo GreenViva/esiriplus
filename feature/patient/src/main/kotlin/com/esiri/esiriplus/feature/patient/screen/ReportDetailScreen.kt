@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.core.domain.model.PatientReport
 import com.esiri.esiriplus.feature.patient.util.ReportPdfGenerator
 import com.esiri.esiriplus.feature.patient.viewmodel.ReportDetailViewModel
@@ -85,13 +87,13 @@ fun ReportDetailScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.report_detail_back),
                     tint = Color.Black,
                 )
             }
             Spacer(Modifier.width(4.dp))
             Text(
-                text = "Consultation Report",
+                text = stringResource(R.string.report_detail_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -105,7 +107,7 @@ fun ReportDetailScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
+                        contentDescription = stringResource(R.string.report_detail_share),
                         tint = BrandTeal,
                     )
                 }
@@ -127,7 +129,7 @@ fun ReportDetailScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = uiState.error ?: "Error",
+                        text = uiState.error ?: stringResource(R.string.report_detail_error_default),
                         color = Color.Red,
                         fontSize = 14.sp,
                     )
@@ -164,7 +166,7 @@ fun ReportDetailScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "Download PDF",
+                        text = stringResource(R.string.report_detail_download_pdf),
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -189,7 +191,7 @@ private fun ReportContent(report: PatientReport) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "ESIRII HEALTH",
+                    text = stringResource(R.string.report_detail_esirii_health),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -197,7 +199,7 @@ private fun ReportContent(report: PatientReport) {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Telemedicine Consultation Report",
+                    text = stringResource(R.string.report_detail_telemedicine_report),
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.9f),
                 )
@@ -217,7 +219,7 @@ private fun ReportContent(report: PatientReport) {
             ) {
                 Column {
                     Text(
-                        text = "CONSULTATION REPORT",
+                        text = stringResource(R.string.report_detail_consultation_report_label),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = BrandTeal,
@@ -225,7 +227,7 @@ private fun ReportContent(report: PatientReport) {
                     )
                     if (report.verificationCode.isNotBlank()) {
                         Text(
-                            text = "Ref: ${report.verificationCode}",
+                            text = stringResource(R.string.report_detail_ref_format, report.verificationCode),
                             fontSize = 11.sp,
                             color = LabelGrey,
                         )
@@ -247,38 +249,38 @@ private fun ReportContent(report: PatientReport) {
         Spacer(Modifier.height(16.dp))
 
         // Section 1: Patient Information
-        SectionHeader("1. Patient Information")
+        SectionHeader(stringResource(R.string.report_detail_section_patient_info))
         Spacer(Modifier.height(8.dp))
         if (report.patientSessionId.isNotBlank()) {
-            InfoRow("Patient ID", report.patientSessionId.take(12) + "...")
+            InfoRow(stringResource(R.string.report_detail_patient_id), report.patientSessionId.take(12) + "...")
         }
         if (report.consultationDate > 0) {
-            InfoRow("Consultation Date", formatDate(report.consultationDate))
+            InfoRow(stringResource(R.string.report_detail_consultation_date), formatDate(report.consultationDate))
         }
-        InfoRow("Consultation Type", "Telemedicine")
+        InfoRow(stringResource(R.string.report_detail_consultation_type), stringResource(R.string.report_detail_telemedicine))
 
         Spacer(Modifier.height(20.dp))
 
         // Section 2: Presenting Symptoms
-        SectionHeader("2. Presenting Symptoms")
+        SectionHeader(stringResource(R.string.report_detail_section_symptoms))
         Spacer(Modifier.height(8.dp))
         ProseBlock(
-            report.presentingSymptoms.ifBlank { "No presenting symptoms recorded." },
+            report.presentingSymptoms.ifBlank { stringResource(R.string.report_detail_no_symptoms) },
         )
 
         Spacer(Modifier.height(20.dp))
 
         // Section 3: Diagnosis and Assessment
-        SectionHeader("3. Diagnosis and Assessment")
+        SectionHeader(stringResource(R.string.report_detail_section_diagnosis))
         Spacer(Modifier.height(8.dp))
         if (report.diagnosedProblem.isNotBlank()) {
-            InfoRow("Primary Diagnosis", report.diagnosedProblem)
+            InfoRow(stringResource(R.string.report_detail_primary_diagnosis), report.diagnosedProblem)
         }
         if (report.category.isNotBlank()) {
-            InfoRow("Category", report.category)
+            InfoRow(stringResource(R.string.report_detail_category), report.category)
         }
         if (report.severity.isNotBlank()) {
-            InfoRow("Severity", report.severity)
+            InfoRow(stringResource(R.string.report_detail_severity), report.severity)
         }
         if (report.diagnosisAssessment.isNotBlank()) {
             Spacer(Modifier.height(8.dp))
@@ -288,20 +290,20 @@ private fun ReportContent(report: PatientReport) {
         Spacer(Modifier.height(20.dp))
 
         // Section 4: Treatment Plan
-        SectionHeader("4. Treatment Plan")
+        SectionHeader(stringResource(R.string.report_detail_section_treatment))
         Spacer(Modifier.height(8.dp))
         ProseBlock(
-            report.treatmentPlan.ifBlank { "No treatment plan specified." },
+            report.treatmentPlan.ifBlank { stringResource(R.string.report_detail_no_treatment) },
         )
 
         Spacer(Modifier.height(20.dp))
 
         // Section 5: Follow-up Instructions
-        SectionHeader("5. Follow-up Instructions")
+        SectionHeader(stringResource(R.string.report_detail_section_followup))
         Spacer(Modifier.height(8.dp))
         InfoRow(
-            "Follow-up Recommended",
-            if (report.followUpRecommended) "Yes" else "No",
+            stringResource(R.string.report_detail_followup_recommended),
+            if (report.followUpRecommended) stringResource(R.string.report_detail_yes) else stringResource(R.string.report_detail_no),
         )
         if (report.followUpInstructions.isNotBlank()) {
             Spacer(Modifier.height(8.dp))
@@ -310,7 +312,7 @@ private fun ReportContent(report: PatientReport) {
         if (report.furtherNotes.isNotBlank()) {
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Additional Notes:",
+                text = stringResource(R.string.report_detail_additional_notes),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black,
@@ -322,7 +324,7 @@ private fun ReportContent(report: PatientReport) {
         Spacer(Modifier.height(20.dp))
 
         // Section 6: Telemedicine Disclaimer
-        SectionHeader("6. Telemedicine Disclaimer")
+        SectionHeader(stringResource(R.string.report_detail_section_disclaimer))
         Spacer(Modifier.height(8.dp))
         Surface(
             shape = RoundedCornerShape(8.dp),
@@ -330,9 +332,7 @@ private fun ReportContent(report: PatientReport) {
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
-                text = "This consultation was conducted via telemedicine. The assessment and recommendations " +
-                    "are based on the information provided during the virtual consultation. If symptoms persist " +
-                    "or worsen, please seek in-person medical attention.",
+                text = stringResource(R.string.report_detail_disclaimer_text),
                 modifier = Modifier.padding(12.dp),
                 fontSize = 12.sp,
                 color = Color(0xFF92400E),
@@ -354,14 +354,14 @@ private fun ReportContent(report: PatientReport) {
                 color = Color.Black,
             )
             Text(
-                text = "Attending Physician",
+                text = stringResource(R.string.report_detail_attending_physician),
                 fontSize = 13.sp,
                 color = LabelGrey,
             )
             Spacer(Modifier.height(8.dp))
         }
         Text(
-            text = "Electronically signed",
+            text = stringResource(R.string.report_detail_electronically_signed),
             fontSize = 11.sp,
             color = LabelGrey,
             fontStyle = FontStyle.Italic,
@@ -382,7 +382,7 @@ private fun ReportContent(report: PatientReport) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "Generated by ESIRII Health Platform",
+                    text = stringResource(R.string.report_detail_generated_by),
                     fontSize = 11.sp,
                     color = LabelGrey,
                     textAlign = TextAlign.Center,
@@ -459,11 +459,11 @@ private suspend fun shareReportPdf(context: Context, report: PatientReport) {
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             withContext(Dispatchers.Main) {
-                context.startActivity(Intent.createChooser(intent, "Share Report"))
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.report_detail_share_chooser)))
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Failed to generate PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.report_detail_pdf_error, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }

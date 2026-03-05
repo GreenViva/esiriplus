@@ -107,14 +107,14 @@ fun PatientSetupScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Patient Setup",
+                    text = stringResource(R.string.patient_setup_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = DarkText,
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "Step 3 of 3",
+                    text = stringResource(R.string.patient_setup_step),
                     fontSize = 13.sp,
                     color = SubtitleGray,
                     modifier = Modifier.padding(end = 16.dp),
@@ -132,7 +132,7 @@ fun PatientSetupScreen(
                         CircularProgressIndicator(color = BrandTeal)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Creating your account...",
+                            text = stringResource(R.string.patient_setup_creating_account),
                             fontSize = 14.sp,
                             color = SubtitleGray,
                         )
@@ -156,7 +156,7 @@ fun PatientSetupScreen(
                             onClick = viewModel::retryCreateSession,
                             colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                         ) {
-                            Text("Retry")
+                            Text(stringResource(R.string.patient_setup_retry))
                         }
                     }
                 }
@@ -202,14 +202,14 @@ fun PatientSetupScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Generating PDF...",
+                                    text = stringResource(R.string.patient_setup_generating_pdf),
                                     color = BrandTeal,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp,
                                 )
                             } else {
                                 Text(
-                                    text = "\u2B07  Download ID Card",
+                                    text = stringResource(R.string.patient_setup_download_id_card),
                                     color = if (state.canDownloadPdf) BrandTeal else SubtitleGray.copy(alpha = 0.4f),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp,
@@ -218,7 +218,7 @@ fun PatientSetupScreen(
                         }
                         if (!state.canDownloadPdf) {
                             Text(
-                                text = "Fill Sex and Age Group to download",
+                                text = stringResource(R.string.patient_setup_fill_to_download),
                                 fontSize = 12.sp,
                                 color = SubtitleGray,
                                 modifier = Modifier.padding(top = 4.dp),
@@ -256,13 +256,13 @@ fun PatientSetupScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         Text(
-                            text = "Health Profile (Optional)",
+                            text = stringResource(R.string.patient_setup_health_profile_title),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkText,
                         )
                         Text(
-                            text = "Help your doctor to serve you better",
+                            text = stringResource(R.string.patient_setup_health_profile_subtitle),
                             fontSize = 14.sp,
                             color = SubtitleGray,
                         )
@@ -270,22 +270,26 @@ fun PatientSetupScreen(
                         // Sex selection
                         Column {
                             Text(
-                                text = "Sex",
+                                text = stringResource(R.string.patient_setup_sex_label),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = LabelColor,
                                 modifier = Modifier.padding(bottom = 8.dp),
                             )
+                            val sexOptions = listOf(
+                                "Male" to stringResource(R.string.patient_setup_male),
+                                "Female" to stringResource(R.string.patient_setup_female),
+                            )
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                             ) {
-                                listOf("Male", "Female").forEach { sex ->
+                                sexOptions.forEach { (sex, label) ->
                                     FilterChip(
                                         selected = state.sex == sex,
                                         onClick = { viewModel.onSexChanged(sex) },
                                         label = {
                                             Text(
-                                                text = sex,
+                                                text = label,
                                                 fontSize = 14.sp,
                                                 fontWeight = FontWeight.Medium,
                                             )
@@ -303,7 +307,7 @@ fun PatientSetupScreen(
                         // Age Group dropdown
                         Column {
                             Text(
-                                text = "Age Group",
+                                text = stringResource(R.string.patient_setup_age_group_label),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = LabelColor,
@@ -320,7 +324,7 @@ fun PatientSetupScreen(
                                     readOnly = true,
                                     placeholder = {
                                         Text(
-                                            text = "Select age group",
+                                            text = stringResource(R.string.patient_setup_age_group_placeholder),
                                             color = SubtitleGray,
                                             fontSize = 15.sp,
                                         )
@@ -356,7 +360,7 @@ fun PatientSetupScreen(
                         // Blood Type dropdown
                         Column {
                             Text(
-                                text = "Blood Type",
+                                text = stringResource(R.string.patient_setup_blood_type_label),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = LabelColor,
@@ -373,7 +377,7 @@ fun PatientSetupScreen(
                                     readOnly = true,
                                     placeholder = {
                                         Text(
-                                            text = "Select blood type",
+                                            text = stringResource(R.string.patient_setup_blood_type_placeholder),
                                             color = SubtitleGray,
                                             fontSize = 15.sp,
                                         )
@@ -409,7 +413,7 @@ fun PatientSetupScreen(
                         // Allergies
                         Column {
                             Text(
-                                text = "Allergies",
+                                text = stringResource(R.string.patient_setup_allergies_label),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = LabelColor,
@@ -420,7 +424,7 @@ fun PatientSetupScreen(
                                 onValueChange = viewModel::onAllergiesChanged,
                                 placeholder = {
                                     Text(
-                                        text = "e.g. Penicillin, Peanuts",
+                                        text = stringResource(R.string.patient_setup_allergies_placeholder),
                                         color = SubtitleGray,
                                         fontSize = 15.sp,
                                     )
@@ -435,7 +439,7 @@ fun PatientSetupScreen(
                         // Chronic Conditions
                         Column {
                             Text(
-                                text = "Chronic Conditions",
+                                text = stringResource(R.string.patient_setup_chronic_conditions_label),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = LabelColor,
@@ -446,7 +450,7 @@ fun PatientSetupScreen(
                                 onValueChange = viewModel::onChronicConditionsChanged,
                                 placeholder = {
                                     Text(
-                                        text = "e.g. Diabetes, Hypertension",
+                                        text = stringResource(R.string.patient_setup_chronic_conditions_placeholder),
                                         color = SubtitleGray,
                                         fontSize = 15.sp,
                                     )
@@ -507,7 +511,7 @@ fun PatientSetupScreen(
                         )
                     } else {
                         Text(
-                            text = "Continue",
+                            text = stringResource(R.string.patient_setup_continue),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 16.sp,
                         )
@@ -550,7 +554,7 @@ private fun PatientIdCard(
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Your Patient ID",
+                    text = stringResource(R.string.patient_setup_your_patient_id),
                     color = Color.White.copy(alpha = 0.85f),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -578,7 +582,7 @@ private fun PatientIdCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Copy",
+                        text = stringResource(R.string.patient_setup_copy),
                         color = Color.White,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
@@ -587,7 +591,7 @@ private fun PatientIdCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Save this ID for future access",
+                text = stringResource(R.string.patient_setup_save_id_hint),
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 12.sp,
             )
@@ -671,7 +675,7 @@ private fun RecoveryQuestionsCard(
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Set Up \u203A",
+                text = stringResource(R.string.patient_setup_set_up),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = BrandTeal,
@@ -682,6 +686,6 @@ private fun RecoveryQuestionsCard(
 
 private fun copyToClipboard(context: Context, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    clipboard.setPrimaryClip(ClipData.newPlainText("Patient ID", text))
-    Toast.makeText(context, "Patient ID copied", Toast.LENGTH_SHORT).show()
+    clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.patient_setup_clipboard_label), text))
+    Toast.makeText(context, context.getString(R.string.patient_setup_id_copied), Toast.LENGTH_SHORT).show()
 }

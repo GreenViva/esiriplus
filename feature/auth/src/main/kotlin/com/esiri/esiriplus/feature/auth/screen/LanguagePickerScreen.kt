@@ -39,17 +39,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.esiri.esiriplus.core.common.locale.LanguagePreferences
+import androidx.core.os.LocaleListCompat
 import com.esiri.esiriplus.core.common.locale.SupportedLanguage
 import com.esiri.esiriplus.core.common.locale.supportedLanguages
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 private val BrandTeal = Color(0xFF2A9D8F)
 
@@ -63,7 +66,10 @@ fun LanguagePickerScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedCode by remember {
-        mutableStateOf(LanguagePreferences.getLanguageCode(context))
+        val locales = AppCompatDelegate.getApplicationLocales()
+        mutableStateOf(
+            if (locales.isEmpty) Locale.getDefault().language else locales[0]?.language ?: "en"
+        )
     }
     val recommended = remember { supportedLanguages.filter { it.isRecommended } }
     val other = remember { supportedLanguages.filter { !it.isRecommended } }
@@ -100,7 +106,7 @@ fun LanguagePickerScreen(
                         }
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "Select Language / Chagua Lugha",
+                            text = stringResource(R.string.lang_picker_title),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
@@ -109,7 +115,7 @@ fun LanguagePickerScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Choose your preferred language for the app",
+                            text = stringResource(R.string.lang_picker_subtitle),
                             fontSize = 14.sp,
                             color = Color.Black,
                             textAlign = TextAlign.Center,
@@ -121,7 +127,7 @@ fun LanguagePickerScreen(
                     // RECOMMENDED section
                     item {
                         Text(
-                            text = "RECOMMENDED",
+                            text = stringResource(R.string.lang_picker_recommended),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = BrandTeal,
@@ -142,7 +148,7 @@ fun LanguagePickerScreen(
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "OTHER LANGUAGES / LUGHA NYINGINE",
+                            text = stringResource(R.string.lang_picker_other_languages),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
@@ -155,10 +161,9 @@ fun LanguagePickerScreen(
                             language = language,
                             isSelected = false,
                             onClick = {
+                                val msg = context.getString(R.string.lang_picker_coming_soon, language.displayName)
                                 scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        "${language.displayName} - Coming Soon / Inakuja Hivi Karibuni"
-                                    )
+                                    snackbarHostState.showSnackbar(msg)
                                 }
                             },
                         )
@@ -181,7 +186,9 @@ fun LanguagePickerScreen(
                 ) {
                     Button(
                         onClick = {
-                            LanguagePreferences.setLanguageCode(context, selectedCode)
+                            AppCompatDelegate.setApplicationLocales(
+                                LocaleListCompat.forLanguageTags(selectedCode),
+                            )
                             onContinue()
                         },
                         modifier = Modifier
@@ -194,7 +201,7 @@ fun LanguagePickerScreen(
                         ),
                     ) {
                         Text(
-                            text = "Continue / Endelea >",
+                            text = stringResource(R.string.lang_picker_continue),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -202,7 +209,7 @@ fun LanguagePickerScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     TextButton(onClick = onBack) {
                         Text(
-                            text = "Back / Rudi",
+                            text = stringResource(R.string.lang_picker_back),
                             fontSize = 14.sp,
                             color = BrandTeal,
                         )

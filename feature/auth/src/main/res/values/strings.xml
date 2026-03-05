@@ -4,4 +4,244 @@
     <string name="recovery_questions_hint">Set up questions to recover your Patient ID if lost</string>
     <string name="recovery_questions_warning">Without recovery questions, you won\'t be able to recover your Patient ID if lost</string>
     <string name="recovery_questions_saved">Recovery questions saved</string>
+
+    <!-- LanguageSelectionScreen (bilingual - used before language is set) -->
+    <string name="lang_select_swahili_button">Chagua lugha ></string>
+    <string name="lang_select_english_button">Choose your Language ></string>
+
+    <!-- LanguagePickerScreen (bilingual - used before language is set) -->
+    <string name="lang_picker_title">Select Language / Chagua Lugha</string>
+    <string name="lang_picker_subtitle">Choose your preferred language for the app</string>
+    <string name="lang_picker_recommended">RECOMMENDED</string>
+    <string name="lang_picker_other_languages">OTHER LANGUAGES / LUGHA NYINGINE</string>
+    <string name="lang_picker_coming_soon">%1$s - Coming Soon / Inakuja Hivi Karibuni</string>
+    <string name="lang_picker_continue">Continue / Endelea ></string>
+    <string name="lang_picker_back">Back / Rudi</string>
+
+    <!-- SplashScreen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_tagline_en">Your Health, Our Priority</string>
+    <string name="splash_tap_to_continue">Tap anywhere to continue</string>
+
+    <!-- RoleSelectionScreen -->
+    <string name="role_welcome_title">Welcome to eSIRI Plus</string>
+    <string name="role_welcome_subtitle">How would you like to proceed?</string>
+    <string name="role_for_patients">FOR PATIENTS</string>
+    <string name="role_new_platform">New to the platform?</string>
+    <string name="role_new_platform_subtitle">Click here to get started</string>
+    <string name="role_have_my_id">I have my ID</string>
+    <string name="role_access_records">Access my records</string>
+    <string name="role_id_recovery_note">You must have set up recovery questions to log in with your Patient ID.</string>
+    <string name="role_forgot_patient_id">Forgot your Patient ID?</string>
+    <string name="role_or_divider">or</string>
+    <string name="role_doctor_portal">DOCTOR PORTAL</string>
+    <string name="role_sign_in">Sign In</string>
+    <string name="role_sign_up">Sign Up</string>
+    <string name="role_forgot_password">Forgot your password?</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. All rights reserved.</string>
+
+    <!-- DoctorLoginScreen -->
+    <string name="doctor_login_title">Doctor Portal</string>
+    <string name="doctor_login_subtitle">Sign in to manage your consultations</string>
+    <string name="doctor_login_sign_in_tab">Sign In</string>
+    <string name="doctor_login_register_tab">Register</string>
+    <string name="doctor_login_email_label">Email</string>
+    <string name="doctor_login_email_placeholder">doctor@example.com</string>
+    <string name="doctor_login_password_label">Password</string>
+    <string name="doctor_login_hide_password">Hide password</string>
+    <string name="doctor_login_show_password">Show password</string>
+    <string name="doctor_login_sign_in_button">Sign In</string>
+    <string name="doctor_login_go_back">Go Back</string>
+
+    <!-- DeviceMismatchScreen -->
+    <string name="device_mismatch_title">Device Not Authorized</string>
+    <string name="device_mismatch_default_error">Device bound to another doctor</string>
+
+    <!-- BannedDoctorScreen -->
+    <string name="banned_title">Account Banned</string>
+    <string name="banned_message">You have been banned from using this application.</string>
+    <string name="banned_reason_label">Reason</string>
+    <string name="banned_complaint_title">Have a complaint?</string>
+    <string name="banned_appeal_with_date">You may contact our support team to appeal this decision within 7 days (by %1$s).</string>
+    <string name="banned_appeal_no_date">You may contact our support team to appeal this decision within 7 days of the ban.</string>
+    <string name="banned_support_email">support@esiriplus.com</string>
+    <string name="banned_sign_out">Sign Out</string>
+
+    <!-- SuspendedDoctorScreen -->
+    <string name="suspended_title">Account Suspended</string>
+    <string name="suspended_message">Your account has been temporarily suspended.</string>
+    <string name="suspended_reason_label">Reason</string>
+    <string name="suspended_details_title">Suspension Details</string>
+    <string name="suspended_time_remaining">Time remaining: %1$s</string>
+    <string name="suspended_lifted_on">Your suspension will be automatically lifted on %1$s.</string>
+    <string name="suspended_lifted_when_ends">Your suspension will be automatically lifted when the period ends.</string>
+    <string name="suspended_sign_out">Sign Out</string>
+
+    <!-- WarningDoctorScreen -->
+    <string name="warning_title">Warning Notice</string>
+    <string name="warning_message">You have received a warning from the administration.</string>
+    <string name="warning_details_label">Warning Details</string>
+    <string name="warning_take_note">Please take note</string>
+    <string name="warning_review_text">Please review this warning carefully. Repeated violations may result in suspension or a permanent ban of your account.</string>
+    <string name="warning_acknowledge_button">I Understand</string>
+    <string name="warning_sign_out">Sign Out</string>
+
+    <!-- PatientOnboardingScreen -->
+    <string name="patient_onboarding_title">Patient Registration</string>
+    <string name="patient_onboarding_full_name">Full Name</string>
+    <string name="patient_onboarding_phone">Phone Number</string>
+    <string name="patient_onboarding_continue">Continue</string>
+
+    <!-- PatientSetupScreen -->
+    <string name="patient_setup_title">Patient Setup</string>
+    <string name="patient_setup_step">Step 3 of 3</string>
+    <string name="patient_setup_creating_account">Creating your account\u2026</string>
+    <string name="patient_setup_retry">Retry</string>
+    <string name="patient_setup_your_patient_id">Your Patient ID</string>
+    <string name="patient_setup_copy">Copy</string>
+    <string name="patient_setup_save_id_hint">Save this ID for future access</string>
+    <string name="patient_setup_set_up">Set Up \u203A</string>
+    <string name="patient_setup_health_profile_title">Health Profile (Optional)</string>
+    <string name="patient_setup_health_profile_subtitle">Help your doctor to serve you better</string>
+    <string name="patient_setup_sex_label">Sex</string>
+    <string name="patient_setup_male">Male</string>
+    <string name="patient_setup_female">Female</string>
+    <string name="patient_setup_age_group_label">Age Group</string>
+    <string name="patient_setup_age_group_placeholder">Select age group</string>
+    <string name="patient_setup_blood_type_label">Blood Type</string>
+    <string name="patient_setup_blood_type_placeholder">Select blood type</string>
+    <string name="patient_setup_allergies_label">Allergies</string>
+    <string name="patient_setup_allergies_placeholder">e.g. Penicillin, Peanuts</string>
+    <string name="patient_setup_chronic_conditions_label">Chronic Conditions</string>
+    <string name="patient_setup_chronic_conditions_placeholder">e.g. Diabetes, Hypertension</string>
+    <string name="patient_setup_continue">Continue</string>
+    <string name="patient_setup_generating_pdf">Generating PDF\u2026</string>
+    <string name="patient_setup_download_id_card">\u2B07  Download ID Card</string>
+    <string name="patient_setup_fill_to_download">Fill Sex and Age Group to download</string>
+    <string name="patient_setup_clipboard_label">Patient ID</string>
+    <string name="patient_setup_id_copied">Patient ID copied</string>
+    <string name="patient_setup_id_saved_toast">ID Card saved to Downloads</string>
+
+    <!-- TermsScreen -->
+    <string name="terms_back_content_desc">Back</string>
+    <string name="terms_title">Terms &amp; Privacy Policy</string>
+    <string name="terms_subtitle">Please read carefully before continuing</string>
+    <string name="terms_legal_document">eSIRI Plus Legal Document</string>
+    <string name="terms_checkbox_text">I have read, understood, and agree to the Terms of Service, Privacy Policy, Medical Disclaimer, and Informed Consent</string>
+    <string name="terms_agree_button">I Agree &amp; Continue</string>
+
+    <!-- DoctorTermsScreen -->
+    <string name="doctor_terms_title">Provider Terms &amp; Policy</string>
+    <string name="doctor_terms_subtitle">Please read carefully before continuing</string>
+    <string name="doctor_terms_legal_document">eSIRI Plus Provider Document</string>
+    <string name="doctor_terms_checkbox_text">I have read, understood, and agree to the Provider Terms of Service, Privacy Policy, Practice Guidelines, and Informed Consent</string>
+    <string name="doctor_terms_agree_button">I Agree &amp; Continue</string>
+    <string name="doctor_terms_back_content_desc">Back</string>
+
+    <!-- SecurityQuestionsSetupScreen -->
+    <string name="security_setup_topbar_title">Recovery Questions</string>
+    <string name="security_setup_title">Set Up Security Questions</string>
+    <string name="security_setup_subtitle">These questions will help you recover your Patient ID if you forget it.</string>
+    <string name="security_setup_question_progress">Question %1$d of %2$d</string>
+    <string name="security_setup_answer_label">Your answer</string>
+    <string name="security_setup_save_button">Save Security Questions</string>
+    <string name="security_setup_next_button">Next</string>
+    <string name="security_setup_skip">Skip for now</string>
+
+    <!-- PatientRecoveryScreen -->
+    <string name="recovery_topbar_title">Recover Patient ID</string>
+    <string name="recovery_back_content_desc">Back</string>
+    <string name="recovery_rate_limited_title">Too many attempts</string>
+    <string name="recovery_rate_limited_message">You have exceeded the maximum number of recovery attempts. Please try again in 24 hours.</string>
+    <string name="recovery_instructions">Answer all 5 security questions to recover your account</string>
+    <string name="recovery_question_progress">Question %1$d of %2$d</string>
+    <string name="recovery_answer_label">Your answer</string>
+    <string name="recovery_attempts_remaining">%1$d attempt(s) remaining</string>
+    <string name="recovery_submit_button">Recover Account</string>
+    <string name="recovery_next_button">Next</string>
+    <string name="recovery_success_title">Account Recovered!</string>
+    <string name="recovery_success_message">Your Patient ID has been recovered. Please save it somewhere safe.</string>
+    <string name="recovery_your_patient_id">Your Patient ID</string>
+    <string name="recovery_copy_to_clipboard">Copy to Clipboard</string>
+    <string name="recovery_id_copied_toast">Patient ID copied!</string>
+    <string name="recovery_continue_to_dashboard">Continue to Dashboard</string>
+
+    <!-- AccessRecordsScreen -->
+    <string name="access_records_back_content_desc">Back</string>
+    <string name="access_records_back_button">Back</string>
+    <string name="access_records_title">Access Your Records</string>
+    <string name="access_records_subtitle">Enter your patient ID to view your consultation history</string>
+    <string name="access_records_button">Access My Records</string>
+    <string name="access_records_no_id">Don\'t have an ID?</string>
+
+    <!-- DoctorRegistrationScreen -->
+    <string name="doctor_reg_portal_title">Doctor Portal</string>
+    <string name="doctor_reg_portal_subtitle">Join our network of verified healthcare professionals</string>
+    <string name="doctor_reg_sign_in_tab">Sign In</string>
+    <string name="doctor_reg_register_tab">Register</string>
+    <string name="doctor_reg_step1_title">Create Your Account</string>
+    <string name="doctor_reg_step1_subtitle">Enter your email and create a secure password</string>
+    <string name="doctor_reg_step2_title">Profile Photo</string>
+    <string name="doctor_reg_step2_subtitle">Upload a professional photo of yourself</string>
+    <string name="doctor_reg_step3_title">Personal Information</string>
+    <string name="doctor_reg_step3_subtitle">Tell us about yourself</string>
+    <string name="doctor_reg_step4_title">Location &amp; Languages</string>
+    <string name="doctor_reg_step4_subtitle">Where are you based and what languages do you speak?</string>
+    <string name="doctor_reg_step5_title">Professional Details</string>
+    <string name="doctor_reg_step5_subtitle">Your qualifications and experience</string>
+    <string name="doctor_reg_step6_title">Services Offered</string>
+    <string name="doctor_reg_step6_subtitle">Services available for your specialty</string>
+    <string name="doctor_reg_step7_title">Upload Credentials</string>
+    <string name="doctor_reg_step7_subtitle">Upload your medical license and certificates for verification</string>
+    <string name="doctor_reg_step8_title">Biometric Security</string>
+    <string name="doctor_reg_step8_subtitle">Set up fingerprint or face unlock for your account</string>
+    <string name="doctor_reg_email_label">Email</string>
+    <string name="doctor_reg_password_label">Password</string>
+    <string name="doctor_reg_confirm_password_label">Confirm Password</string>
+    <string name="doctor_reg_photo_hint">Tap to select a photo (JPG, PNG, max 5MB)</string>
+    <string name="doctor_reg_profile_photo_cd">Profile photo</string>
+    <string name="doctor_reg_select_photo_cd">Select photo</string>
+    <string name="doctor_reg_full_name_label">Full Name</string>
+    <string name="doctor_reg_full_name_placeholder">Dr. John Doe</string>
+    <string name="doctor_reg_phone_label">Phone Number</string>
+    <string name="doctor_reg_specialty_label">Medical Specialty</string>
+    <string name="doctor_reg_specialty_placeholder">Select your specialty</string>
+    <string name="doctor_reg_specialist_field_label">Specialist Field</string>
+    <string name="doctor_reg_specialist_field_placeholder">e.g. Dentist, Cardiologist, Dermatologist</string>
+    <string name="doctor_reg_country_label">Country</string>
+    <string name="doctor_reg_languages_label">Languages You Speak</string>
+    <string name="doctor_reg_common_languages">COMMON LANGUAGES</string>
+    <string name="doctor_reg_other_languages">OTHER LANGUAGES</string>
+    <string name="doctor_reg_languages_selected">%1$d language(s) selected</string>
+    <string name="doctor_reg_license_label">Medical License Number</string>
+    <string name="doctor_reg_license_placeholder">e.g., TZ-MED-12345</string>
+    <string name="doctor_reg_experience_label">Years of Experience</string>
+    <string name="doctor_reg_bio_label">Professional Bio</string>
+    <string name="doctor_reg_bio_placeholder">Tell patients about your background, approach, and areas of expertise\u2026</string>
+    <string name="doctor_reg_services_available">%1$d services available</string>
+    <string name="doctor_reg_select_services">Select the services you will offer:</string>
+    <string name="doctor_reg_services_selected">%1$d of %2$d service(s) selected</string>
+    <string name="doctor_reg_license_upload_title">Medical License</string>
+    <string name="doctor_reg_license_upload_subtitle">Click to upload PDF or image</string>
+    <string name="doctor_reg_certificates_upload_title">Additional Certificates</string>
+    <string name="doctor_reg_certificates_upload_subtitle">Optional: specialization certificates</string>
+    <string name="doctor_reg_selected_suffix">(selected)</string>
+    <string name="doctor_reg_credentials_review_notice">Your credentials will be reviewed by our team. You will be notified once your profile is verified.</string>
+    <string name="doctor_reg_back_button">Back</string>
+    <string name="doctor_reg_registering">Registering\u2026</string>
+    <string name="doctor_reg_complete_registration">Complete Registration</string>
+    <string name="doctor_reg_continue">Continue</string>
+    <string name="doctor_reg_hide_password">Hide password</string>
+    <string name="doctor_reg_show_password">Show password</string>
+
+    <!-- ViewModel fallback error strings -->
+    <string name="error_login_failed">Login failed</string>
+    <string name="error_generic">An error occurred</string>
+    <string name="error_registration_failed">Registration failed</string>
+    <string name="error_session_create_failed">Failed to create session</string>
+    <string name="error_security_questions_failed">Failed to save security questions.</string>
+    <string name="error_recovery_failed">Recovery failed. Please try again.</string>
+    <string name="error_patient_id_not_found">Patient ID not found. Please check your ID and try again.</string>
+    <string name="error_pdf_generate_failed">Failed to generate PDF</string>
 </resources>

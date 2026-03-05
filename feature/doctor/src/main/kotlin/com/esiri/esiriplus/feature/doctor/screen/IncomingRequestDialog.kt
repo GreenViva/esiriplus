@@ -31,8 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.esiri.esiriplus.feature.doctor.R
 import androidx.compose.ui.window.DialogProperties
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.feature.doctor.viewmodel.IncomingRequestUiState
@@ -103,11 +105,11 @@ fun IncomingRequestDialog(
                 // Title
                 Text(
                     text = when {
-                        state.canRetry -> "Accept Failed"
-                        state.responseStatus == ConsultationRequestStatus.ACCEPTED -> "Request Accepted"
-                        state.responseStatus == ConsultationRequestStatus.REJECTED -> "Request Declined"
-                        state.responseStatus == ConsultationRequestStatus.EXPIRED -> "Request Expired"
-                        else -> "Incoming Consultation Request"
+                        state.canRetry -> stringResource(R.string.request_title_failed)
+                        state.responseStatus == ConsultationRequestStatus.ACCEPTED -> stringResource(R.string.request_title_accepted)
+                        state.responseStatus == ConsultationRequestStatus.REJECTED -> stringResource(R.string.request_title_declined)
+                        state.responseStatus == ConsultationRequestStatus.EXPIRED -> stringResource(R.string.request_title_expired)
+                        else -> stringResource(R.string.request_title_incoming)
                     },
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -120,11 +122,11 @@ fun IncomingRequestDialog(
                 // Subtitle
                 Text(
                     text = when {
-                        state.canRetry -> "Something went wrong. You can retry."
-                        state.responseStatus == ConsultationRequestStatus.ACCEPTED -> "Redirecting to consultation..."
-                        state.responseStatus == ConsultationRequestStatus.REJECTED -> "The patient will be notified."
-                        state.responseStatus == ConsultationRequestStatus.EXPIRED -> "The request time has passed."
-                        else -> "A patient is requesting a consultation. You have ${state.secondsRemaining} seconds to respond."
+                        state.canRetry -> stringResource(R.string.request_subtitle_failed)
+                        state.responseStatus == ConsultationRequestStatus.ACCEPTED -> stringResource(R.string.request_subtitle_accepted)
+                        state.responseStatus == ConsultationRequestStatus.REJECTED -> stringResource(R.string.request_subtitle_declined)
+                        state.responseStatus == ConsultationRequestStatus.EXPIRED -> stringResource(R.string.request_subtitle_expired)
+                        else -> stringResource(R.string.request_subtitle_pending, state.secondsRemaining)
                     },
                     fontSize = 14.sp,
                     color = Color(0xFF6B7280),
@@ -152,7 +154,7 @@ fun IncomingRequestDialog(
                         },
                     ) {
                         Text(
-                            text = "${state.secondsRemaining}s remaining",
+                            text = stringResource(R.string.request_seconds_remaining, state.secondsRemaining),
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
@@ -199,7 +201,7 @@ fun IncomingRequestDialog(
                             shape = RoundedCornerShape(12.dp),
                         ) {
                             Text(
-                                text = "Dismiss",
+                                text = stringResource(R.string.request_dismiss),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF6B7280),
@@ -216,7 +218,7 @@ fun IncomingRequestDialog(
                             ),
                         ) {
                             Text(
-                                text = "Retry",
+                                text = stringResource(R.string.request_retry),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White,
@@ -240,7 +242,7 @@ fun IncomingRequestDialog(
                             border = androidx.compose.foundation.BorderStroke(1.dp, RejectRed),
                         ) {
                             Text(
-                                text = "Decline",
+                                text = stringResource(R.string.request_decline),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = if (state.isResponding) Color.Gray else RejectRed,
@@ -267,7 +269,7 @@ fun IncomingRequestDialog(
                                 Spacer(Modifier.width(8.dp))
                             }
                             Text(
-                                text = "Accept",
+                                text = stringResource(R.string.request_accept),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White,
@@ -306,11 +308,11 @@ private fun PatientInfoCard(state: IncomingRequestUiState) {
             val demographics = listOfNotNull(
                 state.patientAgeGroup,
                 state.patientSex,
-                state.patientBloodGroup?.let { "Blood: $it" },
+                state.patientBloodGroup?.let { stringResource(R.string.request_blood_label, it) },
             ).filter { it.isNotBlank() }
             if (demographics.isNotEmpty()) {
                 Text(
-                    text = "Patient: ${demographics.joinToString(" | ")}",
+                    text = stringResource(R.string.request_patient_label, demographics.joinToString(" | ")),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -320,7 +322,7 @@ private fun PatientInfoCard(state: IncomingRequestUiState) {
             // Symptoms
             if (!state.symptoms.isNullOrBlank()) {
                 Text(
-                    text = "Symptoms: ${state.symptoms}",
+                    text = stringResource(R.string.request_symptoms_label, state.symptoms!!),
                     fontSize = 12.sp,
                     color = Color.Black,
                     maxLines = 3,
@@ -332,7 +334,7 @@ private fun PatientInfoCard(state: IncomingRequestUiState) {
             // Allergies (highlighted)
             if (!state.patientAllergies.isNullOrBlank()) {
                 Text(
-                    text = "Allergies: ${state.patientAllergies}",
+                    text = stringResource(R.string.request_allergies_label, state.patientAllergies!!),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFFDC2626),
@@ -344,7 +346,7 @@ private fun PatientInfoCard(state: IncomingRequestUiState) {
             // Chronic conditions
             if (!state.patientChronicConditions.isNullOrBlank()) {
                 Text(
-                    text = "Conditions: ${state.patientChronicConditions}",
+                    text = stringResource(R.string.request_conditions_label, state.patientChronicConditions!!),
                     fontSize = 12.sp,
                     color = Color(0xFF6B7280),
                     maxLines = 2,

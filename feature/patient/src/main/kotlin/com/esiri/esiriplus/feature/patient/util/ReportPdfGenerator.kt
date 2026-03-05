@@ -8,6 +8,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import com.esiri.esiriplus.core.domain.model.PatientReport
+import com.esiri.esiriplus.feature.patient.R
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -89,9 +90,9 @@ object ReportPdfGenerator {
         bgPaint.color = TEAL
         canvas.drawRect(0f, 0f, PAGE_WIDTH.toFloat(), 80f, bgPaint)
         y = 35f
-        drawCenteredText(canvas, "ESIRII HEALTH", titlePaint, y)
+        drawCenteredText(canvas, context.getString(R.string.pdf_esirii_health), titlePaint, y)
         y += 20f
-        drawCenteredText(canvas, "Telemedicine Consultation Report", subtitlePaint, y)
+        drawCenteredText(canvas, context.getString(R.string.pdf_telemedicine_report), subtitlePaint, y)
         y = 80f
 
         // --- Consultation info bar ---
@@ -99,10 +100,10 @@ object ReportPdfGenerator {
         canvas.drawRect(0f, y, PAGE_WIDTH.toFloat(), y + 35f, bgPaint)
 
         val refPaint = Paint(labelPaint).apply { color = TEAL; textSize = 10f }
-        canvas.drawText("CONSULTATION REPORT", MARGIN, y + 15f, refPaint)
+        canvas.drawText(context.getString(R.string.pdf_consultation_report), MARGIN, y + 15f, refPaint)
         if (report.verificationCode.isNotBlank()) {
             val refSmall = Paint(smallPaint)
-            canvas.drawText("Ref: ${report.verificationCode}", MARGIN, y + 28f, refSmall)
+            canvas.drawText(context.getString(R.string.pdf_ref_format, report.verificationCode), MARGIN, y + 28f, refSmall)
         }
         if (report.consultationDate > 0) {
             val datePaint = Paint(bodyPaint).apply { textSize = 10f }
@@ -132,41 +133,41 @@ object ReportPdfGenerator {
 
         // --- Section 1: Patient Information ---
         y = ensureSpace(80f)
-        canvas.drawText("1. Patient Information", MARGIN, y, sectionPaint)
+        canvas.drawText(context.getString(R.string.pdf_section_patient_info), MARGIN, y, sectionPaint)
         y += 18f
 
         if (report.patientSessionId.isNotBlank()) {
-            y = drawInfoRow(canvas, "Patient ID", report.patientSessionId.take(12) + "...", labelPaint, bodyPaint, y)
+            y = drawInfoRow(canvas, context.getString(R.string.pdf_patient_id), report.patientSessionId.take(12) + "...", labelPaint, bodyPaint, y)
         }
         if (report.consultationDate > 0) {
-            y = drawInfoRow(canvas, "Consultation Date", formatDate(report.consultationDate), labelPaint, bodyPaint, y)
+            y = drawInfoRow(canvas, context.getString(R.string.pdf_consultation_date), formatDate(report.consultationDate), labelPaint, bodyPaint, y)
         }
-        y = drawInfoRow(canvas, "Consultation Type", "Telemedicine", labelPaint, bodyPaint, y)
+        y = drawInfoRow(canvas, context.getString(R.string.pdf_consultation_type), context.getString(R.string.pdf_telemedicine), labelPaint, bodyPaint, y)
         y += 16f
 
         // --- Section 2: Presenting Symptoms ---
         y = ensureSpace(60f)
-        canvas.drawText("2. Presenting Symptoms", MARGIN, y, sectionPaint)
+        canvas.drawText(context.getString(R.string.pdf_section_symptoms), MARGIN, y, sectionPaint)
         y += 14f
-        val symptomsText = report.presentingSymptoms.ifBlank { "No presenting symptoms recorded." }
+        val symptomsText = report.presentingSymptoms.ifBlank { context.getString(R.string.pdf_no_symptoms) }
         y = drawProseBlock(canvas, symptomsText, bodyPaint, bgPaint, y) { needed -> ensureSpace(needed) }
         y += 16f
 
         // --- Section 3: Diagnosis and Assessment ---
         y = ensureSpace(80f)
-        canvas.drawText("3. Diagnosis and Assessment", MARGIN, y, sectionPaint)
+        canvas.drawText(context.getString(R.string.pdf_section_diagnosis), MARGIN, y, sectionPaint)
         y += 18f
         if (report.diagnosedProblem.isNotBlank()) {
             y = ensureSpace(16f)
-            y = drawInfoRow(canvas, "Primary Diagnosis", report.diagnosedProblem, labelPaint, bodyPaint, y)
+            y = drawInfoRow(canvas, context.getString(R.string.pdf_primary_diagnosis), report.diagnosedProblem, labelPaint, bodyPaint, y)
         }
         if (report.category.isNotBlank()) {
             y = ensureSpace(16f)
-            y = drawInfoRow(canvas, "Category", report.category, labelPaint, bodyPaint, y)
+            y = drawInfoRow(canvas, context.getString(R.string.pdf_category), report.category, labelPaint, bodyPaint, y)
         }
         if (report.severity.isNotBlank()) {
             y = ensureSpace(16f)
-            y = drawInfoRow(canvas, "Severity", report.severity, labelPaint, bodyPaint, y)
+            y = drawInfoRow(canvas, context.getString(R.string.pdf_severity), report.severity, labelPaint, bodyPaint, y)
         }
         if (report.diagnosisAssessment.isNotBlank()) {
             y += 6f
@@ -176,20 +177,20 @@ object ReportPdfGenerator {
 
         // --- Section 4: Treatment Plan ---
         y = ensureSpace(60f)
-        canvas.drawText("4. Treatment Plan", MARGIN, y, sectionPaint)
+        canvas.drawText(context.getString(R.string.pdf_section_treatment), MARGIN, y, sectionPaint)
         y += 14f
-        val planText = report.treatmentPlan.ifBlank { "No treatment plan specified." }
+        val planText = report.treatmentPlan.ifBlank { context.getString(R.string.pdf_no_treatment) }
         y = drawProseBlock(canvas, planText, bodyPaint, bgPaint, y) { needed -> ensureSpace(needed) }
         y += 16f
 
         // --- Section 5: Follow-up Instructions ---
         y = ensureSpace(60f)
-        canvas.drawText("5. Follow-up Instructions", MARGIN, y, sectionPaint)
+        canvas.drawText(context.getString(R.string.pdf_section_followup), MARGIN, y, sectionPaint)
         y += 18f
         y = drawInfoRow(
             canvas,
-            "Follow-up Recommended",
-            if (report.followUpRecommended) "Yes" else "No",
+            context.getString(R.string.pdf_followup_recommended),
+            if (report.followUpRecommended) context.getString(R.string.pdf_yes) else context.getString(R.string.pdf_no),
             labelPaint,
             bodyPaint,
             y,
@@ -202,7 +203,7 @@ object ReportPdfGenerator {
             y += 8f
             y = ensureSpace(30f)
             val noteLabel = Paint(labelPaint).apply { color = DARK_TEXT }
-            canvas.drawText("Additional Notes:", MARGIN, y, noteLabel)
+            canvas.drawText(context.getString(R.string.pdf_additional_notes), MARGIN, y, noteLabel)
             y += 12f
             y = drawProseBlock(canvas, report.furtherNotes, bodyPaint, bgPaint, y) { needed -> ensureSpace(needed) }
         }
@@ -210,11 +211,9 @@ object ReportPdfGenerator {
 
         // --- Section 6: Disclaimer ---
         y = ensureSpace(80f)
-        canvas.drawText("6. Telemedicine Disclaimer", MARGIN, y, sectionPaint)
+        canvas.drawText(context.getString(R.string.pdf_section_disclaimer), MARGIN, y, sectionPaint)
         y += 14f
-        val disclaimerText = "This consultation was conducted via telemedicine. The assessment and " +
-            "recommendations are based on the information provided during the virtual consultation. " +
-            "If symptoms persist or worsen, please seek in-person medical attention."
+        val disclaimerText = context.getString(R.string.pdf_disclaimer_text)
         val disclaimerPaint = Paint(bodyPaint).apply {
             color = DISCLAIMER_TEXT
             textSize = 9f
@@ -236,13 +235,13 @@ object ReportPdfGenerator {
             }
             canvas.drawText("Dr. ${report.doctorName}", MARGIN, y, sigPaint)
             y += 14f
-            canvas.drawText("Attending Physician", MARGIN, y, smallPaint)
+            canvas.drawText(context.getString(R.string.pdf_attending_physician), MARGIN, y, smallPaint)
             y += 14f
         }
         val italicPaint = Paint(smallPaint).apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
         }
-        canvas.drawText("Electronically signed", MARGIN, y, italicPaint)
+        canvas.drawText(context.getString(R.string.pdf_electronically_signed), MARGIN, y, italicPaint)
         y += 24f
 
         // --- Footer ---
@@ -250,7 +249,7 @@ object ReportPdfGenerator {
         bgPaint.color = Color.rgb(243, 244, 246)
         canvas.drawRect(MARGIN, y, PAGE_WIDTH - MARGIN, y + 24f, bgPaint)
         val footerPaint = Paint(smallPaint).apply { textSize = 8f }
-        drawCenteredText(canvas, "Generated by ESIRII Health Platform", footerPaint, y + 15f)
+        drawCenteredText(canvas, context.getString(R.string.pdf_generated_by), footerPaint, y + 15f)
 
         document.finishPage(currentPage)
 

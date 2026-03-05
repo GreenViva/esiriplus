@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,14 +87,14 @@ fun RoleSelectionScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Welcome to eSIRI Plus",
+                text = stringResource(R.string.role_welcome_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "How would you like to proceed?",
+                text = stringResource(R.string.role_welcome_subtitle),
                 fontSize = 14.sp,
                 color = SubtitleGray,
             )
@@ -102,7 +103,7 @@ fun RoleSelectionScreen(
 
             // FOR PATIENTS section
             Text(
-                text = "FOR PATIENTS",
+                text = stringResource(R.string.role_for_patients),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = SubtitleGray,
@@ -113,8 +114,8 @@ fun RoleSelectionScreen(
             // Are you new? card
             RoleCard(
                 iconRes = R.drawable.ic_person_add,
-                title = "New to the platform?",
-                subtitle = "Click here to get started",
+                title = stringResource(R.string.role_new_platform),
+                subtitle = stringResource(R.string.role_new_platform_subtitle),
                 onClick = onPatientSelected,
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -122,13 +123,13 @@ fun RoleSelectionScreen(
             // I have my ID card
             RoleCard(
                 iconRes = R.drawable.ic_key,
-                title = "I have my ID",
-                subtitle = "Access my records",
+                title = stringResource(R.string.role_have_my_id),
+                subtitle = stringResource(R.string.role_access_records),
                 onClick = onHaveMyId,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "You must have set up recovery questions to log in with your Patient ID.",
+                text = stringResource(R.string.role_id_recovery_note),
                 fontSize = 12.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -139,7 +140,7 @@ fun RoleSelectionScreen(
 
             TextButton(onClick = onRecoverPatientId) {
                 Text(
-                    text = "Forgot your Patient ID?",
+                    text = stringResource(R.string.role_forgot_patient_id),
                     fontSize = 13.sp,
                     color = BrandTeal,
                     fontWeight = FontWeight.Medium,
@@ -158,7 +159,7 @@ fun RoleSelectionScreen(
                     color = CardBorder,
                 )
                 Text(
-                    text = "or",
+                    text = stringResource(R.string.role_or_divider),
                     fontSize = 14.sp,
                     color = SubtitleGray,
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -173,7 +174,7 @@ fun RoleSelectionScreen(
 
             // DOCTOR PORTAL section
             Text(
-                text = "DOCTOR PORTAL",
+                text = stringResource(R.string.role_doctor_portal),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = SubtitleGray,
@@ -194,7 +195,7 @@ fun RoleSelectionScreen(
                     border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
                 ) {
                     Text(
-                        text = "Sign In",
+                        text = stringResource(R.string.role_sign_in),
                         color = DarkText,
                         fontWeight = FontWeight.Medium,
                     )
@@ -211,7 +212,7 @@ fun RoleSelectionScreen(
                     ),
                 ) {
                     Text(
-                        text = "Sign Up",
+                        text = stringResource(R.string.role_sign_up),
                         fontWeight = FontWeight.Medium,
                     )
                 }
@@ -220,7 +221,7 @@ fun RoleSelectionScreen(
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(onClick = onDoctorSelected) {
                 Text(
-                    text = "Forgot your password?",
+                    text = stringResource(R.string.role_forgot_password),
                     fontSize = 13.sp,
                     color = BrandTeal,
                     fontWeight = FontWeight.Medium,
@@ -231,7 +232,7 @@ fun RoleSelectionScreen(
 
             // Footer
             Text(
-                text = "\u00A9 2026 eSIRI Plus. All rights reserved.",
+                text = stringResource(R.string.role_copyright),
                 fontSize = 12.sp,
                 color = SubtitleGray,
                 modifier = Modifier.padding(vertical = 16.dp),

@@ -17,10 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.esiri.esiriplus.feature.chat.R
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -45,7 +47,7 @@ fun DoctorExtensionOverlay(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Session time has ended",
+            text = stringResource(R.string.extension_session_time_ended),
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             color = Color.Black,
@@ -54,7 +56,7 @@ fun DoctorExtensionOverlay(
 
         if (patientDeclined) {
             Text(
-                text = "Patient declined the extension.",
+                text = stringResource(R.string.extension_patient_declined),
                 fontSize = 14.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -64,11 +66,11 @@ fun DoctorExtensionOverlay(
                 onClick = onEndConsultation,
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("End Consultation", color = Color.Black)
+                Text(stringResource(R.string.extension_end_consultation), color = Color.Black)
             }
         } else {
             Text(
-                text = "Waiting for patient to decide...",
+                text = stringResource(R.string.extension_waiting_for_patient),
                 fontSize = 14.sp,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -100,14 +102,14 @@ fun PatientExtensionPrompt(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Time\u2019s Up!",
+            text = stringResource(R.string.extension_times_up),
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             color = Color.Black,
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "Your session time has ended. Would you like to extend by $durationMinutes minutes for TZS $formattedFee?",
+            text = stringResource(R.string.extension_prompt_message, durationMinutes, formattedFee),
             fontSize = 14.sp,
             color = Color.Black,
             textAlign = TextAlign.Center,
@@ -122,13 +124,13 @@ fun PatientExtensionPrompt(
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("Yes, Extend", color = Color.White)
+                Text(stringResource(R.string.extension_yes_extend), color = Color.White)
             }
             OutlinedButton(
                 onClick = onDecline,
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("No, Thanks", color = Color.Black)
+                Text(stringResource(R.string.extension_no_thanks), color = Color.Black)
             }
         }
     }
@@ -151,7 +153,8 @@ fun GracePeriodBanner(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Processing extension payment... (%02d:%02d)".format(
+            text = stringResource(
+                R.string.extension_processing_payment,
                 remainingSeconds / 60,
                 remainingSeconds % 60,
             ),

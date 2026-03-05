@@ -1,0 +1,109 @@
+<resources>
+    <string name="app_name">esiriplus</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_app_name">eSIRI Plus</string>
+    <string name="splash_tagline">Afya yako, Kipaumbele chetu</string>
+    <string name="splash_subtitle">Votre Sant\u00E9, Notre Priorit\u00E9</string>
+    <string name="splash_tap_continue">Appuyez n\'importe o\u00F9 pour continuer</string>
+
+    <!-- Language Selection (Page 2) -->
+    <string name="language_select_swahili">Chagua lugha ></string>
+    <string name="language_select_english">Choose your Language ></string>
+
+    <!-- Language Picker -->
+    <string name="language_picker_title">Select Language / Choisir la langue</string>
+    <string name="language_picker_subtitle">Choisissez votre langue pr\u00E9f\u00E9r\u00E9e pour l\'application</string>
+    <string name="language_picker_recommended">RECOMMAND\u00C9</string>
+    <string name="language_picker_other">AUTRES LANGUES</string>
+    <string name="language_picker_continue">Continuer ></string>
+    <string name="language_picker_back">Retour</string>
+    <string name="language_picker_coming_soon">Bient\u00F4t disponible</string>
+
+    <!-- Role Selection -->
+    <string name="role_welcome">Bienvenue sur eSIRI Plus</string>
+    <string name="role_subtitle">Comment souhaitez-vous continuer ?</string>
+    <string name="role_for_patients">POUR LES PATIENTS</string>
+    <string name="role_new_patient">Nouveau sur la plateforme ?</string>
+    <string name="role_new_patient_sub">Cliquez ici pour commencer</string>
+    <string name="role_have_id">J\'ai mon identifiant</string>
+    <string name="role_have_id_sub">Acc\u00E9der \u00E0 mes dossiers</string>
+    <string name="role_or">ou</string>
+    <string name="role_doctor_portal">PORTAIL M\u00C9DECIN</string>
+    <string name="role_doctor_sign_in">Se connecter</string>
+    <string name="role_doctor_sign_up">S\'inscrire</string>
+    <string name="role_copyright">\u00A9 2026 eSIRI Plus. Tous droits r\u00E9serv\u00E9s.</string>
+
+    <!-- Database Error Dialog -->
+    <string name="db_error_update_required_title">Mise \u00E0 jour requise</string>
+    <string name="db_error_update_required_message">Vos donn\u00E9es ont \u00E9t\u00E9 cr\u00E9\u00E9es par une version plus r\u00E9cente d\'eSIRI Plus. Veuillez mettre \u00E0 jour l\'application pour continuer.</string>
+    <string name="db_error_update_button">Mettre \u00E0 jour</string>
+    <string name="db_error_failed_title">\u00C9chec de la mise \u00E0 jour de la base de donn\u00E9es</string>
+    <string name="db_error_failed_message">eSIRI Plus n\'a pas pu mettre \u00E0 jour ses donn\u00E9es locales. Veuillez red\u00E9marrer l\'application. Si le probl\u00E8me persiste, r\u00E9installez l\'application.</string>
+    <string name="db_error_ok_button">OK</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_main_name">Notifications eSIRI+</string>
+    <string name="channel_main_description">Notifications g\u00E9n\u00E9rales d\'eSIRI+</string>
+    <string name="channel_doctor_online_name">Statut en ligne du m\u00E9decin</string>
+    <string name="channel_doctor_online_description">Notification persistante lorsque le m\u00E9decin est disponible pour les consultations</string>
+    <string name="channel_incoming_request_name">Demandes de consultation entrantes</string>
+    <string name="channel_incoming_request_description">Alertes lorsqu\'un patient envoie une demande de consultation</string>
+    <string name="channel_incoming_call_name">Appels entrants</string>
+    <string name="channel_incoming_call_description">Alertes lorsque vous recevez un appel vid\u00E9o ou vocal</string>
+    <string name="channel_call_service_name">Appel en cours</string>
+    <string name="channel_call_service_description">Notification persistante pendant un appel en cours</string>
+
+    <!-- Notification Titles (by type) -->
+    <string name="notification_new_consultation">Nouvelle demande de consultation</string>
+    <string name="notification_consultation_accepted">Consultation accept\u00E9e</string>
+    <string name="notification_new_message">Nouveau message</string>
+    <string name="notification_incoming_video_call">Appel vid\u00E9o entrant</string>
+    <string name="notification_report_ready">Rapport pr\u00EAt</string>
+    <string name="notification_payment_update">Mise \u00E0 jour du paiement</string>
+    <string name="notification_application_update">Mise \u00E0 jour de la candidature</string>
+    <string name="notification_admin_warning">Avertissement de l\'administration</string>
+    <string name="notification_account_suspended">Compte suspendu</string>
+    <string name="notification_account_reinstated">Compte r\u00E9tabli</string>
+    <string name="notification_account_banned">Compte banni</string>
+    <string name="notification_default_title">Notification eSIRI+</string>
+    <string name="notification_tap_to_view">Appuyez pour voir les d\u00E9tails</string>
+    <string name="notification_patient_waiting">Un patient vous attend</string>
+
+    <!-- Call-Related -->
+    <string name="call_type_voice">Vocal</string>
+    <string name="call_type_video">Vid\u00E9o</string>
+    <string name="caller_your_doctor">Votre m\u00E9decin</string>
+    <string name="caller_your_patient">Votre patient</string>
+    <string name="call_incoming_title">Appel %1$s entrant</string>
+    <string name="call_incoming_body">%1$s vous appelle</string>
+    <string name="call_in_progress_title">Appel %1$s en cours</string>
+    <string name="call_in_progress_duration">Dur\u00E9e : %1$s</string>
+
+    <!-- Common Actions -->
+    <string name="action_accept">Accepter</string>
+    <string name="action_decline">Refuser</string>
+    <string name="action_end_call">Terminer l\'appel</string>
+    <string name="action_back">Retour</string>
+
+    <!-- Doctor Online Service -->
+    <string name="doctor_online_title">Vous \u00EAtes en ligne</string>
+    <string name="doctor_online_body">En attente de demandes de consultation\u2026</string>
+
+    <!-- Notifications Screen -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Tout marquer comme lu</string>
+    <string name="notifications_empty_title">Aucune notification</string>
+    <string name="notifications_empty_subtitle">Les mises \u00E0 jour appara\u00EEtront ici.</string>
+
+    <!-- Relative Time -->
+    <string name="time_just_now">\u00C0 l\'instant</string>
+    <string name="time_minutes_ago">Il y a %1$d min</string>
+    <string name="time_hours_ago">Il y a %1$d h</string>
+    <string name="time_days_ago">Il y a %1$d j</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_back">Retour</string>
+    <string name="cd_incoming_call">Appel entrant</string>
+    <string name="cd_notifications">Notifications</string>
+</resources>

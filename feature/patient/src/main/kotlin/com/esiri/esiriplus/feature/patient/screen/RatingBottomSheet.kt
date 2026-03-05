@@ -34,11 +34,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.RatingViewModel
 import kotlinx.coroutines.delay
 
@@ -88,13 +90,13 @@ fun RatingBottomSheet(
                 Spacer(Modifier.height(24.dp))
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Success",
+                    contentDescription = stringResource(R.string.rating_success_content_desc),
                     tint = SuccessGreen,
                     modifier = Modifier.size(64.dp),
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "Thank you for your feedback!",
+                    text = stringResource(R.string.rating_thank_you),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -110,14 +112,14 @@ fun RatingBottomSheet(
                 )
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = "How was your consultation?",
+                    text = stringResource(R.string.rating_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Your rating helps us improve our service",
+                    text = stringResource(R.string.rating_subtitle),
                     fontSize = 14.sp,
                     color = Color(0xFF6B7280),
                 )
@@ -135,7 +137,7 @@ fun RatingBottomSheet(
                         ) {
                             Icon(
                                 imageVector = if (i <= uiState.stars) Icons.Default.Star else Icons.Default.StarOutline,
-                                contentDescription = "$i star",
+                                contentDescription = stringResource(R.string.rating_star_format, i),
                                 tint = if (i <= uiState.stars) StarAmber else Color(0xFFD1D5DB),
                                 modifier = Modifier.size(40.dp),
                             )
@@ -146,11 +148,11 @@ fun RatingBottomSheet(
                 if (uiState.stars > 0) {
                     Text(
                         text = when (uiState.stars) {
-                            1 -> "Poor"
-                            2 -> "Fair"
-                            3 -> "Good"
-                            4 -> "Very Good"
-                            5 -> "Excellent"
+                            1 -> stringResource(R.string.rating_poor)
+                            2 -> stringResource(R.string.rating_fair)
+                            3 -> stringResource(R.string.rating_good)
+                            4 -> stringResource(R.string.rating_very_good)
+                            5 -> stringResource(R.string.rating_excellent)
                             else -> ""
                         },
                         fontSize = 14.sp,
@@ -167,8 +169,8 @@ fun RatingBottomSheet(
                     onValueChange = viewModel::setComment,
                     label = {
                         Text(
-                            if (uiState.stars in 1..3) "Tell us what could be improved *"
-                            else "Leave a comment (optional)",
+                            if (uiState.stars in 1..3) stringResource(R.string.rating_low_comment_label)
+                            else stringResource(R.string.rating_optional_comment_label),
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -216,7 +218,7 @@ fun RatingBottomSheet(
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        text = if (uiState.isSubmitting) "Submitting..." else "Submit Rating",
+                        text = if (uiState.isSubmitting) stringResource(R.string.rating_submitting) else stringResource(R.string.rating_submit),
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,
                     )
@@ -227,7 +229,7 @@ fun RatingBottomSheet(
                 // Remind me later
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = "Remind Me Later",
+                        text = stringResource(R.string.rating_remind_later),
                         color = Color(0xFF6B7280),
                         fontWeight = FontWeight.Medium,
                     )

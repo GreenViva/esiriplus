@@ -23,11 +23,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.esiri.esiriplus.feature.patient.R
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val CardBorder = Color(0xFFE5E7EB)
@@ -55,7 +57,7 @@ fun SymptomsEntryDialog(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Describe Your Symptoms",
+                    text = stringResource(R.string.symptoms_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -64,7 +66,7 @@ fun SymptomsEntryDialog(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = "This helps the doctor prepare for your consultation.",
+                    text = stringResource(R.string.symptoms_subtitle),
                     fontSize = 13.sp,
                     color = Color(0xFF6B7280),
                 )
@@ -78,7 +80,7 @@ fun SymptomsEntryDialog(
                         color = BrandTeal.copy(alpha = 0.08f),
                     ) {
                         Text(
-                            text = "Profile: ${profileParts.joinToString(" | ")}",
+                            text = stringResource(R.string.symptoms_profile_prefix, profileParts.joinToString(" | ")),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             fontSize = 12.sp,
                             color = BrandTeal,
@@ -92,8 +94,8 @@ fun SymptomsEntryDialog(
                 OutlinedTextField(
                     value = symptoms,
                     onValueChange = { symptoms = it },
-                    label = { Text("What symptoms are you experiencing?") },
-                    placeholder = { Text("e.g., headache for 3 days, mild fever...") },
+                    label = { Text(stringResource(R.string.symptoms_label)) },
+                    placeholder = { Text(stringResource(R.string.symptoms_placeholder)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
@@ -118,7 +120,7 @@ fun SymptomsEntryDialog(
                         modifier = Modifier.weight(1f),
                     ) {
                         Text(
-                            text = "Cancel",
+                            text = stringResource(R.string.symptoms_cancel),
                             fontSize = 15.sp,
                             color = Color(0xFF6B7280),
                             fontWeight = FontWeight.SemiBold,
@@ -131,7 +133,7 @@ fun SymptomsEntryDialog(
                             modifier = Modifier.weight(1f),
                         ) {
                             Text(
-                                text = "Skip",
+                                text = stringResource(R.string.symptoms_skip),
                                 fontSize = 15.sp,
                                 color = BrandTeal,
                                 fontWeight = FontWeight.SemiBold,
@@ -150,7 +152,7 @@ fun SymptomsEntryDialog(
                         ),
                     ) {
                         Text(
-                            text = "Send Request",
+                            text = stringResource(R.string.symptoms_send_request),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,

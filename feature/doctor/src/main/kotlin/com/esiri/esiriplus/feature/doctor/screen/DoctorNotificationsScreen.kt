@@ -43,8 +43,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorNotificationsViewModel
 
@@ -61,16 +63,16 @@ fun DoctorNotificationsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notifications", color = Color.Black) },
+                title = { Text(stringResource(R.string.notifications_title), color = Color.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back_content_description))
                     }
                 },
                 actions = {
                     if (uiState.unreadCount > 0) {
                         TextButton(onClick = viewModel::markAllAsRead) {
-                            Text("Mark all read", color = BrandTeal, fontSize = 13.sp)
+                            Text(stringResource(R.string.notifications_mark_all_read), color = BrandTeal, fontSize = 13.sp)
                         }
                     }
                 },
@@ -105,7 +107,7 @@ fun DoctorNotificationsScreen(
                         )
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            "No notifications yet",
+                            stringResource(R.string.notifications_empty),
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyLarge,
                         )

@@ -55,6 +55,8 @@ data class ChatUiState(
     val isUploading: Boolean = false,
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientConsultationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

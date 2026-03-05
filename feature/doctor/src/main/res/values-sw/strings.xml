@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ═══ Kawaida / Pamoja ═══ -->
+    <string name="common_back">Rudi</string>
+    <string name="common_back_content_description">Rudi</string>
+    <string name="common_cancel">Ghairi</string>
+    <string name="common_ok">Sawa</string>
+    <string name="common_save">Hifadhi</string>
+    <string name="common_close">Funga</string>
+    <string name="common_sign_out">Ondoka</string>
+    <string name="common_open_menu">Fungua menyu</string>
+    <string name="common_close_menu">Funga menyu</string>
+    <string name="common_coming_soon">Inakuja Hivi Karibuni</string>
+    <string name="common_view_all">Tazama Zote</string>
+    <string name="common_off">Imezimwa</string>
+    <string name="common_english">Kiingereza</string>
+
+    <!-- ═══ Dashibodi: Urambazaji wa Kando ═══ -->
+    <string name="nav_dashboard">Dashibodi</string>
+    <string name="nav_consultations">Mashauriano</string>
+    <string name="nav_chat">Mazungumzo</string>
+    <string name="nav_availability">Upatikanaji</string>
+    <string name="nav_profile">Wasifu</string>
+    <string name="nav_earnings">Mapato</string>
+    <string name="sidebar_doctor_portal">Mlango wa Daktari</string>
+    <string name="sidebar_verified">Thibitishwa</string>
+
+    <!-- ═══ Dashibodi: Sehemu ya Juu ═══ -->
+    <string name="dashboard_welcome_back">Karibu tena,</string>
+    <string name="dashboard_notifications">Arifa</string>
+    <string name="dashboard_online">Mtandaoni</string>
+    <string name="dashboard_suspended">Imesimamishwa</string>
+    <string name="dashboard_under_review">Inapitiwa</string>
+
+    <!-- ═══ Dashibodi: Bango la Mashauriano Yanayoendelea ═══ -->
+    <string name="dashboard_active_consultation">Mashauriano Yanayoendelea</string>
+    <string name="dashboard_tap_to_resume">Bofya kuendelea na mazungumzo</string>
+    <string name="dashboard_resume">Endelea \u25B6</string>
+
+    <!-- ═══ Dashibodi: Dialogi ya Kuondoka ═══ -->
+    <string name="sign_out_dialog_title">Ondoka</string>
+    <string name="sign_out_dialog_message">Una uhakika unataka kuondoka?</string>
+
+    <!-- ═══ Dashibodi: Dialogi ya Ruhusa ya Kufunika ═══ -->
+    <string name="overlay_dialog_title">Onyesha Juu ya Programu Nyingine</string>
+    <string name="overlay_dialog_message">Ili kuonyesha kiputo kinapoelea unapopokea maombi ya mashauriano ukitumia programu nyingine, tafadhali ruhusu eSIRI+ kuonyesha juu ya programu nyingine. Bado utapokea arifa bila ruhusa hii.</string>
+    <string name="overlay_dialog_open_settings">Fungua Mipangilio</string>
+    <string name="overlay_dialog_not_now">Sio Sasa</string>
+
+    <!-- ═══ Dashibodi: Bango la Kuthibitishwa ═══ -->
+    <string name="banner_verified_title">Daktari Aliyethibitishwa</string>
+    <string name="banner_verified_message">Wasifu wako umethibitishwa. Sasa unaweza kukubali mashauriano ya wagonjwa.</string>
+
+    <!-- ═══ Dashibodi: Bango la Kupitiwa ═══ -->
+    <string name="banner_pending_title">Maombi Yanapitiwa</string>
+    <string name="banner_pending_message">Maombi yako yanapitiwa. Kawaida huchukua siku 1\u20135 za kazi. Utaarifiwa ukishaidhinishwa.</string>
+
+    <!-- ═══ Dashibodi: Bango la Kukataliwa ═══ -->
+    <string name="banner_rejected_title">Maombi Hayajaidhinishwa</string>
+    <string name="banner_rejected_resubmit">Tafadhali pitia sababu na uwasilishe tena vyeti vyako.</string>
+
+    <!-- ═══ Dashibodi: Takwimu ═══ -->
+    <string name="stats_pending_requests">Maombi Yanayosubiri</string>
+    <string name="stats_active_consultations">Mashauriano Yanayoendelea</string>
+    <string name="stats_todays_earnings">Mapato ya Leo</string>
+    <string name="stats_total_patients">Wagonjwa Wote</string>
+    <string name="stats_acceptance_rate">Kiwango cha Kukubali</string>
+    <string name="stats_appointments">Miadi</string>
+
+    <!-- ═══ Dashibodi: Sehemu ya Upatikanaji ═══ -->
+    <string name="availability_today_title">Upatikanaji wa Leo</string>
+    <string name="availability_available_today">Inapatikana leo</string>
+    <string name="availability_not_available_today">Haipatikani leo</string>
+    <string name="availability_set">Weka Upatikanaji</string>
+
+    <!-- ═══ Dashibodi: Sehemu ya Maombi Yanayosubiri ═══ -->
+    <string name="pending_requests_title">Maombi Yanayosubiri</string>
+    <string name="pending_requests_none">Hakuna maombi yanayosubiri</string>
+    <string name="pending_requests_count">Maombi %d yanasubiri</string>
+
+    <!-- ═══ Dashibodi: Sehemu ya Miadi ═══ -->
+    <string name="appointments_upcoming_title">Miadi Ijayo</string>
+    <string name="appointments_none">Hakuna miadi ijayo</string>
+    <string name="appointments_more">+%d zaidi</string>
+    <string name="appointments_date_at_time">%1$s saa %2$s</string>
+
+    <!-- ═══ Dashibodi: Vijipicha vya Tabo ═══ -->
+    <string name="tab_all_consultations">Mashauriano Yote</string>
+    <string name="tab_availability">Upatikanaji</string>
+    <string name="tab_earnings">Mapato</string>
+    <string name="tab_profile">Wasifu</string>
+
+    <!-- ═══ Yaliyomo ya Mashauriano ═══ -->
+    <string name="consultations_title">Mashauriano</string>
+    <string name="consultations_subtitle">Simamia mashauriano ya wagonjwa wako</string>
+    <string name="consultations_tab_pending">Yanasubiri</string>
+    <string name="consultations_tab_active">Yanayoendelea</string>
+    <string name="consultations_tab_completed">Yamekamilika</string>
+    <string name="consultations_tab_cancelled">Yameghairiwa</string>
+    <string name="consultations_empty">Hakuna mashauriano %s</string>
+    <string name="consultation_fee">Ada: TSh %s</string>
+    <string name="consultation_duration">Muda: dakika %s</string>
+
+    <!-- ═══ Yaliyomo ya Mazungumzo ═══ -->
+    <string name="chat_title">Mazungumzo</string>
+    <string name="chat_subtitle">Mashauriano yanayoendelea</string>
+    <string name="chat_empty">Hakuna mashauriano yanayoendelea</string>
+    <string name="chat_empty_hint">Mashauriano yanayoendelea yataonekana hapa</string>
+
+    <!-- ═══ Yaliyomo ya Mipangilio ya Upatikanaji ═══ -->
+    <string name="availability_settings_title">Mipangilio ya Upatikanaji</string>
+    <string name="availability_settings_subtitle">Weka masaa ya mashauriano ya kila wiki</string>
+    <string name="availability_save_saved">Imehifadhiwa</string>
+    <string name="availability_save_changes">Hifadhi Mabadiliko</string>
+    <string name="availability_quick_presets">Mipangilio ya Haraka</string>
+    <string name="availability_preset_mon_fri">Jumat. - Ijum. (9 AM - 5 PM)</string>
+    <string name="availability_preset_every_day">Kila Siku (9 AM - 5 PM)</string>
+    <string name="availability_preset_clear_all">Futa Yote</string>
+    <string name="availability_weekly_schedule">Ratiba ya Wiki</string>
+
+    <!-- ═══ Yaliyomo ya Mipangilio ya Wasifu ═══ -->
+    <string name="profile_title">Mipangilio ya Wasifu</string>
+    <string name="profile_subtitle">Tazama wasifu wako na usasishe mapendeleo</string>
+    <string name="profile_photo_title">Picha ya Wasifu</string>
+    <string name="profile_photo_content_description">Picha ya wasifu</string>
+    <string name="profile_photo_tap_to_change">Bofya kubadilisha picha</string>
+    <string name="profile_photo_size_hint">JPG, PNG, hadi 5MB</string>
+    <string name="profile_personal_info">Taarifa Binafsi</string>
+    <string name="profile_set_during_registration">Imewekwa wakati wa usajili</string>
+    <string name="profile_full_name">Jina Kamili</string>
+    <string name="profile_phone_number">Nambari ya Simu</string>
+    <string name="profile_email">Barua pepe</string>
+    <string name="profile_professional_info">Taarifa za Kitaaluma</string>
+    <string name="profile_specialty">Utaalam</string>
+    <string name="profile_license_number">Nambari ya Leseni</string>
+    <string name="profile_years_experience">Miaka ya Uzoefu</string>
+    <string name="profile_years_experience_auto">Inasasishwa kiotomatiki kila mwaka</string>
+    <string name="profile_bio">Wasifu wa Kitaaluma</string>
+    <string name="profile_location_languages">Eneo na Lugha</string>
+    <string name="profile_country">Nchi</string>
+    <string name="profile_languages_title">Lugha Unazozungumza</string>
+    <string name="profile_common_languages">LUGHA ZA KAWAIDA</string>
+    <string name="profile_other_languages">LUGHA NYINGINE</string>
+    <string name="profile_languages_selected">Lugha %d zimechaguliwa</string>
+    <string name="profile_services_offered">Huduma Zinazotolewa</string>
+    <string name="profile_available_for_consultations">Inapatikana kwa Mashauriano</string>
+    <string name="profile_available_toggle_hint">Zima kuficha wasifu wako kwa wagonjwa kwa muda</string>
+    <string name="profile_saved_locally">Imehifadhiwa Hapa</string>
+    <string name="profile_saved">Imehifadhiwa</string>
+    <string name="profile_sync_failed_hint">Mabadiliko yamehifadhiwa hapa lakini hayakuweza kusawazishwa na seva. Yatasawazishwa wakati wa kuanza tena.</string>
+
+    <!-- ═══ Yaliyomo ya Mapato ═══ -->
+    <string name="earnings_title">Mapato</string>
+    <string name="earnings_subtitle">Fuatilia mapato yako ya mashauriano</string>
+    <string name="earnings_total">Mapato Yote</string>
+    <string name="earnings_this_month">Mwezi Huu</string>
+    <string name="earnings_last_month">Mwezi Uliopita</string>
+    <string name="earnings_pending_payout">Malipo Yanayosubiri</string>
+    <string name="earnings_payout_info_title">Taarifa za Malipo</string>
+    <string name="earnings_payout_info_message">Malipo yanachakatwa kiotomatiki mwishoni mwa kila mwezi kupitia M-Pesa. Hakikisha nambari yako ya simu ni sahihi kwenye mipangilio ya wasifu.</string>
+    <string name="earnings_recent_transactions">Miamala ya Hivi Karibuni</string>
+    <string name="earnings_no_transactions">Hakuna miamala bado</string>
+
+    <!-- ═══ Skrini ya Kuzuiwa ═══ -->
+    <string name="ban_title">Akaunti Imezuiwa</string>
+    <string name="ban_message">Akaunti yako imezuiwa kutumia programu hii.</string>
+    <string name="ban_reason_label">Sababu</string>
+    <string name="ban_appeal_title">Una malalamiko?</string>
+    <string name="ban_appeal_message_with_date">Unaweza kuwasiliana na timu yetu ya msaada kukata rufaa uamuzi huu ndani ya siku 7 (ifikapo %s).</string>
+    <string name="ban_appeal_message_no_date">Unaweza kuwasiliana na timu yetu ya msaada kukata rufaa uamuzi huu ndani ya siku 7 tangu kuzuiwa.</string>
+    <string name="ban_support_email">support@esiriplus.com</string>
+
+    <!-- ═══ Skrini ya Orodha ya Mashauriano ═══ -->
+    <string name="consultation_list_title">Historia ya Mashauriano</string>
+    <string name="consultation_list_empty">Hakuna mashauriano bado</string>
+
+    <!-- ═══ Skrini ya Maelezo ya Mashauriano ═══ -->
+    <string name="consultation_detail_end_title">Maliza Mashauriano</string>
+    <string name="consultation_detail_end_message">Una uhakika unataka kumaliza mashauriano haya?</string>
+    <string name="consultation_detail_end_button">Maliza</string>
+    <string name="consultation_detail_end_error_title">Haiwezekani Kumaliza Mashauriano</string>
+    <string name="consultation_detail_start_call">Piga Simu</string>
+    <string name="consultation_detail_voice_call">Simu ya Sauti</string>
+    <string name="consultation_detail_video_call">Simu ya Video</string>
+    <string name="consultation_detail_write_report">Andika Ripoti</string>
+    <string name="consultation_detail_patient_summary">Muhtasari wa Mgonjwa</string>
+    <string name="consultation_detail_end_consultation">Maliza Mashauriano</string>
+    <string name="consultation_detail_camera">Kamera</string>
+    <string name="consultation_detail_gallery">Picha</string>
+    <string name="consultation_detail_document">Hati</string>
+    <string name="consultation_detail_summary_error_title">Hitilafu ya Muhtasari</string>
+    <string name="consultation_detail_patient_medical_summary">Muhtasari wa Kitabibu wa Mgonjwa</string>
+
+    <!-- ═══ Skrini ya Miadi ═══ -->
+    <string name="appointments_title">Miadi</string>
+    <string name="appointments_tab_today">Leo</string>
+    <string name="appointments_tab_upcoming">Ijayo</string>
+    <string name="appointments_tab_missed">Zilizokosa</string>
+    <string name="appointments_no_today">Hakuna miadi ya leo</string>
+    <string name="appointments_no_upcoming">Hakuna miadi ijayo</string>
+    <string name="appointments_no_missed">Hakuna miadi zilizokosa</string>
+    <string name="appointments_status_booked">Imewekwa</string>
+    <string name="appointments_status_confirmed">Imethibitishwa</string>
+    <string name="appointments_status_in_progress">Inaendelea</string>
+    <string name="appointments_status_completed">Imekamilika</string>
+    <string name="appointments_status_missed">Imekosekana</string>
+    <string name="appointments_status_cancelled">Imeghairiwa</string>
+    <string name="appointments_status_rescheduled">Imepangwa Upya</string>
+    <string name="appointments_min_duration">dakika %1$d \u00B7 %2$s</string>
+    <string name="appointments_start_session">Anza Mashauriano</string>
+    <string name="appointments_starting">Inaanza\u2026</string>
+    <string name="appointments_reschedule">Panga Upya</string>
+    <string name="appointments_rescheduling">Inapangwa upya\u2026</string>
+
+    <!-- ═══ Dialogi ya Kupanga Upya ═══ -->
+    <string name="reschedule_title">Panga Upya Miadi</string>
+    <string name="reschedule_instruction">Ingiza tarehe na saa mpya ya miadi.</string>
+    <string name="reschedule_new_datetime">Tarehe na Saa Mpya</string>
+    <string name="reschedule_datetime_placeholder">mfano 2026-03-05T10:00</string>
+    <string name="reschedule_reason_label">Sababu (si lazima)</string>
+    <string name="reschedule_reason_placeholder">Sababu ya kupanga upya\u2026</string>
+    <string name="reschedule_button">Panga Upya</string>
+
+    <!-- ═══ Skrini ya Arifa ═══ -->
+    <string name="notifications_title">Arifa</string>
+    <string name="notifications_mark_all_read">Weka zote zilizosomwa</string>
+    <string name="notifications_empty">Hakuna arifa bado</string>
+    <string name="notifications_time_just_now">Sasa hivi</string>
+    <string name="notifications_time_minutes_ago">dakika %d zilizopita</string>
+    <string name="notifications_time_hours_ago">saa %d zilizopita</string>
+    <string name="notifications_time_days_ago">siku %d zilizopita</string>
+
+    <!-- ═══ Skrini ya Mipangilio ya Upatikanaji (peke yake) ═══ -->
+    <string name="avail_settings_title">Ratiba ya Upatikanaji</string>
+    <string name="avail_settings_add_slot">Ongeza Nafasi</string>
+    <string name="avail_settings_subtitle">Weka upatikanaji wako wa kila wiki wa miadi</string>
+    <string name="avail_settings_no_slots_title">Hakuna nafasi za upatikanaji zilizopangwa</string>
+    <string name="avail_settings_no_slots_message">Ongeza nafasi ili wagonjwa waweze kukuwekea miadi.</string>
+    <string name="avail_settings_buffer_minutes">dakika %d za mapumziko</string>
+    <string name="avail_settings_inactive">Haifanyi kazi</string>
+    <string name="avail_settings_delete">Futa</string>
+    <string name="avail_settings_add_dialog_title">Ongeza Nafasi ya Upatikanaji</string>
+    <string name="avail_settings_day_of_week">Siku ya Wiki</string>
+    <string name="avail_settings_start_time">Saa ya Kuanza (HH:mm)</string>
+    <string name="avail_settings_end_time">Saa ya Kumaliza (HH:mm)</string>
+    <string name="avail_settings_buffer_label">Dakika za Mapumziko</string>
+
+    <!-- ═══ Majina ya Siku ═══ -->
+    <string name="day_sunday">Jumapili</string>
+    <string name="day_monday">Jumatatu</string>
+    <string name="day_tuesday">Jumanne</string>
+    <string name="day_wednesday">Jumatano</string>
+    <string name="day_thursday">Alhamisi</string>
+    <string name="day_friday">Ijumaa</string>
+    <string name="day_saturday">Jumamosi</string>
+
+    <!-- ═══ Dialogi ya Ombi la Kuingia ═══ -->
+    <string name="request_title_failed">Kukubali Kumeshindikana</string>
+    <string name="request_title_accepted">Ombi Limekubaliwa</string>
+    <string name="request_title_declined">Ombi Limekataliwa</string>
+    <string name="request_title_expired">Ombi Limekwisha Muda</string>
+    <string name="request_title_incoming">Ombi Jipya la Mashauriano</string>
+    <string name="request_subtitle_failed">Kuna tatizo limetokea. Unaweza kujaribu tena.</string>
+    <string name="request_subtitle_accepted">Inaelekeza kwenye mashauriano\u2026</string>
+    <string name="request_subtitle_declined">Mgonjwa ataaarifiwa.</string>
+    <string name="request_subtitle_expired">Muda wa ombi umepita.</string>
+    <string name="request_subtitle_pending">Mgonjwa anaomba mashauriano. Una sekunde %d za kujibu.</string>
+    <string name="request_seconds_remaining">Sekunde %d zimebaki</string>
+    <string name="request_dismiss">Ondoa</string>
+    <string name="request_retry">Jaribu Tena</string>
+    <string name="request_decline">Kataa</string>
+    <string name="request_accept">Kubali</string>
+    <string name="request_patient_label">Mgonjwa: %s</string>
+    <string name="request_blood_label">Damu: %s</string>
+    <string name="request_symptoms_label">Dalili: %s</string>
+    <string name="request_allergies_label">Mzio: %s</string>
+    <string name="request_conditions_label">Magonjwa sugu: %s</string>
+
+    <!-- ═══ Skrini ya Ripoti / Sehemu ya Chini ═══ -->
+    <string name="report_submitted_title">Ripoti Imewasilishwa</string>
+    <string name="report_submitted_message">Ripoti imetayarishwa na kutumwa kwa mgonjwa</string>
+    <string name="report_title">Ripoti ya Mashauriano</string>
+    <string name="report_instruction">Tafadhali kamilisha ripoti hii kabla ya kumaliza mashauriano. Data hii inasaidia kuboresha huduma za afya.</string>
+    <string name="report_diagnosed_problem">Tatizo Lililogunduliwa</string>
+    <string name="report_diagnosed_placeholder">Elezea hali iliyogunduliwa\u2026</string>
+    <string name="report_category">Kategoria</string>
+    <string name="report_category_placeholder">Chagua kategoria\u2026</string>
+    <string name="report_other_category_placeholder">Bainisha kategoria\u2026</string>
+    <string name="report_severity">Kiwango cha Ukali</string>
+    <string name="report_treatment_plan">Uamuzi / Mpango wa Matibabu</string>
+    <string name="report_treatment_placeholder">Elezea mpango wa matibabu au mapendekezo\u2026</string>
+    <string name="report_further_notes">Maelezo Zaidi (Si Lazima)</string>
+    <string name="report_notes_placeholder">Uchunguzi wowote wa ziada au maelezo\u2026</string>
+    <string name="report_follow_up">Mashauriano ya ufuatiliaji yanapendekezwa</string>
+    <string name="report_generating">Inatayarisha Ripoti\u2026</string>
+    <string name="report_submit_button">Wasilisha na Tayarisha Ripoti</string>
+    <string name="report_returning">Inarudi kwenye dashibodi\u2026</string>
+    <string name="report_moved_hint">Skrini hii imehamia sehemu ya chini. Tafadhali tumia skrini ya maelezo ya mashauriano.</string>
+
+</resources>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================ -->
+    <!-- ConsultationTimerBar                                         -->
+    <!-- ============================================================ -->
+    <string name="timer_time_ended">Time ended</string>
+    <string name="timer_grace_period">Grace period</string>
+    <string name="timer_completed">Completed</string>
+    <!-- %d = extension count -->
+    <string name="timer_extension_count">+%d ext</string>
+
+    <!-- ============================================================ -->
+    <!-- ExtensionOverlays                                            -->
+    <!-- ============================================================ -->
+    <string name="extension_session_time_ended">Session time has ended</string>
+    <string name="extension_patient_declined">Patient declined the extension.</string>
+    <string name="extension_end_consultation">End Consultation</string>
+    <string name="extension_waiting_for_patient">Waiting for patient to decide\u2026</string>
+    <string name="extension_times_up">Time\u2019s Up!</string>
+    <!-- %1$d = duration minutes, %2$s = formatted fee -->
+    <string name="extension_prompt_message">Your session time has ended. Would you like to extend by %1$d minutes for TZS %2$s?</string>
+    <string name="extension_yes_extend">Yes, Extend</string>
+    <string name="extension_no_thanks">No, Thanks</string>
+    <!-- %1$d = minutes, %2$d = seconds -->
+    <string name="extension_processing_payment">Processing extension payment\u2026 (%1$02d:%2$02d)</string>
+
+    <!-- ============================================================ -->
+    <!-- ChatContent                                                  -->
+    <!-- ============================================================ -->
+    <string name="chat_back">Back</string>
+    <string name="chat_consultation">Consultation</string>
+    <!-- %s = truncated consultation ID -->
+    <string name="chat_consultation_id">ID: %s\u2026</string>
+    <string name="chat_attached_image">Attached image</string>
+    <string name="chat_document">Document</string>
+    <string name="chat_tap_to_open">Tap to open</string>
+    <string name="chat_typing">Typing</string>
+    <string name="chat_no_messages">No messages yet</string>
+    <string name="chat_start_conversation">Start the conversation below</string>
+    <string name="chat_attach_file">Attach file</string>
+    <string name="chat_type_message">Type a message\u2026</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_uploading_attachment">Uploading attachment\u2026</string>
+    <string name="chat_messaging_paused">Messaging paused \u2014 session time ended</string>
+
+    <!-- ============================================================ -->
+    <!-- CallRechargeModal                                            -->
+    <!-- ============================================================ -->
+    <string name="recharge_add_call_time">Add More Call Time</string>
+    <string name="recharge_select_package">Select a package and pay with M-Pesa</string>
+    <string name="recharge_phone_label">M-Pesa Phone Number</string>
+    <string name="recharge_phone_placeholder">255XXXXXXXXX</string>
+    <string name="recharge_invalid_phone">Enter a valid phone number (255XXXXXXXXX)</string>
+    <string name="recharge_payment_failed">Payment initiation failed. Please try again.</string>
+    <string name="recharge_pay_mpesa">Pay with M-Pesa</string>
+    <string name="recharge_cancel">Cancel</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallScreen                                              -->
+    <!-- ============================================================ -->
+    <string name="video_call_requesting_permissions">Requesting permissions\u2026</string>
+    <string name="video_call_connecting">Connecting\u2026</string>
+    <string name="video_call_waiting_participant">Waiting for participant to join\u2026</string>
+    <string name="video_call_label">Video Call</string>
+    <string name="video_call_voice_label">Voice Call</string>
+    <string name="video_call_participant">Participant</string>
+    <string name="video_call_ended">Call Ended</string>
+    <string name="video_call_something_wrong">Something went wrong</string>
+    <string name="video_call_go_back">Go Back</string>
+    <string name="video_call_add_time">Add Time</string>
+    <string name="video_call_mute">Mute</string>
+    <string name="video_call_unmute">Unmute</string>
+    <string name="video_call_cam_off">Cam Off</string>
+    <string name="video_call_cam_on">Cam On</string>
+    <string name="video_call_flip">Flip</string>
+    <string name="video_call_speaker">Speaker</string>
+    <string name="video_call_earpiece">Earpiece</string>
+    <string name="video_call_end">End</string>
+    <string name="video_call_time_expired">Time Expired</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallViewModel (error messages)                          -->
+    <!-- ============================================================ -->
+    <string name="video_call_error_permissions">Camera and microphone permissions are required for calls.</string>
+    <string name="video_call_error_no_consultation">No consultation ID provided.</string>
+    <!-- %s = error detail -->
+    <string name="video_call_error_connect">Failed to connect: %s</string>
+    <string name="video_call_error_generic">An error occurred during the call.</string>
+    <string name="video_call_no_answer">No answer</string>
+    <!-- %s = exception message -->
+    <string name="video_call_error_start">Failed to start call: %s</string>
+
+</resources>

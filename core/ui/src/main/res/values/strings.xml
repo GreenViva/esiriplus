@@ -1,0 +1,4 @@
+<resources>
+    <!-- Content descriptions for shared UI components -->
+    <string name="cd_change_language">Change language</string>
+</resources>

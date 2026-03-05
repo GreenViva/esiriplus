@@ -169,7 +169,6 @@ Deno.serve(async (req: Request) => {
     const jwt = await signJWT({
       sub:           sessionId,             // Supabase auth.uid() for RLS
       session_id:    sessionId,
-      session_token: newSessionToken,
       role:          "authenticated",       // Supabase Postgres role
       app_role:      "patient",             // Application-level role
       iat:           nowSecs,

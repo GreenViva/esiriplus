@@ -42,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 import kotlinx.coroutines.launch
 
@@ -82,19 +84,19 @@ fun TermsScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.terms_back_content_desc),
                         tint = DarkText,
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Terms & Privacy Policy",
+                        text = stringResource(R.string.terms_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = DarkText,
                     )
                     Text(
-                        text = "Please read carefully before continuing",
+                        text = stringResource(R.string.terms_subtitle),
                         fontSize = 13.sp,
                         color = SubtitleGray,
                     )
@@ -172,7 +174,7 @@ fun TermsScreen(
                             color = DarkText,
                         )
                         Text(
-                            text = "eSIRI Plus Legal Document",
+                            text = stringResource(R.string.terms_legal_document),
                             fontSize = 13.sp,
                             color = SubtitleGray,
                         )
@@ -240,7 +242,7 @@ fun TermsScreen(
                         ),
                     )
                     Text(
-                        text = "I have read, understood, and agree to the Terms of Service, Privacy Policy, Medical Disclaimer, and Informed Consent",
+                        text = stringResource(R.string.terms_checkbox_text),
                         fontSize = 12.sp,
                         color = DarkText,
                         lineHeight = 18.sp,
@@ -265,7 +267,7 @@ fun TermsScreen(
                     ),
                 ) {
                     Text(
-                        text = "I Agree & Continue",
+                        text = stringResource(R.string.terms_agree_button),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                     )

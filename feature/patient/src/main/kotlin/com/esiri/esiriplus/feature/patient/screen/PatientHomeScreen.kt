@@ -64,10 +64,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.ui.LanguageSwitchButton
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientHomeViewModel
 
@@ -152,7 +154,6 @@ fun PatientHomeScreen(
 
             // Settings Row
             SettingsRow(
-                languageDisplayName = uiState.languageDisplayName,
                 soundsEnabled = uiState.soundsEnabled,
                 onToggleSounds = viewModel::toggleSounds,
                 onLogout = { showLogoutDialog = true },
@@ -182,8 +183,8 @@ fun PatientHomeScreen(
             // Consultation History
             DashboardSectionCard(
                 iconRes = R.drawable.ic_consultation,
-                title = "Consultation History",
-                subtitle = "View your past consultations",
+                title = stringResource(R.string.home_consultation_history),
+                subtitle = stringResource(R.string.home_consultation_history_subtitle),
                 onClick = onNavigateToConsultationHistory,
             )
 
@@ -192,8 +193,8 @@ fun PatientHomeScreen(
             // Reports
             DashboardSectionCard(
                 iconRes = R.drawable.ic_reports,
-                title = "Reports",
-                subtitle = "View and download your reports",
+                title = stringResource(R.string.home_reports),
+                subtitle = stringResource(R.string.home_reports_subtitle),
                 onClick = onNavigateToReports,
             )
 
@@ -202,8 +203,8 @@ fun PatientHomeScreen(
             // My Appointments
             DashboardSectionCard(
                 iconRes = R.drawable.ic_calendar,
-                title = "My Appointments",
-                subtitle = "View and manage your appointments",
+                title = stringResource(R.string.home_my_appointments),
+                subtitle = stringResource(R.string.home_my_appointments_subtitle),
                 onClick = onNavigateToAppointments,
             )
         }
@@ -228,7 +229,7 @@ private fun WelcomeHeader(
     context: Context,
 ) {
     Text(
-        text = "Welcome Back \uD83D\uDC4B",
+        text = stringResource(R.string.home_welcome_back),
         fontSize = 28.sp,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
@@ -236,7 +237,7 @@ private fun WelcomeHeader(
     Spacer(Modifier.height(8.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = "Your Patient ID:",
+            text = stringResource(R.string.home_your_patient_id),
             color = SubtitleGrey,
             fontSize = 14.sp,
         )
@@ -260,13 +261,13 @@ private fun WelcomeHeader(
             onClick = {
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("Patient ID", patientId))
-                Toast.makeText(context, "Patient ID copied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.home_patient_id_copied), Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.size(36.dp),
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_copy),
-                contentDescription = "Copy Patient ID",
+                contentDescription = stringResource(R.string.home_copy_patient_id),
                 tint = SubtitleGrey,
                 modifier = Modifier.size(18.dp),
             )
@@ -276,7 +277,6 @@ private fun WelcomeHeader(
 
 @Composable
 private fun SettingsRow(
-    languageDisplayName: String,
     soundsEnabled: Boolean,
     onToggleSounds: () -> Unit,
     onLogout: () -> Unit,
@@ -287,17 +287,9 @@ private fun SettingsRow(
         horizontalArrangement = Arrangement.End,
     ) {
         // Language
-        Icon(
-            painter = painterResource(R.drawable.ic_language),
-            contentDescription = null,
-            tint = SubtitleGrey,
-            modifier = Modifier.size(18.dp),
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(
-            text = languageDisplayName,
-            fontSize = 14.sp,
-            color = Color.Black,
+        LanguageSwitchButton(
+            showLabel = true,
+            iconTint = SubtitleGrey,
         )
 
         Spacer(Modifier.width(16.dp))
@@ -311,7 +303,7 @@ private fun SettingsRow(
         )
         Spacer(Modifier.width(4.dp))
         Text(
-            text = "Sounds",
+            text = stringResource(R.string.home_sounds),
             fontSize = 14.sp,
             color = Color.Black,
         )
@@ -338,7 +330,7 @@ private fun SettingsRow(
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                text = "Log Out",
+                text = stringResource(R.string.home_log_out),
                 color = Color.Red,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
@@ -361,7 +353,7 @@ private fun MedicalInfoSection(onEdit: () -> Unit) {
         )
         Spacer(Modifier.width(8.dp))
         Text(
-            text = "Your Medical Info",
+            text = stringResource(R.string.home_your_medical_info),
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             color = Color.Black,
@@ -379,7 +371,7 @@ private fun MedicalInfoSection(onEdit: () -> Unit) {
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                text = "Edit",
+                text = stringResource(R.string.home_edit),
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
@@ -400,17 +392,17 @@ private fun QuickActionChips(
     ) {
         ActionChip(
             iconRes = R.drawable.ic_services,
-            label = "Services",
+            label = stringResource(R.string.home_chip_services),
             onClick = onServicesClick,
         )
         ActionChip(
             iconRes = R.drawable.ic_consultation,
-            label = "New Consultation",
+            label = stringResource(R.string.home_chip_new_consultation),
             onClick = onNewConsultationClick,
         )
         ActionChip(
             iconRes = R.drawable.ic_reports,
-            label = "Reports",
+            label = stringResource(R.string.home_chip_reports),
             onClick = onReportsClick,
         )
     }
@@ -482,14 +474,14 @@ private fun StartConsultationCard(onClick: () -> Unit) {
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Start Consultation",
+                    text = stringResource(R.string.home_start_consultation),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color.Black,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Choose a service and connect with verified doctors",
+                    text = stringResource(R.string.home_start_consultation_subtitle),
                     fontSize = 14.sp,
                     color = SubtitleGrey,
                 )
@@ -497,7 +489,7 @@ private fun StartConsultationCard(onClick: () -> Unit) {
             Spacer(Modifier.width(8.dp))
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Start",
+                contentDescription = stringResource(R.string.home_content_desc_start),
                 tint = SubtitleGrey,
             )
         }
@@ -555,7 +547,7 @@ private fun DashboardSectionCard(
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Open",
+                contentDescription = stringResource(R.string.home_content_desc_open),
                 tint = SubtitleGrey,
             )
         }
@@ -571,21 +563,21 @@ private fun LogoutConfirmationDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Log Out",
+                text = stringResource(R.string.home_logout_title),
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
             )
         },
         text = {
             Text(
-                text = "Are you sure you want to log out? You will need your Patient ID to log back in.",
+                text = stringResource(R.string.home_logout_message),
                 color = SubtitleGrey,
             )
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(
-                    text = "Log Out",
+                    text = stringResource(R.string.home_logout_confirm),
                     color = Color.Red,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -594,7 +586,7 @@ private fun LogoutConfirmationDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.home_logout_cancel),
                     color = BrandTeal,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -664,7 +656,7 @@ private fun ActiveChatFab(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = "Return to active consultation",
+                contentDescription = stringResource(R.string.home_content_desc_active_consultation),
                 modifier = Modifier.size(26.dp),
             )
         }

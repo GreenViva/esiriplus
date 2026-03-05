@@ -88,6 +88,8 @@ private data class DoctorRow(
     @SerialName("updated_at") val updatedAt: String = "",
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class FindDoctorViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -131,11 +133,15 @@ class FindDoctorViewModel @Inject constructor(
             is ApiResult.Success -> {
                 try {
                     val response = json.decodeFromString<ListDoctorsResponse>(result.data)
-                    if (response.doctors.isNotEmpty()) {
-                        val entities = response.doctors.map { it.toEntity() }
+                    val entities = response.doctors.map { it.toEntity() }
+                    // Replace cached doctors for this specialty so suspended/banned
+                    // doctors that are no longer returned get removed.
+                    val freshIds = entities.map { it.doctorId }
+                    doctorProfileDao.deleteStaleBySpecialty(doctorSpecialty, freshIds)
+                    if (entities.isNotEmpty()) {
                         doctorProfileDao.insertAll(entities)
-                        Log.d(TAG, "Cached ${entities.size} doctors for $doctorSpecialty")
                     }
+                    Log.d(TAG, "Cached ${entities.size} doctors for $doctorSpecialty")
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to parse list-doctors response", e)
                 }

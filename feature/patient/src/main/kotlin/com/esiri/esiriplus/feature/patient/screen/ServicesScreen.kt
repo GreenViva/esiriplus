@@ -53,6 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -125,20 +126,20 @@ fun ServicesScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.services_back),
                             tint = Color.Black,
                         )
                     }
                     Spacer(Modifier.width(4.dp))
                     Column {
                         Text(
-                            text = "Our Services",
+                            text = stringResource(R.string.services_title),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
                         )
                         Text(
-                            text = "Choose the type of healthcare provider you need \u2022 Tanzania",
+                            text = stringResource(R.string.services_subtitle),
                             fontSize = 13.sp,
                             color = SubtitleGrey,
                         )
@@ -192,7 +193,7 @@ fun ServicesScreen(
                         ),
                     ) {
                         Text(
-                            text = "Pay to Continue",
+                            text = stringResource(R.string.services_pay_to_continue),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
@@ -200,7 +201,7 @@ fun ServicesScreen(
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Payment required to view available healthcare providers",
+                        text = stringResource(R.string.services_payment_required),
                         fontSize = 13.sp,
                         color = Color.Black,
                     )
@@ -322,7 +323,7 @@ private fun ServiceCard(
                             color = PopularOrange,
                         ) {
                             Text(
-                                text = "\u2728 Popular",
+                                text = stringResource(R.string.services_popular),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
@@ -336,7 +337,7 @@ private fun ServiceCard(
                             color = Color(0xFF6B7280),
                         ) {
                             Text(
-                                text = "Coming Soon",
+                                text = stringResource(R.string.services_coming_soon),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
@@ -399,7 +400,7 @@ private fun ServiceCard(
                         color = BrandTeal.copy(alpha = contentAlpha),
                     )
                     Text(
-                        text = "${service.durationMinutes} min",
+                        text = stringResource(R.string.services_min_format, service.durationMinutes),
                         fontSize = 11.sp,
                         color = SubtitleGrey.copy(alpha = contentAlpha),
                     )
@@ -495,7 +496,7 @@ private fun PaymentMethodDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Choose Payment Method",
+                        text = stringResource(R.string.services_choose_payment_method),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -506,7 +507,7 @@ private fun PaymentMethodDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.services_close),
                             tint = Color.Black,
                             modifier = Modifier.size(20.dp),
                         )
@@ -526,8 +527,8 @@ private fun PaymentMethodDialog(
                 PaymentMethodOption(
                     iconRes = R.drawable.ic_mobile_money,
                     iconBgColor = MobileMoneyGreen,
-                    title = "Mobile Money",
-                    subtitle = "M-Pesa, Airtel Money, HaloPesa, Yas",
+                    title = stringResource(R.string.services_mobile_money),
+                    subtitle = stringResource(R.string.services_mobile_money_subtitle),
                     enabled = true,
                     onClick = onMobileMoneySelected,
                 )
@@ -538,8 +539,8 @@ private fun PaymentMethodDialog(
                 PaymentMethodOption(
                     iconRes = R.drawable.ic_credit_card,
                     iconBgColor = ComingSoonGrey,
-                    title = "Card Payment",
-                    subtitle = "Visa, Mastercard",
+                    title = stringResource(R.string.services_card_payment),
+                    subtitle = stringResource(R.string.services_card_payment_subtitle),
                     enabled = false,
                     comingSoon = true,
                     onClick = {},
@@ -551,8 +552,8 @@ private fun PaymentMethodDialog(
                 PaymentMethodOption(
                     iconRes = R.drawable.ic_bank,
                     iconBgColor = ComingSoonGrey,
-                    title = "Bank Transfer",
-                    subtitle = "Direct bank transfer",
+                    title = stringResource(R.string.services_bank_transfer),
+                    subtitle = stringResource(R.string.services_bank_transfer_subtitle),
                     enabled = false,
                     comingSoon = true,
                     onClick = {},
@@ -562,7 +563,7 @@ private fun PaymentMethodDialog(
 
                 // Secure payment note
                 Text(
-                    text = "\uD83D\uDD12 All payments are secure and encrypted",
+                    text = stringResource(R.string.services_secure_payments),
                     fontSize = 12.sp,
                     color = SubtitleGrey,
                     textAlign = TextAlign.Center,
@@ -643,7 +644,7 @@ private fun PaymentMethodOption(
                     color = Color(0xFFF3F4F6),
                 ) {
                     Text(
-                        text = "Coming Soon",
+                        text = stringResource(R.string.services_coming_soon),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
@@ -765,7 +766,7 @@ private fun ProviderSelectionDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Select Your Provider",
+                        text = stringResource(R.string.services_select_provider),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -776,7 +777,7 @@ private fun ProviderSelectionDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.services_close),
                             tint = Color.Black,
                             modifier = Modifier.size(20.dp),
                         )
@@ -803,7 +804,7 @@ private fun ProviderSelectionDialog(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "Back",
+                            text = stringResource(R.string.services_back),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFFDC2626),
@@ -954,7 +955,7 @@ private fun PaymentInstructionsDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(R.string.services_close),
                             tint = Color.Black,
                             modifier = Modifier.size(20.dp),
                         )
@@ -981,7 +982,7 @@ private fun PaymentInstructionsDialog(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "Back",
+                            text = stringResource(R.string.services_back),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFFDC2626),
@@ -1027,7 +1028,7 @@ private fun PaymentInstructionsDialog(
 
                 // Reference Number
                 Text(
-                    text = "Reference Number",
+                    text = stringResource(R.string.services_reference_number),
                     fontSize = 12.sp,
                     color = SubtitleGrey,
                 )
@@ -1051,7 +1052,7 @@ private fun PaymentInstructionsDialog(
 
                 // Amount to Pay
                 Text(
-                    text = "Amount to Pay",
+                    text = stringResource(R.string.services_amount_to_pay),
                     fontSize = 12.sp,
                     color = SubtitleGrey,
                 )
@@ -1067,7 +1068,7 @@ private fun PaymentInstructionsDialog(
 
                 // Steps header
                 Text(
-                    text = "Follow these steps on your phone:",
+                    text = stringResource(R.string.services_follow_steps),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -1125,7 +1126,7 @@ private fun PaymentInstructionsDialog(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "To avoid unnecessary delays, please pay the exact amount of TSh ${numberFormat.format(priceAmount)} for your chosen service.",
+                            text = stringResource(R.string.services_exact_amount_warning, numberFormat.format(priceAmount)),
                             fontSize = 12.sp,
                             color = Color(0xFF92400E),
                             lineHeight = 16.sp,
@@ -1153,7 +1154,7 @@ private fun PaymentInstructionsDialog(
                         border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
                     ) {
                         Text(
-                            text = "Change\nProvider",
+                            text = stringResource(R.string.services_change_provider),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black,
@@ -1181,7 +1182,7 @@ private fun PaymentInstructionsDialog(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "I Have Paid",
+                            text = stringResource(R.string.services_i_have_paid),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
@@ -1225,7 +1226,7 @@ private fun VerifyingPaymentDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Verifying Payment...",
+                    text = stringResource(R.string.services_verifying_payment),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -1242,7 +1243,7 @@ private fun VerifyingPaymentDialog(
                 Spacer(Modifier.height(24.dp))
 
                 Text(
-                    text = "Verifying Payment...",
+                    text = stringResource(R.string.services_verifying_payment),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -1251,7 +1252,7 @@ private fun VerifyingPaymentDialog(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Please wait while we confirm your payment",
+                    text = stringResource(R.string.services_please_wait_confirm),
                     fontSize = 13.sp,
                     color = SubtitleGrey,
                     textAlign = TextAlign.Center,
@@ -1308,7 +1309,7 @@ private fun PaymentSuccessDialog(
                 Spacer(Modifier.height(20.dp))
 
                 Text(
-                    text = "Payment Successful!",
+                    text = stringResource(R.string.services_payment_successful),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -1317,7 +1318,7 @@ private fun PaymentSuccessDialog(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Your payment has been confirmed. You can now browse available healthcare providers.",
+                    text = stringResource(R.string.services_payment_confirmed_message),
                     fontSize = 13.sp,
                     color = SubtitleGrey,
                     textAlign = TextAlign.Center,
@@ -1337,7 +1338,7 @@ private fun PaymentSuccessDialog(
                     ),
                 ) {
                     Text(
-                        text = "Continue",
+                        text = stringResource(R.string.services_continue),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,

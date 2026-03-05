@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -78,17 +79,6 @@ private val SubtitleGray = Color.Black
 private val CardBorder = Color(0xFFE5E7EB)
 private val IconBg = Color(0xFFF0FDFA)
 private val FieldBg = Color(0xFFF8FFFE)
-
-private val StepTitles = listOf(
-    "Create Your Account" to "Enter your email and create a secure password",
-    "Profile Photo" to "Upload a professional photo of yourself",
-    "Personal Information" to "Tell us about yourself",
-    "Location & Languages" to "Where are you based and what languages do you speak?",
-    "Professional Details" to "Your qualifications and experience",
-    "Services Offered" to "Services available for your specialty",
-    "Upload Credentials" to "Upload your medical license and certificates for verification",
-    "Biometric Security" to "Set up fingerprint or face unlock for your account",
-)
 
 private val Specialties = listOf(
     "Nurse",
@@ -279,9 +269,30 @@ fun DoctorRegistrationScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     // Step title and subtitle
-                    val (title, subtitle) = StepTitles[uiState.currentStep - 1]
+                    val stepTitle = when (uiState.currentStep) {
+                        1 -> stringResource(R.string.doctor_reg_step1_title)
+                        2 -> stringResource(R.string.doctor_reg_step2_title)
+                        3 -> stringResource(R.string.doctor_reg_step3_title)
+                        4 -> stringResource(R.string.doctor_reg_step4_title)
+                        5 -> stringResource(R.string.doctor_reg_step5_title)
+                        6 -> stringResource(R.string.doctor_reg_step6_title)
+                        7 -> stringResource(R.string.doctor_reg_step7_title)
+                        8 -> stringResource(R.string.doctor_reg_step8_title)
+                        else -> ""
+                    }
+                    val stepSubtitle = when (uiState.currentStep) {
+                        1 -> stringResource(R.string.doctor_reg_step1_subtitle)
+                        2 -> stringResource(R.string.doctor_reg_step2_subtitle)
+                        3 -> stringResource(R.string.doctor_reg_step3_subtitle)
+                        4 -> stringResource(R.string.doctor_reg_step4_subtitle)
+                        5 -> stringResource(R.string.doctor_reg_step5_subtitle)
+                        6 -> stringResource(R.string.doctor_reg_step6_subtitle)
+                        7 -> stringResource(R.string.doctor_reg_step7_subtitle)
+                        8 -> stringResource(R.string.doctor_reg_step8_subtitle)
+                        else -> ""
+                    }
                     Text(
-                        text = title,
+                        text = stepTitle,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = DarkText,
@@ -290,7 +301,7 @@ fun DoctorRegistrationScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = subtitle,
+                        text = stepSubtitle,
                         fontSize = 14.sp,
                         color = SubtitleGray,
                         modifier = Modifier.fillMaxWidth(),
@@ -385,14 +396,14 @@ private fun DoctorPortalHeader() {
         }
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Doctor Portal",
+            text = stringResource(R.string.doctor_reg_portal_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = DarkText,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Join our network of verified healthcare professionals",
+            text = stringResource(R.string.doctor_reg_portal_subtitle),
             fontSize = 14.sp,
             color = SubtitleGray,
         )
@@ -417,7 +428,7 @@ private fun SignInRegisterTabRow(onSignInClick: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Sign In",
+                text = stringResource(R.string.doctor_reg_sign_in_tab),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = SubtitleGray,
@@ -432,7 +443,7 @@ private fun SignInRegisterTabRow(onSignInClick: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Register",
+                text = stringResource(R.string.doctor_reg_register_tab),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = DarkText,
@@ -543,7 +554,7 @@ private fun RegistrationTextField(
                                 if (passwordVisible) R.drawable.ic_visibility
                                 else R.drawable.ic_visibility_off,
                             ),
-                            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                            contentDescription = if (passwordVisible) stringResource(R.string.doctor_reg_hide_password) else stringResource(R.string.doctor_reg_show_password),
                             modifier = Modifier.size(20.dp),
                             tint = SubtitleGray,
                         )
@@ -581,7 +592,7 @@ private fun Step1Content(
     RegistrationTextField(
         value = uiState.email,
         onValueChange = viewModel::onEmailChanged,
-        label = "Email",
+        label = stringResource(R.string.doctor_reg_email_label),
         iconRes = R.drawable.ic_email,
         keyboardType = KeyboardType.Email,
     )
@@ -589,7 +600,7 @@ private fun Step1Content(
     RegistrationTextField(
         value = uiState.password,
         onValueChange = viewModel::onPasswordChanged,
-        label = "Password",
+        label = stringResource(R.string.doctor_reg_password_label),
         iconRes = R.drawable.ic_lock,
         isPassword = true,
         passwordVisible = uiState.passwordVisible,
@@ -599,7 +610,7 @@ private fun Step1Content(
     RegistrationTextField(
         value = uiState.confirmPassword,
         onValueChange = viewModel::onConfirmPasswordChanged,
-        label = "Confirm Password",
+        label = stringResource(R.string.doctor_reg_confirm_password_label),
         iconRes = R.drawable.ic_lock,
         isPassword = true,
         passwordVisible = uiState.confirmPasswordVisible,
@@ -648,7 +659,7 @@ private fun Step2Content(
             if (uiState.profilePhotoUri != null) {
                 coil3.compose.AsyncImage(
                     model = uiState.profilePhotoUri,
-                    contentDescription = "Profile photo",
+                    contentDescription = stringResource(R.string.doctor_reg_profile_photo_cd),
                     modifier = Modifier
                         .size(160.dp)
                         .clip(CircleShape),
@@ -657,7 +668,7 @@ private fun Step2Content(
             } else {
                 Icon(
                     painter = painterResource(R.drawable.ic_camera),
-                    contentDescription = "Select photo",
+                    contentDescription = stringResource(R.string.doctor_reg_select_photo_cd),
                     modifier = Modifier.size(40.dp),
                     tint = SubtitleGray,
                 )
@@ -666,7 +677,7 @@ private fun Step2Content(
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Tap to select a photo (JPG, PNG, max 5MB)",
+            text = stringResource(R.string.doctor_reg_photo_hint),
             fontSize = 13.sp,
             color = SubtitleGray,
         )
@@ -684,15 +695,15 @@ private fun Step3Content(
     RegistrationTextField(
         value = uiState.fullName,
         onValueChange = viewModel::onFullNameChanged,
-        label = "Full Name",
+        label = stringResource(R.string.doctor_reg_full_name_label),
         iconRes = R.drawable.ic_person,
-        placeholder = "Dr. John Doe",
+        placeholder = stringResource(R.string.doctor_reg_full_name_placeholder),
     )
     Spacer(modifier = Modifier.height(16.dp))
 
     // Phone Number with country code
     Text(
-        text = "Phone Number",
+        text = stringResource(R.string.doctor_reg_phone_label),
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
         color = DarkText,
@@ -773,7 +784,7 @@ private fun Step3Content(
     // Specialty dropdown
     var expanded by remember { mutableStateOf(false) }
     Text(
-        text = "Medical Specialty",
+        text = stringResource(R.string.doctor_reg_specialty_label),
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
         color = DarkText,
@@ -790,7 +801,7 @@ private fun Step3Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            placeholder = { Text("Select your specialty", color = SubtitleGray, fontSize = 14.sp) },
+            placeholder = { Text(stringResource(R.string.doctor_reg_specialty_placeholder), color = SubtitleGray, fontSize = 14.sp) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -820,7 +831,7 @@ private fun Step3Content(
     if (uiState.specialty == "Specialist") {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Specialist Field",
+            text = stringResource(R.string.doctor_reg_specialist_field_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = DarkText,
@@ -840,7 +851,7 @@ private fun Step3Content(
             },
             placeholder = {
                 Text(
-                    "e.g. Dentist, Cardiologist, Dermatologist",
+                    stringResource(R.string.doctor_reg_specialist_field_placeholder),
                     color = SubtitleGray,
                     fontSize = 14.sp,
                 )
@@ -878,7 +889,7 @@ private fun Step4Content(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Country",
+            text = stringResource(R.string.doctor_reg_country_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = DarkText,
@@ -933,7 +944,7 @@ private fun Step4Content(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Languages You Speak",
+            text = stringResource(R.string.doctor_reg_languages_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = DarkText,
@@ -943,7 +954,7 @@ private fun Step4Content(
 
     // Common languages
     Text(
-        text = "COMMON LANGUAGES",
+        text = stringResource(R.string.doctor_reg_common_languages),
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
         color = SubtitleGray,
@@ -969,7 +980,7 @@ private fun Step4Content(
 
     // Other languages
     Text(
-        text = "OTHER LANGUAGES",
+        text = stringResource(R.string.doctor_reg_other_languages),
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
         color = SubtitleGray,
@@ -997,7 +1008,7 @@ private fun Step4Content(
 
     Spacer(modifier = Modifier.height(12.dp))
     Text(
-        text = "${uiState.selectedLanguages.size} language(s) selected",
+        text = stringResource(R.string.doctor_reg_languages_selected, uiState.selectedLanguages.size),
         fontSize = 13.sp,
         color = SubtitleGray,
     )
@@ -1067,15 +1078,15 @@ private fun Step5Content(
     RegistrationTextField(
         value = uiState.licenseNumber,
         onValueChange = viewModel::onLicenseNumberChanged,
-        label = "Medical License Number",
+        label = stringResource(R.string.doctor_reg_license_label),
         iconRes = R.drawable.ic_badge,
-        placeholder = "e.g., TZ-MED-12345",
+        placeholder = stringResource(R.string.doctor_reg_license_placeholder),
     )
     Spacer(modifier = Modifier.height(16.dp))
     RegistrationTextField(
         value = uiState.yearsExperience,
         onValueChange = viewModel::onYearsExperienceChanged,
-        label = "Years of Experience",
+        label = stringResource(R.string.doctor_reg_experience_label),
         iconRes = R.drawable.ic_clock,
         placeholder = "0",
         keyboardType = KeyboardType.Number,
@@ -1083,7 +1094,7 @@ private fun Step5Content(
     Spacer(modifier = Modifier.height(16.dp))
 
     Text(
-        text = "Professional Bio",
+        text = stringResource(R.string.doctor_reg_bio_label),
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
         color = DarkText,
@@ -1095,7 +1106,7 @@ private fun Step5Content(
         modifier = Modifier.fillMaxWidth(),
         placeholder = {
             Text(
-                text = "Tell patients about your background, approach, and areas of expertise...",
+                text = stringResource(R.string.doctor_reg_bio_placeholder),
                 color = SubtitleGray,
                 fontSize = 14.sp,
             )
@@ -1145,7 +1156,7 @@ private fun Step6Content(
                     color = DarkText,
                 )
                 Text(
-                    text = "${services.size} services available",
+                    text = stringResource(R.string.doctor_reg_services_available, services.size),
                     fontSize = 12.sp,
                     color = DarkText,
                 )
@@ -1161,7 +1172,7 @@ private fun Step6Content(
     }
 
     Text(
-        text = "Select the services you will offer:",
+        text = stringResource(R.string.doctor_reg_select_services),
         fontSize = 13.sp,
         color = DarkText,
     )
@@ -1220,7 +1231,7 @@ private fun Step6Content(
 
     Spacer(modifier = Modifier.height(4.dp))
     Text(
-        text = "${uiState.selectedServices.size} of ${services.size} service(s) selected",
+        text = stringResource(R.string.doctor_reg_services_selected, uiState.selectedServices.size, services.size),
         fontSize = 13.sp,
         color = DarkText,
     )
@@ -1236,8 +1247,8 @@ private fun Step7Content(
 ) {
     // Medical License upload
     UploadBox(
-        title = "Medical License",
-        subtitle = "Click to upload PDF or image",
+        title = stringResource(R.string.doctor_reg_license_upload_title),
+        subtitle = stringResource(R.string.doctor_reg_license_upload_subtitle),
         iconRes = R.drawable.ic_upload,
         hasFile = uiState.licenseDocumentUri != null,
         onClick = onUploadLicense,
@@ -1247,8 +1258,8 @@ private fun Step7Content(
 
     // Additional Certificates upload
     UploadBox(
-        title = "Additional Certificates",
-        subtitle = "Optional: specialization certificates",
+        title = stringResource(R.string.doctor_reg_certificates_upload_title),
+        subtitle = stringResource(R.string.doctor_reg_certificates_upload_subtitle),
         iconRes = R.drawable.ic_document,
         hasFile = uiState.certificatesUri != null,
         onClick = onUploadCertificates,
@@ -1268,7 +1279,7 @@ private fun Step7Content(
         Text(text = "\uD83D\uDCCB", fontSize = 16.sp)
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = "Your credentials will be reviewed by our team. You will be notified once your profile is verified.",
+            text = stringResource(R.string.doctor_reg_credentials_review_notice),
             fontSize = 13.sp,
             color = DarkText,
             lineHeight = 20.sp,
@@ -1314,7 +1325,7 @@ private fun UploadBox(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = if (hasFile) "$title (selected)" else title,
+            text = if (hasFile) "$title ${stringResource(R.string.doctor_reg_selected_suffix)}" else title,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = BrandTeal,
@@ -1363,7 +1374,7 @@ private fun BottomBar(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Back",
+                    text = stringResource(R.string.doctor_reg_back_button),
                     color = DarkText,
                     fontWeight = FontWeight.Medium,
                 )
@@ -1392,13 +1403,13 @@ private fun BottomBar(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Registering...",
+                    text = stringResource(R.string.doctor_reg_registering),
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
                 )
             } else {
                 Text(
-                    text = if (currentStep == 8) "Complete Registration" else "Continue",
+                    text = if (currentStep == 8) stringResource(R.string.doctor_reg_complete_registration) else stringResource(R.string.doctor_reg_continue),
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
                 )

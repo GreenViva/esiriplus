@@ -32,8 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorConsultationListViewModel
 import java.time.Instant
@@ -72,18 +74,18 @@ fun DoctorConsultationListScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.common_back_content_description),
                     tint = BrandTeal,
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = "Back", fontSize = 14.sp, color = BrandTeal)
+                Text(text = stringResource(R.string.common_back), fontSize = 14.sp, color = BrandTeal)
             }
 
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Consultation History",
+                text = stringResource(R.string.consultation_list_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -107,7 +109,7 @@ fun DoctorConsultationListScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "No consultations yet",
+                    text = stringResource(R.string.consultation_list_empty),
                     fontSize = 16.sp,
                     color = SubtitleGrey,
                 )

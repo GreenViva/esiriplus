@@ -31,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.R
 import com.esiri.esiriplus.core.domain.model.Notification
 import com.esiri.esiriplus.core.domain.model.NotificationType
 import com.esiri.esiriplus.viewmodel.NotificationViewModel
@@ -69,12 +71,12 @@ fun NotificationListScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.cd_back),
                     tint = Color.Black,
                 )
             }
             Text(
-                text = "Notifications",
+                text = stringResource(R.string.notifications_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -82,7 +84,7 @@ fun NotificationListScreen(
             )
             TextButton(onClick = { viewModel.markAllAsRead() }) {
                 Text(
-                    text = "Mark all read",
+                    text = stringResource(R.string.notifications_mark_all_read),
                     fontSize = 12.sp,
                     color = BrandTeal,
                     fontWeight = FontWeight.Medium,
@@ -104,14 +106,14 @@ fun NotificationListScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "No notifications yet",
+                        text = stringResource(R.string.notifications_empty_title),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "You'll see updates here when they arrive.",
+                        text = stringResource(R.string.notifications_empty_subtitle),
                         fontSize = 13.sp,
                         color = Color.Gray,
                     )
@@ -203,7 +205,7 @@ private fun NotificationItem(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = formatTimestamp(notification.createdAt),
+                text = formattedRelativeTime(notification.createdAt),
                 fontSize = 11.sp,
                 color = Color.Gray,
             )
@@ -259,10 +261,10 @@ private fun formatTimestamp(epochMillis: Long): String {
         val diffMinutes = (now - epochMillis) / 60_000
 
         when {
-            diffMinutes < 1 -> "Just now"
-            diffMinutes < 60 -> "${diffMinutes}m ago"
-            diffMinutes < 1440 -> "${diffMinutes / 60}h ago"
-            diffMinutes < 10080 -> "${diffMinutes / 1440}d ago"
+            diffMinutes < 1 -> ""       // placeholder, replaced by Composable wrapper
+            diffMinutes < 60 -> "${diffMinutes}m"
+            diffMinutes < 1440 -> "${diffMinutes / 60}h"
+            diffMinutes < 10080 -> "${diffMinutes / 1440}d"
             else -> {
                 val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
                 Instant.ofEpochMilli(epochMillis)
@@ -272,5 +274,18 @@ private fun formatTimestamp(epochMillis: Long): String {
         }
     } catch (_: Exception) {
         ""
+    }
+}
+
+@Composable
+private fun formattedRelativeTime(epochMillis: Long): String {
+    val now = System.currentTimeMillis()
+    val diffMinutes = (now - epochMillis) / 60_000
+    return when {
+        diffMinutes < 1 -> stringResource(R.string.time_just_now)
+        diffMinutes < 60 -> stringResource(R.string.time_minutes_ago, diffMinutes.toInt())
+        diffMinutes < 1440 -> stringResource(R.string.time_hours_ago, (diffMinutes / 60).toInt())
+        diffMinutes < 10080 -> stringResource(R.string.time_days_ago, (diffMinutes / 1440).toInt())
+        else -> formatTimestamp(epochMillis)
     }
 }

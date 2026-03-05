@@ -105,8 +105,8 @@ function validate(body: unknown): StkPushRequest {
   }
 
   // amount
-  if (typeof b.amount !== "number" || b.amount < 1 || !Number.isInteger(b.amount)) {
-    throw new ValidationError("amount must be a positive integer (TZS)");
+  if (typeof b.amount !== "number" || b.amount < 3000 || !Number.isInteger(b.amount)) {
+    throw new ValidationError("amount must be at least 3,000 TZS");
   }
 
   // payment_type

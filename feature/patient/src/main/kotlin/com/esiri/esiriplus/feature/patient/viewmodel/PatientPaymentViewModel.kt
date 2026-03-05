@@ -42,6 +42,8 @@ enum class PaymentStep {
     FAILED,
 }
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientPaymentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

@@ -10,8 +10,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.model.UserRole
-import com.esiri.esiriplus.feature.admin.navigation.AdminGraph
-import com.esiri.esiriplus.feature.admin.navigation.adminGraph
 import com.esiri.esiriplus.feature.auth.navigation.AuthGraph
 import com.esiri.esiriplus.feature.auth.navigation.PatientSetupRoute
 import com.esiri.esiriplus.feature.auth.navigation.RoleSelectionRoute
@@ -43,7 +41,7 @@ fun EsiriplusNavHost(
             is AuthState.Authenticated -> when (authState.session.user.role) {
                 UserRole.PATIENT -> PatientGraph
                 UserRole.DOCTOR -> DoctorGraph
-                UserRole.ADMIN -> AdminGraph
+                UserRole.ADMIN -> AuthGraph // Admin uses web panel, not the app
             }
             else -> AuthGraph
         }
@@ -106,6 +104,12 @@ fun EsiriplusNavHost(
             }
             is AuthState.Authenticated -> {
                 if (!hasNavigatedForAuth.value) {
+                    // Admin role — not supported in the mobile app
+                    if (authState.session.user.role == UserRole.ADMIN) {
+                        Log.w("NavHost", "ADMIN role not supported in mobile app — staying on auth")
+                        return@LaunchedEffect
+                    }
+
                     // Check if patient is still on the setup/recovery screen —
                     // don't yank them to the dashboard until they click "Continue".
                     val onPatientSetup = authState.session.user.role == UserRole.PATIENT &&
@@ -118,7 +122,7 @@ fun EsiriplusNavHost(
                         val dest: Any = when (authState.session.user.role) {
                             UserRole.PATIENT -> PatientGraph
                             UserRole.DOCTOR -> DoctorGraph
-                            UserRole.ADMIN -> AdminGraph
+                            UserRole.ADMIN -> AuthGraph // unreachable, handled above
                         }
                         navController.navigate(dest) {
                             popUpTo(0) { inclusive = true }
@@ -150,6 +154,5 @@ fun EsiriplusNavHost(
         )
         patientGraph(navController = navController)
         doctorGraph(navController = navController, onSignOut = onLogout)
-        adminGraph(navController = navController)
     }
 }

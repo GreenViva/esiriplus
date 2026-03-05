@@ -33,6 +33,9 @@ import io.github.jan.supabase.SupabaseClient
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -40,6 +43,11 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthenticatedClient
+
+/** Application-scoped CoroutineScope for fire-and-forget cleanup tasks. */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationScope
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -118,6 +126,12 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideAppointmentRepository(impl: AppointmentRepositoryImpl): AppointmentRepository = impl
+
+    @Provides
+    @Singleton
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private const val CONNECT_TIMEOUT_SECONDS = 30L
     private const val READ_TIMEOUT_SECONDS = 60L

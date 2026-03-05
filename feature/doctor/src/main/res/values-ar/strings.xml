@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ═══ Common / Shared ═══ -->
+    <string name="common_back">رجوع</string>
+    <string name="common_back_content_description">رجوع</string>
+    <string name="common_cancel">إلغاء</string>
+    <string name="common_ok">حسنًا</string>
+    <string name="common_save">حفظ</string>
+    <string name="common_close">إغلاق</string>
+    <string name="common_sign_out">تسجيل الخروج</string>
+    <string name="common_open_menu">فتح القائمة</string>
+    <string name="common_close_menu">إغلاق القائمة</string>
+    <string name="common_coming_soon">قريبًا</string>
+    <string name="common_view_all">عرض الكل</string>
+    <string name="common_off">إيقاف</string>
+    <string name="common_english">الإنجليزية</string>
+
+    <!-- ═══ Dashboard: Side Navigation ═══ -->
+    <string name="nav_dashboard">لوحة التحكم</string>
+    <string name="nav_consultations">الاستشارات</string>
+    <string name="nav_chat">المحادثة</string>
+    <string name="nav_availability">التوفر</string>
+    <string name="nav_profile">الملف الشخصي</string>
+    <string name="nav_earnings">الأرباح</string>
+    <string name="sidebar_doctor_portal">بوابة الطبيب</string>
+    <string name="sidebar_verified">موثّق</string>
+
+    <!-- ═══ Dashboard: Top Bar ═══ -->
+    <string name="dashboard_welcome_back">مرحبًا بعودتك،</string>
+    <string name="dashboard_notifications">الإشعارات</string>
+    <string name="dashboard_online">متصل</string>
+    <string name="dashboard_suspended">موقوف</string>
+    <string name="dashboard_under_review">قيد المراجعة</string>
+
+    <!-- ═══ Dashboard: Active Consultation Banner ═══ -->
+    <string name="dashboard_active_consultation">استشارة نشطة</string>
+    <string name="dashboard_tap_to_resume">انقر لاستئناف المحادثة</string>
+    <string name="dashboard_resume">استئناف \u25B6</string>
+
+    <!-- ═══ Dashboard: Sign Out Dialog ═══ -->
+    <string name="sign_out_dialog_title">تسجيل الخروج</string>
+    <string name="sign_out_dialog_message">هل أنت متأكد أنك تريد تسجيل الخروج؟</string>
+
+    <!-- ═══ Dashboard: Overlay Permission Dialog ═══ -->
+    <string name="overlay_dialog_title">العرض فوق التطبيقات الأخرى</string>
+    <string name="overlay_dialog_message">لعرض فقاعة عائمة عند تلقي طلبات استشارة أثناء استخدام تطبيقات أخرى، يرجى السماح لـ eSIRI+ بالعرض فوق التطبيقات الأخرى. ستظل تتلقى الإشعارات بدون هذا الإذن.</string>
+    <string name="overlay_dialog_open_settings">فتح الإعدادات</string>
+    <string name="overlay_dialog_not_now">ليس الآن</string>
+
+    <!-- ═══ Dashboard: Verified Banner ═══ -->
+    <string name="banner_verified_title">طبيب موثّق</string>
+    <string name="banner_verified_message">تم توثيق ملفك الشخصي. يمكنك الآن قبول استشارات المرضى.</string>
+
+    <!-- ═══ Dashboard: Pending Review Banner ═══ -->
+    <string name="banner_pending_title">الطلب قيد المراجعة</string>
+    <string name="banner_pending_message">طلبك قيد المراجعة. يستغرق هذا عادةً من 1\u20135 أيام عمل. سيتم إشعارك فور الموافقة.</string>
+
+    <!-- ═══ Dashboard: Rejected Banner ═══ -->
+    <string name="banner_rejected_title">لم تتم الموافقة على الطلب</string>
+    <string name="banner_rejected_resubmit">يرجى مراجعة السبب وإعادة تقديم بيانات اعتمادك.</string>
+
+    <!-- ═══ Dashboard: Stats Grid ═══ -->
+    <string name="stats_pending_requests">الطلبات المعلقة</string>
+    <string name="stats_active_consultations">الاستشارات النشطة</string>
+    <string name="stats_todays_earnings">أرباح اليوم</string>
+    <string name="stats_total_patients">إجمالي المرضى</string>
+    <string name="stats_acceptance_rate">معدل القبول</string>
+    <string name="stats_appointments">المواعيد</string>
+
+    <!-- ═══ Dashboard: Availability Section ═══ -->
+    <string name="availability_today_title">توفر اليوم</string>
+    <string name="availability_available_today">متاح اليوم</string>
+    <string name="availability_not_available_today">غير متاح اليوم</string>
+    <string name="availability_set">تعيين التوفر</string>
+
+    <!-- ═══ Dashboard: Pending Requests Section ═══ -->
+    <string name="pending_requests_title">الطلبات المعلقة</string>
+    <string name="pending_requests_none">لا توجد طلبات معلقة</string>
+    <string name="pending_requests_count">%d طلب(طلبات) معلق</string>
+
+    <!-- ═══ Dashboard: Appointments Section ═══ -->
+    <string name="appointments_upcoming_title">المواعيد القادمة</string>
+    <string name="appointments_none">لا توجد مواعيد قادمة</string>
+    <string name="appointments_more">+%d المزيد</string>
+    <string name="appointments_date_at_time">%1$s في %2$s</string>
+
+    <!-- ═══ Dashboard: Tab Chips ═══ -->
+    <string name="tab_all_consultations">جميع الاستشارات</string>
+    <string name="tab_availability">التوفر</string>
+    <string name="tab_earnings">الأرباح</string>
+    <string name="tab_profile">الملف الشخصي</string>
+
+    <!-- ═══ Consultations Content ═══ -->
+    <string name="consultations_title">الاستشارات</string>
+    <string name="consultations_subtitle">إدارة استشارات المرضى</string>
+    <string name="consultations_tab_pending">معلقة</string>
+    <string name="consultations_tab_active">نشطة</string>
+    <string name="consultations_tab_completed">مكتملة</string>
+    <string name="consultations_tab_cancelled">ملغاة</string>
+    <string name="consultations_empty">لا توجد استشارات %s</string>
+    <string name="consultation_fee">الرسوم: TSh %s</string>
+    <string name="consultation_duration">المدة: %s دقيقة</string>
+
+    <!-- ═══ Active Chats Content ═══ -->
+    <string name="chat_title">المحادثة</string>
+    <string name="chat_subtitle">الاستشارات النشطة</string>
+    <string name="chat_empty">لا توجد استشارات نشطة</string>
+    <string name="chat_empty_hint">ستظهر الاستشارات النشطة هنا</string>
+
+    <!-- ═══ Availability Settings Content ═══ -->
+    <string name="availability_settings_title">إعدادات التوفر</string>
+    <string name="availability_settings_subtitle">حدد ساعات الاستشارة الأسبوعية</string>
+    <string name="availability_save_saved">تم الحفظ</string>
+    <string name="availability_save_changes">حفظ التغييرات</string>
+    <string name="availability_quick_presets">إعدادات سريعة مسبقة</string>
+    <string name="availability_preset_mon_fri">الإثنين-الجمعة (9 ص - 5 م)</string>
+    <string name="availability_preset_every_day">كل يوم (9 ص - 5 م)</string>
+    <string name="availability_preset_clear_all">مسح الكل</string>
+    <string name="availability_weekly_schedule">الجدول الأسبوعي</string>
+
+    <!-- ═══ Profile Settings Content ═══ -->
+    <string name="profile_title">إعدادات الملف الشخصي</string>
+    <string name="profile_subtitle">عرض ملفك الشخصي وتحديث التفضيلات</string>
+    <string name="profile_photo_title">صورة الملف الشخصي</string>
+    <string name="profile_photo_content_description">صورة الملف الشخصي</string>
+    <string name="profile_photo_tap_to_change">انقر لتغيير الصورة</string>
+    <string name="profile_photo_size_hint">JPG، PNG، الحد الأقصى 5 ميجابايت</string>
+    <string name="profile_personal_info">المعلومات الشخصية</string>
+    <string name="profile_set_during_registration">تم التعيين أثناء التسجيل</string>
+    <string name="profile_full_name">الاسم الكامل</string>
+    <string name="profile_phone_number">رقم الهاتف</string>
+    <string name="profile_email">البريد الإلكتروني</string>
+    <string name="profile_professional_info">المعلومات المهنية</string>
+    <string name="profile_specialty">التخصص</string>
+    <string name="profile_license_number">رقم الترخيص</string>
+    <string name="profile_years_experience">سنوات الخبرة</string>
+    <string name="profile_years_experience_auto">يتم التحديث تلقائيًا كل عام</string>
+    <string name="profile_bio">السيرة المهنية</string>
+    <string name="profile_location_languages">الموقع &amp; اللغات</string>
+    <string name="profile_country">البلد</string>
+    <string name="profile_languages_title">اللغات التي تتحدثها</string>
+    <string name="profile_common_languages">اللغات الشائعة</string>
+    <string name="profile_other_languages">لغات أخرى</string>
+    <string name="profile_languages_selected">%d لغة (لغات) مختارة</string>
+    <string name="profile_services_offered">الخدمات المقدمة</string>
+    <string name="profile_available_for_consultations">متاح للاستشارات</string>
+    <string name="profile_available_toggle_hint">قم بالإيقاف لإخفاء ملفك الشخصي مؤقتًا عن المرضى</string>
+    <string name="profile_saved_locally">تم الحفظ محليًا</string>
+    <string name="profile_saved">تم الحفظ</string>
+    <string name="profile_sync_failed_hint">تم حفظ التغييرات محليًا ولكن تعذرت المزامنة مع الخادم. ستتم المزامنة عند التشغيل التالي.</string>
+
+    <!-- ═══ Earnings Content ═══ -->
+    <string name="earnings_title">الأرباح</string>
+    <string name="earnings_subtitle">تتبع أرباح الاستشارات</string>
+    <string name="earnings_total">إجمالي الأرباح</string>
+    <string name="earnings_this_month">هذا الشهر</string>
+    <string name="earnings_last_month">الشهر الماضي</string>
+    <string name="earnings_pending_payout">المدفوعات المعلقة</string>
+    <string name="earnings_payout_info_title">معلومات الدفع</string>
+    <string name="earnings_payout_info_message">تتم معالجة المدفوعات تلقائيًا في نهاية كل شهر عبر M-Pesa. تأكد من صحة رقم هاتفك في إعدادات ملفك الشخصي.</string>
+    <string name="earnings_recent_transactions">المعاملات الأخيرة</string>
+    <string name="earnings_no_transactions">لا توجد معاملات بعد</string>
+
+    <!-- ═══ Ban Notice Screen ═══ -->
+    <string name="ban_title">الحساب محظور</string>
+    <string name="ban_message">تم حظر حسابك من استخدام هذا التطبيق.</string>
+    <string name="ban_reason_label">السبب</string>
+    <string name="ban_appeal_title">هل لديك شكوى؟</string>
+    <string name="ban_appeal_message_with_date">يمكنك التواصل مع فريق الدعم لاستئناف هذا القرار خلال 7 أيام (بحلول %s).</string>
+    <string name="ban_appeal_message_no_date">يمكنك التواصل مع فريق الدعم لاستئناف هذا القرار خلال 7 أيام من الحظر.</string>
+    <string name="ban_support_email">support@esiriplus.com</string>
+
+    <!-- ═══ Consultation List Screen ═══ -->
+    <string name="consultation_list_title">سجل الاستشارات</string>
+    <string name="consultation_list_empty">لا توجد استشارات بعد</string>
+
+    <!-- ═══ Consultation Detail Screen ═══ -->
+    <string name="consultation_detail_end_title">إنهاء الاستشارة</string>
+    <string name="consultation_detail_end_message">هل أنت متأكد أنك تريد إنهاء هذه الاستشارة؟</string>
+    <string name="consultation_detail_end_button">إنهاء</string>
+    <string name="consultation_detail_end_error_title">تعذر إنهاء الاستشارة</string>
+    <string name="consultation_detail_start_call">بدء المكالمة</string>
+    <string name="consultation_detail_voice_call">مكالمة صوتية</string>
+    <string name="consultation_detail_video_call">مكالمة فيديو</string>
+    <string name="consultation_detail_write_report">كتابة التقرير</string>
+    <string name="consultation_detail_patient_summary">ملخص المريض</string>
+    <string name="consultation_detail_end_consultation">إنهاء الاستشارة</string>
+    <string name="consultation_detail_camera">الكاميرا</string>
+    <string name="consultation_detail_gallery">المعرض</string>
+    <string name="consultation_detail_document">مستند</string>
+    <string name="consultation_detail_summary_error_title">خطأ في الملخص</string>
+    <string name="consultation_detail_patient_medical_summary">الملخص الطبي للمريض</string>
+
+    <!-- ═══ Appointments Screen ═══ -->
+    <string name="appointments_title">المواعيد</string>
+    <string name="appointments_tab_today">اليوم</string>
+    <string name="appointments_tab_upcoming">القادمة</string>
+    <string name="appointments_tab_missed">الفائتة</string>
+    <string name="appointments_no_today">لا توجد مواعيد اليوم</string>
+    <string name="appointments_no_upcoming">لا توجد مواعيد قادمة</string>
+    <string name="appointments_no_missed">لا توجد مواعيد فائتة</string>
+    <string name="appointments_status_booked">محجوز</string>
+    <string name="appointments_status_confirmed">مؤكد</string>
+    <string name="appointments_status_in_progress">قيد التنفيذ</string>
+    <string name="appointments_status_completed">مكتمل</string>
+    <string name="appointments_status_missed">فائت</string>
+    <string name="appointments_status_cancelled">ملغى</string>
+    <string name="appointments_status_rescheduled">أُعيد جدولته</string>
+    <string name="appointments_min_duration">%1$d دقيقة \u00B7 %2$s</string>
+    <string name="appointments_start_session">بدء الجلسة</string>
+    <string name="appointments_starting">جارٍ البدء\u2026</string>
+    <string name="appointments_reschedule">إعادة الجدولة</string>
+    <string name="appointments_rescheduling">جارٍ إعادة الجدولة\u2026</string>
+
+    <!-- ═══ Reschedule Dialog ═══ -->
+    <string name="reschedule_title">إعادة جدولة الموعد</string>
+    <string name="reschedule_instruction">أدخل تاريخًا ووقتًا جديدين للموعد.</string>
+    <string name="reschedule_new_datetime">التاريخ &amp; الوقت الجديد</string>
+    <string name="reschedule_datetime_placeholder">مثال: 2026-03-05T10:00</string>
+    <string name="reschedule_reason_label">السبب (اختياري)</string>
+    <string name="reschedule_reason_placeholder">سبب إعادة الجدولة\u2026</string>
+    <string name="reschedule_button">إعادة الجدولة</string>
+
+    <!-- ═══ Notifications Screen ═══ -->
+    <string name="notifications_title">الإشعارات</string>
+    <string name="notifications_mark_all_read">تحديد الكل كمقروء</string>
+    <string name="notifications_empty">لا توجد إشعارات بعد</string>
+    <string name="notifications_time_just_now">الآن</string>
+    <string name="notifications_time_minutes_ago">منذ %d د</string>
+    <string name="notifications_time_hours_ago">منذ %d س</string>
+    <string name="notifications_time_days_ago">منذ %d ي</string>
+
+    <!-- ═══ Availability Settings Screen (standalone) ═══ -->
+    <string name="avail_settings_title">جدول التوفر</string>
+    <string name="avail_settings_add_slot">إضافة فترة</string>
+    <string name="avail_settings_subtitle">حدد جدول توفرك الأسبوعي المتكرر للمواعيد</string>
+    <string name="avail_settings_no_slots_title">لم يتم تعيين فترات توفر</string>
+    <string name="avail_settings_no_slots_message">أضف فترات للسماح للمرضى بحجز مواعيد معك.</string>
+    <string name="avail_settings_buffer_minutes">%d دقيقة فاصلة</string>
+    <string name="avail_settings_inactive">غير نشط</string>
+    <string name="avail_settings_delete">حذف</string>
+    <string name="avail_settings_add_dialog_title">إضافة فترة توفر</string>
+    <string name="avail_settings_day_of_week">يوم الأسبوع</string>
+    <string name="avail_settings_start_time">وقت البدء (HH:mm)</string>
+    <string name="avail_settings_end_time">وقت الانتهاء (HH:mm)</string>
+    <string name="avail_settings_buffer_label">دقائق الفاصل الزمني</string>
+
+    <!-- ═══ Day Names ═══ -->
+    <string name="day_sunday">الأحد</string>
+    <string name="day_monday">الإثنين</string>
+    <string name="day_tuesday">الثلاثاء</string>
+    <string name="day_wednesday">الأربعاء</string>
+    <string name="day_thursday">الخميس</string>
+    <string name="day_friday">الجمعة</string>
+    <string name="day_saturday">السبت</string>
+
+    <!-- ═══ Incoming Request Dialog ═══ -->
+    <string name="request_title_failed">فشل القبول</string>
+    <string name="request_title_accepted">تم قبول الطلب</string>
+    <string name="request_title_declined">تم رفض الطلب</string>
+    <string name="request_title_expired">انتهت صلاحية الطلب</string>
+    <string name="request_title_incoming">طلب استشارة وارد</string>
+    <string name="request_subtitle_failed">حدث خطأ ما. يمكنك إعادة المحاولة.</string>
+    <string name="request_subtitle_accepted">جارٍ التوجيه إلى الاستشارة\u2026</string>
+    <string name="request_subtitle_declined">سيتم إشعار المريض.</string>
+    <string name="request_subtitle_expired">انتهى وقت الطلب.</string>
+    <string name="request_subtitle_pending">يطلب مريض استشارة. لديك %d ثانية للرد.</string>
+    <string name="request_seconds_remaining">%d ث متبقية</string>
+    <string name="request_dismiss">تجاهل</string>
+    <string name="request_retry">إعادة المحاولة</string>
+    <string name="request_decline">رفض</string>
+    <string name="request_accept">قبول</string>
+    <string name="request_patient_label">المريض: %s</string>
+    <string name="request_blood_label">فصيلة الدم: %s</string>
+    <string name="request_symptoms_label">الأعراض: %s</string>
+    <string name="request_allergies_label">الحساسية: %s</string>
+    <string name="request_conditions_label">الحالات المرضية: %s</string>
+
+    <!-- ═══ Report Screen / Bottom Sheet ═══ -->
+    <string name="report_submitted_title">تم تقديم التقرير</string>
+    <string name="report_submitted_message">تم إنشاء التقرير وإرساله إلى المريض</string>
+    <string name="report_title">تقرير الاستشارة</string>
+    <string name="report_instruction">يرجى إكمال هذا التقرير قبل إنهاء الاستشارة. تساعد هذه البيانات في تحسين الخدمات الصحية.</string>
+    <string name="report_diagnosed_problem">المشكلة المشخّصة</string>
+    <string name="report_diagnosed_placeholder">صف الحالة المشخّصة\u2026</string>
+    <string name="report_category">الفئة</string>
+    <string name="report_category_placeholder">اختر الفئة\u2026</string>
+    <string name="report_other_category_placeholder">حدد الفئة\u2026</string>
+    <string name="report_severity">درجة الخطورة</string>
+    <string name="report_treatment_plan">القرار / خطة العلاج</string>
+    <string name="report_treatment_placeholder">صف خطة العلاج أو التوصيات\u2026</string>
+    <string name="report_further_notes">ملاحظات إضافية (اختياري)</string>
+    <string name="report_notes_placeholder">أي ملاحظات أو مشاهدات إضافية\u2026</string>
+    <string name="report_follow_up">يُوصى باستشارة متابعة</string>
+    <string name="report_generating">جارٍ إنشاء التقرير\u2026</string>
+    <string name="report_submit_button">تقديم &amp; إنشاء التقرير</string>
+    <string name="report_returning">جارٍ العودة إلى لوحة التحكم\u2026</string>
+    <string name="report_moved_hint">تم نقل هذه الشاشة إلى اللوحة السفلية. يرجى استخدام شاشة تفاصيل الاستشارة.</string>
+
+</resources>

@@ -54,8 +54,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorReportViewModel
 import kotlinx.coroutines.delay
 
@@ -113,13 +115,13 @@ fun ConsultationReportBottomSheet(
                         modifier = Modifier.size(80.dp),
                     )
                     Text(
-                        text = "Report Submitted",
+                        text = stringResource(R.string.report_submitted_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
                     )
                     Text(
-                        text = "Report generated and sent to patient",
+                        text = stringResource(R.string.report_submitted_message),
                         fontSize = 14.sp,
                         color = SubtitleGrey,
                     )
@@ -155,7 +157,7 @@ fun ConsultationReportBottomSheet(
                     Spacer(Modifier.height(12.dp))
 
                     Text(
-                        text = "Consultation Report",
+                        text = stringResource(R.string.report_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -165,7 +167,7 @@ fun ConsultationReportBottomSheet(
                     Spacer(Modifier.height(4.dp))
 
                     Text(
-                        text = "Please complete this report before ending the consultation. This data helps improve healthcare services.",
+                        text = stringResource(R.string.report_instruction),
                         fontSize = 13.sp,
                         color = SubtitleGrey,
                         textAlign = TextAlign.Center,
@@ -176,12 +178,12 @@ fun ConsultationReportBottomSheet(
                 Spacer(Modifier.height(24.dp))
 
                 // Diagnosed Problem (required)
-                RequiredLabel("Diagnosed Problem")
+                RequiredLabel(stringResource(R.string.report_diagnosed_problem))
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value = uiState.diagnosedProblem,
                     onValueChange = viewModel::updateDiagnosedProblem,
-                    placeholder = { Text("Describe the diagnosed condition...", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.report_diagnosed_placeholder), color = Color.Gray) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     shape = RoundedCornerShape(10.dp),
@@ -191,7 +193,7 @@ fun ConsultationReportBottomSheet(
                 Spacer(Modifier.height(16.dp))
 
                 // Category (required, dropdown)
-                RequiredLabel("Category")
+                RequiredLabel(stringResource(R.string.report_category))
                 Spacer(Modifier.height(6.dp))
                 CategoryDropdown(
                     selected = uiState.category,
@@ -204,7 +206,7 @@ fun ConsultationReportBottomSheet(
                     OutlinedTextField(
                         value = uiState.otherCategory,
                         onValueChange = viewModel::updateOtherCategory,
-                        placeholder = { Text("Specify category...", color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.report_other_category_placeholder), color = Color.Gray) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
@@ -216,7 +218,7 @@ fun ConsultationReportBottomSheet(
 
                 // Severity Level
                 Text(
-                    text = "Severity Level",
+                    text = stringResource(R.string.report_severity),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -230,12 +232,12 @@ fun ConsultationReportBottomSheet(
                 Spacer(Modifier.height(16.dp))
 
                 // Decision / Treatment Plan (required)
-                RequiredLabel("Decision / Treatment Plan")
+                RequiredLabel(stringResource(R.string.report_treatment_plan))
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value = uiState.treatmentPlan,
                     onValueChange = viewModel::updateTreatmentPlan,
-                    placeholder = { Text("Describe the treatment plan or recommendations...", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.report_treatment_placeholder), color = Color.Gray) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     shape = RoundedCornerShape(10.dp),
@@ -246,7 +248,7 @@ fun ConsultationReportBottomSheet(
 
                 // Further Notes (optional)
                 Text(
-                    text = "Further Notes (Optional)",
+                    text = stringResource(R.string.report_further_notes),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -255,7 +257,7 @@ fun ConsultationReportBottomSheet(
                 OutlinedTextField(
                     value = uiState.furtherNotes,
                     onValueChange = viewModel::updateFurtherNotes,
-                    placeholder = { Text("Any additional observations or notes...", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.report_notes_placeholder), color = Color.Gray) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     shape = RoundedCornerShape(10.dp),
@@ -277,7 +279,7 @@ fun ConsultationReportBottomSheet(
                         colors = CheckboxDefaults.colors(checkedColor = BrandTeal),
                     )
                     Text(
-                        text = "Follow-up consultation recommended",
+                        text = stringResource(R.string.report_follow_up),
                         fontSize = 14.sp,
                         color = Color.Black,
                     )
@@ -319,10 +321,10 @@ fun ConsultationReportBottomSheet(
                             strokeWidth = 2.dp,
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Generating Report...")
+                        Text(stringResource(R.string.report_generating))
                     } else {
                         Text(
-                            text = "Submit & Generate Report",
+                            text = stringResource(R.string.report_submit_button),
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
@@ -340,7 +342,7 @@ fun ConsultationReportBottomSheet(
                         .height(50.dp),
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.common_cancel),
                         color = Color.Black,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -385,7 +387,7 @@ private fun CategoryDropdown(
             value = selected.ifBlank { "" },
             onValueChange = {},
             readOnly = true,
-            placeholder = { Text("Select category...", color = Color.Gray) },
+            placeholder = { Text(stringResource(R.string.report_category_placeholder), color = Color.Gray) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -488,12 +490,12 @@ fun DoctorReportScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.common_back_content_description),
                     tint = BrandTeal,
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = "Back", fontSize = 14.sp, color = BrandTeal)
+                Text(text = stringResource(R.string.common_back), fontSize = 14.sp, color = BrandTeal)
             }
         }
 
@@ -513,13 +515,13 @@ fun DoctorReportScreen(
                         modifier = Modifier.size(80.dp),
                     )
                     Text(
-                        text = "Report Submitted",
+                        text = stringResource(R.string.report_submitted_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
                     )
                     Text(
-                        text = "Returning to dashboard...",
+                        text = stringResource(R.string.report_returning),
                         fontSize = 14.sp,
                         color = SubtitleGrey,
                     )
@@ -535,7 +537,7 @@ fun DoctorReportScreen(
         } else {
             // Reuse the same form content in a scrollable column
             Text(
-                text = "This screen has moved to the bottom sheet. Please use the consultation detail screen.",
+                text = stringResource(R.string.report_moved_hint),
                 modifier = Modifier.padding(20.dp),
                 color = SubtitleGrey,
             )

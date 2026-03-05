@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ═══ Common / Shared ═══ -->
+    <string name="common_back">वापस</string>
+    <string name="common_back_content_description">वापस</string>
+    <string name="common_cancel">रद्द करें</string>
+    <string name="common_ok">ठीक है</string>
+    <string name="common_save">सहेजें</string>
+    <string name="common_close">बंद करें</string>
+    <string name="common_sign_out">साइन आउट</string>
+    <string name="common_open_menu">मेनू खोलें</string>
+    <string name="common_close_menu">मेनू बंद करें</string>
+    <string name="common_coming_soon">जल्द आ रहा है</string>
+    <string name="common_view_all">सभी देखें</string>
+    <string name="common_off">बंद</string>
+    <string name="common_english">अंग्रेज़ी</string>
+
+    <!-- ═══ Dashboard: Side Navigation ═══ -->
+    <string name="nav_dashboard">डैशबोर्ड</string>
+    <string name="nav_consultations">परामर्श</string>
+    <string name="nav_chat">चैट</string>
+    <string name="nav_availability">उपलब्धता</string>
+    <string name="nav_profile">प्रोफ़ाइल</string>
+    <string name="nav_earnings">आय</string>
+    <string name="sidebar_doctor_portal">डॉक्टर पोर्टल</string>
+    <string name="sidebar_verified">सत्यापित</string>
+
+    <!-- ═══ Dashboard: Top Bar ═══ -->
+    <string name="dashboard_welcome_back">वापसी पर स्वागत है,</string>
+    <string name="dashboard_notifications">सूचनाएँ</string>
+    <string name="dashboard_online">ऑनलाइन</string>
+    <string name="dashboard_suspended">निलंबित</string>
+    <string name="dashboard_under_review">समीक्षाधीन</string>
+
+    <!-- ═══ Dashboard: Active Consultation Banner ═══ -->
+    <string name="dashboard_active_consultation">सक्रिय परामर्श</string>
+    <string name="dashboard_tap_to_resume">चैट फिर से शुरू करने के लिए टैप करें</string>
+    <string name="dashboard_resume">जारी रखें \u25B6</string>
+
+    <!-- ═══ Dashboard: Sign Out Dialog ═══ -->
+    <string name="sign_out_dialog_title">साइन आउट</string>
+    <string name="sign_out_dialog_message">क्या आप वाकई साइन आउट करना चाहते हैं?</string>
+
+    <!-- ═══ Dashboard: Overlay Permission Dialog ═══ -->
+    <string name="overlay_dialog_title">अन्य ऐप्स के ऊपर दिखाएँ</string>
+    <string name="overlay_dialog_message">जब आप अन्य ऐप्स का उपयोग करते समय परामर्श अनुरोध प्राप्त करें तो एक फ़्लोटिंग बबल दिखाने के लिए, कृपया eSIRI+ को अन्य ऐप्स के ऊपर दिखाने की अनुमति दें। इस अनुमति के बिना भी आपको सूचनाएँ मिलती रहेंगी।</string>
+    <string name="overlay_dialog_open_settings">सेटिंग्स खोलें</string>
+    <string name="overlay_dialog_not_now">अभी नहीं</string>
+
+    <!-- ═══ Dashboard: Verified Banner ═══ -->
+    <string name="banner_verified_title">सत्यापित डॉक्टर</string>
+    <string name="banner_verified_message">आपकी प्रोफ़ाइल सत्यापित है। अब आप मरीज़ों के परामर्श स्वीकार कर सकते हैं।</string>
+
+    <!-- ═══ Dashboard: Pending Review Banner ═══ -->
+    <string name="banner_pending_title">आवेदन समीक्षाधीन</string>
+    <string name="banner_pending_message">आपका आवेदन समीक्षाधीन है। इसमें आमतौर पर 1\u20135 कार्यदिवस लगते हैं। स्वीकृति मिलने पर आपको सूचित किया जाएगा।</string>
+
+    <!-- ═══ Dashboard: Rejected Banner ═══ -->
+    <string name="banner_rejected_title">आवेदन स्वीकृत नहीं हुआ</string>
+    <string name="banner_rejected_resubmit">कृपया कारण की समीक्षा करें और अपने प्रमाणपत्र पुनः जमा करें।</string>
+
+    <!-- ═══ Dashboard: Stats Grid ═══ -->
+    <string name="stats_pending_requests">लंबित अनुरोध</string>
+    <string name="stats_active_consultations">सक्रिय परामर्श</string>
+    <string name="stats_todays_earnings">आज की आय</string>
+    <string name="stats_total_patients">कुल मरीज़</string>
+    <string name="stats_acceptance_rate">स्वीकृति दर</string>
+    <string name="stats_appointments">अपॉइंटमेंट</string>
+
+    <!-- ═══ Dashboard: Availability Section ═══ -->
+    <string name="availability_today_title">आज की उपलब्धता</string>
+    <string name="availability_available_today">आज उपलब्ध</string>
+    <string name="availability_not_available_today">आज उपलब्ध नहीं</string>
+    <string name="availability_set">उपलब्धता सेट करें</string>
+
+    <!-- ═══ Dashboard: Pending Requests Section ═══ -->
+    <string name="pending_requests_title">लंबित अनुरोध</string>
+    <string name="pending_requests_none">कोई लंबित अनुरोध नहीं</string>
+    <string name="pending_requests_count">%d लंबित अनुरोध</string>
+
+    <!-- ═══ Dashboard: Appointments Section ═══ -->
+    <string name="appointments_upcoming_title">आगामी अपॉइंटमेंट</string>
+    <string name="appointments_none">कोई आगामी अपॉइंटमेंट नहीं</string>
+    <string name="appointments_more">+%d और</string>
+    <string name="appointments_date_at_time">%1$s को %2$s बजे</string>
+
+    <!-- ═══ Dashboard: Tab Chips ═══ -->
+    <string name="tab_all_consultations">सभी परामर्श</string>
+    <string name="tab_availability">उपलब्धता</string>
+    <string name="tab_earnings">आय</string>
+    <string name="tab_profile">प्रोफ़ाइल</string>
+
+    <!-- ═══ Consultations Content ═══ -->
+    <string name="consultations_title">परामर्श</string>
+    <string name="consultations_subtitle">अपने मरीज़ों के परामर्श प्रबंधित करें</string>
+    <string name="consultations_tab_pending">लंबित</string>
+    <string name="consultations_tab_active">सक्रिय</string>
+    <string name="consultations_tab_completed">पूर्ण</string>
+    <string name="consultations_tab_cancelled">रद्द</string>
+    <string name="consultations_empty">कोई %s परामर्श नहीं</string>
+    <string name="consultation_fee">शुल्क: TSh %s</string>
+    <string name="consultation_duration">अवधि: %s मिनट</string>
+
+    <!-- ═══ Active Chats Content ═══ -->
+    <string name="chat_title">चैट</string>
+    <string name="chat_subtitle">सक्रिय परामर्श</string>
+    <string name="chat_empty">कोई सक्रिय परामर्श नहीं</string>
+    <string name="chat_empty_hint">सक्रिय परामर्श यहाँ दिखाई देंगे</string>
+
+    <!-- ═══ Availability Settings Content ═══ -->
+    <string name="availability_settings_title">उपलब्धता सेटिंग्स</string>
+    <string name="availability_settings_subtitle">अपने साप्ताहिक परामर्श समय सेट करें</string>
+    <string name="availability_save_saved">सहेजा गया</string>
+    <string name="availability_save_changes">परिवर्तन सहेजें</string>
+    <string name="availability_quick_presets">त्वरित प्रीसेट</string>
+    <string name="availability_preset_mon_fri">सोम-शुक्र (सुबह 9 - शाम 5)</string>
+    <string name="availability_preset_every_day">प्रतिदिन (सुबह 9 - शाम 5)</string>
+    <string name="availability_preset_clear_all">सभी हटाएँ</string>
+    <string name="availability_weekly_schedule">साप्ताहिक अनुसूची</string>
+
+    <!-- ═══ Profile Settings Content ═══ -->
+    <string name="profile_title">प्रोफ़ाइल सेटिंग्स</string>
+    <string name="profile_subtitle">अपनी प्रोफ़ाइल देखें और प्राथमिकताएँ अपडेट करें</string>
+    <string name="profile_photo_title">प्रोफ़ाइल फ़ोटो</string>
+    <string name="profile_photo_content_description">प्रोफ़ाइल फ़ोटो</string>
+    <string name="profile_photo_tap_to_change">फ़ोटो बदलने के लिए टैप करें</string>
+    <string name="profile_photo_size_hint">JPG, PNG, अधिकतम 5MB</string>
+    <string name="profile_personal_info">व्यक्तिगत जानकारी</string>
+    <string name="profile_set_during_registration">पंजीकरण के दौरान सेट किया गया</string>
+    <string name="profile_full_name">पूरा नाम</string>
+    <string name="profile_phone_number">फ़ोन नंबर</string>
+    <string name="profile_email">ईमेल</string>
+    <string name="profile_professional_info">व्यावसायिक जानकारी</string>
+    <string name="profile_specialty">विशेषज्ञता</string>
+    <string name="profile_license_number">लाइसेंस नंबर</string>
+    <string name="profile_years_experience">अनुभव के वर्ष</string>
+    <string name="profile_years_experience_auto">हर साल स्वचालित रूप से अपडेट होता है</string>
+    <string name="profile_bio">व्यावसायिक परिचय</string>
+    <string name="profile_location_languages">स्थान &amp; भाषाएँ</string>
+    <string name="profile_country">देश</string>
+    <string name="profile_languages_title">आप कौन सी भाषाएँ बोलते हैं</string>
+    <string name="profile_common_languages">सामान्य भाषाएँ</string>
+    <string name="profile_other_languages">अन्य भाषाएँ</string>
+    <string name="profile_languages_selected">%d भाषा(एँ) चयनित</string>
+    <string name="profile_services_offered">प्रदान की जाने वाली सेवाएँ</string>
+    <string name="profile_available_for_consultations">परामर्श के लिए उपलब्ध</string>
+    <string name="profile_available_toggle_hint">मरीज़ों से अपनी प्रोफ़ाइल अस्थायी रूप से छिपाने के लिए बंद करें</string>
+    <string name="profile_saved_locally">स्थानीय रूप से सहेजा गया</string>
+    <string name="profile_saved">सहेजा गया</string>
+    <string name="profile_sync_failed_hint">परिवर्तन स्थानीय रूप से सहेजे गए लेकिन सर्वर से सिंक नहीं हो सके। अगले लॉन्च पर सिंक होंगे।</string>
+
+    <!-- ═══ Earnings Content ═══ -->
+    <string name="earnings_title">आय</string>
+    <string name="earnings_subtitle">अपनी परामर्श आय ट्रैक करें</string>
+    <string name="earnings_total">कुल आय</string>
+    <string name="earnings_this_month">इस महीने</string>
+    <string name="earnings_last_month">पिछले महीने</string>
+    <string name="earnings_pending_payout">लंबित भुगतान</string>
+    <string name="earnings_payout_info_title">भुगतान जानकारी</string>
+    <string name="earnings_payout_info_message">भुगतान हर महीने के अंत में M-Pesa के माध्यम से स्वचालित रूप से संसाधित किए जाते हैं। सुनिश्चित करें कि आपकी प्रोफ़ाइल सेटिंग्स में आपका फ़ोन नंबर सही है।</string>
+    <string name="earnings_recent_transactions">हाल के लेन-देन</string>
+    <string name="earnings_no_transactions">अभी तक कोई लेन-देन नहीं</string>
+
+    <!-- ═══ Ban Notice Screen ═══ -->
+    <string name="ban_title">खाता प्रतिबंधित</string>
+    <string name="ban_message">आपके खाते को इस एप्लिकेशन के उपयोग से प्रतिबंधित कर दिया गया है।</string>
+    <string name="ban_reason_label">कारण</string>
+    <string name="ban_appeal_title">कोई शिकायत है?</string>
+    <string name="ban_appeal_message_with_date">आप इस निर्णय के विरुद्ध 7 दिनों के भीतर (%s तक) हमारी सहायता टीम से संपर्क कर अपील कर सकते हैं।</string>
+    <string name="ban_appeal_message_no_date">आप प्रतिबंध के 7 दिनों के भीतर हमारी सहायता टीम से संपर्क कर इस निर्णय के विरुद्ध अपील कर सकते हैं।</string>
+    <string name="ban_support_email">support@esiriplus.com</string>
+
+    <!-- ═══ Consultation List Screen ═══ -->
+    <string name="consultation_list_title">परामर्श इतिहास</string>
+    <string name="consultation_list_empty">अभी तक कोई परामर्श नहीं</string>
+
+    <!-- ═══ Consultation Detail Screen ═══ -->
+    <string name="consultation_detail_end_title">परामर्श समाप्त करें</string>
+    <string name="consultation_detail_end_message">क्या आप वाकई इस परामर्श को समाप्त करना चाहते हैं?</string>
+    <string name="consultation_detail_end_button">समाप्त करें</string>
+    <string name="consultation_detail_end_error_title">परामर्श समाप्त नहीं हो सका</string>
+    <string name="consultation_detail_start_call">कॉल शुरू करें</string>
+    <string name="consultation_detail_voice_call">वॉइस कॉल</string>
+    <string name="consultation_detail_video_call">वीडियो कॉल</string>
+    <string name="consultation_detail_write_report">रिपोर्ट लिखें</string>
+    <string name="consultation_detail_patient_summary">मरीज़ सारांश</string>
+    <string name="consultation_detail_end_consultation">परामर्श समाप्त करें</string>
+    <string name="consultation_detail_camera">कैमरा</string>
+    <string name="consultation_detail_gallery">गैलरी</string>
+    <string name="consultation_detail_document">दस्तावेज़</string>
+    <string name="consultation_detail_summary_error_title">सारांश त्रुटि</string>
+    <string name="consultation_detail_patient_medical_summary">मरीज़ चिकित्सा सारांश</string>
+
+    <!-- ═══ Appointments Screen ═══ -->
+    <string name="appointments_title">अपॉइंटमेंट</string>
+    <string name="appointments_tab_today">आज</string>
+    <string name="appointments_tab_upcoming">आगामी</string>
+    <string name="appointments_tab_missed">छूटे हुए</string>
+    <string name="appointments_no_today">आज कोई अपॉइंटमेंट नहीं</string>
+    <string name="appointments_no_upcoming">कोई आगामी अपॉइंटमेंट नहीं</string>
+    <string name="appointments_no_missed">कोई छूटी हुई अपॉइंटमेंट नहीं</string>
+    <string name="appointments_status_booked">बुक किया गया</string>
+    <string name="appointments_status_confirmed">पुष्टि की गई</string>
+    <string name="appointments_status_in_progress">प्रगति में</string>
+    <string name="appointments_status_completed">पूर्ण</string>
+    <string name="appointments_status_missed">छूटा हुआ</string>
+    <string name="appointments_status_cancelled">रद्द</string>
+    <string name="appointments_status_rescheduled">पुनर्निर्धारित</string>
+    <string name="appointments_min_duration">%1$d मिनट \u00B7 %2$s</string>
+    <string name="appointments_start_session">सत्र शुरू करें</string>
+    <string name="appointments_starting">शुरू हो रहा है\u2026</string>
+    <string name="appointments_reschedule">पुनर्निर्धारित करें</string>
+    <string name="appointments_rescheduling">पुनर्निर्धारित हो रहा है\u2026</string>
+
+    <!-- ═══ Reschedule Dialog ═══ -->
+    <string name="reschedule_title">अपॉइंटमेंट पुनर्निर्धारित करें</string>
+    <string name="reschedule_instruction">अपॉइंटमेंट के लिए नई तारीख और समय दर्ज करें।</string>
+    <string name="reschedule_new_datetime">नई तारीख &amp; समय</string>
+    <string name="reschedule_datetime_placeholder">उदा. 2026-03-05T10:00</string>
+    <string name="reschedule_reason_label">कारण (वैकल्पिक)</string>
+    <string name="reschedule_reason_placeholder">पुनर्निर्धारण का कारण\u2026</string>
+    <string name="reschedule_button">पुनर्निर्धारित करें</string>
+
+    <!-- ═══ Notifications Screen ═══ -->
+    <string name="notifications_title">सूचनाएँ</string>
+    <string name="notifications_mark_all_read">सभी को पढ़ा हुआ चिह्नित करें</string>
+    <string name="notifications_empty">अभी तक कोई सूचना नहीं</string>
+    <string name="notifications_time_just_now">अभी</string>
+    <string name="notifications_time_minutes_ago">%d मिनट पहले</string>
+    <string name="notifications_time_hours_ago">%d घंटे पहले</string>
+    <string name="notifications_time_days_ago">%d दिन पहले</string>
+
+    <!-- ═══ Availability Settings Screen (standalone) ═══ -->
+    <string name="avail_settings_title">उपलब्धता अनुसूची</string>
+    <string name="avail_settings_add_slot">स्लॉट जोड़ें</string>
+    <string name="avail_settings_subtitle">अपॉइंटमेंट के लिए अपनी साप्ताहिक आवर्ती उपलब्धता सेट करें</string>
+    <string name="avail_settings_no_slots_title">कोई उपलब्धता स्लॉट कॉन्फ़िगर नहीं किया गया</string>
+    <string name="avail_settings_no_slots_message">मरीज़ों को आपके साथ अपॉइंटमेंट बुक करने देने के लिए स्लॉट जोड़ें।</string>
+    <string name="avail_settings_buffer_minutes">%d मिनट बफ़र</string>
+    <string name="avail_settings_inactive">निष्क्रिय</string>
+    <string name="avail_settings_delete">हटाएँ</string>
+    <string name="avail_settings_add_dialog_title">उपलब्धता स्लॉट जोड़ें</string>
+    <string name="avail_settings_day_of_week">सप्ताह का दिन</string>
+    <string name="avail_settings_start_time">शुरू का समय (HH:mm)</string>
+    <string name="avail_settings_end_time">समाप्ति का समय (HH:mm)</string>
+    <string name="avail_settings_buffer_label">बफ़र मिनट</string>
+
+    <!-- ═══ Day Names ═══ -->
+    <string name="day_sunday">रविवार</string>
+    <string name="day_monday">सोमवार</string>
+    <string name="day_tuesday">मंगलवार</string>
+    <string name="day_wednesday">बुधवार</string>
+    <string name="day_thursday">गुरुवार</string>
+    <string name="day_friday">शुक्रवार</string>
+    <string name="day_saturday">शनिवार</string>
+
+    <!-- ═══ Incoming Request Dialog ═══ -->
+    <string name="request_title_failed">स्वीकृति विफल</string>
+    <string name="request_title_accepted">अनुरोध स्वीकृत</string>
+    <string name="request_title_declined">अनुरोध अस्वीकृत</string>
+    <string name="request_title_expired">अनुरोध समय-सीमा समाप्त</string>
+    <string name="request_title_incoming">आने वाला परामर्श अनुरोध</string>
+    <string name="request_subtitle_failed">कुछ गलत हो गया। आप पुनः प्रयास कर सकते हैं।</string>
+    <string name="request_subtitle_accepted">परामर्श पर पुनर्निर्देशित हो रहा है\u2026</string>
+    <string name="request_subtitle_declined">मरीज़ को सूचित किया जाएगा।</string>
+    <string name="request_subtitle_expired">अनुरोध का समय बीत चुका है।</string>
+    <string name="request_subtitle_pending">एक मरीज़ परामर्श का अनुरोध कर रहा है। जवाब देने के लिए आपके पास %d सेकंड हैं।</string>
+    <string name="request_seconds_remaining">%d सेकंड शेष</string>
+    <string name="request_dismiss">खारिज करें</string>
+    <string name="request_retry">पुनः प्रयास</string>
+    <string name="request_decline">अस्वीकार करें</string>
+    <string name="request_accept">स्वीकार करें</string>
+    <string name="request_patient_label">मरीज़: %s</string>
+    <string name="request_blood_label">रक्त समूह: %s</string>
+    <string name="request_symptoms_label">लक्षण: %s</string>
+    <string name="request_allergies_label">एलर्जी: %s</string>
+    <string name="request_conditions_label">स्थितियाँ: %s</string>
+
+    <!-- ═══ Report Screen / Bottom Sheet ═══ -->
+    <string name="report_submitted_title">रिपोर्ट जमा की गई</string>
+    <string name="report_submitted_message">रिपोर्ट तैयार की गई और मरीज़ को भेजी गई</string>
+    <string name="report_title">परामर्श रिपोर्ट</string>
+    <string name="report_instruction">कृपया परामर्श समाप्त करने से पहले यह रिपोर्ट पूरी करें। यह डेटा स्वास्थ्य सेवाओं को बेहतर बनाने में सहायता करता है।</string>
+    <string name="report_diagnosed_problem">निदान की गई समस्या</string>
+    <string name="report_diagnosed_placeholder">निदान की गई स्थिति का वर्णन करें\u2026</string>
+    <string name="report_category">श्रेणी</string>
+    <string name="report_category_placeholder">श्रेणी चुनें\u2026</string>
+    <string name="report_other_category_placeholder">श्रेणी निर्दिष्ट करें\u2026</string>
+    <string name="report_severity">गंभीरता स्तर</string>
+    <string name="report_treatment_plan">निर्णय / उपचार योजना</string>
+    <string name="report_treatment_placeholder">उपचार योजना या सिफ़ारिशों का वर्णन करें\u2026</string>
+    <string name="report_further_notes">अतिरिक्त नोट्स (वैकल्पिक)</string>
+    <string name="report_notes_placeholder">कोई अतिरिक्त अवलोकन या नोट्स\u2026</string>
+    <string name="report_follow_up">फ़ॉलो-अप परामर्श की सिफ़ारिश की जाती है</string>
+    <string name="report_generating">रिपोर्ट तैयार हो रही है\u2026</string>
+    <string name="report_submit_button">जमा करें &amp; रिपोर्ट तैयार करें</string>
+    <string name="report_returning">डैशबोर्ड पर लौट रहा है\u2026</string>
+    <string name="report_moved_hint">यह स्क्रीन बॉटम शीट में स्थानांतरित हो गई है। कृपया परामर्श विवरण स्क्रीन का उपयोग करें।</string>
+
+</resources>

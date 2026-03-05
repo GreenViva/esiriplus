@@ -7,10 +7,10 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.esiri.esiriplus.EsiriplusApp
 import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
 import com.esiri.esiriplus.call.CallForegroundServiceStateHolder
+import com.esiri.esiriplus.core.common.locale.LocaleHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -98,22 +98,27 @@ class CallForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val typeLabel = if (callType.equals("AUDIO", ignoreCase = true)) "Voice" else "Video"
+        val ctx = LocaleHelper.getLocalizedContext(this)
+        val typeLabel = if (callType.equals("AUDIO", ignoreCase = true)) {
+            ctx.getString(R.string.call_type_voice)
+        } else {
+            ctx.getString(R.string.call_type_video)
+        }
         val minutes = durationSeconds / 60
         val seconds = durationSeconds % 60
         val durationText = String.format("%02d:%02d", minutes, seconds)
 
         return NotificationCompat.Builder(this, CHANNEL_CALL_SERVICE)
             .setSmallIcon(R.drawable.ic_stethoscope)
-            .setContentTitle("$typeLabel Call in Progress")
-            .setContentText("Duration: $durationText")
+            .setContentTitle(ctx.getString(R.string.call_in_progress_title, typeLabel))
+            .setContentText(ctx.getString(R.string.call_in_progress_duration, durationText))
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setShowWhen(false)
             .setContentIntent(pendingTap)
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
-                "End Call",
+                ctx.getString(R.string.action_end_call),
                 pendingEnd,
             )
             .build()

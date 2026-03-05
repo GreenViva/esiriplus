@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.esiri.esiriplus.core.common.locale.LocaleHelper
 import com.esiri.esiriplus.worker.NotificationCleanupWorker
 import dagger.hilt.android.HiltAndroidApp
 import live.videosdk.rtc.android.VideoSDK
@@ -32,42 +33,43 @@ class EsiriplusApp : Application(), Configuration.Provider {
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(NotificationManager::class.java)
+            val ctx = LocaleHelper.getLocalizedContext(this)
 
             val mainChannel = NotificationChannel(
                 CHANNEL_ID,
-                "eSIRI+ Notifications",
+                ctx.getString(R.string.channel_main_name),
                 NotificationManager.IMPORTANCE_HIGH,
             ).apply {
-                description = "General notifications from eSIRI+"
+                description = ctx.getString(R.string.channel_main_description)
             }
             notificationManager.createNotificationChannel(mainChannel)
 
             val onlineChannel = NotificationChannel(
                 CHANNEL_DOCTOR_ONLINE,
-                "Doctor Online Status",
+                ctx.getString(R.string.channel_doctor_online_name),
                 NotificationManager.IMPORTANCE_LOW,
             ).apply {
-                description = "Persistent notification when doctor is available for consultations"
+                description = ctx.getString(R.string.channel_doctor_online_description)
                 setShowBadge(false)
             }
             notificationManager.createNotificationChannel(onlineChannel)
 
             val incomingChannel = NotificationChannel(
                 CHANNEL_INCOMING_REQUEST,
-                "Incoming Consultation Requests",
+                ctx.getString(R.string.channel_incoming_request_name),
                 NotificationManager.IMPORTANCE_HIGH,
             ).apply {
-                description = "Alerts when a patient sends a consultation request"
+                description = ctx.getString(R.string.channel_incoming_request_description)
                 enableVibration(true)
             }
             notificationManager.createNotificationChannel(incomingChannel)
 
             val callChannel = NotificationChannel(
                 CHANNEL_INCOMING_CALL,
-                "Incoming Calls",
+                ctx.getString(R.string.channel_incoming_call_name),
                 NotificationManager.IMPORTANCE_HIGH,
             ).apply {
-                description = "Alerts when you receive an incoming video or voice call"
+                description = ctx.getString(R.string.channel_incoming_call_description)
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
@@ -76,10 +78,10 @@ class EsiriplusApp : Application(), Configuration.Provider {
 
             val callServiceChannel = NotificationChannel(
                 CHANNEL_CALL_SERVICE,
-                "Active Call",
+                ctx.getString(R.string.channel_call_service_name),
                 NotificationManager.IMPORTANCE_LOW,
             ).apply {
-                description = "Persistent notification while a call is in progress"
+                description = ctx.getString(R.string.channel_call_service_description)
                 setShowBadge(false)
             }
             notificationManager.createNotificationChannel(callServiceChannel)

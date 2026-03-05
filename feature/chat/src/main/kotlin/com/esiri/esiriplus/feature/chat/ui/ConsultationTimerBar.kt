@@ -14,10 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.core.domain.model.ConsultationPhase
+import com.esiri.esiriplus.feature.chat.R
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val WarningOrange = Color(0xFFE76F51)
@@ -42,9 +44,9 @@ fun ConsultationTimerBar(
 
     val phaseLabel = when (phase) {
         ConsultationPhase.ACTIVE -> ""
-        ConsultationPhase.AWAITING_EXTENSION -> "Time ended"
-        ConsultationPhase.GRACE_PERIOD -> "Grace period"
-        ConsultationPhase.COMPLETED -> "Completed"
+        ConsultationPhase.AWAITING_EXTENSION -> stringResource(R.string.timer_time_ended)
+        ConsultationPhase.GRACE_PERIOD -> stringResource(R.string.timer_grace_period)
+        ConsultationPhase.COMPLETED -> stringResource(R.string.timer_completed)
     }
 
     val timeDisplay = if (phase == ConsultationPhase.AWAITING_EXTENSION || phase == ConsultationPhase.COMPLETED) {
@@ -84,7 +86,7 @@ fun ConsultationTimerBar(
         }
         if (extensionCount > 0) {
             Text(
-                text = "+$extensionCount ext",
+                text = stringResource(R.string.timer_extension_count, extensionCount),
                 color = timerColor.copy(alpha = 0.7f),
                 fontSize = 12.sp,
             )

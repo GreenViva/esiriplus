@@ -30,9 +30,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.esiri.esiriplus.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -42,8 +44,16 @@ fun IncomingCallOverlay(
     onDecline: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val callLabel = if (incomingCall.callType == "AUDIO") "Voice" else "Video"
-    val callerLabel = if (incomingCall.callerRole == "doctor") "Your doctor" else "Your patient"
+    val callLabel = if (incomingCall.callType == "AUDIO") {
+        stringResource(R.string.call_type_voice)
+    } else {
+        stringResource(R.string.call_type_video)
+    }
+    val callerLabel = if (incomingCall.callerRole == "doctor") {
+        stringResource(R.string.caller_your_doctor)
+    } else {
+        stringResource(R.string.caller_your_patient)
+    }
 
     // Auto-decline after 60 seconds (aligned with caller WAITING_TIMEOUT_MS)
     LaunchedEffect(incomingCall) {
@@ -76,7 +86,7 @@ fun IncomingCallOverlay(
             // Pulsing call icon
             Icon(
                 imageVector = Icons.Default.Call,
-                contentDescription = "Incoming call",
+                contentDescription = stringResource(R.string.cd_incoming_call),
                 modifier = Modifier
                     .size(80.dp)
                     .scale(scale),
@@ -86,7 +96,7 @@ fun IncomingCallOverlay(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Incoming $callLabel Call",
+                text = stringResource(R.string.call_incoming_title, callLabel),
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -95,7 +105,7 @@ fun IncomingCallOverlay(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "$callerLabel is calling",
+                text = stringResource(R.string.call_incoming_body, callerLabel),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 16.sp,
             )
@@ -117,13 +127,13 @@ fun IncomingCallOverlay(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Decline",
+                            contentDescription = stringResource(R.string.action_decline),
                             tint = Color.White,
                             modifier = Modifier.size(32.dp),
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Decline", color = Color.White, fontSize = 14.sp)
+                    Text(text = stringResource(R.string.action_decline), color = Color.White, fontSize = 14.sp)
                 }
 
                 Spacer(modifier = Modifier.width(80.dp))
@@ -138,13 +148,13 @@ fun IncomingCallOverlay(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Call,
-                            contentDescription = "Accept",
+                            contentDescription = stringResource(R.string.action_accept),
                             tint = Color.White,
                             modifier = Modifier.size(32.dp),
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Accept", color = Color.White, fontSize = 14.sp)
+                    Text(text = stringResource(R.string.action_accept), color = Color.White, fontSize = 14.sp)
                 }
             }
         }

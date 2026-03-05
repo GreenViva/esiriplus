@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.domain.model.Appointment
@@ -83,18 +84,18 @@ fun PatientAppointmentsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.appointments_back),
                         tint = BrandTeal,
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(text = "Back", fontSize = 14.sp, color = BrandTeal)
+                    Text(text = stringResource(R.string.appointments_back), fontSize = 14.sp, color = BrandTeal)
                 }
 
                 Spacer(Modifier.height(16.dp))
 
                 Text(
-                    text = "My Appointments",
+                    text = stringResource(R.string.appointments_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -113,8 +114,8 @@ fun PatientAppointmentsScreen(
                 AppointmentTab.entries.forEach { tab ->
                     val isSelected = uiState.selectedTab == tab
                     val label = when (tab) {
-                        AppointmentTab.UPCOMING -> "Upcoming"
-                        AppointmentTab.PAST -> "Past"
+                        AppointmentTab.UPCOMING -> stringResource(R.string.appointments_tab_upcoming)
+                        AppointmentTab.PAST -> stringResource(R.string.appointments_tab_past)
                     }
                     Surface(
                         shape = RoundedCornerShape(20.dp),
@@ -171,7 +172,10 @@ fun PatientAppointmentsScreen(
                             )
                             Spacer(Modifier.height(16.dp))
                             Text(
-                                text = "No ${uiState.selectedTab.name.lowercase()} appointments",
+                                text = when (uiState.selectedTab) {
+                                    AppointmentTab.UPCOMING -> stringResource(R.string.appointments_no_upcoming)
+                                    AppointmentTab.PAST -> stringResource(R.string.appointments_no_past)
+                                },
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.Black,
@@ -229,14 +233,23 @@ private fun AppointmentCard(
         .atZone(EAT)
         .format(dateTimeFormatter)
 
-    val (statusColor, statusText) = when (appointment.status) {
-        AppointmentStatus.BOOKED -> BrandTeal to "Booked"
-        AppointmentStatus.CONFIRMED -> SuccessGreen to "Confirmed"
-        AppointmentStatus.IN_PROGRESS -> BrandTeal to "In Progress"
-        AppointmentStatus.COMPLETED -> SuccessGreen to "Completed"
-        AppointmentStatus.MISSED -> WarningOrange to "Missed"
-        AppointmentStatus.CANCELLED -> ErrorRed to "Cancelled"
-        AppointmentStatus.RESCHEDULED -> SubtitleGrey to "Rescheduled"
+    val statusColor = when (appointment.status) {
+        AppointmentStatus.BOOKED -> BrandTeal
+        AppointmentStatus.CONFIRMED -> SuccessGreen
+        AppointmentStatus.IN_PROGRESS -> BrandTeal
+        AppointmentStatus.COMPLETED -> SuccessGreen
+        AppointmentStatus.MISSED -> WarningOrange
+        AppointmentStatus.CANCELLED -> ErrorRed
+        AppointmentStatus.RESCHEDULED -> SubtitleGrey
+    }
+    val statusText = when (appointment.status) {
+        AppointmentStatus.BOOKED -> stringResource(R.string.appointments_status_booked)
+        AppointmentStatus.CONFIRMED -> stringResource(R.string.appointments_status_confirmed)
+        AppointmentStatus.IN_PROGRESS -> stringResource(R.string.appointments_status_in_progress)
+        AppointmentStatus.COMPLETED -> stringResource(R.string.appointments_status_completed)
+        AppointmentStatus.MISSED -> stringResource(R.string.appointments_status_missed)
+        AppointmentStatus.CANCELLED -> stringResource(R.string.appointments_status_cancelled)
+        AppointmentStatus.RESCHEDULED -> stringResource(R.string.appointments_status_rescheduled)
     }
 
     Surface(
@@ -260,7 +273,7 @@ private fun AppointmentCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "${appointment.durationMinutes} min \u00B7 ${appointment.serviceType}",
+                        text = stringResource(R.string.appointments_duration_service_format, appointment.durationMinutes, appointment.serviceType),
                         fontSize = 13.sp,
                         color = SubtitleGrey,
                     )
@@ -298,7 +311,7 @@ private fun AppointmentCard(
                     color = Color(0xFFF0F9FF),
                 ) {
                     Text(
-                        text = "Rescheduled from a previous appointment",
+                        text = stringResource(R.string.appointments_rescheduled_note),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 11.sp,
                         color = BrandTeal,
@@ -325,7 +338,7 @@ private fun AppointmentCard(
                         Spacer(Modifier.width(6.dp))
                     }
                     Text(
-                        text = if (isCancelling) "Cancelling..." else "Cancel Appointment",
+                        text = if (isCancelling) stringResource(R.string.appointments_cancelling) else stringResource(R.string.appointments_cancel),
                         fontSize = 13.sp,
                         color = ErrorRed,
                     )

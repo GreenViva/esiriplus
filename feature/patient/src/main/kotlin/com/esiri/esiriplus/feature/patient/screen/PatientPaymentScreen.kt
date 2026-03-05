@@ -32,10 +32,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientPaymentViewModel
 import com.esiri.esiriplus.feature.patient.viewmodel.PaymentStep
 import kotlinx.coroutines.delay
@@ -69,10 +71,10 @@ fun PatientPaymentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Payment", color = Color.Black) },
+                title = { Text(stringResource(R.string.payment_title), color = Color.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.payment_back))
                     }
                 },
             )
@@ -104,7 +106,7 @@ fun PatientPaymentScreen(
                 )
 
                 PaymentStep.FAILED -> PaymentFailedContent(
-                    errorMessage = uiState.errorMessage ?: "Payment failed",
+                    errorMessage = uiState.errorMessage ?: stringResource(R.string.payment_failed_default),
                     onRetry = viewModel::retryPayment,
                 )
             }
@@ -123,7 +125,7 @@ private fun PaymentConfirmContent(
     Spacer(Modifier.height(48.dp))
 
     Text(
-        text = "Consultation Payment",
+        text = stringResource(R.string.payment_consultation_payment),
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
@@ -150,7 +152,7 @@ private fun PaymentConfirmContent(
     Spacer(Modifier.height(16.dp))
 
     Text(
-        text = "You will be charged for this consultation session.",
+        text = stringResource(R.string.payment_charge_message),
         style = MaterialTheme.typography.bodyMedium,
         color = Color.Black,
         textAlign = TextAlign.Center,
@@ -183,7 +185,7 @@ private fun PaymentConfirmContent(
                 strokeWidth = 2.dp,
             )
         } else {
-            Text("Pay Now", fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.payment_pay_now), fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -205,14 +207,14 @@ private fun PaymentProcessingContent(amount: Int) {
             )
 
             Text(
-                text = "Processing Payment",
+                text = stringResource(R.string.payment_processing),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
             )
 
             Text(
-                text = "Your payment of TZS $amount is being processed. Please wait...",
+                text = stringResource(R.string.payment_processing_message, amount),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -240,14 +242,14 @@ private fun PaymentSuccessContent(amount: Int) {
             )
 
             Text(
-                text = "Payment Successful",
+                text = stringResource(R.string.payment_successful),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
             )
 
             Text(
-                text = "TZS $amount paid successfully.\nConnecting you to your doctor...",
+                text = stringResource(R.string.payment_success_message, amount),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -277,7 +279,7 @@ private fun PaymentFailedContent(
             )
 
             Text(
-                text = "Payment Failed",
+                text = stringResource(R.string.payment_failed),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -297,7 +299,7 @@ private fun PaymentFailedContent(
                 onClick = onRetry,
                 modifier = Modifier.fillMaxWidth(0.6f),
             ) {
-                Text("Try Again", color = BrandTeal)
+                Text(stringResource(R.string.payment_try_again), color = BrandTeal)
             }
         }
     }

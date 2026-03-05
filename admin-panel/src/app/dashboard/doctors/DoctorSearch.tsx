@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export default function DoctorSearch() {
+export default function DoctorSearch({ basePath = "/dashboard/doctors" }: { basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get("q") ?? "");
@@ -16,14 +16,14 @@ export default function DoctorSearch() {
     } else {
       params.delete("q");
     }
-    router.push(`/dashboard/doctors?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   function handleClear() {
     setValue("");
     const params = new URLSearchParams(searchParams.toString());
     params.delete("q");
-    router.push(`/dashboard/doctors?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   return (

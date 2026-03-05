@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===== PatientHomeScreen ===== -->
+    <string name="home_welcome_back">Karibu Tena \uD83D\uDC4B</string>
+    <string name="home_your_patient_id">Nambari yako ya Mgonjwa:</string>
+    <string name="home_patient_id_copied">Nambari ya mgonjwa imenakiliwa</string>
+    <string name="home_copy_patient_id">Nakili Nambari ya Mgonjwa</string>
+    <string name="home_sounds">Sauti</string>
+    <string name="home_log_out">Ondoka</string>
+    <string name="home_your_medical_info">Taarifa Zako za Afya</string>
+    <string name="home_edit">Hariri</string>
+    <string name="home_chip_services">Huduma</string>
+    <string name="home_chip_new_consultation">Mashauriano Mapya</string>
+    <string name="home_chip_reports">Ripoti</string>
+    <string name="home_start_consultation">Anza Mashauriano</string>
+    <string name="home_start_consultation_subtitle">Chagua huduma na uwasiliane na madaktari walioidhinishwa</string>
+    <string name="home_content_desc_start">Anza</string>
+    <string name="home_consultation_history">Historia ya Mashauriano</string>
+    <string name="home_consultation_history_subtitle">Angalia mashauriano yako yaliyopita</string>
+    <string name="home_reports">Ripoti</string>
+    <string name="home_reports_subtitle">Angalia na pakua ripoti zako</string>
+    <string name="home_my_appointments">Miadi Yangu</string>
+    <string name="home_my_appointments_subtitle">Angalia na simamia miadi yako</string>
+    <string name="home_content_desc_open">Fungua</string>
+    <string name="home_content_desc_active_consultation">Rudi kwenye mashauriano yanayoendelea</string>
+    <string name="home_logout_title">Ondoka</string>
+    <string name="home_logout_message">Una uhakika unataka kuondoka? Utahitaji Nambari yako ya Mgonjwa kuingia tena.</string>
+    <string name="home_logout_confirm">Ondoka</string>
+    <string name="home_logout_cancel">Ghairi</string>
+
+    <!-- ===== PatientProfileScreen ===== -->
+    <string name="profile_back">Rudi</string>
+    <string name="profile_title">Wasifu wa Afya</string>
+    <string name="profile_sex">Jinsia</string>
+    <string name="profile_male">Me</string>
+    <string name="profile_female">Ke</string>
+    <string name="profile_age_group">Kundi la Umri</string>
+    <string name="profile_select_age_group">Chagua kundi la umri</string>
+    <string name="profile_blood_type">Aina ya Damu</string>
+    <string name="profile_select_blood_type">Chagua aina ya damu</string>
+    <string name="profile_allergies">Mzio</string>
+    <string name="profile_allergies_placeholder">mf. Penicillin, Karanga</string>
+    <string name="profile_chronic_conditions">Magonjwa Sugu</string>
+    <string name="profile_chronic_conditions_placeholder">mf. Kisukari, Shinikizo la Damu</string>
+    <string name="profile_save">Hifadhi</string>
+    <string name="profile_age_under_18">Chini ya 18</string>
+    <string name="profile_age_18_24">18-24</string>
+    <string name="profile_age_25_34">25-34</string>
+    <string name="profile_age_35_44">35-44</string>
+    <string name="profile_age_45_54">45-54</string>
+    <string name="profile_age_55_64">55-64</string>
+    <string name="profile_age_65_plus">65+</string>
+
+    <!-- ===== ServicesScreen ===== -->
+    <string name="services_back">Rudi</string>
+    <string name="services_title">Huduma Zetu</string>
+    <string name="services_subtitle">Chagua aina ya mtoa huduma za afya unayemhitaji \u2022 Tanzania</string>
+    <string name="services_pay_to_continue">Lipa ili Kuendelea</string>
+    <string name="services_payment_required">Malipo yanahitajika kuona watoa huduma za afya wanaopatikana</string>
+    <string name="services_popular">\u2728 Maarufu</string>
+    <string name="services_coming_soon">Inakuja Hivi Karibuni</string>
+    <string name="services_choose_payment_method">Chagua Njia ya Malipo</string>
+    <string name="services_close">Funga</string>
+    <string name="services_mobile_money">Pesa kwa Simu</string>
+    <string name="services_mobile_money_subtitle">M-Pesa, Airtel Money, HaloPesa, Yas</string>
+    <string name="services_card_payment">Malipo kwa Kadi</string>
+    <string name="services_card_payment_subtitle">Visa, Mastercard</string>
+    <string name="services_bank_transfer">Uhamisho wa Benki</string>
+    <string name="services_bank_transfer_subtitle">Uhamisho wa moja kwa moja wa benki</string>
+    <string name="services_secure_payments">\uD83D\uDD12 Malipo yote ni salama na yamefichwa kwa usalama</string>
+    <string name="services_select_provider">Chagua Mtoa Huduma Wako</string>
+    <string name="services_reference_number">Nambari ya Rejea</string>
+    <string name="services_amount_to_pay">Kiasi cha Kulipa</string>
+    <string name="services_follow_steps">Fuata hatua hizi kwenye simu yako:</string>
+    <string name="services_exact_amount_warning">Ili kuepuka kucheleweshwa, tafadhali lipa kiasi kamili cha TSh %s kwa huduma uliyoichagua.</string>
+    <string name="services_change_provider">Badilisha\nMtoa Huduma</string>
+    <string name="services_i_have_paid">Nimelipa</string>
+    <string name="services_verifying_payment">Inathibitisha Malipo\u2026</string>
+    <string name="services_please_wait_confirm">Tafadhali subiri tunapothibitisha malipo yako</string>
+    <string name="services_payment_successful">Malipo Yamefanikiwa!</string>
+    <string name="services_payment_confirmed_message">Malipo yako yamethibitishwa. Sasa unaweza kupitia watoa huduma za afya wanaopatikana.</string>
+    <string name="services_continue">Endelea</string>
+    <string name="services_min_format">dk %d</string>
+
+    <!-- ===== FindDoctorScreen ===== -->
+    <string name="find_doctor_back">Rudi</string>
+    <string name="find_doctor_title">Tafuta Daktari</string>
+    <string name="find_doctor_subtitle">Pitia wataalamu wetu wa afya walioidhinishwa</string>
+    <string name="find_doctor_tanzania">Tanzania</string>
+    <string name="find_doctor_search_placeholder">Tafuta kwa jina, utaalamu, au ukadiriaji\u2026</string>
+    <string name="find_doctor_filter_all">Wote</string>
+    <string name="find_doctor_filter_online">Mtandaoni</string>
+    <string name="find_doctor_filter_offline">Nje ya Mtandao</string>
+    <string name="find_doctor_no_doctors_found">Hakuna madaktari waliopatikana</string>
+    <string name="find_doctor_no_doctors_hint">Jaribu kubadilisha utafutaji au vichujio vyako kupata watoa huduma za afya wanaopatikana.</string>
+    <string name="find_doctor_available">Anapatikana</string>
+    <string name="find_doctor_in_session">Yupo Kwenye Mashauriano</string>
+    <string name="find_doctor_offline">Nje ya Mtandao</string>
+    <string name="find_doctor_reviews_format">(maoni %d)</string>
+    <string name="find_doctor_years_experience_format">miaka %d ya uzoefu</string>
+    <string name="find_doctor_acceptance">100%% kukubaliwa</string>
+    <string name="find_doctor_consultation_fee">Ada ya mashauriano</string>
+    <string name="find_doctor_per_duration_format">/ dk %d</string>
+    <string name="find_doctor_sending">Inatuma\u2026</string>
+    <string name="find_doctor_waiting_format">Inasubiri\u2026 sekunde %d</string>
+    <string name="find_doctor_request_active">Ombi Linatumika</string>
+    <string name="find_doctor_request_consultation">Omba Mashauriano</string>
+    <string name="find_doctor_book_appointment">Weka Miadi</string>
+    <string name="find_doctor_waiting_response">Inasubiri jibu la daktari\u2026</string>
+    <string name="find_doctor_dismiss">Ondoa</string>
+    <!-- Category display names -->
+    <string name="category_nurse">Muuguzi</string>
+    <string name="category_clinical_officer">Afisa wa Kliniki</string>
+    <string name="category_pharmacist">Mfamasia</string>
+    <string name="category_gp">Daktari wa Kawaida</string>
+    <string name="category_specialist">Daktari Bingwa</string>
+    <string name="category_psychologist">Mtaalamu wa Saikolojia</string>
+
+    <!-- ===== BookAppointmentScreen ===== -->
+    <string name="book_appointment_back">Rudi</string>
+    <string name="book_appointment_title">Weka Miadi</string>
+    <string name="book_appointment_subtitle">Chagua tarehe na saa ya miadi yako</string>
+    <string name="book_appointment_select_date">Chagua Tarehe</string>
+    <string name="book_appointment_available_times">Nyakati Zinazopatikana</string>
+    <string name="book_appointment_no_slots">Hakuna nafasi za muda kwa tarehe hii. Jaribu siku nyingine.</string>
+    <string name="book_appointment_chief_complaint">Tatizo Kuu</string>
+    <string name="book_appointment_complaint_placeholder">Eleza dalili zako au sababu ya miadi\u2026</string>
+    <string name="book_appointment_booking">Inaweka miadi\u2026</string>
+    <string name="book_appointment_book_for_format">Weka miadi saa %s</string>
+    <string name="book_appointment_select_time">Chagua Saa</string>
+    <string name="book_appointment_char_count_format">%d/1000</string>
+
+    <!-- ===== PatientAppointmentsScreen ===== -->
+    <string name="appointments_back">Rudi</string>
+    <string name="appointments_title">Miadi Yangu</string>
+    <string name="appointments_tab_upcoming">Zijazo</string>
+    <string name="appointments_tab_past">Zilizopita</string>
+    <string name="appointments_no_upcoming">Hakuna miadi ijayo</string>
+    <string name="appointments_no_past">Hakuna miadi iliyopita</string>
+    <string name="appointments_status_booked">Imewekwa</string>
+    <string name="appointments_status_confirmed">Imethibitishwa</string>
+    <string name="appointments_status_in_progress">Inaendelea</string>
+    <string name="appointments_status_completed">Imekamilika</string>
+    <string name="appointments_status_missed">Imekosekana</string>
+    <string name="appointments_status_cancelled">Imeghairiwa</string>
+    <string name="appointments_status_rescheduled">Imepangwa Upya</string>
+    <string name="appointments_rescheduled_note">Ilipangwa upya kutoka miadi iliyopita</string>
+    <string name="appointments_cancelling">Inaghairi\u2026</string>
+    <string name="appointments_cancel">Ghairi Miadi</string>
+    <string name="appointments_duration_service_format">dk %1$d \u00B7 %2$s</string>
+
+    <!-- ===== ConsultationHistoryScreen ===== -->
+    <string name="history_back">Rudi</string>
+    <string name="history_title">Historia ya Mashauriano</string>
+    <string name="history_unknown_error">Hitilafu isiyojulikana</string>
+    <string name="history_no_consultations">Hakuna mashauriano bado</string>
+    <string name="history_general_consultation">Mashauriano ya Kawaida</string>
+    <string name="history_specialist_consultation">Mashauriano ya Daktari Bingwa</string>
+    <string name="history_follow_up">Ufuatiliaji</string>
+    <string name="history_emergency">Dharura</string>
+
+    <!-- ===== SymptomsEntryDialog ===== -->
+    <string name="symptoms_title">Eleza Dalili Zako</string>
+    <string name="symptoms_subtitle">Hii inamsaidia daktari kujiandaa kwa mashauriano yako.</string>
+    <string name="symptoms_profile_prefix">Wasifu: %s</string>
+    <string name="symptoms_label">Una dalili gani?</string>
+    <string name="symptoms_placeholder">mf., maumivu ya kichwa kwa siku 3, homa ndogo\u2026</string>
+    <string name="symptoms_cancel">Ghairi</string>
+    <string name="symptoms_skip">Ruka</string>
+    <string name="symptoms_send_request">Tuma Ombi</string>
+
+    <!-- ===== PatientPaymentScreen ===== -->
+    <string name="payment_title">Malipo</string>
+    <string name="payment_back">Rudi</string>
+    <string name="payment_consultation_payment">Malipo ya Mashauriano</string>
+    <string name="payment_charge_message">Utalipishwa kwa kipindi hiki cha mashauriano.</string>
+    <string name="payment_pay_now">Lipa Sasa</string>
+    <string name="payment_processing">Inachakata Malipo</string>
+    <string name="payment_processing_message">Malipo yako ya TZS %d yanachakatwa. Tafadhali subiri\u2026</string>
+    <string name="payment_successful">Malipo Yamefanikiwa</string>
+    <string name="payment_success_message">TZS %d yalilipwa kwa ufanisi.\nInakuunganisha na daktari wako\u2026</string>
+    <string name="payment_failed">Malipo Yameshindikana</string>
+    <string name="payment_failed_default">Malipo yameshindikana</string>
+    <string name="payment_try_again">Jaribu Tena</string>
+
+    <!-- ===== ExtensionPaymentScreen ===== -->
+    <string name="extension_title">Malipo ya Kuongeza Muda</string>
+    <string name="extension_back">Rudi</string>
+    <string name="extension_fee_note">Ada ya kuongeza muda ni sawa na ada ya mashauriano ya awali.</string>
+    <string name="extension_extend_session">Ongeza Muda wa Kipindi</string>
+    <string name="extension_pay_description">Lipa kuongeza muda wa kipindi chako cha mashauriano.</string>
+    <string name="extension_pay_now">Lipa Sasa</string>
+    <string name="extension_cancel">Ghairi</string>
+    <string name="extension_processing">Inachakata Malipo ya Kuongeza Muda</string>
+    <string name="extension_processing_message">Malipo yako ya TZS %d yanachakatwa\u2026</string>
+    <string name="extension_session_extended">Kipindi Kimeongezwa!</string>
+    <string name="extension_returning">Inarudi kwenye mashauriano\u2026</string>
+    <string name="extension_payment_failed">Malipo Yameshindikana</string>
+    <string name="extension_payment_failed_default">Malipo yameshindikana</string>
+    <string name="extension_try_again">Jaribu Tena</string>
+
+    <!-- ===== ServiceLocationScreen ===== -->
+    <string name="location_back">Rudi</string>
+    <string name="location_access_required">Ruhusa ya Mahali Inahitajika</string>
+    <string name="location_access_description">Ili kukupa huduma bora zaidi, tunatumia eneo lako kuchanganua upatikanaji wa huduma, kukuunganisha na madaktari wa karibu wenye sifa, na kubinafsisha mapendekezo yetu ya afya kulingana na eneo lako.</string>
+    <string name="location_permission_denied">Ruhusa ya mahali imekataliwa. Tafadhali iwezesha kwenye mipangilio ya kifaa chako ili kuendelea.</string>
+    <string name="location_open_settings">Fungua Mipangilio</string>
+    <string name="location_enable">Wezesha Mahali</string>
+    <string name="location_services_from">Ungependa huduma kutoka</string>
+    <string name="location_select_preferred">Chagua eneo la daktari unalopendelea</string>
+    <string name="location_inside_tanzania">Ndani ya Tanzania</string>
+    <string name="location_local_doctors">Madaktari wa ndani</string>
+    <string name="location_outside_tanzania">Nje ya Tanzania</string>
+    <string name="location_international_doctors">Madaktari wa kimataifa</string>
+    <string name="location_content_desc_select">Chagua</string>
+    <string name="location_not_available_title">Bado Haipatikani</string>
+    <string name="location_not_available_message">Mashauriano ya kimataifa bado hayapatikani. Tunafanya kazi kwa bidii kukuletea huduma hii hivi karibuni.</string>
+    <string name="location_ok">Sawa</string>
+
+    <!-- ===== ReportsScreen ===== -->
+    <string name="reports_back">Rudi</string>
+    <string name="reports_title">Ripoti</string>
+    <string name="reports_unknown_error">Hitilafu isiyojulikana</string>
+    <string name="reports_no_reports">Hakuna ripoti bado</string>
+    <string name="reports_consultation_report">Ripoti ya Mashauriano</string>
+    <string name="reports_content_desc_view">Angalia ripoti</string>
+
+    <!-- ===== ReportDetailScreen ===== -->
+    <string name="report_detail_back">Rudi</string>
+    <string name="report_detail_title">Ripoti ya Mashauriano</string>
+    <string name="report_detail_share">Shiriki</string>
+    <string name="report_detail_error_default">Hitilafu</string>
+    <string name="report_detail_download_pdf">Pakua PDF</string>
+    <string name="report_detail_esirii_health">ESIRII HEALTH</string>
+    <string name="report_detail_telemedicine_report">Ripoti ya Mashauriano ya Telemedicine</string>
+    <string name="report_detail_consultation_report_label">RIPOTI YA MASHAURIANO</string>
+    <string name="report_detail_ref_format">Rejea: %s</string>
+    <string name="report_detail_section_patient_info">1. Taarifa za Mgonjwa</string>
+    <string name="report_detail_patient_id">Nambari ya Mgonjwa</string>
+    <string name="report_detail_consultation_date">Tarehe ya Mashauriano</string>
+    <string name="report_detail_consultation_type">Aina ya Mashauriano</string>
+    <string name="report_detail_telemedicine">Telemedicine</string>
+    <string name="report_detail_section_symptoms">2. Dalili Zilizotolewa</string>
+    <string name="report_detail_no_symptoms">Hakuna dalili zilizorekodiwa.</string>
+    <string name="report_detail_section_diagnosis">3. Utambuzi na Tathmini</string>
+    <string name="report_detail_primary_diagnosis">Utambuzi Mkuu</string>
+    <string name="report_detail_category">Aina</string>
+    <string name="report_detail_severity">Ukali</string>
+    <string name="report_detail_section_treatment">4. Mpango wa Matibabu</string>
+    <string name="report_detail_no_treatment">Hakuna mpango wa matibabu uliobainishwa.</string>
+    <string name="report_detail_section_followup">5. Maelekezo ya Ufuatiliaji</string>
+    <string name="report_detail_followup_recommended">Ufuatiliaji Unapendekezwa</string>
+    <string name="report_detail_yes">Ndiyo</string>
+    <string name="report_detail_no">Hapana</string>
+    <string name="report_detail_additional_notes">Maelezo ya Ziada:</string>
+    <string name="report_detail_section_disclaimer">6. Onyo la Telemedicine</string>
+    <string name="report_detail_disclaimer_text">Mashauriano haya yalifanyika kupitia telemedicine. Tathmini na mapendekezo yametokana na taarifa zilizotolewa wakati wa mashauriano ya mtandaoni. Ikiwa dalili zinaendelea au kuzidi, tafadhali tafuta huduma ya moja kwa moja ya afya.</string>
+    <string name="report_detail_attending_physician">Daktari Aliyehudumia</string>
+    <string name="report_detail_electronically_signed">Imesainiwa kielektroniki</string>
+    <string name="report_detail_generated_by">Imetolewa na Jukwaa la ESIRII Health</string>
+    <string name="report_detail_share_chooser">Shiriki Ripoti</string>
+    <string name="report_detail_pdf_error">Imeshindwa kutengeneza PDF: %s</string>
+
+    <!-- ===== RatingBottomSheet ===== -->
+    <string name="rating_success_content_desc">Imefanikiwa</string>
+    <string name="rating_thank_you">Asante kwa maoni yako!</string>
+    <string name="rating_title">Mashauriano yalikuwaje?</string>
+    <string name="rating_subtitle">Ukadiriaji wako unatusaidia kuboresha huduma yetu</string>
+    <string name="rating_star_format">nyota %d</string>
+    <string name="rating_poor">Duni</string>
+    <string name="rating_fair">Ya Wastani</string>
+    <string name="rating_good">Nzuri</string>
+    <string name="rating_very_good">Nzuri Sana</string>
+    <string name="rating_excellent">Bora Kabisa</string>
+    <string name="rating_low_comment_label">Tuambie nini kinaweza kuboreshwa *</string>
+    <string name="rating_optional_comment_label">Acha maoni (si lazima)</string>
+    <string name="rating_submitting">Inatuma\u2026</string>
+    <string name="rating_submit">Tuma Ukadiriaji</string>
+    <string name="rating_remind_later">Nikumbushe Baadaye</string>
+
+    <!-- ===== PatientConsultationScreen ===== -->
+    <string name="consultation_start_call">Piga Simu</string>
+    <string name="consultation_voice_call">Simu ya Sauti</string>
+    <string name="consultation_video_call">Simu ya Video</string>
+    <string name="consultation_camera">Kamera</string>
+    <string name="consultation_gallery">Picha</string>
+    <string name="consultation_document">Hati</string>
+
+    <!-- ===== ViewModel error/status messages ===== -->
+    <string name="vm_doctor_accepted">Daktari amekubali! Inafungua mazungumzo\u2026</string>
+    <string name="vm_doctor_declined">Daktari amekataa ombi. Unaweza kuomba daktari mwingine.</string>
+    <string name="vm_doctor_no_response">Daktari hakujibu. Unaweza kujaribu daktari mwingine.</string>
+    <string name="vm_waiting_doctor_response">Inasubiri jibu la daktari\u2026</string>
+    <string name="vm_failed_send_request">Imeshindwa kutuma ombi</string>
+    <string name="vm_failed_load_appointments">Imeshindwa kupakia miadi</string>
+    <string name="vm_failed_cancel_appointment">Imeshindwa kughairi</string>
+    <string name="vm_failed_load_times">Imeshindwa kupakia nyakati zinazopatikana</string>
+    <string name="vm_select_date_time">Tafadhali chagua tarehe na saa</string>
+    <string name="vm_complaint_too_short">Tafadhali eleza tatizo lako (angalau herufi 10)</string>
+    <string name="vm_failed_book_appointment">Imeshindwa kuweka miadi</string>
+    <string name="vm_failed_load_consultations">Imeshindwa kupakia mashauriano</string>
+    <string name="vm_failed_load_doctors">Imeshindwa kupakia madaktari. Tafadhali jaribu tena.</string>
+    <string name="vm_session_expired">Kipindi kimekwisha. Tafadhali ingia tena.</string>
+    <string name="vm_invalid_payment_amount">Kiasi cha malipo si sahihi</string>
+    <string name="vm_network_error">Hitilafu ya mtandao. Tafadhali angalia muunganisho wako.</string>
+    <string name="vm_payment_failed">Malipo yameshindikana</string>
+    <string name="vm_payment_timed_out">Muda wa malipo umekwisha. Tafadhali jaribu tena.</string>
+    <string name="vm_failed_load_report">Imeshindwa kupakia ripoti</string>
+    <string name="vm_failed_load_reports">Imeshindwa kupakia ripoti</string>
+    <string name="vm_select_rating">Tafadhali chagua ukadiriaji</string>
+    <string name="vm_comment_required">Tafadhali tuambie nini kinaweza kuboreshwa</string>
+    <string name="vm_failed_submit_rating">Imeshindwa kutuma ukadiriaji. Tafadhali jaribu tena.</string>
+    <string name="vm_session_not_ready">Kipindi hakiko tayari. Tafadhali subiri kidogo na ujaribu tena.</string>
+    <string name="vm_session_expired_reopen">Kipindi kimekwisha. Tafadhali fungua tena mashauriano haya.</string>
+    <string name="vm_failed_send_attachment">Imeshindwa kutuma kiambatisho.</string>
+    <string name="vm_failed_send_attachment_retrying">Imeshindwa kutuma kiambatisho. Inajaribu tena\u2026</string>
+    <string name="vm_failed_upload_file">Imeshindwa kupakia faili. Tafadhali jaribu tena.</string>
+
+    <!-- ===== ReportPdfGenerator ===== -->
+    <string name="pdf_esirii_health">ESIRII HEALTH</string>
+    <string name="pdf_telemedicine_report">Ripoti ya Mashauriano ya Telemedicine</string>
+    <string name="pdf_consultation_report">RIPOTI YA MASHAURIANO</string>
+    <string name="pdf_ref_format">Rejea: %s</string>
+    <string name="pdf_section_patient_info">1. Taarifa za Mgonjwa</string>
+    <string name="pdf_patient_id">Nambari ya Mgonjwa</string>
+    <string name="pdf_consultation_date">Tarehe ya Mashauriano</string>
+    <string name="pdf_consultation_type">Aina ya Mashauriano</string>
+    <string name="pdf_telemedicine">Telemedicine</string>
+    <string name="pdf_section_symptoms">2. Dalili Zilizotolewa</string>
+    <string name="pdf_no_symptoms">Hakuna dalili zilizorekodiwa.</string>
+    <string name="pdf_section_diagnosis">3. Utambuzi na Tathmini</string>
+    <string name="pdf_primary_diagnosis">Utambuzi Mkuu</string>
+    <string name="pdf_category">Aina</string>
+    <string name="pdf_severity">Ukali</string>
+    <string name="pdf_section_treatment">4. Mpango wa Matibabu</string>
+    <string name="pdf_no_treatment">Hakuna mpango wa matibabu uliobainishwa.</string>
+    <string name="pdf_section_followup">5. Maelekezo ya Ufuatiliaji</string>
+    <string name="pdf_followup_recommended">Ufuatiliaji Unapendekezwa</string>
+    <string name="pdf_yes">Ndiyo</string>
+    <string name="pdf_no">Hapana</string>
+    <string name="pdf_additional_notes">Maelezo ya Ziada:</string>
+    <string name="pdf_section_disclaimer">6. Onyo la Telemedicine</string>
+    <string name="pdf_disclaimer_text">Mashauriano haya yalifanyika kupitia telemedicine. Tathmini na mapendekezo yametokana na taarifa zilizotolewa wakati wa mashauriano ya mtandaoni. Ikiwa dalili zinaendelea au kuzidi, tafadhali tafuta huduma ya moja kwa moja ya afya.</string>
+    <string name="pdf_attending_physician">Daktari Aliyehudumia</string>
+    <string name="pdf_electronically_signed">Imesainiwa kielektroniki</string>
+    <string name="pdf_generated_by">Imetolewa na Jukwaa la ESIRII Health</string>
+
+</resources>

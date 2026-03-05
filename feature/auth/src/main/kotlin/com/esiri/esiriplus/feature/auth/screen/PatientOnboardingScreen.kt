@@ -15,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.viewmodel.PatientOnboardingViewModel
 
 @Composable
@@ -34,21 +36,21 @@ fun PatientOnboardingScreen(
             .padding(24.dp),
     ) {
         Text(
-            text = "Patient Registration",
+            text = stringResource(R.string.patient_onboarding_title),
             style = MaterialTheme.typography.headlineMedium,
         )
         Spacer(modifier = Modifier.height(24.dp))
         OutlinedTextField(
             value = uiState.fullName,
             onValueChange = viewModel::onFullNameChanged,
-            label = { Text("Full Name") },
+            label = { Text(stringResource(R.string.patient_onboarding_full_name)) },
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = uiState.phone,
             onValueChange = viewModel::onPhoneChanged,
-            label = { Text("Phone Number") },
+            label = { Text(stringResource(R.string.patient_onboarding_phone)) },
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -60,7 +62,7 @@ fun PatientOnboardingScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.isFormValid,
             ) {
-                Text("Continue")
+                Text(stringResource(R.string.patient_onboarding_continue))
             }
         }
         uiState.error?.let { error ->

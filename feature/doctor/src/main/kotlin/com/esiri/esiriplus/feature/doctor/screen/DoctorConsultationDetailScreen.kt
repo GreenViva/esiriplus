@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +60,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.domain.model.ConsultationPhase
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.feature.chat.ui.ChatContent
 import com.esiri.esiriplus.feature.chat.ui.ConsultationTimerBar
 import com.esiri.esiriplus.feature.chat.ui.DoctorExtensionOverlay
@@ -153,19 +155,19 @@ fun DoctorConsultationDetailScreen(
     if (showEndDialog) {
         AlertDialog(
             onDismissRequest = { showEndDialog = false },
-            title = { Text("End Consultation", color = Color.Black) },
-            text = { Text("Are you sure you want to end this consultation?", color = Color.Black) },
+            title = { Text(stringResource(R.string.consultation_detail_end_title), color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_detail_end_message), color = Color.Black) },
             confirmButton = {
                 TextButton(onClick = {
                     showEndDialog = false
                     viewModel.endConsultation()
                 }) {
-                    Text("End", color = Color(0xFFDC2626))
+                    Text(stringResource(R.string.consultation_detail_end_button), color = Color(0xFFDC2626))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showEndDialog = false }) {
-                    Text("Cancel", color = Color.Black)
+                    Text(stringResource(R.string.common_cancel), color = Color.Black)
                 }
             },
         )
@@ -175,11 +177,11 @@ fun DoctorConsultationDetailScreen(
     uiState.endError?.let { errorMsg ->
         AlertDialog(
             onDismissRequest = { viewModel.dismissEndError() },
-            title = { Text("Could Not End Consultation", color = Color.Black) },
+            title = { Text(stringResource(R.string.consultation_detail_end_error_title), color = Color.Black) },
             text = { Text(errorMsg, color = Color.Black) },
             confirmButton = {
                 TextButton(onClick = { viewModel.dismissEndError() }) {
-                    Text("OK", color = BrandTeal)
+                    Text(stringResource(R.string.common_ok), color = BrandTeal)
                 }
             },
         )
@@ -207,7 +209,7 @@ fun DoctorConsultationDetailScreen(
                 IconButton(onClick = { showCallTypeMenu = true }) {
                     Icon(
                         Icons.Default.Phone,
-                        contentDescription = "Start Call",
+                        contentDescription = stringResource(R.string.consultation_detail_start_call),
                         tint = BrandTeal,
                     )
                 }
@@ -216,7 +218,7 @@ fun DoctorConsultationDetailScreen(
                     onDismissRequest = { showCallTypeMenu = false },
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Voice Call", color = Color.Black) },
+                        text = { Text(stringResource(R.string.consultation_detail_voice_call), color = Color.Black) },
                         onClick = {
                             showCallTypeMenu = false
                             onStartCall(uiState.consultationId, "AUDIO")
@@ -226,7 +228,7 @@ fun DoctorConsultationDetailScreen(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text("Video Call", color = Color.Black) },
+                        text = { Text(stringResource(R.string.consultation_detail_video_call), color = Color.Black) },
                         onClick = {
                             showCallTypeMenu = false
                             onStartCall(uiState.consultationId, "VIDEO")
@@ -240,7 +242,7 @@ fun DoctorConsultationDetailScreen(
             IconButton(onClick = { showReportSheet = true }) {
                 Icon(
                     Icons.Default.Edit,
-                    contentDescription = "Write Report",
+                    contentDescription = stringResource(R.string.consultation_detail_write_report),
                     tint = BrandTeal,
                 )
             }
@@ -257,7 +259,7 @@ fun DoctorConsultationDetailScreen(
                 } else {
                     Icon(
                         Icons.Default.Description,
-                        contentDescription = "Patient Summary",
+                        contentDescription = stringResource(R.string.consultation_detail_patient_summary),
                         tint = Color(0xFF6366F1),
                     )
                 }
@@ -266,7 +268,7 @@ fun DoctorConsultationDetailScreen(
                 IconButton(onClick = { showEndDialog = true }) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "End Consultation",
+                        contentDescription = stringResource(R.string.consultation_detail_end_consultation),
                         tint = Color(0xFFDC2626),
                     )
                 }
@@ -303,7 +305,7 @@ fun DoctorConsultationDetailScreen(
         onDismissRequest = { showAttachmentMenu = false },
     ) {
         DropdownMenuItem(
-            text = { Text("Camera", color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_detail_camera), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
                 val hasCameraPermission = ContextCompat.checkSelfPermission(
@@ -323,7 +325,7 @@ fun DoctorConsultationDetailScreen(
             },
         )
         DropdownMenuItem(
-            text = { Text("Gallery", color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_detail_gallery), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -344,7 +346,7 @@ fun DoctorConsultationDetailScreen(
             },
         )
         DropdownMenuItem(
-            text = { Text("Document", color = Color.Black) },
+            text = { Text(stringResource(R.string.consultation_detail_document), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
                 documentPickerLauncher.launch("application/*")
@@ -385,11 +387,11 @@ fun DoctorConsultationDetailScreen(
     summaryState.error?.let { errorMsg ->
         AlertDialog(
             onDismissRequest = { summaryViewModel.dismissError() },
-            title = { Text("Summary Error", color = Color.Black) },
+            title = { Text(stringResource(R.string.consultation_detail_summary_error_title), color = Color.Black) },
             text = { Text(errorMsg, color = Color.Black) },
             confirmButton = {
                 TextButton(onClick = { summaryViewModel.dismissError() }) {
-                    Text("OK", color = BrandTeal)
+                    Text(stringResource(R.string.common_ok), color = BrandTeal)
                 }
             },
         )
@@ -426,7 +428,7 @@ private fun PatientSummaryDialog(
                         ) {
                             Column(modifier = Modifier.padding(end = 40.dp)) {
                                 Text(
-                                    "Patient Medical Summary",
+                                    stringResource(R.string.consultation_detail_patient_medical_summary),
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp,
@@ -442,7 +444,7 @@ private fun PatientSummaryDialog(
                                 onClick = onDismiss,
                                 modifier = Modifier.align(Alignment.TopEnd),
                             ) {
-                                Icon(Icons.Default.Close, "Close", tint = Color.Black)
+                                Icon(Icons.Default.Close, stringResource(R.string.common_close), tint = Color.Black)
                             }
                         }
                     }

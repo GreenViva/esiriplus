@@ -50,8 +50,13 @@ app/google-services.json
 # Supabase local config
 supabase/.env.local
 
-# Firebase Admin SDK keys
+# Firebase Admin SDK keys (NEVER commit — use CI secrets)
 esiri-plus-firebase-adminsdk-*.json
+*-firebase-adminsdk-*.json
+
+# Google Services duplicates / backups
+app/google-services.json.bak
+app/google-services\ (1).json
 
 # Claude Code
 .claude/

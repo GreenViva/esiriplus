@@ -53,6 +53,34 @@ Deno.serve(async (req: Request) => {
     const resultCode: number = stk.ResultCode;
     const resultDesc: string = stk.ResultDesc;
 
+    // Replay protection: reject callbacks older than 10 minutes (production only)
+    if (PAYMENT_ENV === "production") {
+      const items: { Name: string; Value: unknown }[] =
+        stk.CallbackMetadata?.Item ?? [];
+      const txnDate = items.find((i) => i.Name === "TransactionDate")?.Value;
+      if (txnDate) {
+        const txnStr = String(txnDate);
+        // M-Pesa TransactionDate format: YYYYMMDDHHmmss
+        const parsed = new Date(
+          `${txnStr.slice(0, 4)}-${txnStr.slice(4, 6)}-${txnStr.slice(6, 8)}T` +
+          `${txnStr.slice(8, 10)}:${txnStr.slice(10, 12)}:${txnStr.slice(12, 14)}Z`
+        );
+        const ageMs = Date.now() - parsed.getTime();
+        if (!isNaN(parsed.getTime()) && ageMs > 10 * 60 * 1000) {
+          await logEvent({
+            function_name: "mpesa-callback",
+            level: "warn",
+            action: "stale_callback_rejected",
+            metadata: { checkoutRequestId, age_seconds: Math.round(ageMs / 1000) },
+          });
+          return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
+
     const supabase = getServiceClient();
 
     // Fetch the pending payment by checkout request ID

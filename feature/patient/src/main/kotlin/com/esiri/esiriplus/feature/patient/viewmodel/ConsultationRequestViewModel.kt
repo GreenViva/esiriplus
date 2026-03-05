@@ -59,6 +59,8 @@ data class ConsultationAcceptedEvent(
     val consultationId: String,
 )
 
+// TODO: Localize hardcoded user-facing strings (status/error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class ConsultationRequestViewModel @Inject constructor(
     private val consultationRequestRepository: ConsultationRequestRepository,

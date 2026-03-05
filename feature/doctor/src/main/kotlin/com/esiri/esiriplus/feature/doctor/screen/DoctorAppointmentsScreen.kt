@@ -41,8 +41,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.core.domain.model.Appointment
 import com.esiri.esiriplus.core.domain.model.AppointmentStatus
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorAppointmentTab
@@ -104,18 +106,18 @@ fun DoctorAppointmentsScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.common_back_content_description),
                     tint = BrandTeal,
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = "Back", fontSize = 14.sp, color = BrandTeal)
+                Text(text = stringResource(R.string.common_back), fontSize = 14.sp, color = BrandTeal)
             }
 
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Appointments",
+                text = stringResource(R.string.appointments_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -134,9 +136,9 @@ fun DoctorAppointmentsScreen(
             DoctorAppointmentTab.entries.forEach { tab ->
                 val isSelected = uiState.selectedTab == tab
                 val label = when (tab) {
-                    DoctorAppointmentTab.TODAY -> "Today"
-                    DoctorAppointmentTab.UPCOMING -> "Upcoming"
-                    DoctorAppointmentTab.MISSED -> "Missed"
+                    DoctorAppointmentTab.TODAY -> stringResource(R.string.appointments_tab_today)
+                    DoctorAppointmentTab.UPCOMING -> stringResource(R.string.appointments_tab_upcoming)
+                    DoctorAppointmentTab.MISSED -> stringResource(R.string.appointments_tab_missed)
                 }
                 val count = when (tab) {
                     DoctorAppointmentTab.TODAY -> uiState.todayAppointments.size
@@ -191,7 +193,11 @@ fun DoctorAppointmentsScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "No ${uiState.selectedTab.name.lowercase()} appointments",
+                        text = when (uiState.selectedTab) {
+                            DoctorAppointmentTab.TODAY -> stringResource(R.string.appointments_no_today)
+                            DoctorAppointmentTab.UPCOMING -> stringResource(R.string.appointments_no_upcoming)
+                            DoctorAppointmentTab.MISSED -> stringResource(R.string.appointments_no_missed)
+                        },
                         fontSize = 16.sp,
                         color = SubtitleGrey,
                     )
@@ -248,14 +254,23 @@ private fun DoctorAppointmentCard(
     val scheduledTime = Instant.ofEpochMilli(appointment.scheduledAt)
         .atZone(EAT)
 
-    val (statusColor, statusText) = when (appointment.status) {
-        AppointmentStatus.BOOKED -> BrandTeal to "Booked"
-        AppointmentStatus.CONFIRMED -> SuccessGreen to "Confirmed"
-        AppointmentStatus.IN_PROGRESS -> BrandTeal to "In Progress"
-        AppointmentStatus.COMPLETED -> SuccessGreen to "Completed"
-        AppointmentStatus.MISSED -> WarningOrange to "Missed"
-        AppointmentStatus.CANCELLED -> ErrorRed to "Cancelled"
-        AppointmentStatus.RESCHEDULED -> SubtitleGrey to "Rescheduled"
+    val statusColor = when (appointment.status) {
+        AppointmentStatus.BOOKED -> BrandTeal
+        AppointmentStatus.CONFIRMED -> SuccessGreen
+        AppointmentStatus.IN_PROGRESS -> BrandTeal
+        AppointmentStatus.COMPLETED -> SuccessGreen
+        AppointmentStatus.MISSED -> WarningOrange
+        AppointmentStatus.CANCELLED -> ErrorRed
+        AppointmentStatus.RESCHEDULED -> SubtitleGrey
+    }
+    val statusText = when (appointment.status) {
+        AppointmentStatus.BOOKED -> stringResource(R.string.appointments_status_booked)
+        AppointmentStatus.CONFIRMED -> stringResource(R.string.appointments_status_confirmed)
+        AppointmentStatus.IN_PROGRESS -> stringResource(R.string.appointments_status_in_progress)
+        AppointmentStatus.COMPLETED -> stringResource(R.string.appointments_status_completed)
+        AppointmentStatus.MISSED -> stringResource(R.string.appointments_status_missed)
+        AppointmentStatus.CANCELLED -> stringResource(R.string.appointments_status_cancelled)
+        AppointmentStatus.RESCHEDULED -> stringResource(R.string.appointments_status_rescheduled)
     }
 
     Surface(
@@ -279,7 +294,7 @@ private fun DoctorAppointmentCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "${appointment.durationMinutes} min \u00B7 ${appointment.serviceType}",
+                        text = stringResource(R.string.appointments_min_duration, appointment.durationMinutes, appointment.serviceType),
                         fontSize = 13.sp,
                         color = SubtitleGrey,
                     )
@@ -330,9 +345,9 @@ private fun DoctorAppointmentCard(
                                 strokeWidth = 2.dp,
                             )
                             Spacer(Modifier.width(6.dp))
-                            Text(text = "Starting...", fontSize = 13.sp, color = Color.White)
+                            Text(text = stringResource(R.string.appointments_starting), fontSize = 13.sp, color = Color.White)
                         } else {
-                            Text(text = "Start Session", fontSize = 13.sp, color = Color.White)
+                            Text(text = stringResource(R.string.appointments_start_session), fontSize = 13.sp, color = Color.White)
                         }
                     }
                 }
@@ -356,7 +371,7 @@ private fun DoctorAppointmentCard(
                         Spacer(Modifier.width(6.dp))
                     }
                     Text(
-                        text = if (isRescheduling) "Rescheduling..." else "Reschedule",
+                        text = if (isRescheduling) stringResource(R.string.appointments_rescheduling) else stringResource(R.string.appointments_reschedule),
                         fontSize = 13.sp,
                         color = BrandTeal,
                     )
@@ -379,7 +394,7 @@ private fun RescheduleDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Reschedule Appointment",
+                text = stringResource(R.string.reschedule_title),
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
             )
@@ -387,13 +402,13 @@ private fun RescheduleDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = "Enter a new date and time for the appointment.",
+                    text = stringResource(R.string.reschedule_instruction),
                     fontSize = 14.sp,
                     color = SubtitleGrey,
                 )
 
                 Text(
-                    text = "New Date & Time",
+                    text = stringResource(R.string.reschedule_new_datetime),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -401,7 +416,7 @@ private fun RescheduleDialog(
                 OutlinedTextField(
                     value = newTime,
                     onValueChange = onTimeChanged,
-                    placeholder = { Text("e.g. 2026-03-05T10:00", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.reschedule_datetime_placeholder), color = Color.Gray) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
@@ -414,7 +429,7 @@ private fun RescheduleDialog(
                 )
 
                 Text(
-                    text = "Reason (optional)",
+                    text = stringResource(R.string.reschedule_reason_label),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black,
@@ -422,7 +437,7 @@ private fun RescheduleDialog(
                 OutlinedTextField(
                     value = reason,
                     onValueChange = onReasonChanged,
-                    placeholder = { Text("Reason for rescheduling...", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.reschedule_reason_placeholder), color = Color.Gray) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     shape = RoundedCornerShape(8.dp),
@@ -440,12 +455,12 @@ private fun RescheduleDialog(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
             ) {
-                Text("Reschedule")
+                Text(stringResource(R.string.reschedule_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Black)
+                Text(stringResource(R.string.common_cancel), color = Color.Black)
             }
         },
     )

@@ -34,11 +34,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.ExtensionPaymentViewModel
 import com.esiri.esiriplus.feature.patient.viewmodel.PaymentStep
 import kotlinx.coroutines.delay
@@ -70,13 +72,13 @@ fun ExtensionPaymentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Extension Payment", color = Color.Black) },
+                title = { Text(stringResource(R.string.extension_title), color = Color.Black) },
                 navigationIcon = {
                     IconButton(onClick = {
                         viewModel.cancelExtensionPayment()
                         onCancel()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.extension_back))
                     }
                 },
             )
@@ -117,13 +119,13 @@ fun ExtensionPaymentScreen(
                             strokeWidth = 4.dp,
                         )
                         Text(
-                            text = "Processing Extension Payment",
+                            text = stringResource(R.string.extension_processing),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
                         )
                         Text(
-                            text = "Your payment of TZS ${uiState.amount} is being processed...",
+                            text = stringResource(R.string.extension_processing_message, uiState.amount),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Black,
                             textAlign = TextAlign.Center,
@@ -147,13 +149,13 @@ fun ExtensionPaymentScreen(
                             modifier = Modifier.size(80.dp),
                         )
                         Text(
-                            text = "Session Extended!",
+                            text = stringResource(R.string.extension_session_extended),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
                         )
                         Text(
-                            text = "Returning to consultation...",
+                            text = stringResource(R.string.extension_returning),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Black,
                             textAlign = TextAlign.Center,
@@ -176,13 +178,13 @@ fun ExtensionPaymentScreen(
                             modifier = Modifier.size(80.dp),
                         )
                         Text(
-                            text = "Payment Failed",
+                            text = stringResource(R.string.extension_payment_failed),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
                         )
                         Text(
-                            text = uiState.errorMessage ?: "Payment failed",
+                            text = uiState.errorMessage ?: stringResource(R.string.extension_payment_failed_default),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Black,
                             textAlign = TextAlign.Center,
@@ -193,7 +195,7 @@ fun ExtensionPaymentScreen(
                             onClick = viewModel::retryPayment,
                             modifier = Modifier.fillMaxWidth(0.6f),
                         ) {
-                            Text("Try Again", color = BrandTeal)
+                            Text(stringResource(R.string.extension_try_again), color = BrandTeal)
                         }
                         OutlinedButton(
                             onClick = {
@@ -202,7 +204,7 @@ fun ExtensionPaymentScreen(
                             },
                             modifier = Modifier.fillMaxWidth(0.6f),
                         ) {
-                            Text("Cancel", color = Color.Black)
+                            Text(stringResource(R.string.extension_cancel), color = Color.Black)
                         }
                     }
                 }
@@ -230,7 +232,7 @@ private fun ExtensionConfirmContent(
             .padding(16.dp),
     ) {
         Text(
-            text = "Extension fee equals the original consultation fee.",
+            text = stringResource(R.string.extension_fee_note),
             color = WarningOrange,
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
@@ -242,7 +244,7 @@ private fun ExtensionConfirmContent(
     Spacer(Modifier.height(24.dp))
 
     Text(
-        text = "Extend Session",
+        text = stringResource(R.string.extension_extend_session),
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
@@ -268,7 +270,7 @@ private fun ExtensionConfirmContent(
     Spacer(Modifier.height(16.dp))
 
     Text(
-        text = "Pay to extend your consultation session.",
+        text = stringResource(R.string.extension_pay_description),
         style = MaterialTheme.typography.bodyMedium,
         color = Color.Black,
         textAlign = TextAlign.Center,
@@ -301,7 +303,7 @@ private fun ExtensionConfirmContent(
                 strokeWidth = 2.dp,
             )
         } else {
-            Text("Pay Now", fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.extension_pay_now), fontWeight = FontWeight.SemiBold)
         }
     }
 

@@ -1,8 +1,6 @@
 package com.esiri.esiriplus
 
-import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -25,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.esiri.esiriplus.call.IncomingCallOverlay
 import com.esiri.esiriplus.call.IncomingCallStateHolder
-import com.esiri.esiriplus.core.common.locale.LanguagePreferences
 import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.fcm.EsiriplusFirebaseMessagingService
@@ -42,7 +39,6 @@ import com.esiri.esiriplus.viewmodel.AppInitState
 import com.esiri.esiriplus.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -57,15 +53,6 @@ class MainActivity : AppCompatActivity() {
 
     private data class PendingCallNav(val consultationId: String, val callType: String, val roomId: String = "")
     private val pendingCallNavigation = MutableStateFlow<PendingCallNav?>(null)
-
-    override fun attachBaseContext(newBase: Context) {
-        val languageCode = LanguagePreferences.getLanguageCode(newBase)
-        val locale = Locale.forLanguageTag(languageCode)
-        Locale.setDefault(locale)
-        val config = Configuration(newBase.resources.configuration)
-        config.setLocale(locale)
-        super.attachBaseContext(newBase.createConfigurationContext(config))
-    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

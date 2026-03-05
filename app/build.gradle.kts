@@ -77,7 +77,6 @@ dependencies {
     implementation(project(":feature:auth"))
     implementation(project(":feature:patient"))
     implementation(project(":feature:doctor"))
-    implementation(project(":feature:admin"))
 
     // Testing
     testImplementation(libs.junit)

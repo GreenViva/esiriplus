@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
+import com.esiri.esiriplus.core.common.locale.LocaleHelper
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
@@ -125,10 +126,11 @@ class DoctorOnlineService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        val ctx = LocaleHelper.getLocalizedContext(this)
         return NotificationCompat.Builder(this, CHANNEL_DOCTOR_ONLINE)
             .setSmallIcon(R.drawable.ic_doctor_online)
-            .setContentTitle("You are online")
-            .setContentText("Waiting for consultation requests...")
+            .setContentTitle(ctx.getString(R.string.doctor_online_title))
+            .setContentText(ctx.getString(R.string.doctor_online_body))
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setShowWhen(false)
@@ -256,10 +258,11 @@ class DoctorOnlineService : Service() {
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        val ctx = LocaleHelper.getLocalizedContext(this)
         val notification = NotificationCompat.Builder(this, CHANNEL_INCOMING_REQUEST)
             .setSmallIcon(R.drawable.ic_stethoscope)
-            .setContentTitle("New Consultation Request")
-            .setContentText("A patient is waiting for you")
+            .setContentTitle(ctx.getString(R.string.notification_new_consultation))
+            .setContentText(ctx.getString(R.string.notification_patient_waiting))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)

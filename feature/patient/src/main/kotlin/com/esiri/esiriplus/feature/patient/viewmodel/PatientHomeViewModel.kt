@@ -21,13 +21,14 @@ import javax.inject.Inject
 data class PatientHomeUiState(
     val patientId: String = "",
     val maskedPatientId: String = "",
-    val languageDisplayName: String = "English",
     val soundsEnabled: Boolean = true,
     val isLoading: Boolean = true,
     val activeConsultation: ConsultationEntity? = null,
     val pendingRatingConsultation: ConsultationEntity? = null,
 )
 
+// TODO: Localize hardcoded user-facing strings (error messages).
+//  Inject Application context and use context.getString(R.string.xxx) from feature.patient.R
 @HiltViewModel
 class PatientHomeViewModel @Inject constructor(
     private val application: Application,
@@ -57,7 +58,6 @@ class PatientHomeViewModel @Inject constructor(
             PatientHomeUiState(
                 patientId = id,
                 maskedPatientId = maskPatientId(id),
-                languageDisplayName = "English",
                 soundsEnabled = soundsEnabled,
                 isLoading = false,
                 activeConsultation = activeConsultation,

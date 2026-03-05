@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ============================================================ -->
+    <!-- ConsultationTimerBar                                         -->
+    <!-- ============================================================ -->
+    <string name="timer_time_ended">Muda umeisha</string>
+    <string name="timer_grace_period">Muda wa ziada</string>
+    <string name="timer_completed">Imekamilika</string>
+    <!-- %d = idadi ya ongezeko -->
+    <string name="timer_extension_count">+%d ong.</string>
+
+    <!-- ============================================================ -->
+    <!-- ExtensionOverlays                                            -->
+    <!-- ============================================================ -->
+    <string name="extension_session_time_ended">Muda wa mashauriano umeisha</string>
+    <string name="extension_patient_declined">Mgonjwa amekataa kuongeza muda.</string>
+    <string name="extension_end_consultation">Maliza Mashauriano</string>
+    <string name="extension_waiting_for_patient">Inasubiri mgonjwa afanye uamuzi\u2026</string>
+    <string name="extension_times_up">Muda Umeisha!</string>
+    <!-- %1$d = dakika, %2$s = kiasi cha malipo -->
+    <string name="extension_prompt_message">Muda wako wa mashauriano umeisha. Je, ungependa kuongeza dakika %1$d kwa TZS %2$s?</string>
+    <string name="extension_yes_extend">Ndiyo, Ongeza</string>
+    <string name="extension_no_thanks">Hapana, Asante</string>
+    <!-- %1$d = dakika, %2$d = sekunde -->
+    <string name="extension_processing_payment">Malipo ya kuongeza muda yanashughulikiwa\u2026 (%1$02d:%2$02d)</string>
+
+    <!-- ============================================================ -->
+    <!-- ChatContent                                                  -->
+    <!-- ============================================================ -->
+    <string name="chat_back">Rudi</string>
+    <string name="chat_consultation">Mashauriano</string>
+    <!-- %s = kitambulisho kifupi -->
+    <string name="chat_consultation_id">Nambari: %s\u2026</string>
+    <string name="chat_attached_image">Picha iliyoambatanishwa</string>
+    <string name="chat_document">Hati</string>
+    <string name="chat_tap_to_open">Gusa kufungua</string>
+    <string name="chat_typing">Anaandika</string>
+    <string name="chat_no_messages">Hakuna ujumbe bado</string>
+    <string name="chat_start_conversation">Anza mazungumzo hapa chini</string>
+    <string name="chat_attach_file">Ambatanisha faili</string>
+    <string name="chat_type_message">Chapisha ujumbe\u2026</string>
+    <string name="chat_send">Tuma</string>
+    <string name="chat_uploading_attachment">Inapakia kiambatanisho\u2026</string>
+    <string name="chat_messaging_paused">Ujumbe umesimamishwa \u2014 muda wa mashauriano umeisha</string>
+
+    <!-- ============================================================ -->
+    <!-- CallRechargeModal                                            -->
+    <!-- ============================================================ -->
+    <string name="recharge_add_call_time">Ongeza Muda wa Simu</string>
+    <string name="recharge_select_package">Chagua kifurushi na ulipe kwa M-Pesa</string>
+    <string name="recharge_phone_label">Nambari ya Simu ya M-Pesa</string>
+    <string name="recharge_phone_placeholder">255XXXXXXXXX</string>
+    <string name="recharge_invalid_phone">Weka nambari sahihi ya simu (255XXXXXXXXX)</string>
+    <string name="recharge_payment_failed">Malipo hayakufanikiwa. Tafadhali jaribu tena.</string>
+    <string name="recharge_pay_mpesa">Lipa kwa M-Pesa</string>
+    <string name="recharge_cancel">Ghairi</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallScreen                                              -->
+    <!-- ============================================================ -->
+    <string name="video_call_requesting_permissions">Inaomba ruhusa\u2026</string>
+    <string name="video_call_connecting">Inaunganisha\u2026</string>
+    <string name="video_call_waiting_participant">Inasubiri mshiriki ajiunganishe\u2026</string>
+    <string name="video_call_label">Simu ya Video</string>
+    <string name="video_call_voice_label">Simu ya Sauti</string>
+    <string name="video_call_participant">Mshiriki</string>
+    <string name="video_call_ended">Simu Imeisha</string>
+    <string name="video_call_something_wrong">Hitilafu imetokea</string>
+    <string name="video_call_go_back">Rudi Nyuma</string>
+    <string name="video_call_add_time">Ongeza Muda</string>
+    <string name="video_call_mute">Nyamazisha</string>
+    <string name="video_call_unmute">Rudisha Sauti</string>
+    <string name="video_call_cam_off">Zima Kamera</string>
+    <string name="video_call_cam_on">Washa Kamera</string>
+    <string name="video_call_flip">Geuza</string>
+    <string name="video_call_speaker">Spika</string>
+    <string name="video_call_earpiece">Sikioni</string>
+    <string name="video_call_end">Kata</string>
+    <string name="video_call_time_expired">Muda Umeisha</string>
+
+    <!-- ============================================================ -->
+    <!-- VideoCallViewModel (ujumbe wa hitilafu)                      -->
+    <!-- ============================================================ -->
+    <string name="video_call_error_permissions">Ruhusa ya kamera na maikrofoni zinahitajika kwa simu.</string>
+    <string name="video_call_error_no_consultation">Kitambulisho cha mashauriano hakijapatikana.</string>
+    <!-- %s = maelezo ya hitilafu -->
+    <string name="video_call_error_connect">Imeshindwa kuunganisha: %s</string>
+    <string name="video_call_error_generic">Hitilafu imetokea wakati wa simu.</string>
+    <string name="video_call_no_answer">Hakuna jibu</string>
+    <!-- %s = ujumbe wa hitilafu -->
+    <string name="video_call_error_start">Imeshindwa kuanza simu: %s</string>
+
+</resources>

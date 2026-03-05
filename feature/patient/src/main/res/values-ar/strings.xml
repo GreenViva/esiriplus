@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===== PatientHomeScreen ===== -->
+    <string name="home_welcome_back">مرحبًا بعودتك \uD83D\uDC4B</string>
+    <string name="home_your_patient_id">رقم المريض الخاص بك:</string>
+    <string name="home_patient_id_copied">تم نسخ رقم المريض</string>
+    <string name="home_copy_patient_id">نسخ رقم المريض</string>
+    <string name="home_sounds">الأصوات</string>
+    <string name="home_log_out">تسجيل الخروج</string>
+    <string name="home_your_medical_info">معلوماتك الطبية</string>
+    <string name="home_edit">تعديل</string>
+    <string name="home_chip_services">الخدمات</string>
+    <string name="home_chip_new_consultation">استشارة جديدة</string>
+    <string name="home_chip_reports">التقارير</string>
+    <string name="home_start_consultation">بدء الاستشارة</string>
+    <string name="home_start_consultation_subtitle">اختر خدمة وتواصل مع أطباء معتمدين</string>
+    <string name="home_content_desc_start">بدء</string>
+    <string name="home_consultation_history">سجل الاستشارات</string>
+    <string name="home_consultation_history_subtitle">عرض استشاراتك السابقة</string>
+    <string name="home_reports">التقارير</string>
+    <string name="home_reports_subtitle">عرض وتنزيل تقاريرك</string>
+    <string name="home_my_appointments">مواعيدي</string>
+    <string name="home_my_appointments_subtitle">عرض وإدارة مواعيدك</string>
+    <string name="home_content_desc_open">فتح</string>
+    <string name="home_content_desc_active_consultation">العودة إلى الاستشارة الجارية</string>
+    <string name="home_logout_title">تسجيل الخروج</string>
+    <string name="home_logout_message">هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى رقم المريض لتسجيل الدخول مرة أخرى.</string>
+    <string name="home_logout_confirm">تسجيل الخروج</string>
+    <string name="home_logout_cancel">إلغاء</string>
+
+    <!-- ===== PatientProfileScreen ===== -->
+    <string name="profile_back">رجوع</string>
+    <string name="profile_title">الملف الصحي</string>
+    <string name="profile_sex">الجنس</string>
+    <string name="profile_male">ذكر</string>
+    <string name="profile_female">أنثى</string>
+    <string name="profile_age_group">الفئة العمرية</string>
+    <string name="profile_select_age_group">اختر الفئة العمرية</string>
+    <string name="profile_blood_type">فصيلة الدم</string>
+    <string name="profile_select_blood_type">اختر فصيلة الدم</string>
+    <string name="profile_allergies">الحساسية</string>
+    <string name="profile_allergies_placeholder">مثال: البنسلين، الفول السوداني</string>
+    <string name="profile_chronic_conditions">الأمراض المزمنة</string>
+    <string name="profile_chronic_conditions_placeholder">مثال: السكري، ارتفاع ضغط الدم</string>
+    <string name="profile_save">حفظ</string>
+    <string name="profile_age_under_18">أقل من 18</string>
+    <string name="profile_age_18_24">18-24</string>
+    <string name="profile_age_25_34">25-34</string>
+    <string name="profile_age_35_44">35-44</string>
+    <string name="profile_age_45_54">45-54</string>
+    <string name="profile_age_55_64">55-64</string>
+    <string name="profile_age_65_plus">65+</string>
+
+    <!-- ===== ServicesScreen ===== -->
+    <string name="services_back">رجوع</string>
+    <string name="services_title">خدماتنا</string>
+    <string name="services_subtitle">اختر نوع مقدم الرعاية الصحية الذي تحتاجه \u2022 تنزانيا</string>
+    <string name="services_pay_to_continue">ادفع للمتابعة</string>
+    <string name="services_payment_required">يلزم الدفع لعرض مقدمي الرعاية الصحية المتاحين</string>
+    <string name="services_popular">\u2728 شائع</string>
+    <string name="services_coming_soon">قريبًا</string>
+    <string name="services_choose_payment_method">اختر طريقة الدفع</string>
+    <string name="services_close">إغلاق</string>
+    <string name="services_mobile_money">الدفع عبر الهاتف</string>
+    <string name="services_mobile_money_subtitle">M-Pesa، Airtel Money، HaloPesa، Yas</string>
+    <string name="services_card_payment">الدفع بالبطاقة</string>
+    <string name="services_card_payment_subtitle">Visa، Mastercard</string>
+    <string name="services_bank_transfer">تحويل بنكي</string>
+    <string name="services_bank_transfer_subtitle">تحويل بنكي مباشر</string>
+    <string name="services_secure_payments">\uD83D\uDD12 جميع المدفوعات آمنة ومشفرة</string>
+    <string name="services_select_provider">اختر مقدم الخدمة</string>
+    <string name="services_reference_number">الرقم المرجعي</string>
+    <string name="services_amount_to_pay">المبلغ المطلوب</string>
+    <string name="services_follow_steps">اتبع هذه الخطوات على هاتفك:</string>
+    <string name="services_exact_amount_warning">لتجنب أي تأخير غير ضروري، يُرجى دفع المبلغ المحدد TSh %s للخدمة التي اخترتها.</string>
+    <string name="services_change_provider">تغيير\nمقدم الخدمة</string>
+    <string name="services_i_have_paid">لقد دفعت</string>
+    <string name="services_verifying_payment">جارٍ التحقق من الدفع\u2026</string>
+    <string name="services_please_wait_confirm">يُرجى الانتظار بينما نؤكد دفعتك</string>
+    <string name="services_payment_successful">تم الدفع بنجاح!</string>
+    <string name="services_payment_confirmed_message">تم تأكيد دفعتك. يمكنك الآن تصفح مقدمي الرعاية الصحية المتاحين.</string>
+    <string name="services_continue">متابعة</string>
+    <string name="services_min_format">%d دقيقة</string>
+
+    <!-- ===== FindDoctorScreen ===== -->
+    <string name="find_doctor_back">رجوع</string>
+    <string name="find_doctor_title">البحث عن طبيب</string>
+    <string name="find_doctor_subtitle">تصفح أطباءنا المعتمدين</string>
+    <string name="find_doctor_tanzania">تنزانيا</string>
+    <string name="find_doctor_search_placeholder">ابحث بالاسم أو التخصص أو التقييم\u2026</string>
+    <string name="find_doctor_filter_all">الكل</string>
+    <string name="find_doctor_filter_online">متصل</string>
+    <string name="find_doctor_filter_offline">غير متصل</string>
+    <string name="find_doctor_no_doctors_found">لم يتم العثور على أطباء</string>
+    <string name="find_doctor_no_doctors_hint">حاول تعديل البحث أو عوامل التصفية للعثور على مقدمي رعاية صحية متاحين.</string>
+    <string name="find_doctor_available">متاح</string>
+    <string name="find_doctor_in_session">في جلسة</string>
+    <string name="find_doctor_offline">غير متصل</string>
+    <string name="find_doctor_reviews_format">(%d تقييم)</string>
+    <string name="find_doctor_years_experience_format">%d سنوات خبرة</string>
+    <string name="find_doctor_acceptance">100%% قبول</string>
+    <string name="find_doctor_consultation_fee">رسوم الاستشارة</string>
+    <string name="find_doctor_per_duration_format">/ %d دقيقة</string>
+    <string name="find_doctor_sending">جارٍ الإرسال\u2026</string>
+    <string name="find_doctor_waiting_format">بانتظار\u2026 %dث</string>
+    <string name="find_doctor_request_active">الطلب نشط</string>
+    <string name="find_doctor_request_consultation">طلب استشارة</string>
+    <string name="find_doctor_book_appointment">حجز موعد</string>
+    <string name="find_doctor_waiting_response">بانتظار رد الطبيب\u2026</string>
+    <string name="find_doctor_dismiss">تجاهل</string>
+    <!-- Category display names -->
+    <string name="category_nurse">ممرض/ة</string>
+    <string name="category_clinical_officer">مسؤول سريري</string>
+    <string name="category_pharmacist">صيدلي</string>
+    <string name="category_gp">طبيب عام</string>
+    <string name="category_specialist">أخصائي</string>
+    <string name="category_psychologist">أخصائي نفسي</string>
+
+    <!-- ===== BookAppointmentScreen ===== -->
+    <string name="book_appointment_back">رجوع</string>
+    <string name="book_appointment_title">حجز موعد</string>
+    <string name="book_appointment_subtitle">اختر تاريخًا ووقتًا لموعدك</string>
+    <string name="book_appointment_select_date">اختر تاريخًا</string>
+    <string name="book_appointment_available_times">الأوقات المتاحة</string>
+    <string name="book_appointment_no_slots">لا توجد أوقات متاحة لهذا التاريخ. جرّب يومًا آخر.</string>
+    <string name="book_appointment_chief_complaint">الشكوى الرئيسية</string>
+    <string name="book_appointment_complaint_placeholder">صف أعراضك أو سبب الموعد\u2026</string>
+    <string name="book_appointment_booking">جارٍ الحجز\u2026</string>
+    <string name="book_appointment_book_for_format">حجز لـ %s</string>
+    <string name="book_appointment_select_time">اختر وقتًا</string>
+    <string name="book_appointment_char_count_format">%d/1000</string>
+
+    <!-- ===== PatientAppointmentsScreen ===== -->
+    <string name="appointments_back">رجوع</string>
+    <string name="appointments_title">مواعيدي</string>
+    <string name="appointments_tab_upcoming">القادمة</string>
+    <string name="appointments_tab_past">السابقة</string>
+    <string name="appointments_no_upcoming">لا توجد مواعيد قادمة</string>
+    <string name="appointments_no_past">لا توجد مواعيد سابقة</string>
+    <string name="appointments_status_booked">محجوز</string>
+    <string name="appointments_status_confirmed">مؤكّد</string>
+    <string name="appointments_status_in_progress">قيد التنفيذ</string>
+    <string name="appointments_status_completed">مكتمل</string>
+    <string name="appointments_status_missed">فائت</string>
+    <string name="appointments_status_cancelled">ملغى</string>
+    <string name="appointments_status_rescheduled">مُعاد جدولته</string>
+    <string name="appointments_rescheduled_note">أُعيدت جدولته من موعد سابق</string>
+    <string name="appointments_cancelling">جارٍ الإلغاء\u2026</string>
+    <string name="appointments_cancel">إلغاء الموعد</string>
+    <string name="appointments_duration_service_format">%1$d دقيقة \u00B7 %2$s</string>
+
+    <!-- ===== ConsultationHistoryScreen ===== -->
+    <string name="history_back">رجوع</string>
+    <string name="history_title">سجل الاستشارات</string>
+    <string name="history_unknown_error">خطأ غير معروف</string>
+    <string name="history_no_consultations">لا توجد استشارات بعد</string>
+    <string name="history_general_consultation">استشارة عامة</string>
+    <string name="history_specialist_consultation">استشارة تخصصية</string>
+    <string name="history_follow_up">متابعة</string>
+    <string name="history_emergency">طوارئ</string>
+
+    <!-- ===== SymptomsEntryDialog ===== -->
+    <string name="symptoms_title">صف أعراضك</string>
+    <string name="symptoms_subtitle">هذا يساعد الطبيب في التحضير لاستشارتك.</string>
+    <string name="symptoms_profile_prefix">الملف الشخصي: %s</string>
+    <string name="symptoms_label">ما الأعراض التي تعاني منها؟</string>
+    <string name="symptoms_placeholder">مثال: صداع لمدة 3 أيام، حمى خفيفة\u2026</string>
+    <string name="symptoms_cancel">إلغاء</string>
+    <string name="symptoms_skip">تخطي</string>
+    <string name="symptoms_send_request">إرسال الطلب</string>
+
+    <!-- ===== PatientPaymentScreen ===== -->
+    <string name="payment_title">الدفع</string>
+    <string name="payment_back">رجوع</string>
+    <string name="payment_consultation_payment">دفع الاستشارة</string>
+    <string name="payment_charge_message">سيتم تحصيل رسوم جلسة الاستشارة هذه.</string>
+    <string name="payment_pay_now">ادفع الآن</string>
+    <string name="payment_processing">جارٍ معالجة الدفع</string>
+    <string name="payment_processing_message">جارٍ معالجة دفعتك بمبلغ TZS %d. يُرجى الانتظار\u2026</string>
+    <string name="payment_successful">تم الدفع بنجاح</string>
+    <string name="payment_success_message">تم دفع TZS %d بنجاح.\nجارٍ توصيلك بطبيبك\u2026</string>
+    <string name="payment_failed">فشل الدفع</string>
+    <string name="payment_failed_default">فشل الدفع</string>
+    <string name="payment_try_again">حاول مرة أخرى</string>
+
+    <!-- ===== ExtensionPaymentScreen ===== -->
+    <string name="extension_title">دفع التمديد</string>
+    <string name="extension_back">رجوع</string>
+    <string name="extension_fee_note">رسوم التمديد تساوي رسوم الاستشارة الأصلية.</string>
+    <string name="extension_extend_session">تمديد الجلسة</string>
+    <string name="extension_pay_description">ادفع لتمديد جلسة الاستشارة الخاصة بك.</string>
+    <string name="extension_pay_now">ادفع الآن</string>
+    <string name="extension_cancel">إلغاء</string>
+    <string name="extension_processing">جارٍ معالجة دفع التمديد</string>
+    <string name="extension_processing_message">جارٍ معالجة دفعتك بمبلغ TZS %d\u2026</string>
+    <string name="extension_session_extended">تم تمديد الجلسة!</string>
+    <string name="extension_returning">جارٍ العودة إلى الاستشارة\u2026</string>
+    <string name="extension_payment_failed">فشل الدفع</string>
+    <string name="extension_payment_failed_default">فشل الدفع</string>
+    <string name="extension_try_again">حاول مرة أخرى</string>
+
+    <!-- ===== ServiceLocationScreen ===== -->
+    <string name="location_back">رجوع</string>
+    <string name="location_access_required">مطلوب إذن الوصول إلى الموقع</string>
+    <string name="location_access_description">لتقديم أفضل تجربة لك، نستخدم موقعك لتحليل توفر الخدمة ومطابقتك مع أطباء مؤهلين بالقرب منك وتخصيص توصياتنا الصحية حسب منطقتك.</string>
+    <string name="location_permission_denied">تم رفض إذن الموقع. يُرجى تمكينه من إعدادات جهازك للمتابعة.</string>
+    <string name="location_open_settings">فتح الإعدادات</string>
+    <string name="location_enable">تمكين الموقع</string>
+    <string name="location_services_from">هل تريد خدمات من</string>
+    <string name="location_select_preferred">اختر موقع الطبيب المفضل</string>
+    <string name="location_inside_tanzania">داخل تنزانيا</string>
+    <string name="location_local_doctors">أطباء محليون</string>
+    <string name="location_outside_tanzania">خارج تنزانيا</string>
+    <string name="location_international_doctors">أطباء دوليون</string>
+    <string name="location_content_desc_select">اختيار</string>
+    <string name="location_not_available_title">غير متاح بعد</string>
+    <string name="location_not_available_message">الاستشارات الدولية غير متاحة بعد. نحن نعمل جاهدين لتقديم هذه الخدمة لك قريبًا.</string>
+    <string name="location_ok">حسنًا</string>
+
+    <!-- ===== ReportsScreen ===== -->
+    <string name="reports_back">رجوع</string>
+    <string name="reports_title">التقارير</string>
+    <string name="reports_unknown_error">خطأ غير معروف</string>
+    <string name="reports_no_reports">لا توجد تقارير بعد</string>
+    <string name="reports_consultation_report">تقرير الاستشارة</string>
+    <string name="reports_content_desc_view">عرض التقرير</string>
+
+    <!-- ===== ReportDetailScreen ===== -->
+    <string name="report_detail_back">رجوع</string>
+    <string name="report_detail_title">تقرير الاستشارة</string>
+    <string name="report_detail_share">مشاركة</string>
+    <string name="report_detail_error_default">خطأ</string>
+    <string name="report_detail_download_pdf">تنزيل PDF</string>
+    <string name="report_detail_esirii_health">ESIRII HEALTH</string>
+    <string name="report_detail_telemedicine_report">تقرير استشارة الطب عن بُعد</string>
+    <string name="report_detail_consultation_report_label">تقرير الاستشارة</string>
+    <string name="report_detail_ref_format">المرجع: %s</string>
+    <string name="report_detail_section_patient_info">1. معلومات المريض</string>
+    <string name="report_detail_patient_id">رقم المريض</string>
+    <string name="report_detail_consultation_date">تاريخ الاستشارة</string>
+    <string name="report_detail_consultation_type">نوع الاستشارة</string>
+    <string name="report_detail_telemedicine">الطب عن بُعد</string>
+    <string name="report_detail_section_symptoms">2. الأعراض المُقدَّمة</string>
+    <string name="report_detail_no_symptoms">لم يتم تسجيل أعراض.</string>
+    <string name="report_detail_section_diagnosis">3. التشخيص والتقييم</string>
+    <string name="report_detail_primary_diagnosis">التشخيص الرئيسي</string>
+    <string name="report_detail_category">الفئة</string>
+    <string name="report_detail_severity">الشدة</string>
+    <string name="report_detail_section_treatment">4. خطة العلاج</string>
+    <string name="report_detail_no_treatment">لم يتم تحديد خطة علاج.</string>
+    <string name="report_detail_section_followup">5. تعليمات المتابعة</string>
+    <string name="report_detail_followup_recommended">يُوصى بالمتابعة</string>
+    <string name="report_detail_yes">نعم</string>
+    <string name="report_detail_no">لا</string>
+    <string name="report_detail_additional_notes">ملاحظات إضافية:</string>
+    <string name="report_detail_section_disclaimer">6. إخلاء مسؤولية الطب عن بُعد</string>
+    <string name="report_detail_disclaimer_text">تمت هذه الاستشارة عبر الطب عن بُعد. يستند التقييم والتوصيات إلى المعلومات المقدمة خلال الاستشارة الافتراضية. إذا استمرت الأعراض أو تفاقمت، يُرجى مراجعة طبيب شخصيًا.</string>
+    <string name="report_detail_attending_physician">الطبيب المعالج</string>
+    <string name="report_detail_electronically_signed">موقّع إلكترونيًا</string>
+    <string name="report_detail_generated_by">تم الإنشاء بواسطة منصة ESIRII Health</string>
+    <string name="report_detail_share_chooser">مشاركة التقرير</string>
+    <string name="report_detail_pdf_error">فشل إنشاء ملف PDF: %s</string>
+
+    <!-- ===== RatingBottomSheet ===== -->
+    <string name="rating_success_content_desc">نجاح</string>
+    <string name="rating_thank_you">شكرًا لك على ملاحظاتك!</string>
+    <string name="rating_title">كيف كانت استشارتك؟</string>
+    <string name="rating_subtitle">تقييمك يساعدنا في تحسين خدمتنا</string>
+    <string name="rating_star_format">%d نجمة</string>
+    <string name="rating_poor">ضعيف</string>
+    <string name="rating_fair">مقبول</string>
+    <string name="rating_good">جيد</string>
+    <string name="rating_very_good">جيد جدًا</string>
+    <string name="rating_excellent">ممتاز</string>
+    <string name="rating_low_comment_label">أخبرنا بما يمكن تحسينه *</string>
+    <string name="rating_optional_comment_label">اترك تعليقًا (اختياري)</string>
+    <string name="rating_submitting">جارٍ الإرسال\u2026</string>
+    <string name="rating_submit">إرسال التقييم</string>
+    <string name="rating_remind_later">ذكّرني لاحقًا</string>
+
+    <!-- ===== PatientConsultationScreen ===== -->
+    <string name="consultation_start_call">بدء المكالمة</string>
+    <string name="consultation_voice_call">مكالمة صوتية</string>
+    <string name="consultation_video_call">مكالمة فيديو</string>
+    <string name="consultation_camera">الكاميرا</string>
+    <string name="consultation_gallery">المعرض</string>
+    <string name="consultation_document">مستند</string>
+
+    <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
+    <string name="vm_doctor_accepted">قَبِل الطبيب! جارٍ فتح المحادثة\u2026</string>
+    <string name="vm_doctor_declined">رفض الطبيب الطلب. يمكنك طلب طبيب آخر.</string>
+    <string name="vm_doctor_no_response">لم يستجب الطبيب. يمكنك تجربة طبيب آخر.</string>
+    <string name="vm_waiting_doctor_response">بانتظار رد الطبيب\u2026</string>
+    <string name="vm_failed_send_request">فشل إرسال الطلب</string>
+    <string name="vm_failed_load_appointments">فشل تحميل المواعيد</string>
+    <string name="vm_failed_cancel_appointment">فشل الإلغاء</string>
+    <string name="vm_failed_load_times">فشل تحميل الأوقات المتاحة</string>
+    <string name="vm_select_date_time">يُرجى اختيار تاريخ ووقت</string>
+    <string name="vm_complaint_too_short">يُرجى وصف شكواك (10 أحرف على الأقل)</string>
+    <string name="vm_failed_book_appointment">فشل حجز الموعد</string>
+    <string name="vm_failed_load_consultations">فشل تحميل الاستشارات</string>
+    <string name="vm_failed_load_doctors">فشل تحميل الأطباء. يُرجى المحاولة مرة أخرى.</string>
+    <string name="vm_session_expired">انتهت صلاحية الجلسة. يُرجى تسجيل الدخول مرة أخرى.</string>
+    <string name="vm_invalid_payment_amount">مبلغ الدفع غير صالح</string>
+    <string name="vm_network_error">خطأ في الشبكة. يُرجى التحقق من اتصالك.</string>
+    <string name="vm_payment_failed">فشل الدفع</string>
+    <string name="vm_payment_timed_out">انتهت مهلة الدفع. يُرجى المحاولة مرة أخرى.</string>
+    <string name="vm_failed_load_report">فشل تحميل التقرير</string>
+    <string name="vm_failed_load_reports">فشل تحميل التقارير</string>
+    <string name="vm_select_rating">يُرجى اختيار تقييم</string>
+    <string name="vm_comment_required">يُرجى إخبارنا بما يمكن تحسينه</string>
+    <string name="vm_failed_submit_rating">فشل إرسال التقييم. يُرجى المحاولة مرة أخرى.</string>
+    <string name="vm_session_not_ready">الجلسة غير جاهزة. يُرجى الانتظار لحظة والمحاولة مرة أخرى.</string>
+    <string name="vm_session_expired_reopen">انتهت صلاحية الجلسة. يُرجى إعادة فتح هذه الاستشارة.</string>
+    <string name="vm_failed_send_attachment">فشل إرسال المرفق.</string>
+    <string name="vm_failed_send_attachment_retrying">فشل إرسال المرفق. جارٍ إعادة المحاولة\u2026</string>
+    <string name="vm_failed_upload_file">فشل رفع الملف. يُرجى المحاولة مرة أخرى.</string>
+
+    <!-- ===== ReportPdfGenerator ===== -->
+    <string name="pdf_esirii_health">ESIRII HEALTH</string>
+    <string name="pdf_telemedicine_report">تقرير استشارة الطب عن بُعد</string>
+    <string name="pdf_consultation_report">تقرير الاستشارة</string>
+    <string name="pdf_ref_format">المرجع: %s</string>
+    <string name="pdf_section_patient_info">1. معلومات المريض</string>
+    <string name="pdf_patient_id">رقم المريض</string>
+    <string name="pdf_consultation_date">تاريخ الاستشارة</string>
+    <string name="pdf_consultation_type">نوع الاستشارة</string>
+    <string name="pdf_telemedicine">الطب عن بُعد</string>
+    <string name="pdf_section_symptoms">2. الأعراض المُقدَّمة</string>
+    <string name="pdf_no_symptoms">لم يتم تسجيل أعراض.</string>
+    <string name="pdf_section_diagnosis">3. التشخيص والتقييم</string>
+    <string name="pdf_primary_diagnosis">التشخيص الرئيسي</string>
+    <string name="pdf_category">الفئة</string>
+    <string name="pdf_severity">الشدة</string>
+    <string name="pdf_section_treatment">4. خطة العلاج</string>
+    <string name="pdf_no_treatment">لم يتم تحديد خطة علاج.</string>
+    <string name="pdf_section_followup">5. تعليمات المتابعة</string>
+    <string name="pdf_followup_recommended">يُوصى بالمتابعة</string>
+    <string name="pdf_yes">نعم</string>
+    <string name="pdf_no">لا</string>
+    <string name="pdf_additional_notes">ملاحظات إضافية:</string>
+    <string name="pdf_section_disclaimer">6. إخلاء مسؤولية الطب عن بُعد</string>
+    <string name="pdf_disclaimer_text">تمت هذه الاستشارة عبر الطب عن بُعد. يستند التقييم والتوصيات إلى المعلومات المقدمة خلال الاستشارة الافتراضية. إذا استمرت الأعراض أو تفاقمت، يُرجى مراجعة طبيب شخصيًا.</string>
+    <string name="pdf_attending_physician">الطبيب المعالج</string>
+    <string name="pdf_electronically_signed">موقّع إلكترونيًا</string>
+    <string name="pdf_generated_by">تم الإنشاء بواسطة منصة ESIRII Health</string>
+
+</resources>
