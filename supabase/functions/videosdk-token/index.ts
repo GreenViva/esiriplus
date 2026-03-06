@@ -5,7 +5,7 @@
 
 import { handlePreflight } from "../_shared/cors.ts";
 import { validateAuth } from "../_shared/auth.ts";
-import { LIMITS } from "../_shared/rateLimit.ts";
+import { LIMITS, acquireConcurrencySlot } from "../_shared/rateLimit.ts";
 import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
 import { logEvent, getClientIp } from "../_shared/logger.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
@@ -81,7 +81,10 @@ Deno.serve(async (req: Request) => {
 
   try {
     const auth = await validateAuth(req);
-    await LIMITS.read(auth.userId ?? auth.sessionId ?? "anon");
+    await LIMITS.video(auth.userId ?? auth.sessionId ?? "anon");
+
+    // Limit concurrent video room creations to prevent exhausting VideoSDK quota
+    const releaseConcurrency = await acquireConcurrencySlot("videosdk-room", 50);
 
     const raw = await req.json();
 
@@ -236,6 +239,8 @@ Deno.serve(async (req: Request) => {
       },
       ip_address: getClientIp(req),
     });
+
+    await releaseConcurrency();
 
     return successResponse({
       token,

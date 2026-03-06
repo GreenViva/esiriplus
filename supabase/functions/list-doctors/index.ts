@@ -43,7 +43,14 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({ doctors: data ?? [] }),
-      { status: 200, headers: { ...corsHeaders(req.headers.get("origin")), "Content-Type": "application/json" } },
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders(req.headers.get("origin")),
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+        },
+      },
     );
   } catch (err) {
     console.error("list-doctors error:", err);

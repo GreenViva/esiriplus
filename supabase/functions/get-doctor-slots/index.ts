@@ -109,7 +109,13 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({ slots }),
-      { status: 200, headers },
+      {
+        status: 200,
+        headers: {
+          ...headers,
+          "Cache-Control": "public, max-age=15, stale-while-revalidate=30",
+        },
+      },
     );
   } catch (err) {
     console.error("get-doctor-slots error:", err);

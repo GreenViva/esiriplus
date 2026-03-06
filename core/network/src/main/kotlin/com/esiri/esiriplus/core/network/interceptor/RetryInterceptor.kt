@@ -21,8 +21,9 @@ class RetryInterceptor(
                 }
 
                 if (attempt < maxRetries) {
+                    val retryAfter = parseRetryAfter(response)
                     response.close()
-                    sleepWithBackoff(attempt)
+                    sleepWithBackoff(attempt, retryAfter)
                 } else {
                     return response
                 }
@@ -42,14 +43,22 @@ class RetryInterceptor(
             code == HTTP_TOO_MANY_REQUESTS ||
             code in HTTP_SERVER_ERROR_RANGE
 
-    private fun sleepWithBackoff(attempt: Int) {
-        val delayMillis = INITIAL_BACKOFF_MS * (1L shl attempt)
+    private fun sleepWithBackoff(attempt: Int, retryAfterSeconds: Long? = null) {
+        val delayMillis = if (retryAfterSeconds != null && retryAfterSeconds > 0) {
+            (retryAfterSeconds * 1000L).coerceAtMost(MAX_BACKOFF_MS)
+        } else {
+            (INITIAL_BACKOFF_MS * (1L shl attempt)).coerceAtMost(MAX_BACKOFF_MS)
+        }
         Thread.sleep(delayMillis)
     }
+
+    private fun parseRetryAfter(response: Response): Long? =
+        response.header("Retry-After")?.toLongOrNull()
 
     companion object {
         const val MAX_RETRIES = 3
         const val INITIAL_BACKOFF_MS = 1000L
+        private const val MAX_BACKOFF_MS = 15_000L
         private const val HTTP_REQUEST_TIMEOUT = 408
         private const val HTTP_TOO_MANY_REQUESTS = 429
         private val HTTP_SERVER_ERROR_RANGE = 500..599

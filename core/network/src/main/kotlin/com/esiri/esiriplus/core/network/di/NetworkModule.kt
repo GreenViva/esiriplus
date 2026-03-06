@@ -16,7 +16,9 @@ import com.esiri.esiriplus.core.network.service.ConsultationRequestRepositoryImp
 import com.esiri.esiriplus.core.network.service.MessageRepositoryImpl
 import com.esiri.esiriplus.core.network.service.NotificationRepositoryImpl
 
+import android.content.Context
 import com.esiri.esiriplus.core.network.interceptor.AuthInterceptor
+import com.esiri.esiriplus.core.network.interceptor.ClientRateLimiterInterceptor
 import com.esiri.esiriplus.core.network.interceptor.LoggingInterceptorFactory
 import com.esiri.esiriplus.core.network.interceptor.ProactiveTokenRefreshInterceptor
 import com.esiri.esiriplus.core.network.interceptor.RetryInterceptor
@@ -29,14 +31,18 @@ import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
+import okhttp3.Cache
+import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -66,15 +72,26 @@ object NetworkModule {
     @Singleton
     @AuthenticatedClient
     fun provideAuthenticatedOkHttpClient(
+        @ApplicationContext context: Context,
         authInterceptor: AuthInterceptor,
         proactiveTokenRefreshInterceptor: ProactiveTokenRefreshInterceptor,
         tokenRefreshAuthenticator: TokenRefreshAuthenticator,
         metricsInterceptor: MetricsInterceptor,
+        clientRateLimiter: ClientRateLimiterInterceptor,
     ): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .connectionPool(
+            ConnectionPool(
+                MAX_IDLE_CONNECTIONS,
+                KEEP_ALIVE_DURATION_MINUTES,
+                TimeUnit.MINUTES,
+            ),
+        )
+        .cache(Cache(File(context.cacheDir, "http_cache"), CACHE_SIZE_BYTES))
         .certificatePinner(CertificatePinning.createCertificatePinner())
+        .addInterceptor(clientRateLimiter)
         .addInterceptor(metricsInterceptor)
         .addInterceptor(proactiveTokenRefreshInterceptor)
         .addInterceptor(authInterceptor)
@@ -139,4 +156,11 @@ object NetworkModule {
     private const val CONNECT_TIMEOUT_SECONDS = 30L
     private const val READ_TIMEOUT_SECONDS = 60L
     private const val WRITE_TIMEOUT_SECONDS = 60L
+
+    // Connection pool: keep more idle connections alive for faster subsequent requests
+    private const val MAX_IDLE_CONNECTIONS = 15
+    private const val KEEP_ALIVE_DURATION_MINUTES = 10L
+
+    // 10 MB HTTP response cache for read-heavy endpoints
+    private const val CACHE_SIZE_BYTES = 10L * 1024 * 1024
 }

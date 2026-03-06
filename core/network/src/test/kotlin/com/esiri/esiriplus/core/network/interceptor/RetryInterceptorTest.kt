@@ -154,6 +154,27 @@ class RetryInterceptorTest {
         assertEquals(3, mockWebServer.requestCount)
     }
 
+    @Test
+    fun `honors Retry-After header on 429 response`() {
+        val client = createClient(maxRetries = 1)
+
+        mockWebServer.enqueue(
+            MockResponse().setResponseCode(429).setHeader("Retry-After", "1"),
+        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("OK"))
+
+        val startMs = System.currentTimeMillis()
+        val response = client.newCall(
+            Request.Builder().url(mockWebServer.url("/")).build(),
+        ).execute()
+        val elapsed = System.currentTimeMillis() - startMs
+
+        assertEquals(200, response.code)
+        assertEquals(2, mockWebServer.requestCount)
+        // Should have waited ~1 second (Retry-After: 1)
+        assert(elapsed >= 900) { "Expected delay of ~1s from Retry-After, got ${elapsed}ms" }
+    }
+
     @Test(expected = IOException::class)
     fun `throws IOException after max retries on network failure`() {
         val client = createClient(maxRetries = 0)

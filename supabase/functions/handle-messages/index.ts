@@ -236,7 +236,7 @@ Deno.serve(async (req: Request) => {
     if (action === "get") {
       await LIMITS.read(rateKey);
     } else if (action === "send") {
-      await LIMITS.notification(rateKey);
+      await LIMITS.message(rateKey);
     } else if (action === "typing" || action === "mark_read") {
       await LIMITS.notification(rateKey);
     }

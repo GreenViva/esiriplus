@@ -81,4 +81,70 @@ export const LIMITS = {
   /** Auth sensitive: 5 req/min */
   sensitive: (userId: string) =>
     checkRateLimit(`sensitive:${userId}`, 5, 60),
+
+  /** Message sending: 60 req/min */
+  message: (userId: string) =>
+    checkRateLimit(`message:${userId}`, 60, 60),
+
+  /** Video/call token: 20 req/min */
+  video: (userId: string) =>
+    checkRateLimit(`video:${userId}`, 20, 60),
+
+  /** Consultation requests: 15 req/min */
+  consultation: (userId: string) =>
+    checkRateLimit(`consultation:${userId}`, 15, 60),
 };
+
+/**
+ * Global concurrency guard for expensive operations.
+ * Uses a Redis counter with short TTL to limit how many
+ * simultaneous executions of a given operation can run.
+ *
+ * Returns a release function that MUST be called when done.
+ */
+export async function acquireConcurrencySlot(
+  operation: string,
+  maxConcurrent: number,
+  ttlSecs: number = 30,
+): Promise<() => Promise<void>> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return async () => {}; // no-op in dev
+  }
+
+  const key = `concurrency:${operation}`;
+
+  const incrRes = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${UPSTASH_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify([
+      ["INCR", key],
+      ["EXPIRE", key, ttlSecs.toString()],
+    ]),
+  });
+
+  if (!incrRes.ok) {
+    // Fail open
+    return async () => {};
+  }
+
+  const results: { result: number }[] = await incrRes.json();
+  const current = results[0]?.result ?? 0;
+
+  const release = async () => {
+    try {
+      await fetch(`${UPSTASH_URL}/DECR/${key}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+      });
+    } catch { /* best-effort */ }
+  };
+
+  if (current > maxConcurrent) {
+    await release();
+    throw new RateLimitError(5);
+  }
+
+  return release;
+}
