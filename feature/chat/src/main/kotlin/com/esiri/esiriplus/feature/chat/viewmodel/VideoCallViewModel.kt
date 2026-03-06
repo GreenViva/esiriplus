@@ -59,11 +59,14 @@ data class VideoCallUiState(
     val isCameraEnabled: Boolean = true,
     val isSpeakerOn: Boolean = true,
     val callDurationSeconds: Int = 0,
-    val timeLimitSeconds: Int = 180,
-    val remainingSeconds: Int = 180,
+    val timeLimitSeconds: Int = 300,
+    val remainingSeconds: Int = 300,
     val timeWarning: TimeWarning = TimeWarning.NONE,
     val remoteParticipantJoined: Boolean = false,
     val remoteParticipantName: String? = null,
+    val remoteVideoEnabled: Boolean = false,
+    val localVideoEnabled: Boolean = false,
+    val streamUpdateTick: Int = 0, // incremented to force recomposition on stream changes
     val error: String? = null,
     val callType: CallType = CallType.VIDEO,
 )
@@ -79,7 +82,9 @@ class VideoCallViewModel @Inject constructor(
 ) : ViewModel() {
 
     val consultationId: String = savedStateHandle["consultationId"] ?: ""
-    private val navRoomId: String = savedStateHandle["roomId"] ?: ""
+    private val navRoomId: String = (savedStateHandle.get<String>("roomId") ?: "").also {
+        Log.d(TAG, "NavArgs: consultationId=$consultationId, roomId='$it', allKeys=${savedStateHandle.keys()}")
+    }
     val callType: CallType = try {
         CallType.valueOf(savedStateHandle.get<String>("callType") ?: "VIDEO")
     } catch (_: IllegalArgumentException) {
@@ -199,6 +204,31 @@ class VideoCallViewModel @Inject constructor(
             Log.d(TAG, "Meeting joined")
             joinTimeoutJob?.cancel()
             _uiState.update { it.copy(callPhase = CallPhase.WAITING_FOR_PARTICIPANT) }
+            // Listen for local stream events (own camera/mic)
+            meeting?.localParticipant?.addEventListener(object : ParticipantEventListener() {
+                override fun onStreamEnabled(stream: Stream) {
+                    Log.d(TAG, "Local stream enabled: kind=${stream.kind}")
+                    if (stream.kind.equals("video", ignoreCase = true)) {
+                        _uiState.update {
+                            it.copy(
+                                localVideoEnabled = true,
+                                streamUpdateTick = it.streamUpdateTick + 1,
+                            )
+                        }
+                    }
+                }
+                override fun onStreamDisabled(stream: Stream) {
+                    Log.d(TAG, "Local stream disabled: kind=${stream.kind}")
+                    if (stream.kind.equals("video", ignoreCase = true)) {
+                        _uiState.update {
+                            it.copy(
+                                localVideoEnabled = false,
+                                streamUpdateTick = it.streamUpdateTick + 1,
+                            )
+                        }
+                    }
+                }
+            })
             startWaitingTimeout()
         }
 
@@ -256,11 +286,27 @@ class VideoCallViewModel @Inject constructor(
 
     private fun createParticipantEventListener() = object : ParticipantEventListener() {
         override fun onStreamEnabled(stream: Stream) {
-            // Stream state changes are tracked by the composable via meeting.participants
+            Log.d(TAG, "Remote stream enabled: kind=${stream.kind}")
+            if (stream.kind.equals("video", ignoreCase = true)) {
+                _uiState.update {
+                    it.copy(
+                        remoteVideoEnabled = true,
+                        streamUpdateTick = it.streamUpdateTick + 1,
+                    )
+                }
+            }
         }
 
         override fun onStreamDisabled(stream: Stream) {
-            // Stream state changes are tracked by the composable via meeting.participants
+            Log.d(TAG, "Remote stream disabled: kind=${stream.kind}")
+            if (stream.kind.equals("video", ignoreCase = true)) {
+                _uiState.update {
+                    it.copy(
+                        remoteVideoEnabled = false,
+                        streamUpdateTick = it.streamUpdateTick + 1,
+                    )
+                }
+            }
         }
     }
 

@@ -18,12 +18,14 @@ import com.esiri.esiriplus.service.overlay.OverlayBubbleManager
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
 import com.esiri.esiriplus.core.domain.repository.NotificationRepository
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -46,6 +48,9 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
     lateinit var incomingCallStateHolder: IncomingCallStateHolder
+
+    @Inject
+    lateinit var edgeFunctionClient: EdgeFunctionClient
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -81,7 +86,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             val roomId = remoteMessage.data["room_id"] ?: ""
             val callType = remoteMessage.data["call_type"] ?: "VIDEO"
             val callerRole = remoteMessage.data["caller_role"] ?: "doctor"
-            Log.d(TAG, "Incoming call: consultation=$consultationId room=$roomId type=$callType")
+            Log.d(TAG, "Incoming call: consultation=$consultationId room=$roomId type=$callType caller=$callerRole allData=${remoteMessage.data}")
 
             incomingCallStateHolder.showIncomingCall(
                 IncomingCall(
@@ -175,8 +180,18 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "New FCM token received")
-        // Token will be pushed to Supabase by ViewModel on next app launch
+        Log.d(TAG, "New FCM token received, pushing to server")
+        serviceScope.launch {
+            try {
+                val body = kotlinx.serialization.json.buildJsonObject {
+                    put("fcm_token", kotlinx.serialization.json.JsonPrimitive(token))
+                }
+                val result = edgeFunctionClient.invoke("update-fcm-token", body)
+                Log.d(TAG, "FCM token push result: $result")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to push new FCM token to server", e)
+            }
+        }
     }
 
     private fun showConsultationRequestFallback(requestId: String) {
@@ -316,6 +331,11 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         "DOCTOR_BANNED" -> ctx.getString(R.string.notification_account_banned)
         "DOCTOR_UNBANNED" -> ctx.getString(R.string.notification_account_reinstated)
         else -> ctx.getString(R.string.notification_default_title)
+    }
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
     }
 
     companion object {

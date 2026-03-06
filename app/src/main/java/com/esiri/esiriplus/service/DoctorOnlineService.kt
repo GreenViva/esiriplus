@@ -5,6 +5,9 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.Ringtone
+import android.media.RingtoneManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -20,6 +23,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
 import com.esiri.esiriplus.core.common.locale.LocaleHelper
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
@@ -32,6 +36,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import javax.inject.Inject
 
 /**
@@ -47,6 +53,7 @@ class DoctorOnlineService : Service() {
     @Inject lateinit var tokenRefresher: TokenRefresher
     @Inject lateinit var overlayBubbleManager: OverlayBubbleManager
     @Inject lateinit var stateManager: DoctorOnlineStateManager
+    @Inject lateinit var edgeFunctionClient: EdgeFunctionClient
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var tokenRefreshJob: Job? = null
@@ -54,6 +61,8 @@ class DoctorOnlineService : Service() {
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var currentDoctorId: String? = null
     private var reconnectAttempt = 0
+    private var ringtone: Ringtone? = null
+    private var vibrator: Vibrator? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -87,6 +96,7 @@ class DoctorOnlineService : Service() {
                     startTokenRefresh()
                     overlayBubbleManager.show()
                     isRunning = true
+                    logOnlineStatus("online")
                 } else {
                     Log.e(TAG, "ACTION_START without doctorId")
                     stopSelf()
@@ -102,6 +112,7 @@ class DoctorOnlineService : Service() {
                     startTokenRefresh()
                     overlayBubbleManager.show()
                     isRunning = true
+                    logOnlineStatus("online")
                 } else {
                     Log.d(TAG, "No persisted state, stopping")
                     stopSelf()
@@ -149,7 +160,7 @@ class DoctorOnlineService : Service() {
     }
 
     private suspend fun subscribeWithRetry(doctorId: String) {
-        while (true) {
+        while (reconnectAttempt < MAX_RECONNECT_RETRIES) {
             try {
                 Log.d(TAG, "Subscribing realtime for doctor=$doctorId (attempt=$reconnectAttempt)")
                 realtimeService.subscribeAsDoctor(doctorId, serviceScope)
@@ -160,11 +171,14 @@ class DoctorOnlineService : Service() {
                         "PENDING" -> {
                             Log.d(TAG, "Incoming request: ${event.requestId}")
                             overlayBubbleManager.showPulse(event.requestId)
-                            vibrate()
+                            startRinging()
+                            startRepeatingVibration()
                             showIncomingRequestNotification(event.requestId)
                         }
                         "ACCEPTED", "REJECTED", "EXPIRED" -> {
                             Log.d(TAG, "Request ${event.requestId} resolved: ${event.status}")
+                            stopRinging()
+                            stopVibration()
                             overlayBubbleManager.resetPulse()
                         }
                     }
@@ -182,6 +196,10 @@ class DoctorOnlineService : Service() {
             Log.d(TAG, "Reconnecting in ${backoffMs}ms...")
             delay(backoffMs)
         }
+        Log.e(TAG, "Max reconnect retries ($MAX_RECONNECT_RETRIES) exhausted, stopping service")
+        cleanup()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private fun registerNetworkCallback() {
@@ -279,33 +297,75 @@ class DoctorOnlineService : Service() {
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun vibrate() {
+    private fun startRinging() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                vibratorManager.defaultVibrator.vibrate(
-                    VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE),
-                )
-            } else {
-                val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(
-                        VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE),
-                    )
-                } else {
-                    vibrator.vibrate(300)
+            stopRinging() // stop any previous ringtone
+            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            ringtone = RingtoneManager.getRingtone(this, uri)?.apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    isLooping = true
                 }
+                audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+                play()
+            }
+            Log.d(TAG, "Ringtone started")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to start ringtone", e)
+        }
+    }
+
+    private fun stopRinging() {
+        try {
+            ringtone?.let {
+                if (it.isPlaying) it.stop()
+            }
+            ringtone = null
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to stop ringtone", e)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun startRepeatingVibration() {
+        try {
+            stopVibration()
+            // Pattern: wait 0ms, vibrate 800ms, pause 400ms — repeat from index 0
+            val pattern = longArrayOf(0, 800, 400)
+            val v = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+            } else {
+                getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            }
+            vibrator = v
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createWaveform(pattern, 0))
+            } else {
+                v.vibrate(pattern, 0)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Vibration failed", e)
         }
     }
 
+    private fun stopVibration() {
+        try {
+            vibrator?.cancel()
+            vibrator = null
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to stop vibration", e)
+        }
+    }
+
     private fun cleanup() {
         Log.d(TAG, "Cleaning up")
+        logOnlineStatus("offline")
         isRunning = false
         currentDoctorId = null
+        stopRinging()
+        stopVibration()
         tokenRefreshJob?.cancel()
         realtimeJob?.cancel()
         unregisterNetworkCallback()
@@ -327,6 +387,18 @@ class DoctorOnlineService : Service() {
         Log.d(TAG, "Service destroyed")
     }
 
+    private fun logOnlineStatus(action: String) {
+        serviceScope.launch(Dispatchers.IO) {
+            try {
+                val body = buildJsonObject { put("action", JsonPrimitive(action)) }
+                edgeFunctionClient.invoke("log-doctor-online", body)
+                Log.d(TAG, "Logged doctor $action")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to log doctor $action", e)
+            }
+        }
+    }
+
     companion object {
         private const val TAG = "DoctorOnlineService"
         const val ACTION_START = "com.esiri.esiriplus.service.START"
@@ -338,8 +410,9 @@ class DoctorOnlineService : Service() {
         private const val NOTIFICATION_ID = 9001
         private const val INCOMING_NOTIFICATION_ID_BASE = 9100
         private const val TOKEN_REFRESH_INTERVAL_MS = 10 * 60 * 1000L // 10 minutes
-        private const val INITIAL_BACKOFF_MS = 2000L // 2 seconds
-        private const val MAX_BACKOFF_MS = 30000L    // 30 seconds max
+        private const val INITIAL_BACKOFF_MS = 2000L  // 2 seconds
+        private const val MAX_BACKOFF_MS = 30000L     // 30 seconds max
+        private const val MAX_RECONNECT_RETRIES = 20  // stop after 20 consecutive failures
 
         @Volatile
         var isRunning: Boolean = false

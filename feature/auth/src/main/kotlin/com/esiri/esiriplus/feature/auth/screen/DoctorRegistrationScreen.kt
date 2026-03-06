@@ -87,6 +87,7 @@ private val Specialties = listOf(
     "General Practitioner",
     "Specialist",
     "Psychologist",
+    "Herbalist",
 )
 
 private val CommonLanguages = listOf("English", "Swahili")
@@ -158,6 +159,14 @@ private val SpecialtyServices = mapOf(
         "Behavioral & Habit Modification",
         "Psychological Assessment",
     ),
+    "Herbalist" to listOf(
+        "Herbal Medicine Consultation",
+        "Traditional Remedy Guidance",
+        "Natural Supplement Advice",
+        "Herbal Wellness Assessment",
+        "Plant-Based Treatment Plans",
+        "Herbal Drug Interaction Advice",
+    ),
 )
 
 private val SpecialtyPrices = mapOf(
@@ -167,6 +176,7 @@ private val SpecialtyPrices = mapOf(
     "General Practitioner" to "TZS 10,000",
     "Specialist" to "TZS 30,000",
     "Psychologist" to "TZS 50,000",
+    "Herbalist" to "TZS 5,000",
 )
 
 private val SpecialistFields = listOf(
@@ -492,7 +502,7 @@ private fun StepIndicator(currentStep: Int) {
                 }
             }
 
-            if (step < 8) {
+            if (step < 9) {
                 Box(
                     modifier = Modifier
                         .width(16.dp)
@@ -618,7 +628,150 @@ private fun Step1Content(
     )
 }
 
-// ── Step 2: Profile Photo ───────────────────────────────────────────────────
+// ── Step 2: OTP Verification ─────────────────────────────────────────────────
+
+@Composable
+private fun OtpVerificationContent(
+    uiState: DoctorRegistrationUiState,
+    viewModel: DoctorRegistrationViewModel,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // OTP sending indicator
+        if (uiState.otpSending) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(32.dp),
+                color = BrandTeal,
+                strokeWidth = 3.dp,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.doctor_reg_otp_sending),
+                fontSize = 14.sp,
+                color = SubtitleGray,
+            )
+            return
+        }
+
+        // 6-digit OTP input
+        OutlinedTextField(
+            value = uiState.otpCode,
+            onValueChange = viewModel::onOtpCodeChanged,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("000000", color = SubtitleGray, fontSize = 18.sp) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            shape = RoundedCornerShape(10.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = BrandTeal,
+                unfocusedBorderColor = CardBorder,
+                focusedContainerColor = FieldBg,
+                unfocusedContainerColor = FieldBg,
+            ),
+            singleLine = true,
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                letterSpacing = 8.sp,
+                color = DarkText,
+            ),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Error message
+        val otpError = uiState.otpError
+        if (otpError != null) {
+            Text(
+                text = otpError,
+                color = Color.Red,
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // Verify button
+        if (!uiState.otpVerified) {
+            Button(
+                onClick = viewModel::verifyOtp,
+                enabled = uiState.otpCode.length == 6 && !uiState.otpVerifying,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BrandTeal,
+                    disabledContainerColor = BrandTeal.copy(alpha = 0.4f),
+                ),
+            ) {
+                if (uiState.otpVerifying) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.doctor_reg_otp_verify),
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White,
+                    )
+                }
+            }
+        } else {
+            // Verified indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = BrandTeal,
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.doctor_reg_otp_verified),
+                    color = BrandTeal,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Resend button
+        if (!uiState.otpVerified) {
+            val cooldown = uiState.resendCooldown
+            OutlinedButton(
+                onClick = viewModel::resendOtp,
+                enabled = cooldown == 0 && !uiState.otpSending,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+            ) {
+                Text(
+                    text = if (cooldown > 0) {
+                        stringResource(R.string.doctor_reg_otp_resend_cooldown, cooldown)
+                    } else {
+                        stringResource(R.string.doctor_reg_otp_resend)
+                    },
+                    color = if (cooldown > 0) SubtitleGray else DarkText,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        }
+    }
+}
+
+// ── Step 3: Profile Photo ───────────────────────────────────────────────────
 
 @Composable
 private fun Step2Content(
@@ -778,6 +931,13 @@ private fun Step3Content(
             singleLine = true,
         )
     }
+    Spacer(modifier = Modifier.height(4.dp))
+    Text(
+        text = stringResource(R.string.doctor_reg_phone_payment_hint),
+        fontSize = 12.sp,
+        color = Color(0xFFB45309),
+        fontWeight = FontWeight.Medium,
+    )
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -1346,9 +1506,12 @@ private fun BottomBar(
     currentStep: Int,
     isStepValid: Boolean,
     isRegistering: Boolean,
+    isSendingOtp: Boolean = false,
     onBack: () -> Unit,
     onContinue: () -> Unit,
 ) {
+    // (OTP step disabled — will be re-enabled after DNS verification)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1383,7 +1546,7 @@ private fun BottomBar(
 
         Button(
             onClick = onContinue,
-            enabled = isStepValid && !isRegistering,
+            enabled = isStepValid && !isRegistering && !isSendingOtp,
             modifier = Modifier
                 .weight(if (currentStep > 1) 1.5f else 1f)
                 .height(50.dp),
@@ -1409,7 +1572,10 @@ private fun BottomBar(
                 )
             } else {
                 Text(
-                    text = if (currentStep == 8) stringResource(R.string.doctor_reg_complete_registration) else stringResource(R.string.doctor_reg_continue),
+                    text = when (currentStep) {
+                        8 -> stringResource(R.string.doctor_reg_complete_registration)
+                        else -> stringResource(R.string.doctor_reg_continue)
+                    },
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
                 )

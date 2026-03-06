@@ -11,10 +11,15 @@ import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import com.esiri.esiriplus.core.domain.usecase.ObserveAuthStateUseCase
 import com.esiri.esiriplus.core.domain.usecase.RefreshSessionUseCase
+import com.esiri.esiriplus.core.common.network.NetworkMonitor
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.lifecycle.BiometricLockStateHolder
+import com.esiri.esiriplus.worker.SyncScheduler
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,6 +44,10 @@ class MainViewModelTest {
     private lateinit var refreshSession: RefreshSessionUseCase
     private lateinit var logoutUseCase: LogoutUseCase
     private lateinit var databaseInitializer: DatabaseInitializer
+    private lateinit var biometricLockStateHolder: BiometricLockStateHolder
+    private lateinit var edgeFunctionClient: EdgeFunctionClient
+    private lateinit var networkMonitor: NetworkMonitor
+    private lateinit var syncScheduler: SyncScheduler
     private lateinit var authStateFlow: MutableSharedFlow<AuthState>
     private lateinit var dbInitStateFlow: MutableStateFlow<DatabaseInitState>
 
@@ -63,6 +72,11 @@ class MainViewModelTest {
         refreshSession = mockk()
         logoutUseCase = mockk(relaxed = true)
         databaseInitializer = mockk()
+        biometricLockStateHolder = mockk(relaxed = true)
+        edgeFunctionClient = mockk(relaxed = true)
+        networkMonitor = mockk(relaxed = true)
+        syncScheduler = mockk(relaxed = true)
+        every { networkMonitor.isOnline } returns MutableStateFlow(true)
         authStateFlow = MutableSharedFlow()
         dbInitStateFlow = MutableStateFlow(DatabaseInitState.Idle)
         every { observeAuthState() } returns authStateFlow
@@ -183,7 +197,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `logs out when refresh fails on SessionExpired`() = runTest {
+    fun `emits SessionExpired when refresh fails`() = runTest {
         coEvery { databaseInitializer.initialize() } returns DatabaseInitState.Ready
         coEvery { refreshSession() } returns Result.Error(RuntimeException("Refresh failed"))
 
@@ -194,11 +208,11 @@ class MainViewModelTest {
         advanceUntilIdle()
 
         coVerify { refreshSession() }
-        coVerify { logoutUseCase() }
+        assertEquals(AuthState.SessionExpired, viewModel.authState.value)
     }
 
     @Test
-    fun `onLogout calls logoutUseCase`() = runTest {
+    fun `onLogout locks biometric and calls logoutUseCase`() = runTest {
         coEvery { databaseInitializer.initialize() } returns DatabaseInitState.Ready
 
         val viewModel = createViewModel()
@@ -206,6 +220,7 @@ class MainViewModelTest {
         viewModel.onLogout()
         advanceUntilIdle()
 
+        verify { biometricLockStateHolder.setLocked(true) }
         coVerify { logoutUseCase() }
     }
 
@@ -214,5 +229,9 @@ class MainViewModelTest {
         refreshSession = refreshSession,
         logoutUseCase = logoutUseCase,
         databaseInitializer = databaseInitializer,
+        biometricLockStateHolder = biometricLockStateHolder,
+        edgeFunctionClient = edgeFunctionClient,
+        networkMonitor = networkMonitor,
+        syncScheduler = syncScheduler,
     )
 }

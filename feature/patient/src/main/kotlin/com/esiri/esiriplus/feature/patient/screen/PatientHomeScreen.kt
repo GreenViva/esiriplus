@@ -65,6 +65,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -233,6 +235,7 @@ private fun WelcomeHeader(
         fontSize = 28.sp,
         fontWeight = FontWeight.Bold,
         color = Color.Black,
+        modifier = Modifier.semantics { heading() },
     )
     Spacer(Modifier.height(8.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -357,7 +360,9 @@ private fun MedicalInfoSection(onEdit: () -> Unit) {
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             color = Color.Black,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .semantics { heading() },
         )
         TextButton(
             onClick = onEdit,

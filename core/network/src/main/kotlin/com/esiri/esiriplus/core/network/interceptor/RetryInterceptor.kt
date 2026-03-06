@@ -39,6 +39,7 @@ class RetryInterceptor(
 
     private fun isRetryableStatusCode(code: Int): Boolean =
         code == HTTP_REQUEST_TIMEOUT ||
+            code == HTTP_TOO_MANY_REQUESTS ||
             code in HTTP_SERVER_ERROR_RANGE
 
     private fun sleepWithBackoff(attempt: Int) {
@@ -50,6 +51,7 @@ class RetryInterceptor(
         const val MAX_RETRIES = 3
         const val INITIAL_BACKOFF_MS = 1000L
         private const val HTTP_REQUEST_TIMEOUT = 408
+        private const val HTTP_TOO_MANY_REQUESTS = 429
         private val HTTP_SERVER_ERROR_RANGE = 500..599
     }
 }

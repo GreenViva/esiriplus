@@ -37,6 +37,7 @@ import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.toDomainResult
 import com.esiri.esiriplus.core.network.storage.FileUploadService
 import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
+import kotlinx.coroutines.tasks.await
 import java.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +53,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -86,8 +89,23 @@ class AuthRepositoryImpl @Inject constructor(
         }.flowOn(ioDispatcher)
 
     override suspend fun createPatientSession(): Result<Session> {
+        // Get FCM token so the server can send push notifications to this patient
+        val fcmToken = try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                .token.await()
+        } catch (e: Exception) {
+            Log.w("AuthRepo", "Failed to get FCM token", e)
+            null
+        }
+        val body = if (fcmToken != null) {
+            buildJsonObject {
+                put("fcm_token", fcmToken)
+            }
+        } else null
+
         val apiResult = edgeFunctionClient.invokeAndDecode<PatientSessionResponse>(
             functionName = "create-patient-session",
+            body = body,
             anonymous = true,
         )
 
@@ -408,9 +426,19 @@ class AuthRepositoryImpl @Inject constructor(
         }
 
         val functionName = if (isPatient) "refresh-patient-session" else "refresh-session"
+
+        // Include FCM token for patients so push notifications stay working
+        val fcmToken = if (isPatient) {
+            try {
+                com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                    .token.await()
+            } catch (_: Exception) { null }
+        } else null
+
         val request = RefreshTokenRequest(
             refreshToken = currentRefreshToken,
             sessionId = sessionId,
+            fcmToken = fcmToken,
         )
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 

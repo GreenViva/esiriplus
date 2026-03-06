@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_bad_request">Ombi batili. Tafadhali angalia maelezo yako.</string>
+    <string name="error_unauthorized">Uthibitishaji unahitajika. Tafadhali ingia tena.</string>
+    <string name="error_forbidden">Huna ruhusa ya kufanya kitendo hiki.</string>
+    <string name="error_not_found">Rasilimali iliyoombwa haikupatikana.</string>
+    <string name="error_request_timeout">Muda wa ombi umekwisha. Tafadhali jaribu tena.</string>
+    <string name="error_conflict">Mgongano. Rasilimali imebadilishwa.</string>
+    <string name="error_unprocessable_entity">Data iliyotolewa si sahihi.</string>
+    <string name="error_rate_limited">Maombi mengi mno. Tafadhali subiri na ujaribu tena.</string>
+    <string name="error_server_error">Hitilafu ya seva. Tafadhali jaribu tena baadaye.</string>
+    <string name="error_unknown_http">Hitilafu isiyotarajiwa imetokea.</string>
+    <string name="error_no_internet">Hakuna muunganisho wa mtandao. Tafadhali angalia mtandao wako.</string>
+    <string name="error_connection_timeout">Muda wa muunganisho umekwisha. Tafadhali jaribu tena.</string>
+    <string name="error_network">Hitilafu ya mtandao. Tafadhali angalia muunganisho wako.</string>
+    <string name="error_unexpected">Hitilafu isiyotarajiwa imetokea.</string>
+</resources>

@@ -18,6 +18,10 @@ internal fun Project.configureAndroidApplication(
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
         }
+        @Suppress("UnstableApiUsage")
+        testOptions.unitTests.isReturnDefaultValues = true
+        @Suppress("UnstableApiUsage")
+        testOptions.unitTests.isIncludeAndroidResources = true
     }
     configureKotlinJvmTarget()
 }
@@ -34,6 +38,10 @@ internal fun Project.configureAndroidLibrary(
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
         }
+        @Suppress("UnstableApiUsage")
+        testOptions.unitTests.isReturnDefaultValues = true
+        @Suppress("UnstableApiUsage")
+        testOptions.unitTests.isIncludeAndroidResources = true
     }
     configureKotlinJvmTarget()
 }

@@ -36,6 +36,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,6 +95,7 @@ fun RoleSelectionScreen(
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkText,
+                modifier = Modifier.semantics { heading() },
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
@@ -107,7 +112,9 @@ fun RoleSelectionScreen(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = SubtitleGray,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { heading() },
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -178,7 +185,9 @@ fun RoleSelectionScreen(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = SubtitleGray,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { heading() },
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -256,7 +265,8 @@ private fun RoleCard(
             .fillMaxWidth()
             .clip(cardShape)
             .border(1.dp, CardBorder, cardShape)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, onClickLabel = title)
+            .semantics(mergeDescendants = true) { role = Role.Button }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

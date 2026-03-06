@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_bad_request">Solicitud no v\u00e1lida. Por favor, verifica tu informaci\u00f3n.</string>
+    <string name="error_unauthorized">Se requiere autenticaci\u00f3n. Por favor, inicia sesi\u00f3n de nuevo.</string>
+    <string name="error_forbidden">No tienes permiso para realizar esta acci\u00f3n.</string>
+    <string name="error_not_found">El recurso solicitado no fue encontrado.</string>
+    <string name="error_request_timeout">La solicitud ha expirado. Por favor, int\u00e9ntalo de nuevo.</string>
+    <string name="error_conflict">Conflicto. El recurso ha sido modificado.</string>
+    <string name="error_unprocessable_entity">Los datos proporcionados no son v\u00e1lidos.</string>
+    <string name="error_rate_limited">Demasiadas solicitudes. Por favor, espera e int\u00e9ntalo de nuevo.</string>
+    <string name="error_server_error">Error del servidor. Por favor, int\u00e9ntalo m\u00e1s tarde.</string>
+    <string name="error_unknown_http">Ocurri\u00f3 un error inesperado.</string>
+    <string name="error_no_internet">Sin conexi\u00f3n a internet. Por favor, verifica tu red.</string>
+    <string name="error_connection_timeout">La conexi\u00f3n ha expirado. Por favor, int\u00e9ntalo de nuevo.</string>
+    <string name="error_network">Error de red. Por favor, verifica tu conexi\u00f3n.</string>
+    <string name="error_unexpected">Ocurri\u00f3 un error inesperado.</string>
+</resources>

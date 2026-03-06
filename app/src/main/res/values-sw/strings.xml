@@ -104,4 +104,7 @@
     <string name="cd_back">Rudi</string>
     <string name="cd_incoming_call">Simu inaingia</string>
     <string name="cd_notifications">Arifa</string>
+
+    <!-- Offline -->
+    <string name="offline_banner">Hakuna muunganisho wa mtandao</string>
 </resources>

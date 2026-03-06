@@ -102,6 +102,9 @@
     <string name="time_hours_ago">%1$dh ago</string>
     <string name="time_days_ago">%1$dd ago</string>
 
+    <!-- Offline -->
+    <string name="offline_banner">No internet connection</string>
+
     <!-- Content Descriptions -->
     <string name="cd_back">Back</string>
     <string name="cd_incoming_call">Incoming call</string>

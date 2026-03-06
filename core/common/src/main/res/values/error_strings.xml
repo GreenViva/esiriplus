@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Network/API error messages (localized) -->
+    <string name="error_bad_request">Invalid request. Please check your input.</string>
+    <string name="error_unauthorized">Authentication required. Please log in again.</string>
+    <string name="error_forbidden">You don\'t have permission to perform this action.</string>
+    <string name="error_not_found">The requested resource was not found.</string>
+    <string name="error_request_timeout">Request timed out. Please try again.</string>
+    <string name="error_conflict">Conflict. The resource has been modified.</string>
+    <string name="error_unprocessable_entity">The provided data is invalid.</string>
+    <string name="error_rate_limited">Too many requests. Please wait and try again.</string>
+    <string name="error_server_error">Server error. Please try again later.</string>
+    <string name="error_unknown_http">An unexpected error occurred.</string>
+    <string name="error_no_internet">No internet connection. Please check your network.</string>
+    <string name="error_connection_timeout">Connection timed out. Please try again.</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_unexpected">An unexpected error occurred.</string>
+</resources>

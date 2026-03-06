@@ -61,6 +61,7 @@ class EsiriplusApp : Application(), Configuration.Provider {
             ).apply {
                 description = ctx.getString(R.string.channel_incoming_request_description)
                 enableVibration(true)
+                vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
             }
             notificationManager.createNotificationChannel(incomingChannel)
 

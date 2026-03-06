@@ -13,6 +13,8 @@ import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.storage.FileUploadService
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -39,6 +41,8 @@ class AuthRepositoryImplTest {
     private lateinit var doctorProfileDao: DoctorProfileDao
     private lateinit var database: EsiriplusDatabase
     private lateinit var fileUploadService: FileUploadService
+    private lateinit var supabaseClientProvider: SupabaseClientProvider
+    private lateinit var deviceBindingManager: DeviceBindingManager
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
@@ -51,6 +55,8 @@ class AuthRepositoryImplTest {
         doctorProfileDao = mockk(relaxed = true)
         database = mockk(relaxed = true)
         fileUploadService = mockk(relaxed = true)
+        supabaseClientProvider = mockk(relaxed = true)
+        deviceBindingManager = mockk(relaxed = true)
     }
 
     @Test
@@ -133,6 +139,7 @@ class AuthRepositoryImplTest {
             edgeFunctionClient.invoke(
                 functionName = "setup-recovery",
                 body = any(),
+                patientAuth = true,
             )
         } returns ApiResult.Success("ok")
         val repository = createRepository()
@@ -153,6 +160,8 @@ class AuthRepositoryImplTest {
         doctorProfileDao = doctorProfileDao,
         database = database,
         fileUploadService = fileUploadService,
+        supabaseClientProvider = supabaseClientProvider,
+        deviceBindingManager = deviceBindingManager,
         ioDispatcher = testDispatcher,
     )
 }

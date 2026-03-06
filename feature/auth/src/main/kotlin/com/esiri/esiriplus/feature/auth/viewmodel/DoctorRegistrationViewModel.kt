@@ -1,19 +1,26 @@
 package com.esiri.esiriplus.feature.auth.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.DoctorRegistration
 import com.esiri.esiriplus.core.domain.usecase.RegisterDoctorUseCase
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
 import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +28,7 @@ class DoctorRegistrationViewModel @Inject constructor(
     private val registerDoctorUseCase: RegisterDoctorUseCase,
     val biometricAuthManager: BiometricAuthManager,
     private val deviceBindingManager: DeviceBindingManager,
+    private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorRegistrationUiState())
@@ -37,6 +45,8 @@ class DoctorRegistrationViewModel @Inject constructor(
         }
     }
 
+    private var resendCooldownJob: Job? = null
+
     // Step navigation
     fun onBack() {
         _uiState.update { it.copy(currentStep = (it.currentStep - 1).coerceAtLeast(1)) }
@@ -48,6 +58,117 @@ class DoctorRegistrationViewModel @Inject constructor(
             completeRegistration()
         } else {
             _uiState.update { it.copy(currentStep = (it.currentStep + 1).coerceAtMost(8)) }
+        }
+    }
+
+    // OTP: Send
+    fun sendOtp() {
+        val email = _uiState.value.email.trim().lowercase()
+        if (email.isBlank()) return
+        if (_uiState.value.otpSending) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(otpSending = true, otpError = null, registrationError = null) }
+            Log.d("DoctorRegVM", "Sending OTP to $email")
+            try {
+                val body = buildJsonObject { put("email", email) }
+                val result = edgeFunctionClient.invoke(
+                    functionName = "send-doctor-otp",
+                    body = body,
+                    anonymous = true,
+                )
+                Log.d("DoctorRegVM", "sendOtp result: $result")
+                when (result) {
+                    is ApiResult.Success -> {
+                        Log.d("DoctorRegVM", "OTP sent successfully, moving to step 2")
+                        _uiState.update {
+                            it.copy(
+                                otpSending = false,
+                                otpSent = true,
+                                currentStep = 2,
+                            )
+                        }
+                        startResendCooldown()
+                    }
+                    else -> {
+                        val errorMsg = parseApiError(result, "Failed to send verification code")
+                        Log.e("DoctorRegVM", "sendOtp error: $errorMsg")
+                        _uiState.update { it.copy(otpSending = false, registrationError = errorMsg) }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DoctorRegVM", "sendOtp failed", e)
+                _uiState.update { it.copy(otpSending = false, registrationError = e.message ?: "Failed to send code") }
+            }
+        }
+    }
+
+    // OTP: Verify
+    fun verifyOtp() {
+        val state = _uiState.value
+        val email = state.email.trim().lowercase()
+        val otp = state.otpCode.trim()
+        if (otp.length != 6) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(otpVerifying = true, otpError = null) }
+            try {
+                val body = buildJsonObject {
+                    put("email", email)
+                    put("otp_code", otp)
+                }
+                val result = edgeFunctionClient.invoke(
+                    functionName = "verify-doctor-otp",
+                    body = body,
+                    anonymous = true,
+                )
+                when (result) {
+                    is ApiResult.Success -> {
+                        _uiState.update {
+                            it.copy(otpVerifying = false, otpVerified = true, otpError = null)
+                        }
+                    }
+                    else -> {
+                        _uiState.update { it.copy(otpVerifying = false, otpError = parseApiError(result, "Incorrect code")) }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DoctorRegVM", "verifyOtp failed", e)
+                _uiState.update { it.copy(otpVerifying = false, otpError = e.message ?: "Verification failed") }
+            }
+        }
+    }
+
+    /** Extract human-readable error from ApiResult.Error JSON body. */
+    private fun parseApiError(result: ApiResult<*>, fallback: String): String {
+        val rawMessage = (result as? ApiResult.Error)?.message ?: return fallback
+        return try {
+            val jsonObj = kotlinx.serialization.json.Json.parseToJsonElement(rawMessage)
+            (jsonObj as? kotlinx.serialization.json.JsonObject)
+                ?.get("error")
+                ?.let { (it as? kotlinx.serialization.json.JsonPrimitive)?.content }
+                ?: rawMessage
+        } catch (_: Exception) { rawMessage }
+    }
+
+    fun onOtpCodeChanged(code: String) {
+        val filtered = code.filter { it.isDigit() }.take(6)
+        _uiState.update { it.copy(otpCode = filtered, otpError = null) }
+    }
+
+    fun resendOtp() {
+        if (_uiState.value.resendCooldown > 0) return
+        sendOtp()
+    }
+
+    private fun startResendCooldown() {
+        resendCooldownJob?.cancel()
+        resendCooldownJob = viewModelScope.launch {
+            for (i in 60 downTo 1) {
+                _uiState.update { it.copy(resendCooldown = i) }
+                delay(1000)
+            }
+            _uiState.update { it.copy(resendCooldown = 0) }
         }
     }
 
@@ -136,12 +257,12 @@ class DoctorRegistrationViewModel @Inject constructor(
         _uiState.update { it.copy(confirmPasswordVisible = !it.confirmPasswordVisible) }
     }
 
-    // Step 2: Profile Photo
+    // Step 3: Profile Photo (was step 2)
     fun onProfilePhotoSelected(uri: Uri?) {
         _uiState.update { it.copy(profilePhotoUri = uri) }
     }
 
-    // Step 3: Personal Info
+    // Step 4: Personal Info (was step 3)
     fun onFullNameChanged(fullName: String) {
         _uiState.update { it.copy(fullName = fullName) }
     }
@@ -166,7 +287,7 @@ class DoctorRegistrationViewModel @Inject constructor(
         _uiState.update { it.copy(customSpecialty = customSpecialty) }
     }
 
-    // Step 4: Location & Languages
+    // Step 5: Location & Languages (was step 4)
     fun onCountryChanged(country: String) {
         _uiState.update { it.copy(country = country) }
     }
@@ -179,7 +300,7 @@ class DoctorRegistrationViewModel @Inject constructor(
         }
     }
 
-    // Step 5: Professional Details
+    // Step 6: Professional Details (was step 5)
     fun onLicenseNumberChanged(licenseNumber: String) {
         _uiState.update { it.copy(licenseNumber = licenseNumber) }
     }
@@ -194,7 +315,7 @@ class DoctorRegistrationViewModel @Inject constructor(
         _uiState.update { it.copy(bio = bio) }
     }
 
-    // Step 6: Services
+    // Step 7: Services (was step 6)
     fun onServiceToggled(service: String) {
         _uiState.update { state ->
             val updated = state.selectedServices.toMutableSet()
@@ -203,7 +324,7 @@ class DoctorRegistrationViewModel @Inject constructor(
         }
     }
 
-    // Step 7: Credentials
+    // Step 8: Credentials (was step 7)
     fun onLicenseDocumentSelected(uri: Uri?) {
         _uiState.update { it.copy(licenseDocumentUri = uri) }
     }
@@ -219,37 +340,47 @@ data class DoctorRegistrationUiState(
     val isRegistering: Boolean = false,
     val isUploading: Boolean = false,
     val registrationError: String? = null,
-    // Step 1
+    // Step 1: Account
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
     val passwordVisible: Boolean = false,
     val confirmPasswordVisible: Boolean = false,
-    // Step 2
+    // Step 2: OTP Verification
+    val otpCode: String = "",
+    val otpSent: Boolean = false,
+    val otpVerified: Boolean = false,
+    val otpSending: Boolean = false,
+    val otpVerifying: Boolean = false,
+    val otpError: String? = null,
+    val resendCooldown: Int = 0,
+    // Step 3: Profile Photo
     val profilePhotoUri: Uri? = null,
-    // Step 3
+    // Step 4: Personal Info
     val fullName: String = "",
     val countryCode: String = "+255",
     val phone: String = "",
     val specialty: String = "",
     val customSpecialty: String = "",
-    // Step 4
+    // Step 5: Location & Languages
     val country: String = "Tanzania",
     val selectedLanguages: Set<String> = emptySet(),
-    // Step 5
+    // Step 6: Professional Details
     val licenseNumber: String = "",
     val yearsExperience: String = "",
     val bio: String = "",
-    // Step 6
+    // Step 7: Services
     val selectedServices: Set<String> = emptySet(),
-    // Step 7
+    // Step 8: Credentials
     val licenseDocumentUri: Uri? = null,
     val certificatesUri: Uri? = null,
-    // Step 8: Biometric
+    // Step 9: Biometric
     val biometricAvailable: Boolean = true,
     val biometricEnrolled: Boolean = false,
     val deviceAlreadyBound: Boolean = false,
 ) {
+    val totalSteps: Int get() = 8
+
     val isCurrentStepValid: Boolean
         get() = when (currentStep) {
             1 -> EMAIL_REGEX.matches(email.trim()) &&

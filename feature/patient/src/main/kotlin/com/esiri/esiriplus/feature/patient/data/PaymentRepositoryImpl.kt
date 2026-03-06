@@ -64,7 +64,7 @@ class PaymentRepositoryImpl @Inject constructor(
                     Result.Error(Exception(result.message), result.message)
                 }
                 is ApiResult.NetworkError -> {
-                    paymentDao.updateStatus(payment.paymentId, "FAILED", null, System.currentTimeMillis())
+                    // Keep as PENDING (not FAILED) so sync worker can retry when online
                     Result.Error(result.exception, result.message)
                 }
                 is ApiResult.Unauthorized -> {

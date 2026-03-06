@@ -13,15 +13,36 @@ interface NavItem {
   icon: React.FC<{ className?: string }>;
 }
 
-const adminItems: NavItem[] = [
-  { href: "/dashboard", label: "Admin Dashboard", icon: DashboardIcon },
-  { href: "/dashboard/doctors", label: "Doctor Applications", icon: DoctorAppIcon },
-  { href: "/dashboard/doctors/management", label: "Doctor Management", icon: DoctorMgmtIcon },
-  { href: "/dashboard/payments", label: "Payments", icon: PaymentsIcon },
-  { href: "/dashboard/analytics", label: "Health Analytics", icon: AnalyticsIcon },
-  { href: "/dashboard/ratings", label: "Ratings & Feedback", icon: RatingsIcon },
-  { href: "/dashboard/users", label: "Role Management", icon: RoleIcon },
-];
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const auditSection: NavSection = {
+  title: "Audit & Compliance",
+  items: [
+    { href: "/dashboard/audit", label: "Audit Dashboard", icon: AuditDashboardIcon },
+    { href: "/dashboard/audit/risk-activity", label: "Risk Activity Monitor", icon: RiskActivityIcon },
+    { href: "/dashboard/audit/financial", label: "Financial Integrity", icon: FinancialIntegrityIcon },
+    { href: "/dashboard/audit/performance", label: "System Performance", icon: SystemPerformanceIcon },
+    { href: "/dashboard/audit/logs", label: "Audit Log Explorer", icon: AuditLogIcon },
+  ],
+};
+
+const adminSection: NavSection = {
+  title: "Administration",
+  items: [
+    { href: "/dashboard", label: "Admin Dashboard", icon: DashboardIcon },
+    { href: "/dashboard/doctors", label: "Doctor Applications", icon: DoctorAppIcon },
+    { href: "/dashboard/doctors/management", label: "Doctor Management", icon: DoctorMgmtIcon },
+    { href: "/dashboard/payments", label: "Payments", icon: PaymentsIcon },
+    { href: "/dashboard/analytics", label: "Health Analytics", icon: AnalyticsIcon },
+    { href: "/dashboard/ratings", label: "Ratings & Feedback", icon: RatingsIcon },
+    { href: "/dashboard/users", label: "Role Management", icon: RoleIcon },
+  ],
+};
+
+const adminItems: NavItem[] = adminSection.items;
 
 const hrItems: NavItem[] = [
   { href: "/dashboard/doctors", label: "Doctor Applications", icon: DoctorAppIcon },
@@ -69,6 +90,7 @@ export default function Sidebar({ email, fullName, role = "admin" }: SidebarProp
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/dashboard/audit") return pathname === "/dashboard/audit";
     // Exact match for /dashboard/doctors so it doesn't also match /dashboard/doctors/management
     if (href === "/dashboard/doctors") {
       return pathname === "/dashboard/doctors" || (pathname.startsWith("/dashboard/doctors/") && !pathname.startsWith("/dashboard/doctors/management"));
@@ -105,16 +127,18 @@ export default function Sidebar({ email, fullName, role = "admin" }: SidebarProp
 
       {/* Scrollable nav area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-5 pt-3 pb-1">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-            {role === "hr" ? "Human Resources" : role === "finance" ? "Finance" : role === "audit" ? "Audit" : "Administration"}
-          </p>
-        </div>
-        <nav className="px-3 space-y-0.5 pb-4">
-          {items.map((item) => (
-            <NavLink key={item.href} item={item} active={isActive(item.href)} />
-          ))}
-        </nav>
+        {role === "admin" ? (
+          <>
+            <SidebarSection title={auditSection.title} items={auditSection.items} isActive={isActive} />
+            <SidebarSection title={adminSection.title} items={adminSection.items} isActive={isActive} />
+          </>
+        ) : (
+          <SidebarSection
+            title={role === "hr" ? "Human Resources" : role === "finance" ? "Finance" : "Audit"}
+            items={items}
+            isActive={isActive}
+          />
+        )}
       </div>
 
       {/* User info + Sign Out (pinned bottom) */}
@@ -154,6 +178,31 @@ export default function Sidebar({ email, fullName, role = "admin" }: SidebarProp
         </div>
       </Modal>
     </aside>
+  );
+}
+
+function SidebarSection({
+  title,
+  items,
+  isActive,
+}: {
+  title: string;
+  items: NavItem[];
+  isActive: (href: string) => boolean;
+}) {
+  return (
+    <>
+      <div className="px-5 pt-3 pb-1">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+          {title}
+        </p>
+      </div>
+      <nav className="px-3 space-y-0.5 pb-4">
+        {items.map((item) => (
+          <NavLink key={item.href} item={item} active={isActive(item.href)} />
+        ))}
+      </nav>
+    </>
   );
 }
 
@@ -243,6 +292,39 @@ function AuditLogIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V19.5a2.25 2.25 0 002.25 2.25h6.75a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08" />
+    </svg>
+  );
+}
+
+function AuditDashboardIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+    </svg>
+  );
+}
+
+function RiskActivityIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+    </svg>
+  );
+}
+
+function FinancialIntegrityIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function SystemPerformanceIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
     </svg>
   );
 }

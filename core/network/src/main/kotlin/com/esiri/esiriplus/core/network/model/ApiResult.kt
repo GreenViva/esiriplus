@@ -1,9 +1,20 @@
 package com.esiri.esiriplus.core.network.model
 
+import com.esiri.esiriplus.core.common.error.ErrorCode
+
 sealed class ApiResult<out T> {
     data class Success<T>(val data: T) : ApiResult<T>()
-    data class Error(val code: Int, val message: String, val details: String? = null) : ApiResult<Nothing>()
-    data class NetworkError(val exception: Throwable, val message: String) : ApiResult<Nothing>()
+    data class Error(
+        val code: Int,
+        val message: String,
+        val details: String? = null,
+        val errorCode: ErrorCode? = null,
+    ) : ApiResult<Nothing>()
+    data class NetworkError(
+        val exception: Throwable,
+        val message: String,
+        val errorCode: ErrorCode? = null,
+    ) : ApiResult<Nothing>()
     data object Unauthorized : ApiResult<Nothing>()
 
     fun <R> map(transform: (T) -> R): ApiResult<R> = when (this) {

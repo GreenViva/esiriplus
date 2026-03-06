@@ -26,6 +26,7 @@ const SPECIALTY_TO_ENUM: Record<string, string> = {
   "General Practitioner": "gp",
   "Specialist": "specialist",
   "Psychologist": "psychologist",
+  "Herbalist": "herbalist",
 };
 
 Deno.serve(async (req: Request) => {
@@ -62,6 +63,19 @@ Deno.serve(async (req: Request) => {
     const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     if (!emailRegex.test(body.email.trim())) {
       throw new ValidationError("Invalid email address");
+    }
+
+    // Verify email domain has MX records (proves the domain can receive email)
+    const emailDomain = body.email.trim().split("@")[1];
+    try {
+      const mxRecords = await Deno.resolveDns(emailDomain, "MX");
+      if (!mxRecords || mxRecords.length === 0) {
+        throw new ValidationError("This email domain cannot receive emails. Please use a valid email address.");
+      }
+    } catch (err) {
+      if (err instanceof ValidationError) throw err;
+      // DNS lookup failed — domain doesn't exist
+      throw new ValidationError("This email domain does not exist. Please use a valid email address.");
     }
 
     // Password complexity
@@ -102,6 +116,21 @@ Deno.serve(async (req: Request) => {
     // Map specialty display name to Postgres enum value
     const specialtyEnum = SPECIALTY_TO_ENUM[body.specialty] ?? body.specialty.toLowerCase().replace(/\s+/g, "_");
     const supabase = getServiceClient();
+
+    // OTP verification disabled until DNS is verified for Resend
+    // TODO: Re-enable once esiri.africa DNS records are set up
+    // const { data: otpVerification } = await supabase
+    //   .from("email_verifications")
+    //   .select("id, verified_at, created_at")
+    //   .eq("email", body.email)
+    //   .not("verified_at", "is", null)
+    //   .order("created_at", { ascending: false })
+    //   .limit(1)
+    //   .single();
+    //
+    // if (!otpVerification) {
+    //   throw new ValidationError("Email not verified. Please complete OTP verification first.");
+    // }
 
     // 1. Create Supabase Auth user — store extra fields in user_metadata
     let authData;

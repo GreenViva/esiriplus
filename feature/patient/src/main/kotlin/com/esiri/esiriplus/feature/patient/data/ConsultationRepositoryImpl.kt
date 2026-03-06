@@ -206,9 +206,24 @@ class ConsultationRepositoryImpl @Inject constructor(
     override suspend fun getConsultation(consultationId: String): Result<Consultation> {
         val apiResult = safeApiCall {
             val response = supabaseApi.getConsultation(idFilter = "eq.$consultationId")
-            response.toApiResult().getOrThrow().toDomain()
+            val apiModel = response.toApiResult().getOrThrow()
+            // Cache the fetched consultation locally
+            try {
+                consultationDao.insert(apiModel.toEntity(apiModel.patientId))
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to cache consultation $consultationId", e)
+            }
+            apiModel.toDomain()
         }
-        return apiResult.toDomainResult()
+        val domainResult = apiResult.toDomainResult()
+        // Fallback to local cache if network failed
+        if (domainResult is Result.Error) {
+            val cached = consultationDao.getById(consultationId)
+            if (cached != null) {
+                return Result.Success(cached.toDomain())
+            }
+        }
+        return domainResult
     }
 
     companion object {

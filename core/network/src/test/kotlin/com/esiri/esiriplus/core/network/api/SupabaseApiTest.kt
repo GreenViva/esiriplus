@@ -133,11 +133,11 @@ class SupabaseApiTest {
         assertTrue(response.isSuccessful)
         val payments = response.body()!!
         assertEquals(1, payments.size)
-        assertEquals("pay-001", payments[0].id)
+        assertEquals("pay-001", payments[0].paymentId)
         assertEquals(1500, payments[0].amount)
         assertEquals("KES", payments[0].currency)
         assertEquals("COMPLETED", payments[0].status)
-        assertEquals("QKJ3B7X9YM", payments[0].mpesaReceiptNumber)
+        assertEquals("QKJ3B7X9YM", payments[0].transactionId)
     }
 
     @Test
@@ -153,8 +153,8 @@ class SupabaseApiTest {
 
         assertTrue(response.isSuccessful)
         val payment = response.body()!!
-        assertEquals("pay-001", payment.id)
-        assertEquals("consult-001", payment.consultationId)
+        assertEquals("pay-001", payment.paymentId)
+        assertEquals("consult-001", payment.patientSessionId)
     }
 
     // User tests

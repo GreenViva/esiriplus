@@ -84,6 +84,7 @@ private fun categoryDisplayName(code: String): String {
         "gp" -> stringResource(R.string.category_gp)
         "specialist" -> stringResource(R.string.category_specialist)
         "psychologist" -> stringResource(R.string.category_psychologist)
+        "herbalist" -> stringResource(R.string.category_herbalist)
         else -> code
     }
 }

@@ -116,6 +116,7 @@
     <string name="category_gp">Daktari wa Kawaida</string>
     <string name="category_specialist">Daktari Bingwa</string>
     <string name="category_psychologist">Mtaalamu wa Saikolojia</string>
+    <string name="category_herbalist">Mganga wa Mitishamba</string>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Rudi</string>

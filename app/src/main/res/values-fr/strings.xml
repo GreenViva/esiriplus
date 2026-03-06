@@ -106,4 +106,7 @@
     <string name="cd_back">Retour</string>
     <string name="cd_incoming_call">Appel entrant</string>
     <string name="cd_notifications">Notifications</string>
+
+    <!-- Offline -->
+    <string name="offline_banner">Pas de connexion Internet</string>
 </resources>

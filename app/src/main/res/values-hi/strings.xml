@@ -106,4 +106,7 @@
     <string name="cd_back">\u0935\u093E\u092A\u0938</string>
     <string name="cd_incoming_call">\u0906\u0928\u0947 \u0935\u093E\u0932\u0940 \u0915\u0949\u0932</string>
     <string name="cd_notifications">\u0938\u0942\u091A\u0928\u093E\u090F\u0901</string>
+
+    <!-- Offline -->
+    <string name="offline_banner">\u0907\u0902\u091F\u0930\u0928\u0947\u091F \u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u0928\u0939\u0940\u0902 \u0939\u0948</string>
 </resources>

@@ -235,6 +235,17 @@
     <string name="doctor_reg_hide_password">पासवर्ड छुपाएँ</string>
     <string name="doctor_reg_show_password">पासवर्ड दिखाएँ</string>
 
+    <!-- OTP Verification (Step 2) -->
+    <string name="doctor_reg_otp_title">अपना ईमेल सत्यापित करें</string>
+    <string name="doctor_reg_otp_subtitle">%1$s पर भेजा गया 6 अंकों का कोड दर्ज करें</string>
+    <string name="doctor_reg_otp_send_code">कोड भेजें</string>
+    <string name="doctor_reg_otp_sending">कोड भेज रहा है\u2026</string>
+    <string name="doctor_reg_otp_verify">सत्यापित करें</string>
+    <string name="doctor_reg_otp_verified">ईमेल सत्यापित</string>
+    <string name="doctor_reg_otp_resend">कोड पुनः भेजें</string>
+    <string name="doctor_reg_otp_resend_cooldown">%1$d सेकंड में पुनः भेजें</string>
+    <string name="doctor_reg_phone_payment_hint">कृपया एक वैध और सक्रिय फ़ोन नंबर प्रदान करें \u2014 इसका उपयोग भुगतान प्राप्त करने के लिए किया जाएगा</string>
+
     <!-- ViewModel fallback error strings -->
     <string name="error_login_failed">लॉगिन विफल</string>
     <string name="error_generic">एक त्रुटि हुई</string>

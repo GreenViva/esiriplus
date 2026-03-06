@@ -55,6 +55,7 @@ val specialtyDisplayNames = mapOf(
     "gp" to "General Practitioner",
     "specialist" to "Specialist",
     "psychologist" to "Psychologist",
+    "herbalist" to "Herbalist",
 )
 
 @Serializable

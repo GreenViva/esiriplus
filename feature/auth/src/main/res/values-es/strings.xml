@@ -235,6 +235,17 @@
     <string name="doctor_reg_hide_password">Ocultar contrase\u00F1a</string>
     <string name="doctor_reg_show_password">Mostrar contrase\u00F1a</string>
 
+    <!-- OTP Verification (Step 2) -->
+    <string name="doctor_reg_otp_title">Verifica tu correo</string>
+    <string name="doctor_reg_otp_subtitle">Ingresa el c\u00F3digo de 6 d\u00EDgitos enviado a %1$s</string>
+    <string name="doctor_reg_otp_send_code">Enviar c\u00F3digo</string>
+    <string name="doctor_reg_otp_sending">Enviando c\u00F3digo\u2026</string>
+    <string name="doctor_reg_otp_verify">Verificar</string>
+    <string name="doctor_reg_otp_verified">Correo verificado</string>
+    <string name="doctor_reg_otp_resend">Reenviar c\u00F3digo</string>
+    <string name="doctor_reg_otp_resend_cooldown">Reenviar en %1$ds</string>
+    <string name="doctor_reg_phone_payment_hint">Proporcione un n\u00FAmero de tel\u00E9fono v\u00E1lido y activo \u2014 se usar\u00E1 para recibir pagos</string>
+
     <!-- ViewModel fallback error strings -->
     <string name="error_login_failed">Error de inicio de sesi\u00F3n</string>
     <string name="error_generic">Se produjo un error</string>

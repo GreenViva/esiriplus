@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.network.model
 
+import com.esiri.esiriplus.core.common.error.ErrorCode
 import org.json.JSONObject
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -7,6 +8,7 @@ import java.net.UnknownHostException
 object ApiErrorMapper {
 
     fun fromHttpCode(code: Int, responseBody: String? = null): ApiResult.Error {
+        val errorCode = ErrorCode.fromHttpCode(code)
         val parsedMessage = tryParseJsonError(responseBody)
         val message = parsedMessage ?: when (code) {
             400 -> "Invalid request. Please check your input."
@@ -20,26 +22,38 @@ object ApiErrorMapper {
             in 500..599 -> "Server error. Please try again later."
             else -> "Unexpected error (HTTP $code)."
         }
-        return ApiResult.Error(code = code, message = message, details = responseBody)
+        return ApiResult.Error(
+            code = code,
+            message = message,
+            details = responseBody,
+            errorCode = errorCode,
+        )
     }
 
-    fun fromException(exception: Throwable): ApiResult<Nothing> = when (exception) {
-        is UnknownHostException -> ApiResult.NetworkError(
-            exception = exception,
-            message = "No internet connection. Please check your network.",
-        )
-        is SocketTimeoutException -> ApiResult.NetworkError(
-            exception = exception,
-            message = "Connection timed out. Please try again.",
-        )
-        is java.io.IOException -> ApiResult.NetworkError(
-            exception = exception,
-            message = "Network error. Please check your connection.",
-        )
-        else -> ApiResult.NetworkError(
-            exception = exception,
-            message = "An unexpected error occurred.",
-        )
+    fun fromException(exception: Throwable): ApiResult<Nothing> {
+        val errorCode = ErrorCode.fromException(exception)
+        return when (exception) {
+            is UnknownHostException -> ApiResult.NetworkError(
+                exception = exception,
+                message = "No internet connection. Please check your network.",
+                errorCode = errorCode,
+            )
+            is SocketTimeoutException -> ApiResult.NetworkError(
+                exception = exception,
+                message = "Connection timed out. Please try again.",
+                errorCode = errorCode,
+            )
+            is java.io.IOException -> ApiResult.NetworkError(
+                exception = exception,
+                message = "Network error. Please check your connection.",
+                errorCode = errorCode,
+            )
+            else -> ApiResult.NetworkError(
+                exception = exception,
+                message = exception.message ?: "An unexpected error occurred.",
+                errorCode = errorCode,
+            )
+        }
     }
 
     /**

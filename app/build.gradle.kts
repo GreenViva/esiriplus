@@ -3,7 +3,9 @@ plugins {
     id("esiriplus.android.compose")
     id("esiriplus.android.hilt")
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.kotlin.serialization)
+    jacoco
 }
 
 android {
@@ -20,6 +22,7 @@ android {
         debug {
             // applicationIdSuffix = ".debug" // Enable after adding debug app to Firebase
             resValue("string", "app_name", "eSIRI+ Debug")
+            enableUnitTestCoverage = true
         }
         create("staging") {
             initWith(getByName("debug"))
@@ -39,10 +42,44 @@ android {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.register<JacocoReport>("jacocoTestReportDebug") {
+    dependsOn("testDebugUnitTest")
+    group = "verification"
+    description = "Generate JaCoCo coverage report for debug unit tests"
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    val debugTree = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
+        exclude(
+            "**/R.class", "**/R$*.class",
+            "**/BuildConfig.*", "**/Manifest*.*",
+            "**/*_Hilt*.*", "**/Hilt_*.*",
+            "**/*_Factory.*", "**/*_MembersInjector.*",
+            "**/*Module.*", "**/*Module$*.*",
+            "**/di/**",
+        )
+    }
+
+    classDirectories.setFrom(debugTree)
+    sourceDirectories.setFrom(files("src/main/java"))
+    executionData.setFrom(
+        fileTree(layout.buildDirectory) { include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec") }
+    )
+}
+
 dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.messaging)
 
     // Core
@@ -83,6 +120,9 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

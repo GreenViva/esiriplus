@@ -7,7 +7,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// All typography styles default to black for visibility
+// Typography colors use Color.Unspecified so that MaterialTheme.colorScheme.onSurface
+// is inherited automatically, adapting to light/dark theme.
+// Screens that explicitly set `color = Color.Black` will still work but won't adapt.
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -15,7 +17,6 @@ val Typography = Typography(
         fontSize = 57.sp,
         lineHeight = 64.sp,
         letterSpacing = (-0.25).sp,
-        color = Color.Black,
     ),
     displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
@@ -23,7 +24,6 @@ val Typography = Typography(
         fontSize = 45.sp,
         lineHeight = 52.sp,
         letterSpacing = 0.sp,
-        color = Color.Black,
     ),
     displaySmall = TextStyle(
         fontFamily = FontFamily.Default,
@@ -31,7 +31,6 @@ val Typography = Typography(
         fontSize = 36.sp,
         lineHeight = 44.sp,
         letterSpacing = 0.sp,
-        color = Color.Black,
     ),
     headlineLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -39,7 +38,6 @@ val Typography = Typography(
         fontSize = 32.sp,
         lineHeight = 40.sp,
         letterSpacing = 0.sp,
-        color = Color.Black,
     ),
     headlineMedium = TextStyle(
         fontFamily = FontFamily.Default,
@@ -47,7 +45,6 @@ val Typography = Typography(
         fontSize = 28.sp,
         lineHeight = 36.sp,
         letterSpacing = 0.sp,
-        color = Color.Black,
     ),
     headlineSmall = TextStyle(
         fontFamily = FontFamily.Default,
@@ -55,7 +52,6 @@ val Typography = Typography(
         fontSize = 24.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp,
-        color = Color.Black,
     ),
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -63,7 +59,6 @@ val Typography = Typography(
         fontSize = 22.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp,
-        color = Color.Black,
     ),
     titleMedium = TextStyle(
         fontFamily = FontFamily.Default,
@@ -71,7 +66,6 @@ val Typography = Typography(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp,
-        color = Color.Black,
     ),
     titleSmall = TextStyle(
         fontFamily = FontFamily.Default,
@@ -79,7 +73,6 @@ val Typography = Typography(
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp,
-        color = Color.Black,
     ),
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -87,7 +80,6 @@ val Typography = Typography(
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp,
-        color = Color.Black,
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
@@ -95,7 +87,6 @@ val Typography = Typography(
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp,
-        color = Color.Black,
     ),
     bodySmall = TextStyle(
         fontFamily = FontFamily.Default,
@@ -103,7 +94,6 @@ val Typography = Typography(
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp,
-        color = Color.Black,
     ),
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -111,7 +101,6 @@ val Typography = Typography(
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp,
-        color = Color.Black,
     ),
     labelMedium = TextStyle(
         fontFamily = FontFamily.Default,
@@ -119,7 +108,6 @@ val Typography = Typography(
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp,
-        color = Color.Black,
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.Default,
@@ -127,6 +115,5 @@ val Typography = Typography(
         fontSize = 11.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp,
-        color = Color.Black,
     ),
 )

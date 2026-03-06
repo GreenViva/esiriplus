@@ -59,7 +59,10 @@ fun <T> Response<T>.toApiResult(): ApiResult<T> {
 
 fun <T> ApiResult<T>.toDomainResult(): Result<T> = when (this) {
     is ApiResult.Success -> Result.Success(data)
-    is ApiResult.Error -> Result.Error(ApiException(code, message, details))
-    is ApiResult.NetworkError -> Result.Error(exception, message)
-    is ApiResult.Unauthorized -> Result.Error(ApiException(HTTP_UNAUTHORIZED, "Unauthorized"))
+    is ApiResult.Error -> Result.Error(ApiException(code, message, details), message, errorCode)
+    is ApiResult.NetworkError -> Result.Error(exception, message, errorCode)
+    is ApiResult.Unauthorized -> Result.Error(
+        ApiException(HTTP_UNAUTHORIZED, "Unauthorized"),
+        errorCode = com.esiri.esiriplus.core.common.error.ErrorCode.UNAUTHORIZED,
+    )
 }

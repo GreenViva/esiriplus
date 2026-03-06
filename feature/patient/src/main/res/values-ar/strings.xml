@@ -116,6 +116,7 @@
     <string name="category_gp">طبيب عام</string>
     <string name="category_specialist">أخصائي</string>
     <string name="category_psychologist">أخصائي نفسي</string>
+    <string name="category_herbalist">معالج بالأعشاب</string>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">رجوع</string>

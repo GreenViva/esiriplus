@@ -235,6 +235,19 @@
     <string name="doctor_reg_hide_password">Hide password</string>
     <string name="doctor_reg_show_password">Show password</string>
 
+    <!-- OTP Verification (Step 2) -->
+    <string name="doctor_reg_otp_title">Verify Your Email</string>
+    <string name="doctor_reg_otp_subtitle">Enter the 6-digit code sent to %1$s</string>
+    <string name="doctor_reg_otp_send_code">Send Code</string>
+    <string name="doctor_reg_otp_sending">Sending code\u2026</string>
+    <string name="doctor_reg_otp_verify">Verify</string>
+    <string name="doctor_reg_otp_verified">Email Verified</string>
+    <string name="doctor_reg_otp_resend">Resend Code</string>
+    <string name="doctor_reg_otp_resend_cooldown">Resend in %1$ds</string>
+
+    <!-- Phone payment hint -->
+    <string name="doctor_reg_phone_payment_hint">Please provide a valid and active phone number — it will be used for receiving payments</string>
+
     <!-- ViewModel fallback error strings -->
     <string name="error_login_failed">Login failed</string>
     <string name="error_generic">An error occurred</string>

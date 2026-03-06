@@ -116,6 +116,7 @@
     <string name="category_gp">सामान्य चिकित्सक</string>
     <string name="category_specialist">विशेषज्ञ</string>
     <string name="category_psychologist">मनोवैज्ञानिक</string>
+    <string name="category_herbalist">जड़ी-बूटी विशेषज्ञ</string>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">वापस</string>

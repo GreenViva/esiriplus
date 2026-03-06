@@ -43,7 +43,10 @@ class TokenRefreshAuthenticatorTest {
 
     @Test
     fun `refreshes token on 401 response`() {
-        every { tokenManager.getAccessTokenSync() } returns "old-token" andThen "new-token"
+        // getAccessTokenSync() is called 3 times:
+        // 1) patient-token check, 2) synchronized block (same as request → triggers refresh),
+        // 3) after successful refresh to get the new token
+        every { tokenManager.getAccessTokenSync() } returns "old-token" andThen "old-token" andThen "new-token"
         every { tokenManager.getRefreshTokenSync() } returns "refresh-token"
         every { tokenRefresher.refreshToken("refresh-token") } returns true
 

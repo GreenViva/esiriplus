@@ -84,6 +84,7 @@ Deno.serve(async (req: Request) => {
 
     const refreshToken = body?.refresh_token as string | undefined;
     const sessionId    = body?.session_id as string | undefined;
+    const fcmToken     = body?.fcm_token as string | undefined;
 
     if (!refreshToken || !sessionId) {
       throw new ValidationError("refresh_token and session_id are required");
@@ -152,16 +153,21 @@ Deno.serve(async (req: Request) => {
     const expiresAt = new Date(now.getTime() + SESSION_TTL_H * 60 * 60 * 1000);
 
     // Update session with new hashes — old tokens immediately invalidated
-    await supabase
-      .from("patient_sessions")
-      .update({
+    const updatePayload: Record<string, unknown> = {
         session_token_hash:   newSessionTokenHash,
         session_token_bcrypt: newSessionTokenBcrypt,
         refresh_token_hash:   newRefreshTokenHash,
         refresh_token_bcrypt: newRefreshTokenBcrypt,
         expires_at:         expiresAt.toISOString(),
         last_refreshed_at:  now.toISOString(),
-      })
+    };
+    // Update FCM token if provided (keeps push notifications working)
+    if (fcmToken) {
+      updatePayload.fcm_token = fcmToken;
+    }
+    await supabase
+      .from("patient_sessions")
+      .update(updatePayload)
       .eq("session_id", sessionId);
 
     // Issue new JWT

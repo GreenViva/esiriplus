@@ -58,12 +58,12 @@ object MockResponses {
 
     val PAYMENT_RESPONSE = """
         {
-            "id": "pay-001",
-            "consultation_id": "consult-001",
+            "payment_id": "pay-001",
+            "patient_session_id": "consult-001",
             "amount": 1500,
             "currency": "KES",
             "status": "COMPLETED",
-            "mpesa_receipt_number": "QKJ3B7X9YM",
+            "transaction_id": "QKJ3B7X9YM",
             "created_at": "2025-01-01T12:00:00Z"
         }
     """.trimIndent()
@@ -71,12 +71,12 @@ object MockResponses {
     val PAYMENT_LIST_RESPONSE = """
         [
             {
-                "id": "pay-001",
-                "consultation_id": "consult-001",
+                "payment_id": "pay-001",
+                "patient_session_id": "consult-001",
                 "amount": 1500,
                 "currency": "KES",
                 "status": "COMPLETED",
-                "mpesa_receipt_number": "QKJ3B7X9YM",
+                "transaction_id": "QKJ3B7X9YM",
                 "created_at": "2025-01-01T12:00:00Z"
             }
         ]

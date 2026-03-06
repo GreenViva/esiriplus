@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +27,7 @@ import com.esiri.esiriplus.call.IncomingCallStateHolder
 import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.fcm.EsiriplusFirebaseMessagingService
+import com.esiri.esiriplus.ui.OfflineBanner
 import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
 import com.esiri.esiriplus.feature.auth.biometric.BiometricLockScreen
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorVideoCallRoute
@@ -156,7 +158,13 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
 
-                        Box(modifier = Modifier.fillMaxSize()) {
+                        val isOnline by viewModel.isOnline
+                            .collectAsStateWithLifecycle()
+
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            OfflineBanner(isOffline = !isOnline)
+
+                            Box(modifier = Modifier.weight(1f)) {
                             EsiriplusNavHost(
                                 navController = navController,
                                 authState = authState.value,
@@ -197,6 +205,7 @@ class MainActivity : AppCompatActivity() {
                                     },
                                 )
                             }
+                        }
                         }
                     }
                 }

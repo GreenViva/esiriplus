@@ -67,8 +67,11 @@ import com.esiri.esiriplus.feature.chat.viewmodel.CallPhase
 import com.esiri.esiriplus.feature.chat.viewmodel.TimeWarning
 import com.esiri.esiriplus.feature.chat.viewmodel.VideoCallUiState
 import com.esiri.esiriplus.feature.chat.viewmodel.VideoCallViewModel
+import android.util.Log
 import kotlinx.coroutines.delay
+import live.videosdk.rtc.android.Stream
 import live.videosdk.rtc.android.VideoView
+import live.videosdk.rtc.android.listeners.ParticipantEventListener
 import org.webrtc.VideoTrack
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -262,20 +265,33 @@ private fun VideoCallContent(uiState: VideoCallUiState, viewModel: VideoCallView
         if (remoteParticipant != null) {
             AndroidView(
                 factory = { ctx ->
-                    VideoView(ctx).apply {
-                        val videoStream = remoteParticipant.streams.values
+                    VideoView(ctx).also { videoView ->
+                        val participant = meeting.participants.values.firstOrNull() ?: return@also
+                        Log.d("VideoCallScreen", "Remote VideoView created for ${participant.id}, streams=${participant.streams.size}")
+
+                        // Add existing video track if already streaming
+                        participant.streams.values
                             .firstOrNull { it.kind.equals("video", ignoreCase = true) }
-                        (videoStream?.track as? VideoTrack)?.let { addTrack(it) }
-                    }
-                },
-                update = { videoView ->
-                    val videoStream = remoteParticipant.streams.values
-                        .firstOrNull { it.kind.equals("video", ignoreCase = true) }
-                    val track = videoStream?.track as? VideoTrack
-                    if (track != null) {
-                        videoView.addTrack(track)
-                    } else {
-                        videoView.removeTrack()
+                            ?.let { stream ->
+                                Log.d("VideoCallScreen", "Remote: adding existing video track")
+                                (stream.track as? VideoTrack)?.let { videoView.addTrack(it) }
+                            }
+
+                        // Listen for future stream changes
+                        participant.addEventListener(object : ParticipantEventListener() {
+                            override fun onStreamEnabled(stream: Stream) {
+                                if (stream.kind.equals("video", ignoreCase = true)) {
+                                    Log.d("VideoCallScreen", "Remote: stream enabled, adding track")
+                                    (stream.track as? VideoTrack)?.let { videoView.addTrack(it) }
+                                }
+                            }
+                            override fun onStreamDisabled(stream: Stream) {
+                                if (stream.kind.equals("video", ignoreCase = true)) {
+                                    Log.d("VideoCallScreen", "Remote: stream disabled, removing track")
+                                    videoView.removeTrack()
+                                }
+                            }
+                        })
                     }
                 },
                 onRelease = { it.releaseSurfaceViewRenderer() },
@@ -305,21 +321,34 @@ private fun VideoCallContent(uiState: VideoCallUiState, viewModel: VideoCallView
             if (localParticipant != null) {
                 AndroidView(
                     factory = { ctx ->
-                        VideoView(ctx).apply {
-                            setMirror(true)
-                            val videoStream = localParticipant.streams.values
+                        VideoView(ctx).also { videoView ->
+                            videoView.setMirror(true)
+                            val participant = meeting.localParticipant ?: return@also
+                            Log.d("VideoCallScreen", "Local VideoView created, streams=${participant.streams.size}")
+
+                            // Add existing video track if already streaming
+                            participant.streams.values
                                 .firstOrNull { it.kind.equals("video", ignoreCase = true) }
-                            (videoStream?.track as? VideoTrack)?.let { addTrack(it) }
-                        }
-                    },
-                    update = { videoView ->
-                        val videoStream = localParticipant.streams.values
-                            .firstOrNull { it.kind.equals("video", ignoreCase = true) }
-                        val track = videoStream?.track as? VideoTrack
-                        if (track != null) {
-                            videoView.addTrack(track)
-                        } else {
-                            videoView.removeTrack()
+                                ?.let { stream ->
+                                    Log.d("VideoCallScreen", "Local: adding existing video track")
+                                    (stream.track as? VideoTrack)?.let { videoView.addTrack(it) }
+                                }
+
+                            // Listen for future stream changes
+                            participant.addEventListener(object : ParticipantEventListener() {
+                                override fun onStreamEnabled(stream: Stream) {
+                                    if (stream.kind.equals("video", ignoreCase = true)) {
+                                        Log.d("VideoCallScreen", "Local: stream enabled, adding track")
+                                        (stream.track as? VideoTrack)?.let { videoView.addTrack(it) }
+                                    }
+                                }
+                                override fun onStreamDisabled(stream: Stream) {
+                                    if (stream.kind.equals("video", ignoreCase = true)) {
+                                        Log.d("VideoCallScreen", "Local: stream disabled, removing track")
+                                        videoView.removeTrack()
+                                    }
+                                }
+                            })
                         }
                     },
                     onRelease = { it.releaseSurfaceViewRenderer() },

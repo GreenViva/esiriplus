@@ -116,6 +116,7 @@
     <string name="category_gp">M\u00E9dico General</string>
     <string name="category_specialist">Especialista</string>
     <string name="category_psychologist">Psic\u00F3logo/a</string>
+    <string name="category_herbalist">Herbolario/a</string>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Atr\u00E1s</string>

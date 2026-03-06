@@ -78,6 +78,7 @@ private val iconColors = mapOf(
     "GP" to Color(0xFF2A9D8F),
     "SPECIALIST" to Color(0xFFEF4444),
     "PSYCHOLOGIST" to Color(0xFF8B5CF6),
+    "HERBALIST" to Color(0xFF16A34A),
     "DRUG_INTERACTION" to Color(0xFF2A9D8F),
 )
 
@@ -88,6 +89,7 @@ private val iconResources = mapOf(
     "GP" to R.drawable.ic_gp,
     "SPECIALIST" to R.drawable.ic_specialist,
     "PSYCHOLOGIST" to R.drawable.ic_psychologist,
+    "HERBALIST" to R.drawable.ic_herbalist,
     "DRUG_INTERACTION" to R.drawable.ic_sober_house,
 )
 

@@ -116,6 +116,7 @@
     <string name="category_gp">General Practitioner</string>
     <string name="category_specialist">Specialist</string>
     <string name="category_psychologist">Psychologist</string>
+    <string name="category_herbalist">Herbalist</string>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Back</string>

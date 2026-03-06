@@ -23,6 +23,7 @@ import com.esiri.esiriplus.core.network.interceptor.RetryInterceptor
 import com.esiri.esiriplus.core.network.interceptor.TokenRefreshAuthenticator
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresherImpl
+import com.esiri.esiriplus.core.network.metrics.MetricsInterceptor
 import com.esiri.esiriplus.core.network.security.CertificatePinning
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -68,11 +69,13 @@ object NetworkModule {
         authInterceptor: AuthInterceptor,
         proactiveTokenRefreshInterceptor: ProactiveTokenRefreshInterceptor,
         tokenRefreshAuthenticator: TokenRefreshAuthenticator,
+        metricsInterceptor: MetricsInterceptor,
     ): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .certificatePinner(CertificatePinning.createCertificatePinner())
+        .addInterceptor(metricsInterceptor)
         .addInterceptor(proactiveTokenRefreshInterceptor)
         .addInterceptor(authInterceptor)
         .addInterceptor(RetryInterceptor())
