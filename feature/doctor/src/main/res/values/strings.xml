@@ -246,6 +246,15 @@
     <string name="avail_settings_end_time">End Time (HH:mm)</string>
     <string name="avail_settings_buffer_label">Buffer Minutes</string>
 
+    <!-- ═══ Sound Settings ═══ -->
+    <string name="sound_settings_title">Sound Settings</string>
+    <string name="sound_settings_subtitle">Customize ringtones for calls and requests</string>
+    <string name="sound_call_ringtone">Incoming Call Ringtone</string>
+    <string name="sound_request_ringtone">Consultation Request Ringtone</string>
+    <string name="sound_default_ringtone">System Default</string>
+    <string name="sound_tap_to_change">Tap to change</string>
+    <string name="sound_reset">Reset to Default</string>
+
     <!-- ═══ Day Names ═══ -->
     <string name="day_sunday">Sunday</string>
     <string name="day_monday">Monday</string>

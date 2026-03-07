@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
     let query = supabase
       .from("admin_logs")
       .select(
-        "id, admin_id, action, target_type, target_id, details, created_at",
+        "log_id, admin_id, action, target_type, target_id, details, created_at",
         { count: "exact" }
       )
       .order("created_at", { ascending: false });
@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
 
     // Enrich logs with resolved names
     const enrichedLogs = (logs ?? []).map((log: any) => ({
-      id: log.id,
+      id: log.log_id,
       admin_id: log.admin_id,
       admin_email:
         emailMap[log.admin_id] ?? log.admin_id?.slice(0, 8) + "...",

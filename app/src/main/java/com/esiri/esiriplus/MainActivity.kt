@@ -27,7 +27,11 @@ import com.esiri.esiriplus.call.IncomingCallStateHolder
 import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.fcm.EsiriplusFirebaseMessagingService
+import androidx.appcompat.app.AppCompatDelegate
+import com.esiri.esiriplus.ui.AccessibilityFab
 import com.esiri.esiriplus.ui.OfflineBanner
+import com.esiri.esiriplus.ui.preferences.ThemeMode
+import com.esiri.esiriplus.ui.preferences.UserPreferencesManager
 import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
 import com.esiri.esiriplus.feature.auth.biometric.BiometricLockScreen
 import com.esiri.esiriplus.feature.doctor.navigation.DoctorVideoCallRoute
@@ -52,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var biometricLockStateHolder: BiometricLockStateHolder
     @Inject lateinit var biometricAuthManager: BiometricAuthManager
     @Inject lateinit var incomingCallStateHolder: IncomingCallStateHolder
+    @Inject lateinit var userPreferencesManager: UserPreferencesManager
 
     private data class PendingCallNav(val consultationId: String, val callType: String, val roomId: String = "")
     private val pendingCallNavigation = MutableStateFlow<PendingCallNav?>(null)
@@ -112,7 +117,31 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContent {
-            EsiriplusTheme {
+            val themeMode by userPreferencesManager.themeMode
+                .collectAsStateWithLifecycle()
+            val fontScale by userPreferencesManager.fontScale
+                .collectAsStateWithLifecycle()
+            val highContrast by userPreferencesManager.highContrast
+                .collectAsStateWithLifecycle()
+            val reduceMotion by userPreferencesManager.reduceMotion
+                .collectAsStateWithLifecycle()
+
+            // Sync AppCompatDelegate night mode so system bars and XML resources follow
+            LaunchedEffect(themeMode) {
+                val nightMode = when (themeMode) {
+                    ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                    ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                    ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                }
+                AppCompatDelegate.setDefaultNightMode(nightMode)
+            }
+
+            EsiriplusTheme(
+                themeMode = themeMode,
+                fontScale = fontScale,
+                highContrast = highContrast,
+                reduceMotion = reduceMotion,
+            ) {
                 val appInitState = viewModel.appInitState.collectAsStateWithLifecycle()
 
                 when (val initState = appInitState.value) {
@@ -205,6 +234,11 @@ class MainActivity : AppCompatActivity() {
                                     },
                                 )
                             }
+
+                            // Floating accessibility settings button
+                            AccessibilityFab(
+                                preferencesManager = userPreferencesManager,
+                            )
                         }
                         }
                     }

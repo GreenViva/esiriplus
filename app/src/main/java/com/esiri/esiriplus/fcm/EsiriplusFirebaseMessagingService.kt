@@ -52,6 +52,9 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var edgeFunctionClient: EdgeFunctionClient
 
+    @Inject
+    lateinit var userPreferencesManager: com.esiri.esiriplus.core.common.preferences.UserPreferencesManager
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** Locale-aware context for resolving string resources in this service. */
@@ -264,7 +267,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_CALL)
+        val builder = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_CALL)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(ctx.getString(R.string.call_incoming_title, callLabel))
             .setContentText(ctx.getString(R.string.call_incoming_body, callerLabel))
@@ -276,7 +279,14 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             .setFullScreenIntent(acceptPending, true)
             .addAction(0, ctx.getString(R.string.action_accept), acceptPending)
             .addAction(0, ctx.getString(R.string.action_decline), declinePending)
-            .build()
+
+        // Use custom call ringtone if set
+        val customCallUri = userPreferencesManager.callRingtoneUri.value
+        if (customCallUri != null) {
+            builder.setSound(customCallUri)
+        }
+
+        val notification = builder.build()
 
         try {
             NotificationManagerCompat.from(this).notify(CALL_NOTIFICATION_ID, notification)

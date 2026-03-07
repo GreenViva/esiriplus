@@ -1,5 +1,10 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
+import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +35,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -44,12 +50,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.common.preferences.UserPreferencesManager
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.core.network.service.AvailabilitySlotRow
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorAvailabilityViewModel
@@ -59,6 +73,12 @@ private val CardBorder = Color(0xFFE5E7EB)
 private val SubtitleGrey = Color(0xFF374151)
 private val SuccessGreen = Color(0xFF16A34A)
 private val ErrorRed = Color(0xFFDC2626)
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface PreferencesEntryPoint {
+    fun userPreferencesManager(): UserPreferencesManager
+}
 
 // Day names are resolved from string resources in composable scope; keep this for dropdown indices
 private val DAY_NAMES_EN = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
@@ -70,11 +90,35 @@ fun DoctorAvailabilitySettingsScreen(
     viewModel: DoctorAvailabilityViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val preferencesManager = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            PreferencesEntryPoint::class.java,
+        ).userPreferencesManager()
+    }
+    val callRingtoneUri by preferencesManager.callRingtoneUri.collectAsState()
+    val requestRingtoneUri by preferencesManager.requestRingtoneUri.collectAsState()
+
+    // Ringtone picker launchers
+    val callRingtoneLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val uri = result.data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+        preferencesManager.setCallRingtoneUri(uri)
+    }
+
+    val requestRingtoneLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val uri = result.data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+        preferencesManager.setRequestRingtoneUri(uri)
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FFFE)),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         // Header
         Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
@@ -183,6 +227,65 @@ fun DoctorAvailabilitySettingsScreen(
                     }
                 }
             }
+        }
+
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
+
+        // Sound Settings section
+        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Text(
+                text = stringResource(R.string.sound_settings_title),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.sound_settings_subtitle),
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(16.dp))
+
+            // Incoming Call Ringtone
+            RingtonePickerRow(
+                label = stringResource(R.string.sound_call_ringtone),
+                currentUri = callRingtoneUri,
+                onPick = {
+                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, context.getString(R.string.sound_call_ringtone))
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                        if (callRingtoneUri != null) {
+                            putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, callRingtoneUri)
+                        }
+                    }
+                    callRingtoneLauncher.launch(intent)
+                },
+                onReset = { preferencesManager.setCallRingtoneUri(null) },
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            // Consultation Request Ringtone
+            RingtonePickerRow(
+                label = stringResource(R.string.sound_request_ringtone),
+                currentUri = requestRingtoneUri,
+                onPick = {
+                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, context.getString(R.string.sound_request_ringtone))
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                        putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                        if (requestRingtoneUri != null) {
+                            putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, requestRingtoneUri)
+                        }
+                    }
+                    requestRingtoneLauncher.launch(intent)
+                },
+                onReset = { preferencesManager.setRequestRingtoneUri(null) },
+            )
         }
 
         // Error/success messages
@@ -429,6 +532,74 @@ private fun AddSlotDialog(
             }
         },
     )
+}
+
+@Composable
+private fun RingtonePickerRow(
+    label: String,
+    currentUri: Uri?,
+    onPick: () -> Unit,
+    onReset: () -> Unit,
+) {
+    val context = LocalContext.current
+    val ringtoneName = remember(currentUri) {
+        if (currentUri == null) {
+            null
+        } else {
+            try {
+                val ringtone = RingtoneManager.getRingtone(context, currentUri)
+                ringtone?.getTitle(context)
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        onClick = onPick,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = ringtoneName ?: stringResource(R.string.sound_default_ringtone),
+                    fontSize = 12.sp,
+                    color = if (currentUri != null) BrandTeal else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            if (currentUri != null) {
+                TextButton(onClick = onReset) {
+                    Text(
+                        text = stringResource(R.string.sound_reset),
+                        fontSize = 12.sp,
+                        color = Color(0xFFDC2626),
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.sound_tap_to_change),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
 }
 
 @Composable

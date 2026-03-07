@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -69,8 +71,6 @@ import java.util.Locale
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
-private val CardBorder = Color(0xFFE5E7EB)
-private val SubtitleGrey = Color(0xFF374151)
 private val SuccessGreen = Color(0xFF16A34A)
 private val WarningOrange = Color(0xFFEA580C)
 private val RatingAmber = Color(0xFFF59E0B)
@@ -126,7 +126,7 @@ fun FindDoctorScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(colors = listOf(Color.White, MintLight))),
+            .background(Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MintLight))),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
@@ -159,7 +159,7 @@ fun FindDoctorScreen(
                     text = stringResource(R.string.find_doctor_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
@@ -167,7 +167,7 @@ fun FindDoctorScreen(
                 Text(
                     text = stringResource(R.string.find_doctor_subtitle),
                     fontSize = 14.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
@@ -209,7 +209,7 @@ fun FindDoctorScreen(
                     Text(
                         text = "\u00B7",
                         fontSize = 14.sp,
-                        color = SubtitleGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
                     Spacer(Modifier.width(8.dp))
@@ -217,7 +217,7 @@ fun FindDoctorScreen(
                     Text(
                         text = categoryName,
                         fontSize = 13.sp,
-                        color = SubtitleGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -230,14 +230,14 @@ fun FindDoctorScreen(
                     Text(
                         text = stringResource(R.string.find_doctor_search_placeholder),
                         fontSize = 14.sp,
-                        color = SubtitleGrey.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     )
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = SubtitleGrey,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp),
                     )
                 },
@@ -247,9 +247,9 @@ fun FindDoctorScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BrandTeal,
-                    unfocusedBorderColor = CardBorder,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 ),
                 singleLine = true,
             )
@@ -272,10 +272,10 @@ fun FindDoctorScreen(
                     }
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = if (isSelected) BrandTeal else Color.White,
+                        color = if (isSelected) BrandTeal else MaterialTheme.colorScheme.surface,
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (isSelected) BrandTeal else CardBorder,
+                            if (isSelected) BrandTeal else MaterialTheme.colorScheme.outline,
                         ),
                         modifier = Modifier.clickable {
                             viewModel.updateAvailabilityFilter(filter)
@@ -286,14 +286,14 @@ fun FindDoctorScreen(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             fontSize = 13.sp,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isSelected) Color.White else Color.Black,
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
             }
 
             Spacer(Modifier.height(12.dp))
-            HorizontalDivider(color = CardBorder, thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
             // Doctor list
             if (uiState.isLoading) {
@@ -312,24 +312,24 @@ fun FindDoctorScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
+                        Image(
                             painter = painterResource(R.drawable.ic_stethoscope),
                             contentDescription = null,
-                            tint = BrandTeal.copy(alpha = 0.4f),
                             modifier = Modifier.size(64.dp),
+                            alpha = 0.4f,
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
                             text = stringResource(R.string.find_doctor_no_doctors_found),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.find_doctor_no_doctors_hint),
                             fontSize = 14.sp,
-                            color = SubtitleGrey,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -418,8 +418,8 @@ private fun DoctorCard(
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         shadowElevation = 2.dp,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -453,7 +453,7 @@ private fun DoctorCard(
                                 .align(Alignment.BottomEnd)
                                 .size(14.dp)
                                 .clip(CircleShape)
-                                .background(Color.White)
+                                .background(MaterialTheme.colorScheme.surface)
                                 .padding(2.dp)
                                 .clip(CircleShape)
                                 .background(SuccessGreen),
@@ -469,7 +469,7 @@ private fun DoctorCard(
                             text = "Dr. ${doctor.fullName.split(" ").lastOrNull() ?: doctor.fullName}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         if (doctor.isVerified) {
                             Spacer(Modifier.width(4.dp))
@@ -493,14 +493,14 @@ private fun DoctorCard(
                         Text(
                             text = categoryDisplayName(doctor.specialty),
                             fontSize = 13.sp,
-                            color = SubtitleGrey,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.width(8.dp))
                         // Status badge: Available / In Session / Offline
                         val (badgeText, badgeColor) = when {
                             doctor.isAvailable && !inSession -> stringResource(R.string.find_doctor_available) to SuccessGreen
                             doctor.isAvailable && inSession -> stringResource(R.string.find_doctor_in_session) to WarningOrange
-                            else -> stringResource(R.string.find_doctor_offline) to SubtitleGrey
+                            else -> stringResource(R.string.find_doctor_offline) to MaterialTheme.colorScheme.onSurfaceVariant
                         }
                         Surface(
                             shape = RoundedCornerShape(8.dp),
@@ -524,7 +524,7 @@ private fun DoctorCard(
                 Text(
                     text = doctor.bio,
                     fontSize = 13.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 18.sp,
@@ -542,14 +542,14 @@ private fun DoctorCard(
                     visibleTags.forEach { service ->
                         Surface(
                             shape = RoundedCornerShape(14.dp),
-                            color = Color(0xFFF9FAFB),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                         ) {
                             Text(
                                 text = service,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                 fontSize = 11.sp,
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }
@@ -578,14 +578,14 @@ private fun DoctorCard(
                     Icon(
                         painter = painterResource(R.drawable.ic_language),
                         contentDescription = null,
-                        tint = SubtitleGrey,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(14.dp),
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = doctor.languages.joinToString(", "),
                         fontSize = 12.sp,
-                        color = SubtitleGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -604,25 +604,25 @@ private fun DoctorCard(
                     text = String.format("%.1f", doctor.averageRating),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = " " + stringResource(R.string.find_doctor_reviews_format, doctor.totalRatings),
                     fontSize = 12.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.width(12.dp))
                 Icon(
                     painter = painterResource(R.drawable.ic_calendar),
                     contentDescription = null,
-                    tint = SubtitleGrey,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp),
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = stringResource(R.string.find_doctor_years_experience_format, doctor.yearsExperience),
                     fontSize = 12.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -638,7 +638,7 @@ private fun DoctorCard(
             }
 
             Spacer(Modifier.height(12.dp))
-            HorizontalDivider(color = CardBorder, thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
             Spacer(Modifier.height(12.dp))
 
             // Bottom row: price + actions
@@ -651,18 +651,18 @@ private fun DoctorCard(
                     Text(
                         text = stringResource(R.string.find_doctor_consultation_fee),
                         fontSize = 11.sp,
-                        color = SubtitleGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
                         text = "TSh ${numberFormat.format(priceAmount)}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
                         text = stringResource(R.string.find_doctor_per_duration_format, durationMinutes),
                         fontSize = 11.sp,
-                        color = SubtitleGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 
@@ -735,12 +735,12 @@ private fun DoctorCard(
                             onClick = onBookAppointment,
                             enabled = !isRequestActive,
                             shape = RoundedCornerShape(10.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_calendar),
                                 contentDescription = null,
-                                tint = if (!isRequestActive) Color.Black else SubtitleGrey,
+                                tint = if (!isRequestActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(14.dp),
                             )
                             Spacer(Modifier.width(6.dp))
@@ -748,7 +748,7 @@ private fun DoctorCard(
                                 text = stringResource(R.string.find_doctor_book_appointment),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = if (!isRequestActive) Color.Black else SubtitleGrey,
+                                color = if (!isRequestActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -769,7 +769,7 @@ private fun RequestStatusBanner(
         ConsultationRequestStatus.ACCEPTED -> Color(0xFFECFDF5) to SuccessGreen
         ConsultationRequestStatus.REJECTED -> Color(0xFFFEF2F2) to Color(0xFFDC2626)
         ConsultationRequestStatus.EXPIRED -> Color(0xFFFFF7ED) to WarningOrange
-        else -> Color(0xFFF0FDFA) to BrandTeal
+        else -> MaterialTheme.colorScheme.primaryContainer to BrandTeal
     }
 
     Surface(
@@ -789,7 +789,7 @@ private fun RequestStatusBanner(
                         text = stringResource(R.string.find_doctor_waiting_response),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Surface(
                         shape = RoundedCornerShape(8.dp),
@@ -823,7 +823,7 @@ private fun RequestStatusBanner(
                     Text(
                         text = statusMessage ?: "",
                         fontSize = 14.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f),
                     )
                     if (status != ConsultationRequestStatus.ACCEPTED) {

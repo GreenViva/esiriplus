@@ -3,6 +3,7 @@ package com.esiri.esiriplus.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Brand palette
+val BrandTeal = Color(0xFF2A9D8F)
 val Teal40 = Color(0xFF2A9D8F)
 val TealGrey40 = Color(0xFF4A7C6F)
 val Mint40 = Color(0xFF5FAD96)
@@ -12,15 +13,31 @@ val Teal80 = Color(0xFF80CBC4)
 val TealGrey80 = Color(0xFFA8D5C8)
 val Mint80 = Color(0xFFB2DFDB)
 
+// Text hierarchy (light theme)
+val TextPrimary = Color(0xFF1F2937)    // Near-black for headings
+val TextSecondary = Color(0xFF6B7280)  // Medium gray for subtitles
+val TextTertiary = Color(0xFF9CA3AF)   // Light gray for hints/captions
+val TextDisabled = Color(0xFFD1D5DB)   // Very light for disabled text
+
+// Text hierarchy (dark theme)
+val TextPrimaryDark = Color(0xFFF3F4F6)
+val TextSecondaryDark = Color(0xFFD1D5DB)
+val TextTertiaryDark = Color(0xFF9CA3AF)
+
 // Light theme surfaces
 val SurfaceLight = Color(0xFFF8FAF9)
 val SurfaceContainerLight = Color(0xFFFFFFFF)
-val OutlineLight = Color(0xFFE0E0E0)
+val OutlineLight = Color(0xFFE5E7EB)
+val CardBorderLight = Color(0xFFE5E7EB)
 
 // Dark theme surfaces
 val SurfaceDark = Color(0xFF121212)
 val SurfaceContainerDark = Color(0xFF1E1E1E)
 val OutlineDark = Color(0xFF3A3A3A)
+
+// Accents
+val MintLight = Color(0xFFE0F2F1)
+val IconBgLight = Color(0xFFF0FDFA)
 
 // Semantic colors (shared)
 val SuccessGreen = Color(0xFF4CAF50)

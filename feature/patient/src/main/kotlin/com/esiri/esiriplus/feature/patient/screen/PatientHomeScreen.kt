@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,9 +78,6 @@ import com.esiri.esiriplus.feature.patient.viewmodel.PatientHomeViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
-private val IconBg = Color(0xFFF0FDFA)
-private val CardBorder = Color(0xFFE5E7EB)
-private val SubtitleGrey = Color(0xFF1F2937)
 
 @Composable
 fun PatientHomeScreen(
@@ -136,7 +134,7 @@ fun PatientHomeScreen(
         modifier = modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(colors = listOf(Color.White, MintLight))
+                Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MintLight))
             ),
     ) {
         Column(
@@ -234,28 +232,28 @@ private fun WelcomeHeader(
         text = stringResource(R.string.home_welcome_back),
         fontSize = 28.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.semantics { heading() },
     )
     Spacer(Modifier.height(8.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = stringResource(R.string.home_your_patient_id),
-            color = SubtitleGrey,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 14.sp,
         )
         Spacer(Modifier.width(8.dp))
         Surface(
             shape = RoundedCornerShape(8.dp),
-            color = Color(0xFFF3F4F6),
-            border = BorderStroke(1.dp, CardBorder),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         ) {
             Text(
                 text = maskedPatientId,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 letterSpacing = 0.5.sp,
             )
         }
@@ -271,7 +269,7 @@ private fun WelcomeHeader(
             Icon(
                 painter = painterResource(R.drawable.ic_copy),
                 contentDescription = stringResource(R.string.home_copy_patient_id),
-                tint = SubtitleGrey,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp),
             )
         }
@@ -292,7 +290,7 @@ private fun SettingsRow(
         // Language
         LanguageSwitchButton(
             showLabel = true,
-            iconTint = SubtitleGrey,
+            iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(Modifier.width(16.dp))
@@ -301,14 +299,14 @@ private fun SettingsRow(
         Icon(
             painter = painterResource(R.drawable.ic_volume),
             contentDescription = null,
-            tint = SubtitleGrey,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp),
         )
         Spacer(Modifier.width(4.dp))
         Text(
             text = stringResource(R.string.home_sounds),
             fontSize = 14.sp,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.width(4.dp))
         Switch(
@@ -317,7 +315,7 @@ private fun SettingsRow(
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
                 checkedTrackColor = BrandTeal,
-                uncheckedTrackColor = Color(0xFFE5E7EB),
+                uncheckedTrackColor = MaterialTheme.colorScheme.outline,
             ),
         )
 
@@ -359,7 +357,7 @@ private fun MedicalInfoSection(onEdit: () -> Unit) {
             text = stringResource(R.string.home_your_medical_info),
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .weight(1f)
                 .semantics { heading() },
@@ -371,13 +369,13 @@ private fun MedicalInfoSection(onEdit: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = null,
-                tint = Color.Black,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(4.dp))
             Text(
                 text = stringResource(R.string.home_edit),
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
             )
@@ -422,8 +420,8 @@ private fun ActionChip(
     OutlinedCard(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, CardBorder),
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
@@ -440,7 +438,7 @@ private fun ActionChip(
                 text = label,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -452,8 +450,8 @@ private fun StartConsultationCard(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, CardBorder),
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Row(
             modifier = Modifier
@@ -464,15 +462,14 @@ private fun StartConsultationCard(onClick: () -> Unit) {
             // Stethoscope icon in circle bg
             Surface(
                 shape = CircleShape,
-                color = IconBg,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(52.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(
+                    Image(
                         painter = painterResource(R.drawable.ic_stethoscope),
                         contentDescription = null,
-                        tint = BrandTeal,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(36.dp),
                     )
                 }
             }
@@ -482,20 +479,20 @@ private fun StartConsultationCard(onClick: () -> Unit) {
                     text = stringResource(R.string.home_start_consultation),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.home_start_consultation_subtitle),
                     fontSize = 14.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Spacer(Modifier.width(8.dp))
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = stringResource(R.string.home_content_desc_start),
-                tint = SubtitleGrey,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -512,8 +509,8 @@ private fun DashboardSectionCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, CardBorder),
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Row(
             modifier = Modifier
@@ -523,7 +520,7 @@ private fun DashboardSectionCard(
         ) {
             Surface(
                 shape = CircleShape,
-                color = IconBg,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.size(44.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -541,19 +538,19 @@ private fun DashboardSectionCard(
                     text = title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     fontSize = 13.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = stringResource(R.string.home_content_desc_open),
-                tint = SubtitleGrey,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -570,13 +567,13 @@ private fun LogoutConfirmationDialog(
             Text(
                 text = stringResource(R.string.home_logout_title),
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         },
         text = {
             Text(
                 text = stringResource(R.string.home_logout_message),
-                color = SubtitleGrey,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         confirmButton = {
@@ -597,7 +594,7 @@ private fun LogoutConfirmationDialog(
                 )
             }
         },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }
 

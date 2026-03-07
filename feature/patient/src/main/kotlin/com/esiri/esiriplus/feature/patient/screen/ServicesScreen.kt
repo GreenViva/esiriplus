@@ -32,6 +32,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
@@ -66,8 +67,6 @@ import java.util.Locale
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
-private val CardBorder = Color(0xFFE5E7EB)
-private val SubtitleGrey = Color(0xFF374151)
 private val PopularOrange = Color(0xFFEA580C)
 
 // Icon background colors per category
@@ -117,7 +116,7 @@ fun ServicesScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(colors = listOf(Color.White, MintLight))),
+            .background(Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MintLight))),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
@@ -129,7 +128,7 @@ fun ServicesScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.services_back),
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                     Spacer(Modifier.width(4.dp))
@@ -138,18 +137,18 @@ fun ServicesScreen(
                             text = stringResource(R.string.services_title),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = stringResource(R.string.services_subtitle),
                             fontSize = 13.sp,
-                            color = SubtitleGrey,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
 
-            HorizontalDivider(color = CardBorder, thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
             if (uiState.isLoading) {
                 Box(
@@ -177,7 +176,7 @@ fun ServicesScreen(
                 }
 
                 // Bottom section
-                HorizontalDivider(color = CardBorder, thickness = 1.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                 Column(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -205,7 +204,7 @@ fun ServicesScreen(
                     Text(
                         text = stringResource(R.string.services_payment_required),
                         fontSize = 13.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -297,7 +296,7 @@ private fun ServiceCard(
 ) {
     val isPopular = service.category == "GP"
     val isComingSoon = service.category in comingSoonCategories
-    val borderColor = if (isSelected) BrandTeal else CardBorder
+    val borderColor = if (isSelected) BrandTeal else MaterialTheme.colorScheme.outline
     val contentAlpha = if (isComingSoon) 0.5f else 1f
 
     Box(
@@ -309,7 +308,7 @@ private fun ServiceCard(
                 color = borderColor,
                 shape = RoundedCornerShape(12.dp),
             )
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .then(if (!isComingSoon) Modifier.clickable { onSelect() } else Modifier),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -381,12 +380,12 @@ private fun ServiceCard(
                         text = service.displayName,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = Color.Black.copy(alpha = contentAlpha),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
                     )
                     Text(
                         text = service.description,
                         fontSize = 12.sp,
-                        color = SubtitleGrey.copy(alpha = contentAlpha),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha),
                         lineHeight = 16.sp,
                     )
                 }
@@ -404,7 +403,7 @@ private fun ServiceCard(
                     Text(
                         text = stringResource(R.string.services_min_format, service.durationMinutes),
                         fontSize = 11.sp,
-                        color = SubtitleGrey.copy(alpha = contentAlpha),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha),
                     )
                 }
 
@@ -415,7 +414,7 @@ private fun ServiceCard(
                         modifier = Modifier.size(36.dp),
                         colors = RadioButtonDefaults.colors(
                             selectedColor = BrandTeal,
-                            unselectedColor = CardBorder,
+                            unselectedColor = MaterialTheme.colorScheme.outline,
                         ),
                     )
                 } else {
@@ -443,8 +442,8 @@ private fun ServiceCard(
 private fun FeatureTag(text: String, alpha: Float = 1f) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = Color(0xFFF9FAFB).copy(alpha = alpha),
-        border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = alpha),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -460,7 +459,7 @@ private fun FeatureTag(text: String, alpha: Float = 1f) {
             Text(
                 text = text,
                 fontSize = 11.sp,
-                color = Color.Black.copy(alpha = alpha),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
             )
         }
     }
@@ -487,7 +486,7 @@ private fun PaymentMethodDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 8.dp,
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -501,7 +500,7 @@ private fun PaymentMethodDialog(
                         text = stringResource(R.string.services_choose_payment_method),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     IconButton(
                         onClick = onDismiss,
@@ -510,7 +509,7 @@ private fun PaymentMethodDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.services_close),
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(20.dp),
                         )
                     }
@@ -520,7 +519,7 @@ private fun PaymentMethodDialog(
                 Text(
                     text = "$serviceName \u2013 TSh ${numberFormat.format(priceAmount)}",
                     fontSize = 14.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(Modifier.height(20.dp))
@@ -567,7 +566,7 @@ private fun PaymentMethodDialog(
                 Text(
                     text = stringResource(R.string.services_secure_payments),
                     fontSize = 12.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -587,7 +586,7 @@ private fun PaymentMethodOption(
     onClick: () -> Unit,
 ) {
     val alpha = if (enabled) 1f else 0.5f
-    val borderColor = if (enabled) BrandTeal else CardBorder
+    val borderColor = if (enabled) BrandTeal else MaterialTheme.colorScheme.outline
 
     Box(
         modifier = Modifier
@@ -598,7 +597,7 @@ private fun PaymentMethodOption(
                 color = borderColor,
                 shape = RoundedCornerShape(12.dp),
             )
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(14.dp),
     ) {
@@ -630,12 +629,12 @@ private fun PaymentMethodOption(
                     text = title,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
-                    color = Color.Black.copy(alpha = alpha),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
                 )
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
-                    color = SubtitleGrey.copy(alpha = alpha),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha),
                 )
             }
 
@@ -643,7 +642,7 @@ private fun PaymentMethodOption(
             if (comingSoon) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFF3F4F6),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                 ) {
                     Text(
                         text = stringResource(R.string.services_coming_soon),
@@ -757,7 +756,7 @@ private fun ProviderSelectionDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 8.dp,
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -771,7 +770,7 @@ private fun ProviderSelectionDialog(
                         text = stringResource(R.string.services_select_provider),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     IconButton(
                         onClick = onDismiss,
@@ -780,7 +779,7 @@ private fun ProviderSelectionDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.services_close),
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(20.dp),
                         )
                     }
@@ -856,8 +855,8 @@ private fun ProviderCard(
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         shadowElevation = 2.dp,
     ) {
         Column(
@@ -886,7 +885,7 @@ private fun ProviderCard(
                 text = provider.name,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -931,7 +930,7 @@ private fun PaymentInstructionsDialog(
                 .fillMaxHeight(0.88f)
                 .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(14.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 4.dp,
         ) {
             Column(
@@ -949,7 +948,7 @@ private fun PaymentInstructionsDialog(
                         text = provider.name,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     IconButton(
                         onClick = onDismiss,
@@ -958,7 +957,7 @@ private fun PaymentInstructionsDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.services_close),
-                            tint = Color.Black,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(20.dp),
                         )
                     }
@@ -1016,12 +1015,12 @@ private fun PaymentInstructionsDialog(
                             text = provider.name,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = provider.ussdCode,
                             fontSize = 13.sp,
-                            color = SubtitleGrey,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -1032,7 +1031,7 @@ private fun PaymentInstructionsDialog(
                 Text(
                     text = stringResource(R.string.services_reference_number),
                     fontSize = 12.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(4.dp))
                 Surface(
@@ -1056,7 +1055,7 @@ private fun PaymentInstructionsDialog(
                 Text(
                     text = stringResource(R.string.services_amount_to_pay),
                     fontSize = 12.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -1073,7 +1072,7 @@ private fun PaymentInstructionsDialog(
                     text = stringResource(R.string.services_follow_steps),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -1103,7 +1102,7 @@ private fun PaymentInstructionsDialog(
                         Text(
                             text = step,
                             fontSize = 13.sp,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(top = 2.dp),
                         )
                     }
@@ -1151,15 +1150,15 @@ private fun PaymentInstructionsDialog(
                             .height(56.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
+                            containerColor = MaterialTheme.colorScheme.surface,
                         ),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     ) {
                         Text(
                             text = stringResource(R.string.services_change_provider),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
                             lineHeight = 16.sp,
                         )
@@ -1220,7 +1219,7 @@ private fun VerifyingPaymentDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp),
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 8.dp,
         ) {
             Column(
@@ -1231,7 +1230,7 @@ private fun VerifyingPaymentDialog(
                     text = stringResource(R.string.services_verifying_payment),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -1248,7 +1247,7 @@ private fun VerifyingPaymentDialog(
                     text = stringResource(R.string.services_verifying_payment),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1256,7 +1255,7 @@ private fun VerifyingPaymentDialog(
                 Text(
                     text = stringResource(R.string.services_please_wait_confirm),
                     fontSize = 13.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -1285,7 +1284,7 @@ private fun PaymentSuccessDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp),
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 8.dp,
         ) {
             Column(
@@ -1314,7 +1313,7 @@ private fun PaymentSuccessDialog(
                     text = stringResource(R.string.services_payment_successful),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1322,7 +1321,7 @@ private fun PaymentSuccessDialog(
                 Text(
                     text = stringResource(R.string.services_payment_confirmed_message),
                     fontSize = 13.sp,
-                    color = SubtitleGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     lineHeight = 18.sp,
                 )

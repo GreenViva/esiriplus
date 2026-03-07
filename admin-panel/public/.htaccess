@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteBase /
+
+# If the requested file or directory exists, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# For paths with trailing slash, try the directory's index.html
+RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.*)$ $1/index.html [L]
+
+# Fallback to root index.html for client-side routing
+RewriteRule ^ /index.html [L]

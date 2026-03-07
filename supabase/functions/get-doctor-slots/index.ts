@@ -39,6 +39,16 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const invalidIds = doctor_ids.filter((id: unknown) => typeof id !== "string" || !uuidRegex.test(id));
+    if (invalidIds.length > 0) {
+      return new Response(
+        JSON.stringify({ error: "doctor_ids must contain valid UUIDs" }),
+        { status: 400, headers },
+      );
+    }
+
     const supabase = getServiceClient();
 
     // Fetch in_session status and max_appointments_per_day from doctor_profiles

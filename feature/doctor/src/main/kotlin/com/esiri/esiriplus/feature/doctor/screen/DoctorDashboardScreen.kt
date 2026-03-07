@@ -12,9 +12,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -96,14 +98,9 @@ import com.esiri.esiriplus.feature.doctor.viewmodel.IncomingRequestViewModel
 import com.esiri.esiriplus.feature.doctor.viewmodel.ServiceCommand
 
 private val BrandTeal = Color(0xFF2A9D8F)
-private val DarkText = Color.Black
-private val CardBorder = Color(0xFFE5E7EB)
 private val VerifiedBg = Color(0xFFECFDF5)
 private val VerifiedBorder = Color(0xFFBBF7D0)
-private val SidebarBg = Color.White
-private val ContentBg = Color(0xFFF8FFFE)
 private val NavItemSelectedBg = Color(0xFFE8F5F3)
-private val SubtitleGray = Color.Black
 private val SignOutRed = Color(0xFFDC2626)
 
 private enum class DoctorNavItem(val labelRes: Int, val iconRes: Int) {
@@ -229,11 +226,11 @@ fun DoctorDashboardScreen(
     if (showOverlayPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showOverlayPermissionDialog = false },
-            title = { Text(stringResource(R.string.overlay_dialog_title), color = DarkText, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.overlay_dialog_title), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
                     stringResource(R.string.overlay_dialog_message),
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             },
             confirmButton = {
@@ -252,7 +249,7 @@ fun DoctorDashboardScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showOverlayPermissionDialog = false }) {
-                    Text(stringResource(R.string.overlay_dialog_not_now), color = DarkText)
+                    Text(stringResource(R.string.overlay_dialog_not_now), color = MaterialTheme.colorScheme.onSurface)
                 }
             },
         )
@@ -297,8 +294,8 @@ fun DoctorDashboardScreen(
     if (showSignOutDialog) {
         AlertDialog(
             onDismissRequest = { showSignOutDialog = false },
-            title = { Text(stringResource(R.string.sign_out_dialog_title), color = DarkText, fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.sign_out_dialog_message), color = DarkText) },
+            title = { Text(stringResource(R.string.sign_out_dialog_title), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.sign_out_dialog_message), color = MaterialTheme.colorScheme.onSurface) },
             confirmButton = {
                 TextButton(onClick = {
                     showSignOutDialog = false
@@ -310,7 +307,7 @@ fun DoctorDashboardScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showSignOutDialog = false }) {
-                    Text(stringResource(R.string.common_cancel), color = DarkText)
+                    Text(stringResource(R.string.common_cancel), color = MaterialTheme.colorScheme.onSurface)
                 }
             },
         )
@@ -326,7 +323,7 @@ fun DoctorDashboardScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ContentBg),
+                .background(MaterialTheme.colorScheme.background),
         ) {
             // Persistent banner for active consultation resume
             val activeConsultationId = uiState.activeConsultationToResume
@@ -458,7 +455,7 @@ private fun SideNavigation(
 ) {
     Column(
         modifier = modifier
-            .background(SidebarBg)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(vertical = 16.dp),
     ) {
         // Header: stethoscope + Doctor Portal + close arrow
@@ -468,10 +465,9 @@ private fun SideNavigation(
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
+            Image(
                 painter = painterResource(R.drawable.ic_stethoscope),
                 contentDescription = null,
-                tint = BrandTeal,
                 modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -479,7 +475,7 @@ private fun SideNavigation(
                 text = stringResource(R.string.sidebar_doctor_portal),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
             IconButton(
@@ -489,7 +485,7 @@ private fun SideNavigation(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = stringResource(R.string.common_close_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -543,7 +539,7 @@ private fun SideNavigation(
                 Icon(
                     painter = painterResource(item.iconRes),
                     contentDescription = null,
-                    tint = if (isSelected) BrandTeal else SubtitleGray,
+                    tint = if (isSelected) BrandTeal else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -551,7 +547,7 @@ private fun SideNavigation(
                     text = stringResource(item.labelRes),
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isSelected) BrandTeal else DarkText,
+                    color = if (isSelected) BrandTeal else MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -568,14 +564,14 @@ private fun SideNavigation(
             Icon(
                 painter = painterResource(R.drawable.ic_globe),
                 contentDescription = null,
-                tint = SubtitleGray,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp),
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = stringResource(R.string.common_english),
                 fontSize = 12.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
@@ -606,7 +602,7 @@ private fun SideNavigation(
                     text = doctorName,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -614,7 +610,7 @@ private fun SideNavigation(
                     Text(
                         text = specialty,
                         fontSize = 10.sp,
-                        color = SubtitleGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -751,7 +747,7 @@ private fun TopBar(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -759,7 +755,7 @@ private fun TopBar(
             Text(
                 text = stringResource(R.string.dashboard_welcome_back),
                 fontSize = 12.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
 
@@ -771,14 +767,14 @@ private fun TopBar(
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = stringResource(R.string.dashboard_notifications),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(20.dp),
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
 
             // Language switch
-            LanguageSwitchButton(iconTint = DarkText)
+            LanguageSwitchButton(iconTint = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.width(4.dp))
 
             if (isVerified && isSuspended) {
@@ -811,7 +807,7 @@ private fun TopBar(
                     Text(
                         text = stringResource(R.string.dashboard_online),
                         fontSize = 12.sp,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium,
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -821,7 +817,7 @@ private fun TopBar(
                         colors = SwitchDefaults.colors(
                             checkedTrackColor = BrandTeal,
                             checkedThumbColor = Color.White,
-                            uncheckedTrackColor = CardBorder,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.outline,
                             uncheckedThumbColor = Color.White,
                         ),
                     )
@@ -850,7 +846,7 @@ private fun TopBar(
             text = doctorName,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -887,12 +883,12 @@ private fun VerifiedBanner(modifier: Modifier = Modifier) {
                 text = stringResource(R.string.banner_verified_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = stringResource(R.string.banner_verified_message),
                 fontSize = 12.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = 16.sp,
             )
         }
@@ -929,12 +925,12 @@ private fun PendingReviewBanner(modifier: Modifier = Modifier) {
                 text = stringResource(R.string.banner_pending_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = stringResource(R.string.banner_pending_message),
                 fontSize = 12.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = 16.sp,
             )
         }
@@ -971,12 +967,12 @@ private fun RejectedBanner(reason: String, modifier: Modifier = Modifier) {
                 text = stringResource(R.string.banner_rejected_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = reason,
                 fontSize = 12.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 lineHeight = 16.sp,
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -1007,7 +1003,7 @@ private fun TabChipRow(modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(20.dp))
                     .then(
                         if (isSelected) Modifier.background(BrandTeal)
-                        else Modifier.border(1.dp, CardBorder, RoundedCornerShape(20.dp)),
+                        else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp)),
                     )
                     .clickable { selectedTab = index }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -1016,7 +1012,7 @@ private fun TabChipRow(modifier: Modifier = Modifier) {
                     text = stringResource(labelRes),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (isSelected) Color.White else DarkText,
+                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -1100,8 +1096,8 @@ private fun StatCard(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(12.dp),
     ) {
         Box(
@@ -1121,13 +1117,13 @@ private fun StatCard(
             text = value,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
             fontSize = 11.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             lineHeight = 14.sp,
         )
     }
@@ -1143,8 +1139,8 @@ private fun AvailabilitySection(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
     ) {
         Row(
@@ -1155,14 +1151,14 @@ private fun AvailabilitySection(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = DarkText,
+                tint = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = stringResource(R.string.availability_today_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -1177,19 +1173,19 @@ private fun AvailabilitySection(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = null,
                 modifier = Modifier.size(36.dp),
-                tint = CardBorder,
+                tint = MaterialTheme.colorScheme.outline,
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = if (isAvailable) stringResource(R.string.availability_available_today) else stringResource(R.string.availability_not_available_today),
                 fontSize = 13.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .border(1.dp, CardBorder, RoundedCornerShape(8.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                     .clickable { onSetAvailability() }
                     .padding(horizontal = 14.dp, vertical = 6.dp),
             ) {
@@ -1197,7 +1193,7 @@ private fun AvailabilitySection(
                     text = stringResource(R.string.availability_set),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -1214,8 +1210,8 @@ private fun PendingRequestsSection(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
     ) {
         Row(
@@ -1226,7 +1222,7 @@ private fun PendingRequestsSection(
                 text = stringResource(R.string.pending_requests_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
             Row(
@@ -1236,14 +1232,14 @@ private fun PendingRequestsSection(
                 Text(
                     text = stringResource(R.string.common_view_all),
                     fontSize = 12.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                 )
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -1258,13 +1254,13 @@ private fun PendingRequestsSection(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = null,
                 modifier = Modifier.size(36.dp),
-                tint = CardBorder,
+                tint = MaterialTheme.colorScheme.outline,
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = if (count == 0) stringResource(R.string.pending_requests_none) else stringResource(R.string.pending_requests_count, count),
                 fontSize = 13.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -1288,8 +1284,8 @@ private fun AppointmentsSection(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
     ) {
         Row(
@@ -1300,7 +1296,7 @@ private fun AppointmentsSection(
                 text = stringResource(R.string.appointments_upcoming_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
             Row(
@@ -1310,14 +1306,14 @@ private fun AppointmentsSection(
                 Text(
                     text = stringResource(R.string.common_view_all),
                     fontSize = 12.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                 )
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -1342,13 +1338,13 @@ private fun AppointmentsSection(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = null,
                     modifier = Modifier.size(36.dp),
-                    tint = CardBorder,
+                    tint = MaterialTheme.colorScheme.outline,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = stringResource(R.string.appointments_none),
                     fontSize = 13.sp,
-                    color = SubtitleGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {
@@ -1390,8 +1386,8 @@ private fun AppointmentRow(appointment: Appointment) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFFF8FFFE))
-            .border(1.dp, CardBorder, RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1400,20 +1396,20 @@ private fun AppointmentRow(appointment: Appointment) {
                 text = appointment.serviceType.replaceFirstChar { it.uppercase() }.replace("_", " "),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = stringResource(R.string.appointments_date_at_time, dateStr, timeStr),
                 fontSize = 11.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (appointment.chiefComplaint.isNotBlank()) {
                 Text(
                     text = appointment.chiefComplaint,
                     fontSize = 11.sp,
-                    color = SubtitleGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -1467,7 +1463,7 @@ private fun ConsultationsContent(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -1477,7 +1473,7 @@ private fun ConsultationsContent(
                     text = stringResource(R.string.consultations_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.consultations_subtitle),
@@ -1503,9 +1499,9 @@ private fun ConsultationsContent(
                         .clip(RoundedCornerShape(20.dp))
                         .then(
                             if (isSelected) Modifier
-                                .background(Color.White)
-                                .border(1.dp, DarkText, RoundedCornerShape(20.dp))
-                            else Modifier.border(1.dp, CardBorder, RoundedCornerShape(20.dp)),
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(20.dp))
+                            else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp)),
                         )
                         .clickable { selectedTab = tab }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
@@ -1514,7 +1510,7 @@ private fun ConsultationsContent(
                         text = stringResource(tab.labelRes),
                         fontSize = 13.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -1542,13 +1538,13 @@ private fun ConsultationsContent(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = null,
                     modifier = Modifier.size(48.dp),
-                    tint = CardBorder,
+                    tint = MaterialTheme.colorScheme.outline,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = stringResource(R.string.consultations_empty, stringResource(selectedTab.labelRes).lowercase()),
                     fontSize = 14.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         } else {
@@ -1575,15 +1571,15 @@ private fun ConsultationCard(
         "ACTIVE" -> BrandTeal
         "COMPLETED" -> Color(0xFF22C55E)
         "CANCELLED" -> Color(0xFFDC2626)
-        else -> DarkText
+        else -> MaterialTheme.colorScheme.onSurface
     }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(14.dp),
     ) {
@@ -1597,7 +1593,7 @@ private fun ConsultationCard(
                     .replaceFirstChar { it.uppercase() },
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Box(
                 modifier = Modifier
@@ -1618,12 +1614,12 @@ private fun ConsultationCard(
         Text(
             text = stringResource(R.string.consultation_fee, consultation.consultationFee),
             fontSize = 12.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = stringResource(R.string.consultation_duration, consultation.sessionDurationMinutes),
             fontSize = 12.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -1657,7 +1653,7 @@ private fun AvailabilitySettingsContent(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -1667,7 +1663,7 @@ private fun AvailabilitySettingsContent(
                     text = stringResource(R.string.availability_settings_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.availability_settings_subtitle),
@@ -1704,7 +1700,7 @@ private fun AvailabilitySettingsContent(
                 text = stringResource(R.string.availability_quick_presets),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -1731,7 +1727,7 @@ private fun AvailabilitySettingsContent(
                     text = stringResource(R.string.availability_weekly_schedule),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
 
@@ -1758,14 +1754,14 @@ private fun PresetChip(label: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 8.dp),
     ) {
         Text(
             text = label,
             fontSize = 12.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -1782,8 +1778,8 @@ private fun DayScheduleRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1792,7 +1788,7 @@ private fun DayScheduleRow(
             text = dayName.take(3),
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.width(36.dp),
         )
 
@@ -1803,7 +1799,7 @@ private fun DayScheduleRow(
             colors = SwitchDefaults.colors(
                 checkedTrackColor = BrandTeal,
                 checkedThumbColor = Color.White,
-                uncheckedTrackColor = CardBorder,
+                uncheckedTrackColor = MaterialTheme.colorScheme.outline,
                 uncheckedThumbColor = Color.White,
             ),
             modifier = Modifier.padding(horizontal = 4.dp),
@@ -1819,7 +1815,7 @@ private fun DayScheduleRow(
             Text(
                 text = "\u2014",
                 fontSize = 13.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(horizontal = 4.dp),
             )
             // End time dropdown
@@ -1832,7 +1828,7 @@ private fun DayScheduleRow(
             Text(
                 text = stringResource(R.string.common_off),
                 fontSize = 13.sp,
-                color = CardBorder,
+                color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.padding(start = 8.dp),
             )
         }
@@ -1853,14 +1849,14 @@ private fun TimeDropdown(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(6.dp))
-                .border(1.dp, CardBorder, RoundedCornerShape(6.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(6.dp))
                 .clickable { expanded = true }
                 .padding(horizontal = 10.dp, vertical = 8.dp),
         ) {
             Text(
                 text = value,
                 fontSize = 13.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
 
@@ -1908,16 +1904,16 @@ private fun ProfileSettingsContent(
 ) {
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = BrandTeal,
-        unfocusedBorderColor = CardBorder,
-        focusedTextColor = DarkText,
-        unfocusedTextColor = DarkText,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
         cursorColor = BrandTeal,
         focusedLabelColor = BrandTeal,
-        unfocusedLabelColor = SubtitleGray,
-        disabledTextColor = DarkText,
-        disabledBorderColor = CardBorder,
-        disabledLabelColor = SubtitleGray,
-        disabledContainerColor = Color(0xFFF5F5F5),
+        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+        disabledBorderColor = MaterialTheme.colorScheme.outline,
+        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
     )
 
     Column(
@@ -1937,7 +1933,7 @@ private fun ProfileSettingsContent(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -1947,7 +1943,7 @@ private fun ProfileSettingsContent(
                     text = stringResource(R.string.profile_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.profile_subtitle),
@@ -1980,7 +1976,7 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.profile_photo_title), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_photo_title), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
@@ -2025,7 +2021,7 @@ private fun ProfileSettingsContent(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(stringResource(R.string.profile_photo_tap_to_change), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = BrandTeal)
-                        Text(stringResource(R.string.profile_photo_size_hint), fontSize = 11.sp, color = SubtitleGray)
+                        Text(stringResource(R.string.profile_photo_size_hint), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -2042,7 +2038,7 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.profile_personal_info), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_personal_info), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Text(
                     text = stringResource(R.string.profile_set_during_registration),
@@ -2104,7 +2100,7 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.profile_professional_info), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_professional_info), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Text(
                     text = stringResource(R.string.profile_set_during_registration),
@@ -2163,7 +2159,7 @@ private fun ProfileSettingsContent(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Professional Bio (read-only)
-                Text(stringResource(R.string.profile_bio), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DarkText)
+                Text(stringResource(R.string.profile_bio), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = uiState.profileBio,
@@ -2188,7 +2184,7 @@ private fun ProfileSettingsContent(
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.profile_location_languages), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                    Text(stringResource(R.string.profile_location_languages), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -2214,10 +2210,10 @@ private fun ProfileSettingsContent(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Languages (editable)
-                Text(stringResource(R.string.profile_languages_title), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = DarkText)
+                Text(stringResource(R.string.profile_languages_title), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(stringResource(R.string.profile_common_languages), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SubtitleGray)
+                Text(stringResource(R.string.profile_common_languages), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
                 WrappingRow(horizontalSpacing = 6.dp, verticalSpacing = 6.dp) {
                     CommonLanguages.forEach { lang ->
@@ -2231,7 +2227,7 @@ private fun ProfileSettingsContent(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(stringResource(R.string.profile_other_languages), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SubtitleGray)
+                Text(stringResource(R.string.profile_other_languages), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
                 WrappingRow(horizontalSpacing = 6.dp, verticalSpacing = 6.dp) {
                     OtherLanguages.forEach { lang ->
@@ -2255,7 +2251,7 @@ private fun ProfileSettingsContent(
 
             // ── Services Offered ──────────────────────────────────────
             ProfileSectionCard {
-                Text(stringResource(R.string.profile_services_offered), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                Text(stringResource(R.string.profile_services_offered), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(8.dp))
                 WrappingRow(horizontalSpacing = 6.dp, verticalSpacing = 6.dp) {
                     ServiceOptions.forEach { service ->
@@ -2277,11 +2273,11 @@ private fun ProfileSettingsContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.profile_available_for_consultations), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkText)
+                        Text(stringResource(R.string.profile_available_for_consultations), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         Text(
                             stringResource(R.string.profile_available_toggle_hint),
                             fontSize = 11.sp,
-                            color = SubtitleGray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     Switch(
@@ -2290,7 +2286,7 @@ private fun ProfileSettingsContent(
                         colors = SwitchDefaults.colors(
                             checkedTrackColor = BrandTeal,
                             checkedThumbColor = Color.White,
-                            uncheckedTrackColor = CardBorder,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.outline,
                             uncheckedThumbColor = Color.White,
                         ),
                     )
@@ -2348,8 +2344,8 @@ private fun ProfileSectionCard(content: @Composable () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
     ) {
         content()
@@ -2367,9 +2363,9 @@ private fun SelectableChip(
             .clip(RoundedCornerShape(20.dp))
             .then(
                 if (isSelected) Modifier
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(1.5.dp, BrandTeal, RoundedCornerShape(20.dp))
-                else Modifier.border(1.dp, CardBorder, RoundedCornerShape(20.dp)),
+                else Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp)),
             )
             .clickable { onClick() }
             .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -2394,14 +2390,14 @@ private fun SelectableChip(
             Box(
                 modifier = Modifier
                     .size(14.dp)
-                    .border(1.dp, CardBorder, CircleShape),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
             )
             Spacer(modifier = Modifier.width(6.dp))
         }
         Text(
             text = label,
             fontSize = 12.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
         )
     }
@@ -2420,7 +2416,7 @@ private fun ProfileDropdown(
             modifier = Modifier
                 .fillMaxWidth(0.48f)
                 .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, CardBorder, RoundedCornerShape(8.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                 .clickable { expanded = true }
                 .padding(horizontal = 12.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -2428,11 +2424,11 @@ private fun ProfileDropdown(
             Icon(
                 painter = painterResource(R.drawable.ic_globe),
                 contentDescription = null,
-                tint = SubtitleGray,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(14.dp),
             )
             Spacer(modifier = Modifier.width(6.dp))
-            Text(text = value, fontSize = 13.sp, color = DarkText, modifier = Modifier.weight(1f))
+            Text(text = value, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         }
 
         DropdownMenu(
@@ -2475,7 +2471,7 @@ private fun ActiveChatsContent(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -2485,7 +2481,7 @@ private fun ActiveChatsContent(
                     text = stringResource(R.string.chat_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.chat_subtitle),
@@ -2509,19 +2505,19 @@ private fun ActiveChatsContent(
                     painter = painterResource(R.drawable.ic_chat_bubble),
                     contentDescription = null,
                     modifier = Modifier.size(48.dp),
-                    tint = CardBorder,
+                    tint = MaterialTheme.colorScheme.outline,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = stringResource(R.string.chat_empty),
                     fontSize = 14.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.chat_empty_hint),
                     fontSize = 12.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         } else {
@@ -2566,7 +2562,7 @@ private fun EarningsContent(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -2576,12 +2572,12 @@ private fun EarningsContent(
                     text = stringResource(R.string.earnings_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.earnings_subtitle),
                     fontSize = 12.sp,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -2672,15 +2668,15 @@ private fun EarningsContent(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-                .background(Color.White)
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(14.dp),
         ) {
             Text(
                 text = stringResource(R.string.earnings_recent_transactions),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -2718,12 +2714,12 @@ private fun EarningsContent(
                                 text = tx.patientName,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = DarkText,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
                                 text = tx.date,
                                 fontSize = 11.sp,
-                                color = Color(0xFF6B7280),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         Column(horizontalAlignment = Alignment.End) {
@@ -2731,7 +2727,7 @@ private fun EarningsContent(
                                 text = tx.amount,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = DarkText,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
                                 text = tx.status,
@@ -2760,8 +2756,8 @@ private fun EarningsStatCard(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .padding(12.dp),
     ) {
         Box(
@@ -2782,13 +2778,13 @@ private fun EarningsStatCard(
             text = value,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
             fontSize = 11.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             lineHeight = 14.sp,
         )
     }
@@ -2811,7 +2807,7 @@ private fun SectionContent(title: String, onOpenSidebar: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.common_open_menu),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -2820,7 +2816,7 @@ private fun SectionContent(title: String, onOpenSidebar: () -> Unit) {
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
         Box(
@@ -2830,7 +2826,7 @@ private fun SectionContent(title: String, onOpenSidebar: () -> Unit) {
             Text(
                 text = stringResource(R.string.common_coming_soon),
                 fontSize = 16.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
             )
         }
@@ -2903,7 +2899,7 @@ private fun BanNoticeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentAlignment = Alignment.Center,
@@ -2943,7 +2939,7 @@ private fun BanNoticeScreen(
             Text(
                 text = stringResource(R.string.ban_message),
                 fontSize = 14.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
 
@@ -2969,7 +2965,7 @@ private fun BanNoticeScreen(
                     Text(
                         text = banReason,
                         fontSize = 14.sp,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -2999,7 +2995,7 @@ private fun BanNoticeScreen(
                         stringResource(R.string.ban_appeal_message_no_date)
                     },
                     fontSize = 13.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -3018,7 +3014,7 @@ private fun BanNoticeScreen(
                     text = stringResource(R.string.common_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

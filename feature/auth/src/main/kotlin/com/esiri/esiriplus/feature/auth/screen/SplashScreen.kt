@@ -2,6 +2,7 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,9 +38,6 @@ import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 
 private val BrandTeal = Color(0xFF2A9D8F)
-private val DarkText = Color.Black
-private val GrayText = Color.Black
-private val LightGrayText = Color.Black
 
 @Composable
 fun SplashScreen(
@@ -51,7 +49,7 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         visible = true
-        delay(4000L)
+        delay(2000L)
         tappable = true
     }
 
@@ -75,20 +73,12 @@ fun SplashScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Teal circle with stethoscope icon
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(BrandTeal, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_stethoscope),
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = Color.White,
-                )
-            }
+            // Earth logo
+            Image(
+                painter = painterResource(R.drawable.ic_splash_logo),
+                contentDescription = stringResource(R.string.splash_app_name),
+                modifier = Modifier.size(120.dp),
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -97,7 +87,7 @@ fun SplashScreen(
                 text = stringResource(R.string.splash_app_name),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -116,29 +106,16 @@ fun SplashScreen(
             Text(
                 text = stringResource(R.string.splash_tagline_en),
                 fontSize = 14.sp,
-                color = GrayText,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Pagination dots
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(BrandTeal, CircleShape),
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             // Tap to continue
             Text(
                 text = stringResource(R.string.splash_tap_to_continue),
-                fontSize = 12.sp,
-                color = LightGrayText,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

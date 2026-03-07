@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.auth.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,10 +49,6 @@ import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 
 private val BrandTeal = Color(0xFF2A9D8F)
-private val DarkText = Color.Black
-private val SubtitleGray = Color.Black
-private val CardBorder = Color(0xFFE5E7EB)
-private val IconBg = Color(0xFFF0FDFA)
 
 @Composable
 fun RoleSelectionScreen(
@@ -73,20 +71,12 @@ fun RoleSelectionScreen(
         ) {
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Stethoscope icon
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(BrandTeal, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_stethoscope),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = Color.White,
-                )
-            }
+            // App logo
+            Image(
+                painter = painterResource(R.drawable.ic_stethoscope),
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -94,14 +84,14 @@ fun RoleSelectionScreen(
                 text = stringResource(R.string.role_welcome_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.semantics { heading() },
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = stringResource(R.string.role_welcome_subtitle),
                 fontSize = 14.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -111,7 +101,7 @@ fun RoleSelectionScreen(
                 text = stringResource(R.string.role_for_patients),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .semantics { heading() },
@@ -138,7 +128,7 @@ fun RoleSelectionScreen(
             Text(
                 text = stringResource(R.string.role_id_recovery_note),
                 fontSize = 12.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp),
@@ -163,17 +153,17 @@ fun RoleSelectionScreen(
             ) {
                 HorizontalDivider(
                     modifier = Modifier.weight(1f),
-                    color = CardBorder,
+                    color = MaterialTheme.colorScheme.outline,
                 )
                 Text(
                     text = stringResource(R.string.role_or_divider),
                     fontSize = 14.sp,
-                    color = SubtitleGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 HorizontalDivider(
                     modifier = Modifier.weight(1f),
-                    color = CardBorder,
+                    color = MaterialTheme.colorScheme.outline,
                 )
             }
 
@@ -184,7 +174,7 @@ fun RoleSelectionScreen(
                 text = stringResource(R.string.role_doctor_portal),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .semantics { heading() },
@@ -201,11 +191,11 @@ fun RoleSelectionScreen(
                         .weight(1f)
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 ) {
                     Text(
                         text = stringResource(R.string.role_sign_in),
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium,
                     )
                 }
@@ -243,7 +233,7 @@ fun RoleSelectionScreen(
             Text(
                 text = stringResource(R.string.role_copyright),
                 fontSize = 12.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 16.dp),
             )
         }
@@ -258,50 +248,57 @@ private fun RoleCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val cardShape = RoundedCornerShape(12.dp)
+    val cardShape = RoundedCornerShape(14.dp)
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .border(1.dp, CardBorder, cardShape)
-            .clickable(onClick = onClick, onClickLabel = title)
-            .semantics(mergeDescendants = true) { role = Role.Button }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    androidx.compose.material3.Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = cardShape,
+        shadowElevation = 2.dp,
+        tonalElevation = 0.dp,
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        onClick = onClick,
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(44.dp)
-                .background(IconBg, CircleShape),
-            contentAlignment = Alignment.Center,
+                .semantics(mergeDescendants = true) { role = Role.Button }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = BrandTeal,
+                )
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             Icon(
-                painter = painterResource(iconRes),
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                modifier = Modifier.size(22.dp),
-                tint = BrandTeal,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
             )
         }
-        Spacer(modifier = Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = DarkText,
-            )
-            Text(
-                text = subtitle,
-                fontSize = 13.sp,
-                color = SubtitleGray,
-            )
-        }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = null,
-            tint = SubtitleGray,
-            modifier = Modifier.size(20.dp),
-        )
     }
 }

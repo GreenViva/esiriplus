@@ -54,6 +54,7 @@ class DoctorOnlineService : Service() {
     @Inject lateinit var overlayBubbleManager: OverlayBubbleManager
     @Inject lateinit var stateManager: DoctorOnlineStateManager
     @Inject lateinit var edgeFunctionClient: EdgeFunctionClient
+    @Inject lateinit var userPreferencesManager: com.esiri.esiriplus.core.common.preferences.UserPreferencesManager
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var tokenRefreshJob: Job? = null
@@ -278,7 +279,7 @@ class DoctorOnlineService : Service() {
 
         val ctx = LocaleHelper.getLocalizedContext(this)
         val notification = NotificationCompat.Builder(this, CHANNEL_INCOMING_REQUEST)
-            .setSmallIcon(R.drawable.ic_stethoscope)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
             .setContentTitle(ctx.getString(R.string.notification_new_consultation))
             .setContentText(ctx.getString(R.string.notification_patient_waiting))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -300,7 +301,8 @@ class DoctorOnlineService : Service() {
     private fun startRinging() {
         try {
             stopRinging() // stop any previous ringtone
-            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            val customUri = userPreferencesManager.requestRingtoneUri.value
+            val uri = customUri ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
             ringtone = RingtoneManager.getRingtone(this, uri)?.apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     isLooping = true

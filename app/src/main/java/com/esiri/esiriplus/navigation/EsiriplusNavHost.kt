@@ -1,11 +1,19 @@
 package com.esiri.esiriplus.navigation
 
 import android.util.Log
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.esiri.esiriplus.ui.theme.LocalReduceMotion
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.esiri.esiriplus.core.domain.model.AuthState
@@ -126,10 +134,28 @@ fun EsiriplusNavHost(
         }
     }
 
+    val reduceMotion = LocalReduceMotion.current
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
+        enterTransition = {
+            if (reduceMotion) EnterTransition.None
+            else fadeIn(tween(300)) + slideInHorizontally(tween(300)) { it / 4 }
+        },
+        exitTransition = {
+            if (reduceMotion) ExitTransition.None
+            else fadeOut(tween(250))
+        },
+        popEnterTransition = {
+            if (reduceMotion) EnterTransition.None
+            else fadeIn(tween(300)) + slideInHorizontally(tween(300)) { -it / 4 }
+        },
+        popExitTransition = {
+            if (reduceMotion) ExitTransition.None
+            else fadeOut(tween(250)) + slideOutHorizontally(tween(250)) { it / 4 }
+        },
     ) {
         authGraph(
             navController = navController,

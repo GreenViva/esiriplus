@@ -2,6 +2,7 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -74,11 +76,6 @@ import com.esiri.esiriplus.feature.auth.viewmodel.DoctorRegistrationUiState
 import com.esiri.esiriplus.feature.auth.viewmodel.DoctorRegistrationViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
-private val DarkText = Color.Black
-private val SubtitleGray = Color.Black
-private val CardBorder = Color(0xFFE5E7EB)
-private val IconBg = Color(0xFFF0FDFA)
-private val FieldBg = Color(0xFFF8FFFE)
 
 private val Specialties = listOf(
     "Nurse",
@@ -257,7 +254,7 @@ fun DoctorRegistrationScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 20.dp),
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -305,7 +302,7 @@ fun DoctorRegistrationScreen(
                         text = stepTitle,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DarkText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                     )
@@ -313,7 +310,7 @@ fun DoctorRegistrationScreen(
                     Text(
                         text = stepSubtitle,
                         fontSize = 14.sp,
-                        color = SubtitleGray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                     )
@@ -365,7 +362,7 @@ fun DoctorRegistrationScreen(
                     fontSize = 13.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.White)
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 16.dp, vertical = 4.dp),
                     textAlign = TextAlign.Center,
                 )
@@ -391,31 +388,23 @@ private fun DoctorPortalHeader() {
             .padding(top = 24.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .background(BrandTeal, RoundedCornerShape(14.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_stethoscope),
-                contentDescription = null,
-                modifier = Modifier.size(30.dp),
-                tint = Color.White,
-            )
-        }
+        Image(
+            painter = painterResource(R.drawable.ic_stethoscope),
+            contentDescription = null,
+            modifier = Modifier.size(56.dp),
+        )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = stringResource(R.string.doctor_reg_portal_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(R.string.doctor_reg_portal_subtitle),
             fontSize = 14.sp,
-            color = SubtitleGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -426,7 +415,7 @@ private fun SignInRegisterTabRow(onSignInClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFF3F4F6))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp),
     ) {
         Box(
@@ -441,14 +430,14 @@ private fun SignInRegisterTabRow(onSignInClick: () -> Unit) {
                 text = stringResource(R.string.doctor_reg_sign_in_tab),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Box(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(vertical = 10.dp),
             contentAlignment = Alignment.Center,
         ) {
@@ -456,7 +445,7 @@ private fun SignInRegisterTabRow(onSignInClick: () -> Unit) {
                 text = stringResource(R.string.doctor_reg_register_tab),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -480,7 +469,7 @@ private fun StepIndicator(currentStep: Int) {
                         if (isCompleted || isCurrent) {
                             Modifier.background(BrandTeal, CircleShape)
                         } else {
-                            Modifier.border(1.5.dp, CardBorder, CircleShape)
+                            Modifier.border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
                         },
                     ),
                 contentAlignment = Alignment.Center,
@@ -497,7 +486,7 @@ private fun StepIndicator(currentStep: Int) {
                         text = "$step",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isCurrent) Color.White else SubtitleGray,
+                        color = if (isCurrent) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -508,7 +497,7 @@ private fun StepIndicator(currentStep: Int) {
                         .width(16.dp)
                         .height(2.dp)
                         .background(
-                            if (step < currentStep) BrandTeal else CardBorder,
+                            if (step < currentStep) BrandTeal else MaterialTheme.colorScheme.outline,
                         ),
                 )
             }
@@ -536,7 +525,7 @@ private fun RegistrationTextField(
             text = label,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -544,7 +533,7 @@ private fun RegistrationTextField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = if (placeholder.isNotEmpty()) {
-                { Text(text = placeholder, color = SubtitleGray, fontSize = 14.sp) }
+                { Text(text = placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) }
             } else {
                 null
             },
@@ -553,7 +542,7 @@ private fun RegistrationTextField(
                     painter = painterResource(iconRes),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = SubtitleGray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             trailingIcon = if (isPassword && onTogglePasswordVisibility != null) {
@@ -566,7 +555,7 @@ private fun RegistrationTextField(
                             ),
                             contentDescription = if (passwordVisible) stringResource(R.string.doctor_reg_hide_password) else stringResource(R.string.doctor_reg_show_password),
                             modifier = Modifier.size(20.dp),
-                            tint = SubtitleGray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -582,9 +571,9 @@ private fun RegistrationTextField(
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
-                unfocusedBorderColor = CardBorder,
-                focusedContainerColor = FieldBg,
-                unfocusedContainerColor = FieldBg,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
             singleLine = singleLine,
             minLines = minLines,
@@ -650,7 +639,7 @@ private fun OtpVerificationContent(
             Text(
                 text = stringResource(R.string.doctor_reg_otp_sending),
                 fontSize = 14.sp,
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             return
         }
@@ -660,14 +649,14 @@ private fun OtpVerificationContent(
             value = uiState.otpCode,
             onValueChange = viewModel::onOtpCodeChanged,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("000000", color = SubtitleGray, fontSize = 18.sp) },
+            placeholder = { Text("000000", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 18.sp) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
-                unfocusedBorderColor = CardBorder,
-                focusedContainerColor = FieldBg,
-                unfocusedContainerColor = FieldBg,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
             singleLine = true,
             textStyle = androidx.compose.ui.text.TextStyle(
@@ -675,7 +664,7 @@ private fun OtpVerificationContent(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 letterSpacing = 8.sp,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
             ),
         )
 
@@ -755,7 +744,7 @@ private fun OtpVerificationContent(
                 enabled = cooldown == 0 && !uiState.otpSending,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             ) {
                 Text(
                     text = if (cooldown > 0) {
@@ -763,7 +752,7 @@ private fun OtpVerificationContent(
                     } else {
                         stringResource(R.string.doctor_reg_otp_resend)
                     },
-                    color = if (cooldown > 0) SubtitleGray else DarkText,
+                    color = if (cooldown > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -779,7 +768,7 @@ private fun Step2Content(
     onPickPhoto: () -> Unit,
 ) {
     val dashedTeal = BrandTeal.copy(alpha = 0.5f)
-    val dashedGray = CardBorder
+    val dashedGray = MaterialTheme.colorScheme.outline
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -823,7 +812,7 @@ private fun Step2Content(
                     painter = painterResource(R.drawable.ic_camera),
                     contentDescription = stringResource(R.string.doctor_reg_select_photo_cd),
                     modifier = Modifier.size(40.dp),
-                    tint = SubtitleGray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -832,7 +821,7 @@ private fun Step2Content(
         Text(
             text = stringResource(R.string.doctor_reg_photo_hint),
             fontSize = 13.sp,
-            color = SubtitleGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -859,7 +848,7 @@ private fun Step3Content(
         text = stringResource(R.string.doctor_reg_phone_label),
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
-        color = DarkText,
+        color = MaterialTheme.colorScheme.onSurface,
     )
     Spacer(modifier = Modifier.height(8.dp))
 
@@ -884,9 +873,9 @@ private fun Step3Content(
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = BrandTeal,
-                    unfocusedBorderColor = CardBorder,
-                    focusedContainerColor = FieldBg,
-                    unfocusedContainerColor = FieldBg,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 ),
                 singleLine = true,
             )
@@ -911,22 +900,22 @@ private fun Step3Content(
             value = uiState.phone,
             onValueChange = viewModel::onPhoneChanged,
             modifier = Modifier.weight(1f),
-            placeholder = { Text("700 000 000", color = DarkText, fontSize = 14.sp) },
+            placeholder = { Text("700 000 000", color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp) },
             leadingIcon = {
                 Icon(
                     painter = painterResource(R.drawable.ic_phone),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
-                unfocusedBorderColor = CardBorder,
-                focusedContainerColor = FieldBg,
-                unfocusedContainerColor = FieldBg,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
             singleLine = true,
         )
@@ -947,7 +936,7 @@ private fun Step3Content(
         text = stringResource(R.string.doctor_reg_specialty_label),
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
-        color = DarkText,
+        color = MaterialTheme.colorScheme.onSurface,
     )
     Spacer(modifier = Modifier.height(8.dp))
     ExposedDropdownMenuBox(
@@ -961,14 +950,14 @@ private fun Step3Content(
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            placeholder = { Text(stringResource(R.string.doctor_reg_specialty_placeholder), color = SubtitleGray, fontSize = 14.sp) },
+            placeholder = { Text(stringResource(R.string.doctor_reg_specialty_placeholder), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
-                unfocusedBorderColor = CardBorder,
-                focusedContainerColor = FieldBg,
-                unfocusedContainerColor = FieldBg,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
         )
         ExposedDropdownMenu(
@@ -994,7 +983,7 @@ private fun Step3Content(
             text = stringResource(R.string.doctor_reg_specialist_field_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -1006,13 +995,13 @@ private fun Step3Content(
                     painter = painterResource(R.drawable.ic_badge),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             },
             placeholder = {
                 Text(
                     stringResource(R.string.doctor_reg_specialist_field_placeholder),
-                    color = SubtitleGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                 )
             },
@@ -1020,11 +1009,11 @@ private fun Step3Content(
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
-                unfocusedBorderColor = CardBorder,
-                focusedContainerColor = FieldBg,
-                unfocusedContainerColor = FieldBg,
-                focusedTextColor = DarkText,
-                unfocusedTextColor = DarkText,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
             ),
         )
     }
@@ -1045,14 +1034,14 @@ private fun Step4Content(
             painter = painterResource(R.drawable.ic_globe),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = DarkText,
+            tint = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.doctor_reg_country_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
     Spacer(modifier = Modifier.height(8.dp))
@@ -1071,9 +1060,9 @@ private fun Step4Content(
             shape = RoundedCornerShape(10.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BrandTeal,
-                unfocusedBorderColor = CardBorder,
-                focusedContainerColor = FieldBg,
-                unfocusedContainerColor = FieldBg,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             ),
         )
         ExposedDropdownMenu(
@@ -1100,14 +1089,14 @@ private fun Step4Content(
             painter = painterResource(R.drawable.ic_translate),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = DarkText,
+            tint = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.doctor_reg_languages_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
     Spacer(modifier = Modifier.height(12.dp))
@@ -1117,7 +1106,7 @@ private fun Step4Content(
         text = stringResource(R.string.doctor_reg_common_languages),
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
-        color = SubtitleGray,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Spacer(modifier = Modifier.height(8.dp))
     Row(
@@ -1143,7 +1132,7 @@ private fun Step4Content(
         text = stringResource(R.string.doctor_reg_other_languages),
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
-        color = SubtitleGray,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Spacer(modifier = Modifier.height(8.dp))
     OtherLanguages.chunked(2).forEach { row ->
@@ -1170,7 +1159,7 @@ private fun Step4Content(
     Text(
         text = stringResource(R.string.doctor_reg_languages_selected, uiState.selectedLanguages.size),
         fontSize = 13.sp,
-        color = SubtitleGray,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
 
@@ -1190,7 +1179,7 @@ private fun LanguageChip(
                     Modifier.border(1.5.dp, BrandTeal, shape)
                         .background(BrandTeal.copy(alpha = 0.08f))
                 } else {
-                    Modifier.border(1.dp, CardBorder, shape)
+                    Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape)
                 },
             )
             .clickable(onClick = onClick)
@@ -1215,7 +1204,7 @@ private fun LanguageChip(
             Box(
                 modifier = Modifier
                     .size(18.dp)
-                    .border(1.5.dp, CardBorder, CircleShape),
+                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape),
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
@@ -1223,7 +1212,7 @@ private fun LanguageChip(
             text = label,
             fontSize = 13.sp,
             fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
-            color = if (selected) BrandTeal else DarkText,
+            color = if (selected) BrandTeal else MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -1257,7 +1246,7 @@ private fun Step5Content(
         text = stringResource(R.string.doctor_reg_bio_label),
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
-        color = DarkText,
+        color = MaterialTheme.colorScheme.onSurface,
     )
     Spacer(modifier = Modifier.height(8.dp))
     OutlinedTextField(
@@ -1267,16 +1256,16 @@ private fun Step5Content(
         placeholder = {
             Text(
                 text = stringResource(R.string.doctor_reg_bio_placeholder),
-                color = SubtitleGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
             )
         },
         shape = RoundedCornerShape(10.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = BrandTeal,
-            unfocusedBorderColor = CardBorder,
-            focusedContainerColor = FieldBg,
-            unfocusedContainerColor = FieldBg,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
         ),
         minLines = 4,
         singleLine = false,
@@ -1313,12 +1302,12 @@ private fun Step6Content(
                         },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = stringResource(R.string.doctor_reg_services_available, services.size),
                     fontSize = 12.sp,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
             Text(
@@ -1334,7 +1323,7 @@ private fun Step6Content(
     Text(
         text = stringResource(R.string.doctor_reg_select_services),
         fontSize = 13.sp,
-        color = DarkText,
+        color = MaterialTheme.colorScheme.onSurface,
     )
     Spacer(modifier = Modifier.height(12.dp))
 
@@ -1350,7 +1339,7 @@ private fun Step6Content(
                         Modifier.border(1.5.dp, BrandTeal, shape)
                             .background(BrandTeal.copy(alpha = 0.04f))
                     } else {
-                        Modifier.border(1.dp, CardBorder, shape)
+                        Modifier.border(1.dp, MaterialTheme.colorScheme.outline, shape)
                     },
                 )
                 .clickable { viewModel.onServiceToggled(service) }
@@ -1364,7 +1353,7 @@ private fun Step6Content(
                         if (isSelected) {
                             Modifier.border(2.dp, BrandTeal, CircleShape)
                         } else {
-                            Modifier.border(1.5.dp, CardBorder, CircleShape)
+                            Modifier.border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
                         },
                     ),
                 contentAlignment = Alignment.Center,
@@ -1382,7 +1371,7 @@ private fun Step6Content(
                 text = service,
                 fontSize = 14.sp,
                 fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-                color = DarkText,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -1393,7 +1382,7 @@ private fun Step6Content(
     Text(
         text = stringResource(R.string.doctor_reg_services_selected, uiState.selectedServices.size, services.size),
         fontSize = 13.sp,
-        color = DarkText,
+        color = MaterialTheme.colorScheme.onSurface,
     )
 }
 
@@ -1441,7 +1430,7 @@ private fun Step7Content(
         Text(
             text = stringResource(R.string.doctor_reg_credentials_review_notice),
             fontSize = 13.sp,
-            color = DarkText,
+            color = MaterialTheme.colorScheme.onSurface,
             lineHeight = 20.sp,
         )
     }
@@ -1455,7 +1444,7 @@ private fun UploadBox(
     hasFile: Boolean,
     onClick: () -> Unit,
 ) {
-    val dashedColor = if (hasFile) BrandTeal else CardBorder
+    val dashedColor = if (hasFile) BrandTeal else MaterialTheme.colorScheme.outline
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1481,7 +1470,7 @@ private fun UploadBox(
             painter = painterResource(iconRes),
             contentDescription = null,
             modifier = Modifier.size(32.dp),
-            tint = if (hasFile) BrandTeal else SubtitleGray,
+            tint = if (hasFile) BrandTeal else MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -1494,7 +1483,7 @@ private fun UploadBox(
         Text(
             text = subtitle,
             fontSize = 13.sp,
-            color = SubtitleGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -1515,7 +1504,7 @@ private fun BottomBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -1527,18 +1516,18 @@ private fun BottomBar(
                     .weight(1f)
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = DarkText,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = stringResource(R.string.doctor_reg_back_button),
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                 )
             }

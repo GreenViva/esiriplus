@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.auth.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -52,9 +53,6 @@ import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.viewmodel.DoctorLoginViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
-private val CreamBackground = Color(0xFFF5F0EB)
-private val SubtitleGray = Color.Black
-private val FieldBorder = Color(0xFFE0E0E0)
 
 @Composable
 fun DoctorLoginScreen(
@@ -124,7 +122,7 @@ fun DoctorLoginScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(CreamBackground)
+            .background(MaterialTheme.colorScheme.surface)
             .statusBarsPadding()
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -132,19 +130,11 @@ fun DoctorLoginScreen(
         Spacer(modifier = Modifier.height(48.dp))
 
         // Stethoscope icon in teal circle
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .background(BrandTeal.copy(alpha = 0.12f), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_stethoscope),
-                contentDescription = null,
-                tint = BrandTeal,
-                modifier = Modifier.size(32.dp),
-            )
-        }
+        Image(
+            painter = painterResource(R.drawable.ic_stethoscope),
+            contentDescription = null,
+            modifier = Modifier.size(56.dp),
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,7 +142,7 @@ fun DoctorLoginScreen(
             text = stringResource(R.string.doctor_login_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -160,7 +150,7 @@ fun DoctorLoginScreen(
         Text(
             text = stringResource(R.string.doctor_login_subtitle),
             fontSize = 14.sp,
-            color = SubtitleGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -169,7 +159,7 @@ fun DoctorLoginScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
             Column(
@@ -179,14 +169,14 @@ fun DoctorLoginScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF2F2F2), RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     Surface(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(6.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 1.dp,
                         onClick = { /* already on sign in */ },
                     ) {
@@ -196,7 +186,7 @@ fun DoctorLoginScreen(
                             textAlign = TextAlign.Center,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
 
@@ -212,7 +202,7 @@ fun DoctorLoginScreen(
                             textAlign = TextAlign.Center,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
-                            color = SubtitleGray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -223,7 +213,7 @@ fun DoctorLoginScreen(
                     text = stringResource(R.string.doctor_login_email_label),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -232,13 +222,13 @@ fun DoctorLoginScreen(
                     onValueChange = viewModel::onEmailChanged,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
-                        Text(stringResource(R.string.doctor_login_email_placeholder), color = SubtitleGray, fontSize = 14.sp)
+                        Text(stringResource(R.string.doctor_login_email_placeholder), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_email),
                             contentDescription = null,
-                            tint = SubtitleGray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp),
                         )
                     },
@@ -246,9 +236,9 @@ fun DoctorLoginScreen(
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrandTeal,
-                        unfocusedBorderColor = FieldBorder,
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 )
 
@@ -258,7 +248,7 @@ fun DoctorLoginScreen(
                     text = stringResource(R.string.doctor_login_password_label),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -267,13 +257,13 @@ fun DoctorLoginScreen(
                     onValueChange = viewModel::onPasswordChanged,
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
-                        Text("\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", color = SubtitleGray, fontSize = 14.sp)
+                        Text("\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                     },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_lock),
                             contentDescription = null,
-                            tint = SubtitleGray,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp),
                         )
                     },
@@ -285,7 +275,7 @@ fun DoctorLoginScreen(
                                     else R.drawable.ic_visibility_off,
                                 ),
                                 contentDescription = if (passwordVisible) stringResource(R.string.doctor_login_hide_password) else stringResource(R.string.doctor_login_show_password),
-                                tint = SubtitleGray,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp),
                             )
                         }
@@ -296,9 +286,9 @@ fun DoctorLoginScreen(
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = BrandTeal,
-                        unfocusedBorderColor = FieldBorder,
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 )
 
@@ -356,7 +346,7 @@ private fun DeviceMismatchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(CreamBackground)
+            .background(MaterialTheme.colorScheme.surface)
             .statusBarsPadding()
             .padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -382,7 +372,7 @@ private fun DeviceMismatchScreen(
             text = stringResource(R.string.device_mismatch_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -390,7 +380,7 @@ private fun DeviceMismatchScreen(
         Text(
             text = error,
             fontSize = 14.sp,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
 
@@ -436,7 +426,7 @@ private fun BannedDoctorScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentAlignment = Alignment.Center,
@@ -476,7 +466,7 @@ private fun BannedDoctorScreen(
             Text(
                 text = stringResource(R.string.banned_message),
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
             )
 
@@ -501,7 +491,7 @@ private fun BannedDoctorScreen(
                     Text(
                         text = banReason,
                         fontSize = 14.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -531,7 +521,7 @@ private fun BannedDoctorScreen(
                         stringResource(R.string.banned_appeal_no_date)
                     },
                     fontSize = 13.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -549,7 +539,7 @@ private fun BannedDoctorScreen(
                     text = stringResource(R.string.banned_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -594,7 +584,7 @@ private fun SuspendedDoctorScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentAlignment = Alignment.Center,
@@ -634,7 +624,7 @@ private fun SuspendedDoctorScreen(
             Text(
                 text = stringResource(R.string.suspended_message),
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
             )
 
@@ -659,7 +649,7 @@ private fun SuspendedDoctorScreen(
                     Text(
                         text = suspensionReason,
                         fontSize = 14.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -687,7 +677,7 @@ private fun SuspendedDoctorScreen(
                         text = stringResource(R.string.suspended_time_remaining, remainingTime),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
@@ -695,13 +685,13 @@ private fun SuspendedDoctorScreen(
                     Text(
                         text = stringResource(R.string.suspended_lifted_on, suspensionEnd),
                         fontSize = 13.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 } else {
                     Text(
                         text = stringResource(R.string.suspended_lifted_when_ends),
                         fontSize = 13.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -720,7 +710,7 @@ private fun SuspendedDoctorScreen(
                     text = stringResource(R.string.banned_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -738,7 +728,7 @@ private fun WarningDoctorScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentAlignment = Alignment.Center,
@@ -778,7 +768,7 @@ private fun WarningDoctorScreen(
             Text(
                 text = stringResource(R.string.warning_message),
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
             )
 
@@ -803,7 +793,7 @@ private fun WarningDoctorScreen(
                     Text(
                         text = warningMessage,
                         fontSize = 14.sp,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -829,7 +819,7 @@ private fun WarningDoctorScreen(
                 Text(
                     text = stringResource(R.string.warning_review_text),
                     fontSize = 13.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -878,7 +868,7 @@ private fun WarningDoctorScreen(
                     text = stringResource(R.string.banned_sign_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF6B7280),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

@@ -109,7 +109,7 @@ class CallForegroundService : Service() {
         val durationText = String.format("%02d:%02d", minutes, seconds)
 
         return NotificationCompat.Builder(this, CHANNEL_CALL_SERVICE)
-            .setSmallIcon(R.drawable.ic_stethoscope)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
             .setContentTitle(ctx.getString(R.string.call_in_progress_title, typeLabel))
             .setContentText(ctx.getString(R.string.call_in_progress_duration, durationText))
             .setPriority(NotificationCompat.PRIORITY_LOW)

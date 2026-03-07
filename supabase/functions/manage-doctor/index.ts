@@ -90,16 +90,29 @@ async function sendDoctorNotification(
   body: string,
   type: string
 ): Promise<void> {
-  const supabase = getServiceClient();
   try {
-    await supabase.functions.invoke("send-push-notification", {
-      body: {
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-push-notification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${serviceKey}`,
+        "X-Service-Key": serviceKey,
+      },
+      body: JSON.stringify({
         user_id: doctorId,
         title,
         body,
         type,
-      },
+      }),
     });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`Push notification failed (${res.status}):`, errText);
+    }
   } catch (e) {
     console.error("Failed to send doctor notification:", e);
   }
