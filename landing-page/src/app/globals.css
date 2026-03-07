@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply text-gray-900 bg-white font-sans;
+  }
+
+  ::selection {
+    @apply bg-brand-teal/20 text-brand-navy;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-teal text-white font-semibold rounded-xl
+           hover:bg-brand-teal-dark transition-colors duration-200 text-sm sm:text-base;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-brand-teal font-semibold rounded-xl
+           border-2 border-brand-teal hover:bg-brand-teal-light transition-colors duration-200 text-sm sm:text-base;
+  }
+
+  .btn-coral {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-coral text-white font-semibold rounded-xl
+           hover:bg-brand-coral-dark transition-colors duration-200 text-sm sm:text-base;
+  }
+
+  .section-tag {
+    @apply inline-block px-4 py-1.5 bg-brand-teal-light text-brand-teal text-xs font-semibold tracking-wider uppercase rounded-full;
+  }
+
+  .section-title {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-navy leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-gray-600 max-w-2xl;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+}
