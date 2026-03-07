@@ -1,52 +1,84 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { createAdminClient, fetchAllAuthUsers } from "@/lib/supabase/admin";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { getAllAuthUsers } from "@/lib/adminApi";
 import StatCard from "@/components/StatCard";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
+import type { AdminLogRow } from "@/lib/types/database";
 
-export default async function HRDashboardPage() {
-  const supabase = createAdminClient();
+export default function HRDashboardPage() {
+  const [totalDoctors, setTotalDoctors] = useState(0);
+  const [activeDoctors, setActiveDoctors] = useState(0);
+  const [pendingDoctors, setPendingDoctors] = useState(0);
+  const [suspendedDoctors, setSuspendedDoctors] = useState(0);
+  const [bannedDoctors, setBannedDoctors] = useState(0);
+  const [lowRated, setLowRated] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [recentActions, setRecentActions] = useState(0);
+  const [logs, setLogs] = useState<AdminLogRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [doctorsRes, ratingsRes, logsRes] = await Promise.all([
-    supabase.from("doctor_profiles").select("doctor_id, is_verified, is_available, average_rating, total_ratings"),
-    supabase.from("doctor_ratings").select("rating_id, rating"),
-    supabase
-      .from("admin_logs")
-      .select("id, admin_id, action, target_type, target_id, details, created_at")
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ]);
+  const fetchData = useCallback(() => {
+    const supabase = createClient();
 
-  const doctors = doctorsRes.data ?? [];
-  const ratings = ratingsRes.data ?? [];
-  const logs = logsRes.data ?? [];
+    Promise.all([
+      supabase.from("doctor_profiles").select("doctor_id, is_verified, is_available, average_rating, total_ratings"),
+      supabase.from("doctor_ratings").select("rating_id, rating"),
+      supabase
+        .from("admin_logs")
+        .select("id, admin_id, action, target_type, target_id, details, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10),
+      getAllAuthUsers(),
+    ]).then(([doctorsRes, ratingsRes, logsRes, authUsersRes]) => {
+      const doctors = doctorsRes.data ?? [];
+      const ratings = ratingsRes.data ?? [];
+      const logsData = logsRes.data ?? [];
 
-  // Fetch auth users for ban status (paginated)
-  const authUsers = await fetchAllAuthUsers(supabase);
+      const authUsers = authUsersRes.data?.users ?? [];
+      const bannedDoctorIds = new Set<string>();
+      for (const u of authUsers) {
+        if (u.banned_until && new Date(u.banned_until) > new Date()) {
+          bannedDoctorIds.add(u.id);
+        }
+      }
 
-  const bannedDoctorIds = new Set<string>();
-  for (const u of authUsers) {
-    if (u.banned_until && new Date(u.banned_until) > new Date()) {
-      bannedDoctorIds.add(u.id);
-    }
+      setTotalDoctors(doctors.length);
+      setActiveDoctors(doctors.filter((d) => d.is_verified && d.is_available).length);
+      setPendingDoctors(doctors.filter((d) => !d.is_verified).length);
+      setSuspendedDoctors(
+        doctors.filter(
+          (d) => d.is_verified && !d.is_available && !bannedDoctorIds.has(d.doctor_id)
+        ).length
+      );
+      setBannedDoctors(doctors.filter((d) => bannedDoctorIds.has(d.doctor_id)).length);
+      setLowRated(doctors.filter((d) => d.total_ratings > 0 && d.average_rating < 3).length);
+      setTotalReviews(ratings.length);
+      setRecentActions(logsData.length);
+      setLogs(logsData as AdminLogRow[]);
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
   }
-
-  const totalDoctors = doctors.length;
-  const activeDoctors = doctors.filter((d) => d.is_verified && d.is_available).length;
-  const pendingDoctors = doctors.filter((d) => !d.is_verified).length;
-  const suspendedDoctors = doctors.filter(
-    (d) => d.is_verified && !d.is_available && !bannedDoctorIds.has(d.doctor_id)
-  ).length;
-  const bannedDoctors = doctors.filter((d) => bannedDoctorIds.has(d.doctor_id)).length;
-  const lowRated = doctors.filter((d) => d.total_ratings > 0 && d.average_rating < 3).length;
-  const totalReviews = ratings.length;
-  const recentActions = logs.length;
 
   return (
     <div>
       <RealtimeRefresh
         tables={["doctor_profiles", "doctor_ratings", "admin_logs"]}
         channelName="hr-dashboard-realtime"
+        onUpdate={fetchData}
       />
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
@@ -74,7 +106,7 @@ export default async function HRDashboardPage() {
         </a>
       </div>
 
-      {/* Stat cards — row 1 */}
+      {/* Stat cards -- row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <StatCard
           label="Total Doctors"
@@ -118,7 +150,7 @@ export default async function HRDashboardPage() {
         />
       </div>
 
-      {/* Stat cards — row 2 */}
+      {/* Stat cards -- row 2 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           label="Banned"

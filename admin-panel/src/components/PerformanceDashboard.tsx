@@ -16,23 +16,15 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import type { PerformanceStat } from "@/lib/types/database";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface PerformanceStat {
-  bucket: string;
-  metric_type: string;
-  endpoint: string;
-  avg_latency_ms: number;
-  p95_latency_ms: number;
-  request_count: number;
-  error_count: number;
-}
-
 interface Props {
   stats: PerformanceStat[];
+  onRefresh?: () => void;
 }
 
 type TimeRange = "1h" | "6h" | "24h" | "7d";
@@ -61,18 +53,18 @@ const PIE_COLORS = [COLORS.teal, COLORS.blue, COLORS.purple, COLORS.orange, COLO
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function PerformanceDashboard({ stats }: Props) {
+export default function PerformanceDashboard({ stats, onRefresh }: Props) {
   const [range, setRange] = useState<TimeRange>("24h");
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!autoRefresh || !onRefresh) return;
     const interval = setInterval(() => {
-      window.location.reload();
+      onRefresh();
     }, 30_000);
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, onRefresh]);
 
   // Filter stats by selected time range
   const filtered = useMemo(() => {
@@ -215,7 +207,7 @@ export default function PerformanceDashboard({ stats }: Props) {
             Auto-refresh
           </label>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => onRefresh?.()}
             className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 border border-gray-200 rounded-md"
           >
             Refresh now

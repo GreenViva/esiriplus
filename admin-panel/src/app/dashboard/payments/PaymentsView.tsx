@@ -66,9 +66,10 @@ function ServiceBadge({ type }: { type: string }) {
 interface Props {
   payments: PaymentRow[];
   doctorRevenue: DoctorRevenueRow[];
+  onRefresh?: () => void;
 }
 
-export default function PaymentsView({ payments, doctorRevenue }: Props) {
+export default function PaymentsView({ payments, doctorRevenue, onRefresh }: Props) {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"patients" | "doctors">("patients");
 
@@ -114,7 +115,7 @@ export default function PaymentsView({ payments, doctorRevenue }: Props) {
           </p>
         </div>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => onRefresh?.()}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

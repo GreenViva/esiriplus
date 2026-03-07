@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Props {
@@ -9,19 +8,32 @@ interface Props {
   tables: string[];
   /** Unique channel name */
   channelName: string;
+  /** Callback fired when a change is detected (debounced). If omitted, uses router.refresh(). */
+  onUpdate?: () => void;
 }
 
 /**
  * Invisible component that subscribes to Supabase Realtime
- * postgres_changes on the given tables and calls router.refresh()
- * whenever a change is detected. This keeps Server Components
- * in sync across multiple browser tabs / users.
+ * postgres_changes on the given tables and invokes a callback
+ * when a change is detected. Uses targeted refetch instead of
+ * full page reload to preserve scroll position, form state, and filters.
  */
-export default function RealtimeRefresh({ tables, channelName }: Props) {
-  const router = useRouter();
-  // Stable ref to avoid re-subscribing on every render
+export default function RealtimeRefresh({ tables, channelName, onUpdate }: Props) {
   const tablesKey = tables.join(",");
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
+  const handleChange = useCallback(() => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    refreshTimer.current = setTimeout(() => {
+      if (onUpdateRef.current) {
+        onUpdateRef.current();
+      } else {
+        window.location.reload();
+      }
+    }, 500);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -33,20 +45,12 @@ export default function RealtimeRefresh({ tables, channelName }: Props) {
       channel = (channel as any).on(
         "postgres_changes",
         { event: "*", schema: "public", table },
-        () => {
-          // Debounce: batch rapid changes into a single refresh
-          if (refreshTimer.current) clearTimeout(refreshTimer.current);
-          refreshTimer.current = setTimeout(() => {
-            router.refresh();
-          }, 500);
-        },
+        handleChange,
       );
     }
 
     channel.subscribe((status, err) => {
-      if (status === "SUBSCRIBED") {
-        console.log(`[Realtime] ${channelName}: subscribed to ${tablesKey}`);
-      } else if (status === "CHANNEL_ERROR") {
+      if (status === "CHANNEL_ERROR") {
         console.error(`[Realtime] ${channelName}: channel error`, err);
       } else if (status === "TIMED_OUT") {
         console.warn(`[Realtime] ${channelName}: subscription timed out`);
@@ -57,7 +61,7 @@ export default function RealtimeRefresh({ tables, channelName }: Props) {
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
       supabase.removeChannel(channel);
     };
-  }, [tablesKey, channelName, router]);
+  }, [tablesKey, channelName, handleChange]);
 
   return null;
 }

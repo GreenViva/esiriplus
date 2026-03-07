@@ -1,76 +1,104 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { scanForRisks } from "@/lib/adminApi";
 import StatCard from "@/components/StatCard";
+import RoleGuard from "@/components/RoleGuard";
+import RealtimeRefresh from "@/components/RealtimeRefresh";
+import type { RiskFlag, AdminLogRow } from "@/lib/types/database";
 
-interface RiskFlag {
-  flag_id: string;
-  doctor_id: string;
-  flag_type: string;
-  severity: string;
-  title: string;
-  description: string | null;
-  is_resolved: boolean;
-  created_at: string;
-  doctor_profiles: { full_name: string } | null;
-}
+export default function AuditDashboardPage() {
+  const [openRiskFlags, setOpenRiskFlags] = useState(0);
+  const [highRiskAlerts, setHighRiskAlerts] = useState(0);
+  const [activityToday, setActivityToday] = useState(0);
+  const [flaggedRatings, setFlaggedRatings] = useState(0);
+  const [recentFlags, setRecentFlags] = useState<RiskFlag[]>([]);
+  const [recentLogs, setRecentLogs] = useState<AdminLogRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<string | null>(null);
 
-export default async function AuditDashboardPage() {
-  const supabase = createAdminClient();
+  const loadData = useCallback(() => {
+    const supabase = createClient();
+    return Promise.all([
+      supabase
+        .from("risk_flags")
+        .select("*", { count: "exact", head: true })
+        .eq("is_resolved", false),
+      supabase
+        .from("risk_flags")
+        .select("*", { count: "exact", head: true })
+        .eq("is_resolved", false)
+        .eq("severity", "high"),
+      supabase
+        .from("admin_logs")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", new Date().toISOString().split("T")[0]),
+      supabase
+        .from("doctor_ratings")
+        .select("*", { count: "exact", head: true })
+        .eq("is_flagged", true),
+      supabase
+        .from("risk_flags")
+        .select("flag_id, doctor_id, flag_type, severity, title, description, is_resolved, created_at, doctor_profiles(full_name)")
+        .eq("is_resolved", false)
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase
+        .from("admin_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]).then(([
+      openFlagsCountRes,
+      highRiskCountRes,
+      todayLogsRes,
+      flaggedRatingsRes,
+      recentFlagsRes,
+      recentLogsRes,
+    ]) => {
+      setOpenRiskFlags(openFlagsCountRes.count ?? 0);
+      setHighRiskAlerts(highRiskCountRes.count ?? 0);
+      setActivityToday(todayLogsRes.count ?? 0);
+      setFlaggedRatings(flaggedRatingsRes.count ?? 0);
+      setRecentFlags((recentFlagsRes.data ?? []) as unknown as RiskFlag[]);
+      setRecentLogs(recentLogsRes.data ?? []);
+      setLoading(false);
+    });
+  }, []);
 
-  const [
-    openFlagsCountRes,
-    highRiskCountRes,
-    todayLogsRes,
-    flaggedRatingsRes,
-    recentFlagsRes,
-    recentLogsRes,
-  ] = await Promise.all([
-    // Open risk flags count
-    supabase
-      .from("risk_flags")
-      .select("*", { count: "exact", head: true })
-      .eq("is_resolved", false),
-    // High-risk alerts count
-    supabase
-      .from("risk_flags")
-      .select("*", { count: "exact", head: true })
-      .eq("is_resolved", false)
-      .eq("severity", "high"),
-    // Activity today
-    supabase
-      .from("admin_logs")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", new Date().toISOString().split("T")[0]),
-    // Flagged ratings
-    supabase
-      .from("doctor_ratings")
-      .select("*", { count: "exact", head: true })
-      .eq("is_flagged", true),
-    // Recent risk flags with doctor name
-    supabase
-      .from("risk_flags")
-      .select("flag_id, doctor_id, flag_type, severity, title, description, is_resolved, created_at, doctor_profiles(full_name)")
-      .eq("is_resolved", false)
-      .order("created_at", { ascending: false })
-      .limit(10),
-    // Recent admin log entries for Activity Timeline
-    supabase
-      .from("admin_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ]);
+  useEffect(() => { loadData(); }, [loadData]);
 
-  const openRiskFlags = openFlagsCountRes.count ?? 0;
-  const highRiskAlerts = highRiskCountRes.count ?? 0;
-  const activityToday = todayLogsRes.count ?? 0;
-  const flaggedRatings = flaggedRatingsRes.count ?? 0;
-  const recentFlags = (recentFlagsRes.data ?? []) as unknown as RiskFlag[];
-  const recentLogs = recentLogsRes.data ?? [];
+  async function handleScanForRisks() {
+    setScanning(true);
+    setScanResult(null);
+    const result = await scanForRisks();
+    if (result.error) {
+      setScanResult(`Scan failed: ${result.error}`);
+    } else {
+      setScanResult(
+        result.flagged
+          ? `Scan complete — ${result.flagged} new risk flag${result.flagged > 1 ? "s" : ""} detected`
+          : "Scan complete — no new risks detected"
+      );
+      loadData();
+    }
+    setScanning(false);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
+    <RoleGuard allowed={["admin", "audit"]}>
     <div>
+      <RealtimeRefresh tables={["risk_flags", "admin_logs", "doctor_ratings"]} channelName="audit-dashboard-realtime" onUpdate={loadData} />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -79,23 +107,41 @@ export default async function AuditDashboardPage() {
             Enterprise oversight &amp; compliance monitoring
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-brand-teal text-white text-sm font-medium rounded-lg hover:bg-brand-teal/90 transition-colors">
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-            />
-          </svg>
-          Scan for Risks
+        <button
+          onClick={handleScanForRisks}
+          disabled={scanning}
+          className="flex items-center gap-2 px-4 py-2 bg-brand-teal text-white text-sm font-medium rounded-lg hover:bg-brand-teal/90 disabled:opacity-50 transition-colors"
+        >
+          {scanning ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          ) : (
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+          )}
+          {scanning ? "Scanning..." : "Scan for Risks"}
         </button>
       </div>
+
+      {scanResult && (
+        <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${
+          scanResult.startsWith("Scan failed")
+            ? "bg-red-50 text-red-700 border border-red-200"
+            : "bg-green-50 text-green-700 border border-green-200"
+        }`}>
+          {scanResult}
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
@@ -247,10 +293,11 @@ export default async function AuditDashboardPage() {
         </div>
       </div>
     </div>
+    </RoleGuard>
   );
 }
 
-/* ── Helper Components ──────────────────────────────────────────────────── */
+/* -- Helper Components -- */
 
 function SeverityBadge({ severity }: { severity: string }) {
   const config: Record<string, { bg: string; text: string }> = {

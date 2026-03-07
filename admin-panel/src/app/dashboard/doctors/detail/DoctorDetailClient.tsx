@@ -1,9 +1,10 @@
-export const dynamic = "force-dynamic";
+"use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { useSearchParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { formatDate, specialtyLabel } from "@/lib/utils";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
@@ -12,24 +13,44 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 import type { DoctorProfile, DoctorDeviceBinding } from "@/lib/types/database";
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
+export default function DoctorDetailPage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
+  const router = useRouter();
 
-export default async function DoctorDetailPage({ params }: Props) {
-  const { id } = await params;
-  const supabase = createAdminClient();
+  const [doctor, setDoctor] = useState<DoctorProfile | null>(null);
+  const [bindings, setBindings] = useState<DoctorDeviceBinding[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [profileRes, bindingsRes, authUserRes] = await Promise.all([
-    supabase.from("doctor_profiles").select("*").eq("doctor_id", id).single(),
-    supabase.from("doctor_device_bindings").select("*").eq("doctor_id", id),
-    supabase.auth.admin.getUserById(id),
-  ]);
+  const fetchData = useCallback(() => {
+    const supabase = createClient();
 
-  if (!profileRes.data) notFound();
+    Promise.all([
+      supabase.from("doctor_profiles").select("*").eq("doctor_id", id).single(),
+      supabase.from("doctor_device_bindings").select("*").eq("doctor_id", id),
+    ]).then(([profileRes, bindingsRes]) => {
+      if (!profileRes.data) {
+        router.replace("/dashboard/doctors");
+        return;
+      }
+      setDoctor(profileRes.data as DoctorProfile);
+      setBindings((bindingsRes.data ?? []) as DoctorDeviceBinding[]);
+      setLoading(false);
+    });
+  }, [id, router]);
 
-  const doctor = profileRes.data as DoctorProfile;
-  const bindings = (bindingsRes.data ?? []) as DoctorDeviceBinding[];
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading || !doctor) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
+  }
+
   const isBanned = doctor.is_banned ?? false;
 
   return (
@@ -37,6 +58,7 @@ export default async function DoctorDetailPage({ params }: Props) {
       <RealtimeRefresh
         tables={["doctor_profiles", "admin_logs"]}
         channelName={`admin-doctor-detail-${id}`}
+        onUpdate={fetchData}
       />
       <Link
         href="/dashboard/doctors"
@@ -163,6 +185,7 @@ export default async function DoctorDetailPage({ params }: Props) {
         isAvailable={doctor.is_available}
         isBanned={isBanned}
         hasDevice={bindings.some((b) => b.is_active)}
+        onRefresh={fetchData}
       />
     </div>
   );

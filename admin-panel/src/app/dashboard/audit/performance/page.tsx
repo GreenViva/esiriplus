@@ -1,22 +1,43 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
+import RoleGuard from "@/components/RoleGuard";
+import type { PerformanceStat } from "@/lib/types/database";
 
-export const dynamic = "force-dynamic";
+export default function SystemPerformancePage() {
+  const [stats, setStats] = useState<PerformanceStat[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function SystemPerformancePage() {
-  const supabase = createAdminClient();
+  const fetchData = useCallback(() => {
+    const supabase = createClient();
 
-  // Fetch 7 days of hourly-aggregated metrics via Postgres function.
-  // The client component filters by the selected time range.
-  const { data: stats, error } = await supabase.rpc("get_performance_stats", {
-    p_hours_ago: 168,
-  });
+    supabase
+      .rpc("get_performance_stats", { p_hours_ago: 168 })
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("Failed to fetch performance stats:", error);
+        }
+        setStats(data ?? []);
+        setLoading(false);
+      });
+  }, []);
 
-  if (error) {
-    console.error("Failed to fetch performance stats:", error);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
   }
 
   return (
+    <RoleGuard allowed={["admin", "audit"]}>
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
@@ -27,7 +48,8 @@ export default async function SystemPerformancePage() {
         </p>
       </div>
 
-      <PerformanceDashboard stats={stats ?? []} />
+      <PerformanceDashboard stats={stats} onRefresh={fetchData} />
     </div>
+    </RoleGuard>
   );
 }

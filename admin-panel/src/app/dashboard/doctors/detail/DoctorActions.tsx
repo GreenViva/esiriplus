@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import { approveDoctor, rejectDoctor, deauthorizeDevice, suspendDoctor, unsuspendDoctor } from "@/lib/actions";
+import { approveDoctor, rejectDoctor, deauthorizeDevice, suspendDoctor, unsuspendDoctor } from "@/lib/adminApi";
 
 interface Props {
   doctorId: string;
@@ -12,10 +11,10 @@ interface Props {
   isAvailable: boolean;
   isBanned: boolean;
   hasDevice: boolean;
+  onRefresh?: () => void;
 }
 
-export default function DoctorActions({ doctorId, isVerified, isAvailable, isBanned, hasDevice }: Props) {
-  const router = useRouter();
+export default function DoctorActions({ doctorId, isVerified, isAvailable, isBanned, hasDevice, onRefresh }: Props) {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [approveModalOpen, setApproveModalOpen] = useState(false);
@@ -32,7 +31,7 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
     if (result.error) setError(result.error);
     else {
       setApproveModalOpen(false);
-      router.refresh();
+      onRefresh?.();
     }
     setLoading(null);
   }
@@ -46,7 +45,7 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
     else {
       setRejectModalOpen(false);
       setRejectReason("");
-      router.refresh();
+      onRefresh?.();
     }
     setLoading(null);
   }
@@ -56,7 +55,7 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
     setError("");
     const result = await deauthorizeDevice(doctorId);
     if (result.error) setError(result.error);
-    else router.refresh();
+    else onRefresh?.();
     setLoading(null);
   }
 
@@ -69,7 +68,7 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
       setSuspendModalOpen(false);
       setSuspendDays(7);
       setSuspendReason("");
-      router.refresh();
+      onRefresh?.();
     }
     setLoading(null);
   }
@@ -79,7 +78,7 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
     setError("");
     const result = await unsuspendDoctor(doctorId);
     if (result.error) setError(result.error);
-    else router.refresh();
+    else onRefresh?.();
     setLoading(null);
   }
 

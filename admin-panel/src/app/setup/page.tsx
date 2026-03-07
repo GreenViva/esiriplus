@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { checkAdminExists, setupInitialAdmin } from "@/lib/actions";
+import { checkAdminExists, setupInitialAdmin } from "@/lib/adminApi";
 
 function ShieldIcon() {
   return (

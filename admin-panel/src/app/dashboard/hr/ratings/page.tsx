@@ -1,41 +1,68 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 import RatingsView from "./RatingsView";
 
-export default async function HRRatingsPage() {
-  const supabase = createAdminClient();
+const PAGE_SIZE = 50;
 
-  const { data: ratings } = await supabase
-    .from("doctor_ratings")
-    .select(
-      "rating_id, doctor_id, consultation_id, patient_session_id, rating, comment, is_flagged, flagged_by, flagged_at, created_at, doctor_profiles(full_name)"
-    )
-    .order("created_at", { ascending: false })
-    .limit(200);
+export default function HRRatingsPage() {
+  const [allRatings, setAllRatings] = useState<
+    {
+      rating_id: string;
+      doctor_id: string;
+      consultation_id: string;
+      patient_session_id: string;
+      rating: number;
+      comment: string | null;
+      is_flagged: boolean;
+      flagged_by: string | null;
+      flagged_at: string | null;
+      created_at: string;
+      doctor_profiles: { full_name: string } | null;
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
 
-  const allRatings = (ratings ?? []) as unknown as {
-    rating_id: string;
-    doctor_id: string;
-    consultation_id: string;
-    patient_session_id: string;
-    rating: number;
-    comment: string | null;
-    is_flagged: boolean;
-    flagged_by: string | null;
-    flagged_at: string | null;
-    created_at: string;
-    doctor_profiles: { full_name: string } | null;
-  }[];
+  const fetchData = useCallback(() => {
+    const supabase = createClient();
+
+    supabase
+      .from("doctor_ratings")
+      .select(
+        "rating_id, doctor_id, consultation_id, patient_session_id, rating, comment, is_flagged, flagged_by, flagged_at, created_at, doctor_profiles(full_name)"
+      )
+      .order("created_at", { ascending: false })
+      .limit(PAGE_SIZE)
+      .then(({ data }) => {
+        setAllRatings(
+          (data ?? []) as unknown as typeof allRatings
+        );
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <>
       <RealtimeRefresh
         tables={["doctor_ratings"]}
         channelName="hr-ratings-realtime"
+        onUpdate={fetchData}
       />
-      <RatingsView ratings={allRatings} />
+      <RatingsView ratings={allRatings} onRefresh={fetchData} />
     </>
   );
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { toggleRatingFlag } from "@/lib/actions";
+import { toggleRatingFlag } from "@/lib/adminApi";
 
 interface Rating {
   rating_id: string;
@@ -23,10 +22,10 @@ type TimeFilter = "all" | "today" | "week" | "month" | "year";
 
 interface Props {
   ratings: Rating[];
+  onRefresh?: () => void;
 }
 
-export default function RatingsView({ ratings }: Props) {
-  const router = useRouter();
+export default function RatingsView({ ratings, onRefresh }: Props) {
   const [search, setSearch] = useState("");
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>("all");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
@@ -89,7 +88,7 @@ export default function RatingsView({ ratings }: Props) {
     setLoading(ratingId);
     await toggleRatingFlag(ratingId, !currentlyFlagged);
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   function formatDate(iso: string): string {

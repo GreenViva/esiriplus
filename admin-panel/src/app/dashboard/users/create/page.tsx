@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPortalUserWithPassword } from "@/lib/actions";
+import { createPortalUserWithPassword } from "@/lib/adminApi";
 
 const roleOptions = [
   { value: "admin", label: "Admin", enabled: true },
@@ -37,6 +37,10 @@ export default function CreateUserPage() {
     }
     if (form.password.length < 8) {
       setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      setError("Password must contain uppercase, lowercase, and a number.");
       return;
     }
 

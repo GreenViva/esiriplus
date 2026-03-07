@@ -4,12 +4,48 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-/** Verify caller is authenticated and has a portal role. Returns user or error. */
+type PortalRole = "admin" | "hr" | "finance" | "audit";
+
+/** Verify caller is authenticated. Returns user or error. */
 async function requireAuth() {
   const serverClient = await createClient();
   const { data: { user } } = await serverClient.auth.getUser();
   if (!user) return { error: "Not authenticated" as const, user: null };
   return { error: null, user };
+}
+
+/** Verify caller is authenticated AND has one of the required roles. */
+async function requireRole(allowed: PortalRole[]) {
+  const auth = await requireAuth();
+  if (auth.error) return { error: auth.error, user: null };
+
+  const supabase = createAdminClient();
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("role_name")
+    .eq("user_id", auth.user.id);
+
+  const userRoles = (roles ?? []).map((r) => r.role_name);
+  const hasAccess = userRoles.some((r) => allowed.includes(r as PortalRole));
+
+  if (!hasAccess) {
+    return { error: "Forbidden: insufficient role" as const, user: null };
+  }
+
+  return { error: null, user: auth.user };
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateId(id: string, label: string): string | null {
+  if (!id || !UUID_RE.test(id)) return `Invalid ${label}`;
+  return null;
+}
+
+function validateText(text: string, label: string, maxLen = 500): string | null {
+  if (!text || !text.trim()) return `${label} is required`;
+  if (text.length > maxLen) return `${label} must be ${maxLen} characters or fewer`;
+  return null;
 }
 
 function revalidateDoctorPaths() {
@@ -33,7 +69,7 @@ async function sendDoctorNotification(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
           "X-Service-Key": process.env.SUPABASE_SERVICE_ROLE_KEY!,
         },
         body: JSON.stringify({ user_id: doctorId, title, body, type }),
@@ -45,7 +81,10 @@ async function sendDoctorNotification(
 }
 
 export async function approveDoctor(doctorId: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin", "hr"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -76,7 +115,12 @@ export async function approveDoctor(doctorId: string) {
 }
 
 export async function rejectDoctor(doctorId: string, reason: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+  const textErr = validateText(reason, "Rejection reason");
+  if (textErr) return { error: textErr };
+
+  const auth = await requireRole(["admin", "hr"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -108,15 +152,18 @@ export async function rejectDoctor(doctorId: string, reason: string) {
 }
 
 export async function banDoctor(doctorId: string, reason: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+  const textErr = validateText(reason, "Ban reason");
+  if (textErr) return { error: textErr };
+
+  const auth = await requireRole(["admin"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
 
   const bannedAt = new Date().toISOString();
 
-  // Mark as banned in doctor_profiles (app-layer enforcement).
-  // The doctor can still authenticate but will see an immovable ban screen.
   const { error } = await supabase
     .from("doctor_profiles")
     .update({
@@ -150,7 +197,12 @@ export async function banDoctor(doctorId: string, reason: string) {
 }
 
 export async function warnDoctor(doctorId: string, message: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+  const textErr = validateText(message, "Warning message", 1000);
+  if (textErr) return { error: textErr };
+
+  const auth = await requireRole(["admin", "hr"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -186,7 +238,10 @@ export async function warnDoctor(doctorId: string, message: string) {
 }
 
 export async function toggleRatingFlag(ratingId: string, flagged: boolean) {
-  const auth = await requireAuth();
+  const idErr = validateId(ratingId, "rating ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin", "hr"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -216,7 +271,11 @@ export async function toggleRatingFlag(ratingId: string, flagged: boolean) {
 }
 
 export async function suspendDoctor(doctorId: string, days: number, reason: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+  if (reason && reason.length > 500) return { error: "Suspension reason must be 500 characters or fewer" };
+
+  const auth = await requireRole(["admin", "hr"]);
   if (auth.error) return { error: auth.error };
 
   if (!Number.isInteger(days) || days < 1 || days > 365) {
@@ -259,7 +318,10 @@ export async function suspendDoctor(doctorId: string, days: number, reason: stri
 }
 
 export async function unsuspendDoctor(doctorId: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin", "hr"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -290,7 +352,10 @@ export async function unsuspendDoctor(doctorId: string) {
 }
 
 export async function unbanDoctor(doctorId: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -327,6 +392,12 @@ export async function unbanDoctor(doctorId: string) {
 }
 
 export async function deauthorizeDevice(doctorId: string) {
+  const idErr = validateId(doctorId, "doctor ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin", "hr"]);
+  if (auth.error) return { error: auth.error };
+
   const serverClient = await createClient();
   const { data: { session } } = await serverClient.auth.getSession();
 
@@ -354,7 +425,10 @@ export async function deauthorizeDevice(doctorId: string) {
 }
 
 export async function suspendUser(userId: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(userId, "user ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -379,7 +453,10 @@ export async function suspendUser(userId: string) {
 }
 
 export async function unsuspendUser(userId: string) {
-  const auth = await requireAuth();
+  const idErr = validateId(userId, "user ID");
+  if (idErr) return { error: idErr };
+
+  const auth = await requireRole(["admin"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
@@ -421,13 +498,11 @@ export async function setupInitialAdmin(data: {
 }): Promise<{ success?: boolean; error?: string }> {
   const supabase = createAdminClient();
 
-  // Guard: reject if an admin already exists
   const { exists } = await checkAdminExists();
   if (exists) {
     return { error: "An admin account already exists." };
   }
 
-  // Create auth user via admin API (bypasses RLS, confirms email)
   const { data: authData, error: createError } =
     await supabase.auth.admin.createUser({
       email: data.email,
@@ -442,7 +517,6 @@ export async function setupInitialAdmin(data: {
 
   const userId = authData.user.id;
 
-  // Insert admin role (no .select() to avoid schema cache issues)
   const { error: roleError } = await supabase
     .from("user_roles")
     .insert({ user_id: userId, role_name: "admin" });
@@ -452,7 +526,6 @@ export async function setupInitialAdmin(data: {
     return { error: roleError.message };
   }
 
-  // Log the initial setup (best effort)
   await supabase
     .from("admin_logs")
     .insert({
@@ -477,24 +550,11 @@ export async function createPortalUserWithPassword(data: {
     return { error: "Invalid role." };
   }
 
+  const auth = await requireRole(["admin"]);
+  if (auth.error) return { error: auth.error };
+
   const supabase = createAdminClient();
 
-  // Verify the caller is an authenticated admin
-  const serverClient = await createClient();
-  const { data: { user: caller } } = await serverClient.auth.getUser();
-  if (!caller) return { error: "Not authenticated" };
-
-  const { data: callerRole } = await supabase
-    .from("user_roles")
-    .select("role_name")
-    .eq("user_id", caller.id)
-    .single();
-
-  if (!callerRole || callerRole.role_name !== "admin") {
-    return { error: "Only admins can create portal users." };
-  }
-
-  // Create the auth user with the provided email + password
   const { data: authData, error: createError } =
     await supabase.auth.admin.createUser({
       email: data.email.toLowerCase(),
@@ -509,22 +569,19 @@ export async function createPortalUserWithPassword(data: {
 
   const userId = authData.user.id;
 
-  // Assign the role
   const { error: roleError } = await supabase
     .from("user_roles")
     .insert({ user_id: userId, role_name: data.role });
 
   if (roleError) {
-    // Rollback: delete the auth user if role insert fails
     await supabase.auth.admin.deleteUser(userId);
     return { error: roleError.message };
   }
 
-  // Log the action
   await supabase
     .from("admin_logs")
     .insert({
-      admin_id: caller.id,
+      admin_id: auth.user.id,
       action: "create_portal_user",
       target_type: "user",
       target_id: userId,
@@ -536,27 +593,51 @@ export async function createPortalUserWithPassword(data: {
   return { success: true };
 }
 
-export async function deleteUserRole(
-  userId: string,
-  roleName: string,
-): Promise<{ success?: boolean; error?: string }> {
-  const auth = await requireAuth();
+export async function scanForRisks(): Promise<{ success?: boolean; flagged?: number; error?: string }> {
+  const auth = await requireRole(["admin", "audit"]);
   if (auth.error) return { error: auth.error };
 
   const supabase = createAdminClient();
 
-  // Verify the caller is an admin
-  const { data: callerRole } = await supabase
-    .from("user_roles")
-    .select("role_name")
-    .eq("user_id", auth.user.id)
-    .single();
+  // Count existing flags before scan
+  const { count: before } = await supabase
+    .from("risk_flags")
+    .select("*", { count: "exact", head: true })
+    .eq("is_resolved", false);
 
-  if (!callerRole || callerRole.role_name !== "admin") {
-    return { error: "Only admins can delete roles." };
+  // Run the low-online-time scan
+  const { error: rpcError } = await supabase.rpc("fn_flag_low_online_doctors");
+  if (rpcError) {
+    console.error("Risk scan RPC error:", rpcError.message);
+    // Non-fatal — the function may not exist yet or may fail on empty data
   }
 
-  // Prevent self-deletion
+  // Count flags after scan
+  const { count: after } = await supabase
+    .from("risk_flags")
+    .select("*", { count: "exact", head: true })
+    .eq("is_resolved", false);
+
+  const flagged = (after ?? 0) - (before ?? 0);
+
+  revalidatePath("/dashboard/audit");
+  return { success: true, flagged: Math.max(0, flagged) };
+}
+
+export async function deleteUserRole(
+  userId: string,
+  roleName: string,
+): Promise<{ success?: boolean; error?: string }> {
+  const idErr = validateId(userId, "user ID");
+  if (idErr) return { error: idErr };
+  const VALID_ROLES = ["admin", "hr", "finance", "audit"];
+  if (!VALID_ROLES.includes(roleName)) return { error: "Invalid role name" };
+
+  const auth = await requireRole(["admin"]);
+  if (auth.error) return { error: auth.error };
+
+  const supabase = createAdminClient();
+
   if (userId === auth.user.id) {
     return { error: "You cannot remove your own role." };
   }

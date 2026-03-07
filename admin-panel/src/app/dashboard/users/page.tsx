@@ -1,39 +1,61 @@
-export const dynamic = "force-dynamic";
+"use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { createAdminClient, fetchAllAuthUsers } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
+import { getAllAuthUsers } from "@/lib/adminApi";
 import { formatDate } from "@/lib/utils";
 import type { UserRole } from "@/lib/types/database";
 import UserActionButtons from "./UserActionButtons";
+import RealtimeRefresh from "@/components/RealtimeRefresh";
 
-export default async function UsersPage() {
-  const supabase = createAdminClient();
-  const serverClient = await createClient();
-  const {
-    data: { user: currentUser },
-  } = await serverClient.auth.getUser();
+export default function UsersPage() {
+  const [roleList, setRoleList] = useState<UserRole[]>([]);
+  const [authMap, setAuthMap] = useState<
+    Map<string, { email: string; isBanned: boolean }>
+  >(new Map());
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const { data: roles } = await supabase
-    .from("user_roles")
-    .select("*")
-    .order("created_at", { ascending: true });
+  const fetchData = useCallback(() => {
+    const supabase = createClient();
 
-  const roleList = (roles ?? []) as UserRole[];
+    Promise.all([
+      supabase
+        .from("user_roles")
+        .select("*")
+        .order("created_at", { ascending: true }),
+      supabase.auth.getUser(),
+      getAllAuthUsers(),
+    ]).then(([rolesRes, userRes, authUsersRes]) => {
+      setRoleList((rolesRes.data ?? []) as UserRole[]);
+      setCurrentUserId(userRes.data?.user?.id ?? null);
 
-  // Fetch auth users to check ban status (paginated)
-  const authUsers = await fetchAllAuthUsers(supabase);
+      const authUsers = authUsersRes.data?.users ?? [];
+      const map = new Map<string, { email: string; isBanned: boolean }>();
+      for (const u of authUsers) {
+        map.set(u.id, {
+          email: u.email ?? "",
+          isBanned:
+            !!u.banned_until && new Date(u.banned_until) > new Date(),
+        });
+      }
+      setAuthMap(map);
+      setLoading(false);
+    });
+  }, []);
 
-  const authMap = new Map(
-    authUsers.map((u) => [
-      u.id,
-      {
-        email: u.email ?? "",
-        isBanned:
-          !!u.banned_until && new Date(u.banned_until) > new Date(),
-      },
-    ])
-  );
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
+  }
 
   const roleBadge: Record<string, { bg: string; text: string }> = {
     admin: { bg: "bg-purple-50", text: "text-purple-700" },
@@ -44,6 +66,7 @@ export default async function UsersPage() {
 
   return (
     <div>
+      <RealtimeRefresh tables={["user_roles"]} channelName="users-realtime" onUpdate={fetchData} />
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -113,7 +136,7 @@ export default async function UsersPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {roleList.map((r) => {
-                const isCurrentUser = r.user_id === currentUser?.id;
+                const isCurrentUser = r.user_id === currentUserId;
                 const auth = authMap.get(r.user_id);
                 const isBanned = auth?.isBanned ?? false;
                 const userEmail = auth?.email ?? r.user_id.slice(0, 8) + "...";
@@ -157,6 +180,7 @@ export default async function UsersPage() {
                           userId={r.user_id}
                           isBanned={isBanned}
                           roleName={r.role_name}
+                          onRefresh={fetchData}
                         />
                       )}
                     </td>

@@ -56,9 +56,7 @@ const financeItems: NavItem[] = [
   { href: "/dashboard/analytics", label: "Health Analytics", icon: AnalyticsIcon },
 ];
 
-const auditItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: DashboardIcon },
-];
+const auditItems: NavItem[] = auditSection.items;
 
 const portalConfig: Record<string, { title: string; subtitle: string }> = {
   admin: { title: "Admin Portal", subtitle: "Administrator" },
@@ -102,8 +100,8 @@ export default function Sidebar({ email, fullName, role = "admin" }: SidebarProp
     setLoggingOut(true);
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
+    await fetch("/api/auth/clear-roles", { method: "POST" }).catch(() => {});
+    window.location.href = "/login";
   }
 
   return (

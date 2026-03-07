@@ -105,3 +105,41 @@ export interface SupabaseUser {
     [key: string]: unknown;
   };
 }
+
+export interface AdminLogRow {
+  id?: string;
+  log_id?: string;
+  admin_id: string | null;
+  action: string;
+  target_type: string | null;
+  target_id: string | null;
+  details: Record<string, unknown> | null;
+  level: string | null;
+  function_name: string | null;
+  ip_address: string | null;
+  error_message: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface PerformanceStat {
+  bucket: string;
+  metric_type: string;
+  endpoint: string;
+  avg_latency_ms: number;
+  p95_latency_ms: number;
+  request_count: number;
+  error_count: number;
+}
+
+export interface RiskFlag {
+  flag_id: string;
+  doctor_id: string;
+  flag_type: string;
+  severity: string;
+  title: string;
+  description: string | null;
+  is_resolved: boolean;
+  created_at: string;
+  doctor_profiles: { full_name: string } | null;
+}

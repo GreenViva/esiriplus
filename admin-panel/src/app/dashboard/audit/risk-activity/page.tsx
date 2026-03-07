@@ -1,7 +1,11 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import StatCard from "@/components/StatCard";
+import RoleGuard from "@/components/RoleGuard";
+import RealtimeRefresh from "@/components/RealtimeRefresh";
+import type { RiskFlag, AdminLogRow } from "@/lib/types/database";
 
 const SECURITY_ACTIONS = [
   "session_locked_brute_force",
@@ -14,107 +18,121 @@ const SECURITY_ACTIONS = [
   "manage_consultation_failed",
 ];
 
-interface RiskFlag {
-  flag_id: string;
-  flag_type: string;
-  severity: string;
-  title: string;
-  description: string | null;
-  created_at: string;
-  doctor_profiles: { full_name: string } | null;
-}
+export default function RiskActivityPage() {
+  const [errors24h, setErrors24h] = useState(0);
+  const [warnings24h, setWarnings24h] = useState(0);
+  const [failedAuth24h, setFailedAuth24h] = useState(0);
+  const [lockedSessions, setLockedSessions] = useState(0);
+  const [securityEvents, setSecurityEvents] = useState<AdminLogRow[]>([]);
+  const [riskFlags, setRiskFlags] = useState<RiskFlag[]>([]);
+  const [suspiciousIps, setSuspiciousIps] = useState<
+    { ip: string; count: number; lastAttempt: string }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function RiskActivityPage() {
-  const supabase = createAdminClient();
-  const twentyFourHoursAgo = new Date(
-    Date.now() - 24 * 60 * 60 * 1000
-  ).toISOString();
+  const fetchData = useCallback(() => {
+    const supabase = createClient();
+    const twentyFourHoursAgo = new Date(
+      Date.now() - 24 * 60 * 60 * 1000
+    ).toISOString();
 
-  const [
-    errorsRes,
-    warningsRes,
-    failedAuthRes,
-    lockedSessionsRes,
-    securityEventsRes,
-    suspiciousIpsRes,
-    riskFlagsRes,
-  ] = await Promise.all([
-    // Errors in last 24h
-    supabase
-      .from("admin_logs")
-      .select("*", { count: "exact", head: true })
-      .eq("level", "error")
-      .gte("created_at", twentyFourHoursAgo),
-    // Warnings in last 24h
-    supabase
-      .from("admin_logs")
-      .select("*", { count: "exact", head: true })
-      .eq("level", "warn")
-      .gte("created_at", twentyFourHoursAgo),
-    // Failed auth in last 24h
-    supabase
-      .from("admin_logs")
-      .select("*", { count: "exact", head: true })
-      .in("action", SECURITY_ACTIONS)
-      .gte("created_at", twentyFourHoursAgo),
-    // Currently locked sessions
-    supabase
-      .from("patient_sessions")
-      .select("*", { count: "exact", head: true })
-      .eq("is_locked", true),
-    // Recent security events (warn/error + security actions)
-    supabase
-      .from("admin_logs")
-      .select("*")
-      .or(
-        `level.in.(warn,error),action.in.(${SECURITY_ACTIONS.join(",")})`
-      )
-      .order("created_at", { ascending: false })
-      .limit(50),
-    // Suspicious IPs — failed recovery attempts in last 24h
-    supabase
-      .from("recovery_attempts")
-      .select("ip_address, attempted_at")
-      .eq("success", false)
-      .gte("attempted_at", twentyFourHoursAgo)
-      .order("attempted_at", { ascending: false })
-      .limit(500),
-    // Active risk flags
-    supabase
-      .from("risk_flags")
-      .select(
-        "flag_id, flag_type, severity, title, description, created_at, doctor_profiles(full_name)"
-      )
-      .eq("is_resolved", false)
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ]);
+    Promise.all([
+      supabase
+        .from("admin_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("level", "error")
+        .gte("created_at", twentyFourHoursAgo),
+      supabase
+        .from("admin_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("level", "warn")
+        .gte("created_at", twentyFourHoursAgo),
+      supabase
+        .from("admin_logs")
+        .select("*", { count: "exact", head: true })
+        .in("action", SECURITY_ACTIONS)
+        .gte("created_at", twentyFourHoursAgo),
+      supabase
+        .from("patient_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("is_locked", true),
+      supabase
+        .from("admin_logs")
+        .select("*")
+        .or(
+          `level.in.(warn,error),action.in.(${SECURITY_ACTIONS.join(",")})`
+        )
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("recovery_attempts")
+        .select("ip_address, attempted_at")
+        .eq("success", false)
+        .gte("attempted_at", twentyFourHoursAgo)
+        .order("attempted_at", { ascending: false })
+        .limit(500)
+        .then((res) => (res.error ? { data: [] } : res)),
+      supabase
+        .from("risk_flags")
+        .select(
+          "flag_id, flag_type, severity, title, description, created_at, doctor_profiles(full_name)"
+        )
+        .eq("is_resolved", false)
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]).then(([
+      errorsRes,
+      warningsRes,
+      failedAuthRes,
+      lockedSessionsRes,
+      securityEventsRes,
+      suspiciousIpsRes,
+      riskFlagsRes,
+    ]) => {
+      setErrors24h(errorsRes.count ?? 0);
+      setWarnings24h(warningsRes.count ?? 0);
+      setFailedAuth24h(failedAuthRes.count ?? 0);
+      setLockedSessions(lockedSessionsRes.count ?? 0);
+      setSecurityEvents(securityEventsRes.data ?? []);
+      setRiskFlags((riskFlagsRes.data ?? []) as unknown as RiskFlag[]);
 
-  const errors24h = errorsRes.count ?? 0;
-  const warnings24h = warningsRes.count ?? 0;
-  const failedAuth24h = failedAuthRes.count ?? 0;
-  const lockedSessions = lockedSessionsRes.count ?? 0;
-  const securityEvents = securityEventsRes.data ?? [];
-  const riskFlags = (riskFlagsRes.data ?? []) as unknown as RiskFlag[];
+      // Aggregate suspicious IPs
+      const ipCounts = new Map<string, { count: number; lastAttempt: string }>();
+      for (const row of suspiciousIpsRes.data ?? []) {
+        const ip = row.ip_address ?? "unknown";
+        const existing = ipCounts.get(ip);
+        if (existing) {
+          existing.count++;
+        } else {
+          ipCounts.set(ip, { count: 1, lastAttempt: row.attempted_at });
+        }
+      }
+      const ips = Array.from(ipCounts.entries())
+        .map(([ip, data]) => ({ ip, ...data }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+      setSuspiciousIps(ips);
 
-  // Aggregate suspicious IPs
-  const ipCounts = new Map<string, { count: number; lastAttempt: string }>();
-  for (const row of suspiciousIpsRes.data ?? []) {
-    const ip = row.ip_address ?? "unknown";
-    const existing = ipCounts.get(ip);
-    if (existing) {
-      existing.count++;
-    } else {
-      ipCounts.set(ip, { count: 1, lastAttempt: row.attempted_at });
-    }
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+      </div>
+    );
   }
-  const suspiciousIps = Array.from(ipCounts.entries())
-    .map(([ip, data]) => ({ ip, ...data }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
 
   return (
+    <RoleGuard allowed={["admin", "audit"]}>
     <div>
+      <RealtimeRefresh tables={["admin_logs", "risk_flags", "recovery_attempts"]} channelName="risk-activity-realtime" onUpdate={fetchData} />
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
@@ -263,7 +281,7 @@ export default async function RiskActivityPage() {
                       ? JSON.stringify(event.details).slice(0, 120)
                       : event.metadata
                         ? JSON.stringify(event.metadata).slice(0, 120)
-                        : "—");
+                        : "\u2014");
 
                   return (
                     <tr
@@ -294,10 +312,10 @@ export default async function RiskActivityPage() {
                         {formatAction(event.action)}
                       </td>
                       <td className="px-4 py-2.5 text-xs text-gray-500 font-mono">
-                        {event.function_name ?? "—"}
+                        {event.function_name ?? "\u2014"}
                       </td>
                       <td className="px-4 py-2.5 text-xs text-gray-500 font-mono">
-                        {event.ip_address ?? "—"}
+                        {event.ip_address ?? "\u2014"}
                       </td>
                       <td className="px-4 py-2.5 text-xs text-gray-500 max-w-[300px] truncate">
                         {details}
@@ -432,10 +450,11 @@ export default async function RiskActivityPage() {
         </div>
       </div>
     </div>
+    </RoleGuard>
   );
 }
 
-/* ── Helper Components ──────────────────────────────────────────────────── */
+/* -- Helper Components -- */
 
 function LevelBadge({ level }: { level: string }) {
   const config: Record<string, { bg: string; text: string; label: string }> = {

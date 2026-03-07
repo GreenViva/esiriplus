@@ -9,7 +9,6 @@ import RealtimeRefresh from "@/components/RealtimeRefresh";
 export default async function DashboardPage() {
   const supabase = createAdminClient();
 
-  // ── Stat card queries (all hit the database) ──────────────────
   const [
     doctorsRes,
     verifiedDoctorsRes,
@@ -54,7 +53,6 @@ export default async function DashboardPage() {
       .is("license_document_url", null),
   ]);
 
-  // Surface any query errors so admins see them
   const queryErrors = [
     doctorsRes.error,
     verifiedDoctorsRes.error,
@@ -75,19 +73,16 @@ export default async function DashboardPage() {
   const completedConsultations = completedConsultationsRes.count ?? 0;
   const pendingCredentials = pendingCredentialsRes.count ?? 0;
 
-  // Revenue from service_access_payments (direct payment records)
   const servicePaymentRevenue = (servicePaymentsRes.data ?? []).reduce(
     (sum, p) => sum + (p.amount ?? 0),
     0,
   );
 
-  // Revenue from doctor_earnings (doctor's 50% commission — double it for full revenue)
   const doctorEarningsTotal = (earningsRes.data ?? []).reduce(
     (sum, e) => sum + (e.amount ?? 0),
     0,
   );
 
-  // Use service payments if available, otherwise derive from doctor earnings
   const totalRevenue = servicePaymentRevenue > 0
     ? servicePaymentRevenue
     : doctorEarningsTotal * 2;
@@ -98,28 +93,23 @@ export default async function DashboardPage() {
     return formatCurrency(amount);
   }
 
-  // ── Recent activity from multiple tables ──────────────────────
   const [paymentsRes, recentDoctorsRes, recentConsultationsRes, logsRes] =
     await Promise.all([
-      // Recent payments
       supabase
         .from("payments")
         .select("payment_id, amount, currency, payment_type, status, service_access_payments(service_type), created_at")
         .order("created_at", { ascending: false })
         .limit(10),
-      // Recently registered / verified doctors
       supabase
         .from("doctor_profiles")
         .select("doctor_id, full_name, specialty, is_verified, created_at, updated_at")
         .order("updated_at", { ascending: false })
         .limit(10),
-      // Recent consultations
       supabase
         .from("consultations")
         .select("consultation_id, status, service_type, doctor_id, doctor_profiles(full_name), created_at, updated_at")
         .order("updated_at", { ascending: false })
         .limit(10),
-      // Admin actions
       supabase
         .from("admin_logs")
         .select("*")
@@ -127,10 +117,8 @@ export default async function DashboardPage() {
         .limit(10),
     ]);
 
-  // Build unified activity list
   const activities: ActivityItem[] = [];
 
-  // Payments
   for (const p of paymentsRes.data ?? []) {
     const sap = p.service_access_payments as unknown as { service_type?: string } | null;
     const serviceLabel = serviceTypeLabel(sap?.service_type ?? p.payment_type ?? "service");
@@ -143,7 +131,6 @@ export default async function DashboardPage() {
     });
   }
 
-  // Doctors
   for (const d of recentDoctorsRes.data ?? []) {
     if (d.is_verified) {
       activities.push({
@@ -164,7 +151,6 @@ export default async function DashboardPage() {
     }
   }
 
-  // Consultations
   for (const c of recentConsultationsRes.data ?? []) {
     const dp = c.doctor_profiles as unknown as { full_name?: string } | null;
     const doctorName = dp?.full_name ? `Dr. ${dp.full_name}` : "a doctor";
@@ -197,7 +183,6 @@ export default async function DashboardPage() {
     }
   }
 
-  // Admin logs
   for (const log of logsRes.data ?? []) {
     const details = log.details as Record<string, unknown> | null;
     activities.push({
@@ -209,7 +194,6 @@ export default async function DashboardPage() {
     });
   }
 
-  // Sort by timestamp descending, take top 20
   activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   const recentActivity = activities.slice(0, 20);
 
@@ -219,19 +203,25 @@ export default async function DashboardPage() {
         tables={["doctor_profiles", "admin_logs", "consultations", "payments"]}
         channelName="admin-dashboard-realtime"
       />
-      {/* Error banner */}
       {queryErrors.length > 0 && (
-        <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200">
-          <p className="text-sm font-medium text-red-700">
-            Failed to load some dashboard data. Check your Supabase connection.
-          </p>
-          <p className="text-xs text-red-500 mt-1">
-            {queryErrors.map((e) => e!.message).join("; ")}
-          </p>
+        <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-red-700">
+              Failed to load some dashboard data. Check your Supabase connection.
+            </p>
+            <p className="text-xs text-red-500 mt-1">
+              {queryErrors.map((e) => e!.message).join("; ")}
+            </p>
+          </div>
+          <a
+            href="/dashboard"
+            className="ml-4 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors flex-shrink-0"
+          >
+            Retry
+          </a>
         </div>
       )}
 
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-sm text-gray-400 mt-0.5">
@@ -239,105 +229,68 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Stat cards — Row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <StatCard
           label="Total Doctors"
           value={totalDoctors}
           href="/dashboard/doctors"
           iconBg="bg-blue-50"
-          icon={
-            <svg className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>}
         />
         <StatCard
           label="Verified Doctors"
           value={verifiedDoctors}
           href="/dashboard/doctors?filter=verified"
           iconBg="bg-green-50"
-          icon={
-            <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
         <StatCard
           label="Pending Applications"
           value={pendingApplications}
           href="/dashboard/doctors?filter=pending"
           iconBg="bg-yellow-50"
-          icon={
-            <svg className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
         <StatCard
           label="Total Patients"
           value={totalPatients}
           iconBg="bg-purple-50"
-          icon={
-            <svg className="h-5 w-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>}
         />
       </div>
 
-      {/* Stat cards — Row 2 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           label="Active Consultations"
           value={activeConsultations}
           iconBg="bg-orange-50"
-          icon={
-            <svg className="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>}
         />
         <StatCard
           label="Completed"
           value={completedConsultations}
           iconBg="bg-teal-50"
-          icon={
-            <svg className="h-5 w-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
         <StatCard
           label="Total Revenue"
           value={formatRevenue(totalRevenue)}
           iconBg="bg-emerald-50"
-          icon={
-            <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
         />
         <StatCard
           label="Pending Credentials"
           value={pendingCredentials}
           href="/dashboard/doctors"
           iconBg="bg-indigo-50"
-          icon={
-            <svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-          }
+          icon={<svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>}
         />
       </div>
 
-      {/* Recent Activity */}
       <ActivityFeed items={recentActivity} />
     </div>
   );
 }
-
-// ── Helpers ────────────────────────────────────────────────────
 
 function formatAdminAction(action: string, details: Record<string, unknown> | null): string {
   const d = details ?? {};

@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { checkAdminExists } from "@/lib/actions";
+import { checkAdminExists } from "@/lib/adminApi";
 
 export default function LoginPage() {
   return (
@@ -59,24 +59,33 @@ function LoginForm() {
       return;
     }
 
-    // Check role
+    // Check role via edge function (bypasses RLS)
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (!user) {
+    if (!session) {
       setError("Authentication failed.");
       setLoading(false);
       return;
     }
 
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role_name")
-      .eq("user_id", user.id);
+    const rolesRes = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/admin-portal-action`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ action: "get_my_roles" }),
+      },
+    );
+    const rolesJson = await rolesRes.json().catch(() => ({}));
+    const roles: { role_name: string }[] = rolesJson.roles ?? [];
 
     const allowedRoles = ["admin", "hr", "finance", "audit"];
-    const hasAccess = roles?.some((r) => allowedRoles.includes(r.role_name));
+    const hasAccess = roles.some((r) => allowedRoles.includes(r.role_name));
 
     if (!hasAccess) {
       await supabase.auth.signOut();
@@ -85,8 +94,21 @@ function LoginForm() {
       return;
     }
 
+    // Set signed httpOnly cookie via middleware API route
+    const roleNames = roles.map((r) => r.role_name).filter((r) => allowedRoles.includes(r));
+    const setCookieRes = await fetch("/api/auth/set-roles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roles: roleNames }),
+    });
+    if (!setCookieRes.ok) {
+      setError("Failed to establish session. Please try again.");
+      setLoading(false);
+      return;
+    }
+
     // Route to the correct dashboard based on role
-    const userRole = roles?.find((r) =>
+    const userRole = roles.find((r) =>
       allowedRoles.includes(r.role_name)
     )?.role_name;
 
@@ -95,7 +117,7 @@ function LoginForm() {
     } else if (userRole === "finance") {
       router.push("/dashboard/payments");
     } else if (userRole === "audit") {
-      router.push("/dashboard/hr/audit");
+      router.push("/dashboard/audit");
     } else {
       router.push("/dashboard");
     }

@@ -3,7 +3,6 @@
 import { useState, useMemo, Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { specialtyLabel } from "@/lib/utils";
 import {
   approveDoctor,
@@ -13,10 +12,10 @@ import {
   banDoctor,
   unbanDoctor,
   warnDoctor,
-} from "@/lib/actions";
+} from "@/lib/adminApi";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
-interface Doctor {
+export interface Doctor {
   doctor_id: string;
   full_name: string;
   email: string;
@@ -48,10 +47,10 @@ interface Props {
   currentPage: number;
   totalPages: number;
   basePath: string;
+  onRefresh?: () => void;
 }
 
-export default function DoctorManagementView({ doctors, currentPage, totalPages, basePath }: Props) {
-  const router = useRouter();
+export default function DoctorManagementView({ doctors, currentPage, totalPages, basePath, onRefresh }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -67,13 +66,14 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
   const [suspendReason, setSuspendReason] = useState("");
   const [banModal, setBanModal] = useState<string | null>(null);
   const [banReason, setBanReason] = useState("");
+  const [unbanConfirm, setUnbanConfirm] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function getStatus(d: Doctor): string {
     if (d.is_banned) return "banned";
     if (d.rejection_reason && !d.is_verified) return "rejected";
     if (!d.is_verified) return "pending";
-    if (!d.is_available) return "suspended";
+    if (d.suspended_until && new Date(d.suspended_until) > new Date()) return "suspended";
     return "active";
   }
 
@@ -128,7 +128,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
     const result = await approveDoctor(doctorId);
     if (result.error) setError(result.error);
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   async function handleReject(doctorId: string) {
@@ -143,7 +143,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
       setRejectReason("");
     }
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   async function handleSuspend(doctorId: string) {
@@ -158,7 +158,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
       setSuspendReason("");
     }
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   async function handleBan(doctorId: string) {
@@ -170,7 +170,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
     setBanModal(null);
     setBanReason("");
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   async function handleUnsuspend(doctorId: string) {
@@ -179,17 +179,16 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
     const result = await unsuspendDoctor(doctorId);
     if (result.error) setError(result.error);
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   async function handleUnban(doctorId: string) {
-    if (!confirm("Are you sure you want to unban this doctor? They will be able to log in again.")) return;
     setLoading(doctorId);
     setError("");
     const result = await unbanDoctor(doctorId);
     if (result.error) setError(result.error);
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   async function handleWarn(doctorId: string) {
@@ -204,7 +203,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
       setWarnMessage("");
     }
     setLoading(null);
-    router.refresh();
+    onRefresh?.();
   }
 
   const statusBadge: Record<string, { bg: string; text: string }> = {
@@ -441,12 +440,30 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
                             Unsuspend
                           </button>
                         ) : status === "banned" ? (
-                          <button
-                            onClick={() => handleUnban(d.doctor_id)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-                          >
-                            Unban
-                          </button>
+                          unbanConfirm === d.doctor_id ? (
+                            <span className="inline-flex items-center gap-2">
+                              <span className="text-xs text-gray-500">Unban this doctor?</span>
+                              <button
+                                onClick={() => { handleUnban(d.doctor_id); setUnbanConfirm(null); }}
+                                className="text-xs font-semibold text-orange-600 hover:text-orange-700"
+                              >
+                                Yes
+                              </button>
+                              <button
+                                onClick={() => setUnbanConfirm(null)}
+                                className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+                              >
+                                No
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setUnbanConfirm(d.doctor_id)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+                            >
+                              Unban
+                            </button>
+                          )
                         ) : null}
                       </div>
                     </td>

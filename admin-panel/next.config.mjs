@@ -9,6 +9,10 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ["@supabase/supabase-js", "@supabase/ssr"],
+    instrumentationHook: true,
+  },
 };
 
 export default nextConfig;

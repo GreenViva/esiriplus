@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { approveDoctor, rejectDoctor } from "@/lib/actions";
+import { approveDoctor, rejectDoctor } from "@/lib/adminApi";
 import Modal from "@/components/ui/Modal";
 
 interface Props {
   doctorId: string;
+  onComplete?: () => void;
 }
 
-export default function DoctorCardActions({ doctorId }: Props) {
-  const router = useRouter();
+export default function DoctorCardActions({ doctorId, onComplete }: Props) {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [approveModalOpen, setApproveModalOpen] = useState(false);
@@ -24,7 +23,7 @@ export default function DoctorCardActions({ doctorId }: Props) {
     if (result.error) setError(result.error);
     else {
       setApproveModalOpen(false);
-      router.refresh();
+      onComplete?.();
     }
     setLoading(null);
   }
@@ -38,7 +37,7 @@ export default function DoctorCardActions({ doctorId }: Props) {
     else {
       setRejectModalOpen(false);
       setRejectReason("");
-      router.refresh();
+      onComplete?.();
     }
     setLoading(null);
   }
