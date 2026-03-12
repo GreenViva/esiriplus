@@ -325,12 +325,12 @@ class DoctorRegistrationViewModel @Inject constructor(
     }
 
     // Step 8: Credentials (was step 7)
-    fun onLicenseDocumentSelected(uri: Uri?) {
-        _uiState.update { it.copy(licenseDocumentUri = uri) }
+    fun onLicenseDocumentSelected(uri: Uri?, fileName: String? = null) {
+        _uiState.update { it.copy(licenseDocumentUri = uri, licenseDocumentName = fileName) }
     }
 
-    fun onCertificatesSelected(uri: Uri?) {
-        _uiState.update { it.copy(certificatesUri = uri) }
+    fun onCertificatesSelected(uri: Uri?, fileName: String? = null) {
+        _uiState.update { it.copy(certificatesUri = uri, certificatesName = fileName) }
     }
 }
 
@@ -373,7 +373,9 @@ data class DoctorRegistrationUiState(
     val selectedServices: Set<String> = emptySet(),
     // Step 8: Credentials
     val licenseDocumentUri: Uri? = null,
+    val licenseDocumentName: String? = null,
     val certificatesUri: Uri? = null,
+    val certificatesName: String? = null,
     // Step 9: Biometric
     val biometricAvailable: Boolean = true,
     val biometricEnrolled: Boolean = false,

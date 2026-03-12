@@ -349,7 +349,7 @@ fun DoctorConsultationDetailScreen(
             text = { Text(stringResource(R.string.consultation_detail_document), color = Color.Black) },
             onClick = {
                 showAttachmentMenu = false
-                documentPickerLauncher.launch("application/*")
+                documentPickerLauncher.launch("application/pdf")
             },
             leadingIcon = {
                 Icon(Icons.Default.Description, contentDescription = null, tint = BrandTeal)

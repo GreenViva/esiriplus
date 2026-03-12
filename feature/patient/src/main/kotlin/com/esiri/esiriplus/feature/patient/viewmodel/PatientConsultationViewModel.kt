@@ -8,7 +8,9 @@ import android.webkit.MimeTypeMap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esiri.esiriplus.core.common.util.WatermarkUtil
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
+import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.MessageData
@@ -52,6 +54,7 @@ data class ChatUiState(
     val otherPartyTyping: Boolean = false,
     val consultationId: String = "",
     val doctorId: String = "",
+    val doctorName: String = "",
     val error: String? = null,
     val sendError: String? = null,
     val isUploading: Boolean = false,
@@ -66,6 +69,7 @@ class PatientConsultationViewModel @Inject constructor(
     private val chatRealtimeService: ChatRealtimeService,
     private val authRepository: AuthRepository,
     private val consultationDao: ConsultationDao,
+    private val doctorProfileDao: DoctorProfileDao,
     private val messageQueue: MessageQueue,
     private val consultationSessionManager: ConsultationSessionManager,
     private val tokenManager: TokenManager,
@@ -148,9 +152,18 @@ class PatientConsultationViewModel @Inject constructor(
                         ),
                     )
                 } else {
-                    _uiState.update { it.copy(doctorId = existing.doctorId) }
+                    val doctorName = doctorProfileDao.getById(existing.doctorId)?.fullName ?: ""
+                    _uiState.update { it.copy(doctorId = existing.doctorId, doctorName = doctorName) }
                     if (existing.status != "ACTIVE") {
                         consultationDao.updateStatus(consultationId, "ACTIVE")
+                    }
+                }
+
+                // Resolve doctor name if not yet available (e.g. profile fetched later)
+                if (_uiState.value.doctorName.isBlank()) {
+                    val name = consultationDao.getDoctorNameForConsultation(consultationId)
+                    if (!name.isNullOrBlank()) {
+                        _uiState.update { it.copy(doctorName = name) }
                     }
                 }
 
@@ -381,6 +394,17 @@ class PatientConsultationViewModel @Inject constructor(
             try {
                 val contentResolver = context.contentResolver
                 val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
+
+                // Only allow images and PDFs
+                if (!mimeType.startsWith("image/") && mimeType != "application/pdf") {
+                    _uiState.update {
+                        it.copy(isUploading = false, sendError = application.getString(R.string.vm_unsupported_file_type))
+                    }
+                    delay(3000)
+                    _uiState.update { it.copy(sendError = null) }
+                    return@launch
+                }
+
                 val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
                     ?: throw IllegalStateException("Cannot read file")
 
@@ -398,11 +422,24 @@ class PatientConsultationViewModel @Inject constructor(
                 val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "bin"
                 val fileName = getFileNameFromUri(uri, context) ?: "file.$ext"
 
+                // Apply eSIRI watermark for traceability
+                val uploadBytes = when {
+                    isImage -> {
+                        val doctorName = getDoctorNameForWatermark()
+                        WatermarkUtil.applyImageWatermark(bytes, doctorName, mimeType)
+                    }
+                    mimeType == "application/pdf" -> {
+                        val doctorName = getDoctorNameForWatermark()
+                        WatermarkUtil.applyPdfWatermark(context, bytes, doctorName)
+                    }
+                    else -> bytes
+                }
+
                 val storagePath = "$consultationId/${UUID.randomUUID()}.$ext"
                 val uploadResult = fileUploadService.uploadFile(
                     bucketName = ATTACHMENT_BUCKET,
                     path = storagePath,
-                    bytes = bytes,
+                    bytes = uploadBytes,
                     contentType = mimeType,
                 )
 
@@ -474,6 +511,11 @@ class PatientConsultationViewModel @Inject constructor(
             }
         }
         return uri.lastPathSegment
+    }
+
+    private fun getDoctorNameForWatermark(): String {
+        val cached = _uiState.value.doctorName
+        return if (cached.isNotBlank()) cached else "Unknown"
     }
 
     fun dismissSendError() {

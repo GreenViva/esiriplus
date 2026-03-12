@@ -88,4 +88,11 @@ interface ConsultationDao {
             "ORDER BY c.updatedAt DESC LIMIT 1",
     )
     suspend fun getUnratedCompletedConsultation(): ConsultationEntity?
+
+    @Query(
+        "SELECT d.fullName FROM consultations c " +
+            "INNER JOIN doctor_profiles d ON c.doctorId = d.doctorId " +
+            "WHERE c.consultationId = :consultationId LIMIT 1",
+    )
+    suspend fun getDoctorNameForConsultation(consultationId: String): String?
 }

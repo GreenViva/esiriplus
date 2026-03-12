@@ -324,6 +324,7 @@
     <string name="vm_message_failed_retrying">فشل إرسال الرسالة. جارٍ إعادة المحاولة\u2026</string>
     <string name="vm_network_error_retry">خطأ في الشبكة. ستتم إعادة إرسال الرسالة تلقائيًا.</string>
     <string name="vm_file_too_large">الملف كبير جدًا. الحد الأقصى للحجم هو 10 ميغابايت.</string>
+    <string name="vm_unsupported_file_type">يُسمح فقط بالصور وملفات PDF.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

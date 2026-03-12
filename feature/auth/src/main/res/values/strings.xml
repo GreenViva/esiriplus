@@ -198,6 +198,7 @@
     <string name="doctor_reg_step8_subtitle">Set up fingerprint or face unlock for your account</string>
     <string name="doctor_reg_email_label">Email</string>
     <string name="doctor_reg_password_label">Password</string>
+    <string name="doctor_reg_password_hint">Must be at least 8 characters with 1 uppercase letter and 1 number</string>
     <string name="doctor_reg_confirm_password_label">Confirm Password</string>
     <string name="doctor_reg_photo_hint">Tap to select a photo (JPG, PNG, max 5MB)</string>
     <string name="doctor_reg_profile_photo_cd">Profile photo</string>

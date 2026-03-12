@@ -38,6 +38,7 @@ firebaseBom = "34.9.0"
 hiltNavigationCompose = "1.2.0"
 workManager = "2.10.1"
 videosdk = "0.3.0"
+pdfboxAndroid = "2.0.27.0"
 
 [libraries]
 # AndroidX Core
@@ -106,6 +107,9 @@ sqlcipher-android = { group = "net.zetetic", name = "sqlcipher-android", version
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+
+# PDF
+pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref = "pdfboxAndroid" }
 
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }

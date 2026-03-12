@@ -1,5 +1,8 @@
 package com.esiri.esiriplus.feature.auth.screen
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -57,6 +60,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -66,6 +70,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -225,13 +230,21 @@ fun DoctorRegistrationScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri -> viewModel.onProfilePhotoSelected(uri) }
 
+    val context = LocalContext.current
+
     val licenseDocLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
-    ) { uri -> viewModel.onLicenseDocumentSelected(uri) }
+    ) { uri ->
+        val name = uri?.let { resolveFileName(context, it) }
+        viewModel.onLicenseDocumentSelected(uri, name)
+    }
 
     val certificatesLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
-    ) { uri -> viewModel.onCertificatesSelected(uri) }
+    ) { uri ->
+        val name = uri?.let { resolveFileName(context, it) }
+        viewModel.onCertificatesSelected(uri, name)
+    }
 
     LaunchedEffect(uiState.isComplete) {
         if (uiState.isComplete) onComplete()
@@ -604,6 +617,12 @@ private fun Step1Content(
         isPassword = true,
         passwordVisible = uiState.passwordVisible,
         onTogglePasswordVisibility = viewModel::onPasswordVisibleToggled,
+    )
+    Text(
+        text = stringResource(R.string.doctor_reg_password_hint),
+        fontSize = 12.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 4.dp, top = 4.dp),
     )
     Spacer(modifier = Modifier.height(16.dp))
     RegistrationTextField(
@@ -1400,6 +1419,7 @@ private fun Step7Content(
         subtitle = stringResource(R.string.doctor_reg_license_upload_subtitle),
         iconRes = R.drawable.ic_upload,
         hasFile = uiState.licenseDocumentUri != null,
+        fileName = uiState.licenseDocumentName,
         onClick = onUploadLicense,
     )
 
@@ -1411,6 +1431,7 @@ private fun Step7Content(
         subtitle = stringResource(R.string.doctor_reg_certificates_upload_subtitle),
         iconRes = R.drawable.ic_document,
         hasFile = uiState.certificatesUri != null,
+        fileName = uiState.certificatesName,
         onClick = onUploadCertificates,
     )
 
@@ -1442,6 +1463,7 @@ private fun UploadBox(
     subtitle: String,
     iconRes: Int,
     hasFile: Boolean,
+    fileName: String? = null,
     onClick: () -> Unit,
 ) {
     val dashedColor = if (hasFile) BrandTeal else MaterialTheme.colorScheme.outline
@@ -1485,6 +1507,29 @@ private fun UploadBox(
             fontSize = 13.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (hasFile && fileName != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = BrandTeal,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = fileName,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = BrandTeal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
     }
 }
 
@@ -1578,5 +1623,12 @@ private fun BottomBar(
                 }
             }
         }
+    }
+}
+
+private fun resolveFileName(context: Context, uri: Uri): String? {
+    return context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (cursor.moveToFirst() && nameIndex >= 0) cursor.getString(nameIndex) else null
     }
 }

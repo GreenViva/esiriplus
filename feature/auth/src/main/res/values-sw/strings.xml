@@ -198,6 +198,7 @@
     <string name="doctor_reg_step8_subtitle">Weka alama ya kidole au kutambua uso kwa akaunti yako</string>
     <string name="doctor_reg_email_label">Barua pepe</string>
     <string name="doctor_reg_password_label">Nenosiri</string>
+    <string name="doctor_reg_password_hint">Lazima iwe na herufi 8 au zaidi, herufi kubwa 1 na nambari 1</string>
     <string name="doctor_reg_confirm_password_label">Thibitisha Nenosiri</string>
     <string name="doctor_reg_photo_hint">Gusa kuchagua picha (JPG, PNG, max 5MB)</string>
     <string name="doctor_reg_profile_photo_cd">Picha ya wasifu</string>

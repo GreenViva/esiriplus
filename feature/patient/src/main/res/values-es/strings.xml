@@ -324,6 +324,7 @@
     <string name="vm_message_failed_retrying">Error al enviar el mensaje. Reintentando\u2026</string>
     <string name="vm_network_error_retry">Error de red. El mensaje se reenviar\u00E1 autom\u00E1ticamente.</string>
     <string name="vm_file_too_large">Archivo demasiado grande. El tama\u00F1o m\u00E1ximo es 10 MB.</string>
+    <string name="vm_unsupported_file_type">Solo se permiten im\u00E1genes y archivos PDF.</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

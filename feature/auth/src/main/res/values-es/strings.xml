@@ -198,6 +198,7 @@
     <string name="doctor_reg_step8_subtitle">Configure el desbloqueo por huella dactilar o reconocimiento facial para su cuenta</string>
     <string name="doctor_reg_email_label">Correo electr\u00F3nico</string>
     <string name="doctor_reg_password_label">Contrase\u00F1a</string>
+    <string name="doctor_reg_password_hint">M\u00EDnimo 8 caracteres con 1 may\u00FAscula y 1 n\u00FAmero</string>
     <string name="doctor_reg_confirm_password_label">Confirmar contrase\u00F1a</string>
     <string name="doctor_reg_photo_hint">Toque para seleccionar una foto (JPG, PNG, m\u00E1x. 5 MB)</string>
     <string name="doctor_reg_profile_photo_cd">Foto de perfil</string>

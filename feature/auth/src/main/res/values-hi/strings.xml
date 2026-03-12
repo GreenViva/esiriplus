@@ -198,6 +198,7 @@
     <string name="doctor_reg_step8_subtitle">अपने खाते के लिए फ़िंगरप्रिंट या फ़ेस अनलॉक सेट करें</string>
     <string name="doctor_reg_email_label">ईमेल</string>
     <string name="doctor_reg_password_label">पासवर्ड</string>
+    <string name="doctor_reg_password_hint">कम से कम 8 अक्षर, 1 बड़ा अक्षर और 1 अंक होना चाहिए</string>
     <string name="doctor_reg_confirm_password_label">पासवर्ड की पुष्टि करें</string>
     <string name="doctor_reg_photo_hint">फ़ोटो चुनने के लिए टैप करें (JPG, PNG, अधिकतम 5MB)</string>
     <string name="doctor_reg_profile_photo_cd">प्रोफ़ाइल फ़ोटो</string>

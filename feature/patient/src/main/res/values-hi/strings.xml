@@ -324,6 +324,7 @@
     <string name="vm_message_failed_retrying">संदेश भेजने में विफल। पुनः प्रयास हो रहा है\u2026</string>
     <string name="vm_network_error_retry">नेटवर्क त्रुटि। संदेश स्वचालित रूप से पुनः भेजा जाएगा।</string>
     <string name="vm_file_too_large">फ़ाइल बहुत बड़ी है। अधिकतम आकार 10MB है।</string>
+    <string name="vm_unsupported_file_type">केवल चित्र और PDF फ़ाइलें अनुमत हैं।</string>
 
     <!-- ===== ReportPdfGenerator ===== -->
     <string name="pdf_esirii_health">ESIRII HEALTH</string>

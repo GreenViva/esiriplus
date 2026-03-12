@@ -199,6 +199,7 @@
     <string name="doctor_reg_step8_subtitle">قم بإعداد بصمة الإصبع أو التعرف على الوجه لحسابك</string>
     <string name="doctor_reg_email_label">البريد الإلكتروني</string>
     <string name="doctor_reg_password_label">كلمة المرور</string>
+    <string name="doctor_reg_password_hint">يجب أن تتكون من 8 أحرف على الأقل مع حرف كبير واحد ورقم واحد</string>
     <string name="doctor_reg_confirm_password_label">تأكيد كلمة المرور</string>
     <string name="doctor_reg_photo_hint">انقر لاختيار صورة (JPG، PNG، الحد الأقصى 5 ميغابايت)</string>
     <string name="doctor_reg_profile_photo_cd">الصورة الشخصية</string>
