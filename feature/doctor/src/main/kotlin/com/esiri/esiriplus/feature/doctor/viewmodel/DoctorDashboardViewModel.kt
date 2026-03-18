@@ -929,40 +929,29 @@ class DoctorDashboardViewModel @Inject constructor(
                 Log.w(TAG, "onToggleOnline: no session, ignoring")
                 return@launch
             }
-            val previousState = _uiState.value.isOnline
-            val newState = !previousState
+            val newState = !_uiState.value.isOnline
             Log.d(TAG, "onToggleOnline: setting isOnline=$newState for ${session.user.id}")
-
-            // Sync to Supabase FIRST so patients see the correct status
-            val remoteResult = profileService.updateAvailability(session.user.id, newState)
-            if (remoteResult is ApiResult.Success) {
-                Log.d(TAG, "onToggleOnline: synced to Supabase successfully")
-                // Only update local state after server confirms
-                doctorProfileRepository.updateAvailability(session.user.id, newState)
-                _uiState.update {
-                    it.copy(
-                        isOnline = newState,
-                        isAvailable = newState,
-                        profileAvailableForConsultations = newState,
-                    )
-                }
-                // Emit service command for foreground service
-                if (newState) {
-                    _serviceCommand.tryEmit(ServiceCommand.Start(session.user.id))
-                } else {
-                    _serviceCommand.tryEmit(ServiceCommand.Stop)
-                }
+            // Update local state immediately so the UI responds and the foreground service starts
+            doctorProfileRepository.updateAvailability(session.user.id, newState)
+            _uiState.update {
+                it.copy(
+                    isOnline = newState,
+                    isAvailable = newState,
+                    profileAvailableForConsultations = newState,
+                )
+            }
+            // Emit service command for foreground service
+            if (newState) {
+                _serviceCommand.tryEmit(ServiceCommand.Start(session.user.id))
             } else {
-                Log.e(TAG, "Failed to sync availability to Supabase: $remoteResult")
-                // Keep state unchanged — notify user
-                _uiState.update {
-                    it.copy(
-                        isOnline = previousState,
-                        isAvailable = previousState,
-                        profileAvailableForConsultations = previousState,
-                        suspensionMessage = "Failed to update online status. Please try again.",
-                    )
-                }
+                _serviceCommand.tryEmit(ServiceCommand.Stop)
+            }
+            // Sync to Supabase so patients can see the doctor's online status
+            try {
+                profileService.updateAvailability(session.user.id, newState)
+                Log.d(TAG, "onToggleOnline: synced to Supabase successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to sync availability to Supabase", e)
             }
         }
     }

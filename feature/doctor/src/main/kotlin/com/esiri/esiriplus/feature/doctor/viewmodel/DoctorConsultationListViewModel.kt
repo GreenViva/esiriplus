@@ -83,7 +83,7 @@ class DoctorConsultationListViewModel @Inject constructor(
             consultationId = consultationId,
             patientSessionId = patientSessionId,
             doctorId = doctorId,
-            status = status,
+            status = status.uppercase(),
             serviceType = serviceType,
             consultationFee = consultationFee,
             sessionStartTime = parseTimestamp(sessionStartTime),
