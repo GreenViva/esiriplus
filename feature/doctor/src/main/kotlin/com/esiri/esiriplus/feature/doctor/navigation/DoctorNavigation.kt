@@ -63,6 +63,9 @@ fun NavGraphBuilder.doctorGraph(
                     navController.navigate(DoctorReportRoute(id))
                 },
                 onBack = { navController.popBackStack() },
+                onConsultationCompleted = {
+                    navController.popBackStack(DoctorDashboardRoute, inclusive = false)
+                },
             )
         }
         composable<DoctorVideoCallRoute> {

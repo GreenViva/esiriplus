@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esiri.esiriplus.core.common.validation.InputValidators
 import com.esiri.esiriplus.core.database.dao.PaymentDao
 import com.esiri.esiriplus.core.database.entity.PaymentEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
@@ -112,8 +113,9 @@ class PatientPaymentViewModel @Inject constructor(
         val state = _uiState.value
         if (state.isLoading) return
 
-        if (state.amount <= 0) {
-            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_invalid_payment_amount)) }
+        val amountValidation = InputValidators.validatePaymentAmount(state.amount)
+        if (!amountValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = amountValidation.errorMessage) }
             return
         }
 

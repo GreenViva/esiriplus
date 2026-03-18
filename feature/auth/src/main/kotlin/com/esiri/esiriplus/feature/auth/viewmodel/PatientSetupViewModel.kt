@@ -5,9 +5,11 @@ import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.location.Geocoder
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +17,7 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
 import com.esiri.esiriplus.core.database.entity.PatientProfileEntity
 import com.esiri.esiriplus.core.domain.usecase.CreatePatientSessionUseCase
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +26,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 
 data class PatientSetupUiState(
@@ -35,6 +41,7 @@ data class PatientSetupUiState(
     val bloodType: String = "",
     val allergies: String = "",
     val chronicConditions: String = "",
+    val region: String = "",
     val isCreatingSession: Boolean = true,
     val isSaving: Boolean = false,
     val isGeneratingPdf: Boolean = false,
@@ -53,6 +60,7 @@ data class PatientSetupUiState(
 class PatientSetupViewModel @Inject constructor(
     private val createPatientSession: CreatePatientSessionUseCase,
     private val patientProfileDao: PatientProfileDao,
+    private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PatientSetupUiState())
@@ -113,13 +121,81 @@ class PatientSetupViewModel @Inject constructor(
         _uiState.update { it.copy(chronicConditions = chronicConditions) }
     }
 
+    fun onRegionChanged(region: String) {
+        _uiState.update { it.copy(region = region) }
+    }
+
+    /**
+     * Auto-detect region from GPS coordinates using reverse geocoding.
+     * Resolves to street-level: e.g. "Sinza, Kinondoni, Dar es Salaam"
+     */
+    fun detectRegionFromLocation(context: Context, latitude: Double, longitude: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                @Suppress("DEPRECATION")
+                val addresses = Geocoder(context, Locale.getDefault())
+                    .getFromLocation(latitude, longitude, 1)
+                val addr = addresses?.firstOrNull() ?: return@launch
+
+                // Build street-level location: subLocality (ward/neighborhood), then locality (district), then adminArea (region)
+                // e.g. "Sinza, Kinondoni, Dar es Salaam" or "Manzese, Ubungo, Dar es Salaam"
+                val parts = listOfNotNull(
+                    addr.subLocality,       // Sinza, Manzese, Mabibo
+                    addr.locality,          // Kinondoni, Ubungo, Ilala
+                    addr.subAdminArea,      // District (if different from locality)
+                    addr.adminArea,         // Dar es Salaam, Arusha, Mwanza
+                ).distinct()
+
+                val region = if (parts.isNotEmpty()) parts.joinToString(", ") else null
+
+                if (!region.isNullOrBlank()) {
+                    _uiState.update { it.copy(region = region) }
+                    Log.d(TAG, "Auto-detected region: $region")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to geocode location", e)
+            }
+        }
+    }
+
     fun onContinue() {
         val state = _uiState.value
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, saveError = null) }
             saveHealthProfileIfNeeded(state)
+            syncDemographicsToBackend(state)
             _uiState.update { it.copy(isSaving = false, isComplete = true) }
+        }
+    }
+
+    /**
+     * Sync demographics to patient_sessions table on the backend.
+     * This enables health analytics in the admin panel.
+     * All fields are optional — works even if patient skipped age/sex.
+     */
+    private suspend fun syncDemographicsToBackend(state: PatientSetupUiState) {
+        try {
+            val body = buildJsonObject {
+                if (state.region.isNotBlank()) put("region", state.region)
+                if (state.sex.isNotBlank()) put("sex", state.sex)
+                if (state.ageGroup.isNotBlank()) put("age", state.ageGroup)
+                if (state.bloodType.isNotBlank()) put("blood_type", state.bloodType)
+                if (state.allergies.isNotBlank()) put("allergies", state.allergies)
+                if (state.chronicConditions.isNotBlank()) put("chronic_conditions", state.chronicConditions)
+            }
+            // Only call if there's something to send
+            if (body.keys.isNotEmpty()) {
+                edgeFunctionClient.invoke(
+                    functionName = "update-patient-demographics",
+                    body = body,
+                    patientAuth = true,
+                )
+                Log.d(TAG, "Demographics synced to backend: ${body.keys}")
+            }
+        } catch (e: Exception) {
+            // Non-blocking — analytics are nice-to-have, not critical
+            Log.w(TAG, "Failed to sync demographics (non-fatal)", e)
         }
     }
 
@@ -330,7 +406,7 @@ class PatientSetupViewModel @Inject constructor(
             state.allergies.isNotBlank() ||
             state.chronicConditions.isNotBlank()
 
-        if (hasHealthData) {
+        if (hasHealthData || state.region.isNotBlank()) {
             val profile = PatientProfileEntity(
                 id = state.patientId,
                 userId = state.patientId,
@@ -342,5 +418,9 @@ class PatientSetupViewModel @Inject constructor(
             )
             patientProfileDao.insert(profile)
         }
+    }
+
+    companion object {
+        private const val TAG = "PatientSetupVM"
     }
 }

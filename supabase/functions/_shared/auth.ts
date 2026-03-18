@@ -86,10 +86,13 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   const authHeader = req.headers.get("Authorization");
 
   let jwt: string;
+  let authMethod: "patient-header" | "bearer";
   if (patientTokenHeader?.trim()) {
     jwt = patientTokenHeader.trim();
+    authMethod = "patient-header";
   } else if (authHeader?.startsWith("Bearer ")) {
     jwt = authHeader.replace("Bearer ", "").trim();
+    authMethod = "bearer";
   } else {
     throw new AuthError(401, "Missing or malformed Authorization header");
   }
@@ -108,11 +111,14 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   const isPatientJwt = (claims.app_role === "patient" || claims.role === "patient") &&
     claims.session_id;
   if (isPatientJwt) {
+    const sessionId = claims.session_id as string;
+
     // Verify our custom HS256 signature
     const valid = await verifyHS256(jwt, JWT_SECRET);
-    if (!valid) throw new AuthError(401, "Invalid patient token signature");
-
-    const sessionId = claims.session_id as string;
+    if (!valid) {
+      console.warn(`[AUTH] REJECTED patient token — invalid HS256 signature | session_id=${sessionId.slice(0, 8)}...`);
+      throw new AuthError(401, "Invalid patient token signature");
+    }
 
     // Verify session exists and is active in DB
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -122,11 +128,26 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
       .eq("session_id", sessionId)
       .single();
 
-    if (!session)            throw new AuthError(401, "Session not found");
-    if (!session.is_active)  throw new AuthError(401, "Session is not active");
-    if (session.is_locked)   throw new AuthError(401, "Session is locked");
+    if (!session) {
+      console.warn(`[AUTH] REJECTED patient token — session not found | session_id=${sessionId.slice(0, 8)}...`);
+      throw new AuthError(401, "Session not found");
+    }
+    if (!session.is_active) {
+      console.warn(`[AUTH] REJECTED patient token — inactive session | session_id=${sessionId.slice(0, 8)}...`);
+      throw new AuthError(401, "Session is not active");
+    }
+    if (session.is_locked) {
+      console.warn(`[AUTH] REJECTED patient token — locked session | session_id=${sessionId.slice(0, 8)}...`);
+      throw new AuthError(401, "Session is locked");
+    }
     if (new Date(session.expires_at) < new Date()) {
+      console.warn(`[AUTH] REJECTED patient token — expired session | session_id=${sessionId.slice(0, 8)}...`);
       throw new AuthError(401, "Session has expired");
+    }
+
+    // Log patient auth for monitoring (no PII — session ID is opaque)
+    if (authMethod === "patient-header") {
+      console.log(`[AUTH] Patient auth via X-Patient-Token | session=${sessionId.slice(0, 8)}...`);
     }
 
     return {

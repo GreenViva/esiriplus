@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.security.crypto)
     implementation(libs.coil.compose)
+    implementation(libs.play.services.location)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
 

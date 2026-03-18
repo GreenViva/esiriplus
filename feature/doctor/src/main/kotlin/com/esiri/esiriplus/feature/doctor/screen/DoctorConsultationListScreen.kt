@@ -1,5 +1,7 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
+import com.esiri.esiriplus.core.ui.EmptyState
+import com.esiri.esiriplus.core.ui.LoadingScreen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -95,25 +97,9 @@ fun DoctorConsultationListScreen(
         }
 
         if (uiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(color = BrandTeal)
-            }
+            LoadingScreen()
         } else if (uiState.consultations.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.consultation_list_empty),
-                    fontSize = 16.sp,
-                    color = SubtitleGrey,
-                )
-            }
+            EmptyState(title = stringResource(R.string.consultation_list_empty))
         } else {
             LazyColumn(
                 modifier = Modifier

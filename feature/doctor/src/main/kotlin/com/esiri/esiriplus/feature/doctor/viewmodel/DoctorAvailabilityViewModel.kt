@@ -117,6 +117,22 @@ class DoctorAvailabilityViewModel @Inject constructor(
 
     fun saveSlot() {
         val state = _uiState.value
+
+        // Validate time format (HH:mm)
+        val timeRegex = Regex("""^\d{2}:\d{2}$""")
+        if (!timeRegex.matches(state.editStartTime) || !timeRegex.matches(state.editEndTime)) {
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_invalid_time_format)) }
+            return
+        }
+        if (state.editStartTime >= state.editEndTime) {
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_end_before_start)) }
+            return
+        }
+        if (state.editBufferMinutes < 0) {
+            _uiState.update { it.copy(errorMessage = application.getString(R.string.vm_invalid_buffer)) }
+            return
+        }
+
         _uiState.update { it.copy(isSaving = true, showAddDialog = false) }
         viewModelScope.launch {
             try {

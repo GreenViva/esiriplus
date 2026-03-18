@@ -22,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
@@ -30,7 +29,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -42,6 +40,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -97,11 +96,13 @@ fun FindDoctorScreen(
     serviceDurationMinutes: Int,
     onBookAppointment: (doctorId: String) -> Unit,
     onNavigateToConsultation: (consultationId: String) -> Unit = {},
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FindDoctorViewModel = hiltViewModel(),
     requestViewModel: ConsultationRequestViewModel = hiltViewModel(),
 ) {
+    // Block system/gesture back to prevent accidental loss of payment
+    BackHandler(enabled = true) { /* no-op */ }
+
     val uiState by viewModel.uiState.collectAsState()
     val requestState by requestViewModel.uiState.collectAsState()
     val categoryName = categoryDisplayName(uiState.serviceCategory)
@@ -133,27 +134,6 @@ fun FindDoctorScreen(
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
             ) {
-                // Back button
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable(onClick = onBack),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.find_doctor_back),
-                        tint = BrandTeal,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(R.string.find_doctor_back),
-                        fontSize = 14.sp,
-                        color = BrandTeal,
-                    )
-                }
-
-                Spacer(Modifier.height(16.dp))
-
                 // Title + subtitle
                 Text(
                     text = stringResource(R.string.find_doctor_title),

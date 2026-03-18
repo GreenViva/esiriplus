@@ -77,6 +77,7 @@ fun DoctorConsultationDetailScreen(
     onStartCall: (String, String) -> Unit,
     onWriteReport: (String) -> Unit,
     onBack: () -> Unit,
+    onConsultationCompleted: () -> Unit = onBack,
     modifier: Modifier = Modifier,
     viewModel: DoctorChatViewModel = hiltViewModel(),
     summaryViewModel: PatientSummaryViewModel = hiltViewModel(),
@@ -364,12 +365,12 @@ fun DoctorConsultationDetailScreen(
             onDismiss = {
                 showReportSheet = false
                 if (sessionState.phase == ConsultationPhase.COMPLETED) {
-                    onBack()
+                    onConsultationCompleted()
                 }
             },
             onReportSubmitted = {
                 showReportSheet = false
-                onBack()
+                onConsultationCompleted()
             },
         )
     }

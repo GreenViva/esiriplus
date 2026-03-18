@@ -10,6 +10,7 @@ import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.StringOrListSerializer
+import com.esiri.esiriplus.core.network.service.DoctorAvailabilityRealtimeService
 import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,6 +98,7 @@ class FindDoctorViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val doctorProfileDao: DoctorProfileDao,
     private val edgeFunctionClient: EdgeFunctionClient,
+    private val availabilityRealtime: DoctorAvailabilityRealtimeService,
 ) : ViewModel() {
 
     private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
@@ -109,22 +111,56 @@ class FindDoctorViewModel @Inject constructor(
 
     init {
         loadDoctors()
+        subscribeToAvailabilityChanges()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.launch { availabilityRealtime.unsubscribe() }
     }
 
     private fun loadDoctors() {
-        // 1. Fetch from backend via edge function (safe for patient tokens) and cache to Room
-        viewModelScope.launch {
-            fetchDoctorsFromBackend()
-        }
-
-        // 2. Observe Room (reactive — updates when cache is written)
+        // 1. Observe Room (reactive — updates when backend cache is written)
         viewModelScope.launch {
             doctorProfileDao.getBySpecialty(doctorSpecialty).collect { doctors ->
                 _uiState.update {
-                    it.copy(doctors = doctors, isLoading = false)
+                    it.copy(doctors = doctors)
                 }
                 applyFilters()
             }
+        }
+
+        // 2. Fetch fresh data from backend; only clear loading after this completes
+        //    so stale Room availability flags don't mislead the patient.
+        viewModelScope.launch {
+            fetchDoctorsFromBackend()
+            _uiState.update { it.copy(isLoading = false) }
+        }
+    }
+
+    private fun subscribeToAvailabilityChanges() {
+        viewModelScope.launch {
+            availabilityRealtime.subscribe(viewModelScope)
+        }
+        viewModelScope.launch {
+            availabilityRealtime.availabilityEvents.collect { event ->
+                // Update Room cache — the getBySpecialty() Flow will re-emit automatically
+                doctorProfileDao.updateAvailability(
+                    event.doctorId,
+                    event.isAvailable,
+                    System.currentTimeMillis(),
+                )
+                Log.d(TAG, "Realtime: doctor ${event.doctorId} availability → ${event.isAvailable}")
+            }
+        }
+    }
+
+    /** Allows the UI to trigger a manual refresh (e.g. pull-to-refresh). */
+    fun refresh() {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        viewModelScope.launch {
+            fetchDoctorsFromBackend()
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
 

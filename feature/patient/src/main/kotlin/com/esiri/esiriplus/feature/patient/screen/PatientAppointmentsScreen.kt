@@ -144,12 +144,7 @@ fun PatientAppointmentsScreen(
 
             // Content
             if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(color = BrandTeal)
-                }
+                com.esiri.esiriplus.core.ui.LoadingScreen()
             } else {
                 val appointments = when (uiState.selectedTab) {
                     AppointmentTab.UPCOMING -> uiState.upcomingAppointments
@@ -203,21 +198,10 @@ fun PatientAppointmentsScreen(
 
             // Error banner
             if (uiState.errorMessage != null) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = ErrorRed.copy(alpha = 0.1f),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                        .clickable { viewModel.dismissError() },
-                ) {
-                    Text(
-                        text = uiState.errorMessage ?: "",
-                        modifier = Modifier.padding(12.dp),
-                        fontSize = 13.sp,
-                        color = ErrorRed,
-                    )
-                }
+                com.esiri.esiriplus.core.ui.ErrorBanner(
+                    message = uiState.errorMessage ?: "",
+                    onDismiss = { viewModel.dismissError() },
+                )
             }
         }
     }

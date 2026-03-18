@@ -111,7 +111,6 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                         popUpTo<PatientHomeRoute> { inclusive = false }
                     }
                 },
-                onBack = { navController.popBackStack() },
             )
         }
         composable<BookAppointmentRoute> {

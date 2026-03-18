@@ -52,55 +52,7 @@ import java.time.ZoneId
 import java.util.Locale
 import javax.inject.Inject
 
-// ─── Day schedule model ─────────────────────────────────────────────────────────
-
-@Serializable
-data class DaySchedule(
-    val enabled: Boolean = false,
-    val start: String = "09:00",
-    val end: String = "17:00",
-)
-
-data class WeeklySchedule(
-    val sunday: DaySchedule = DaySchedule(),
-    val monday: DaySchedule = DaySchedule(enabled = true),
-    val tuesday: DaySchedule = DaySchedule(enabled = true),
-    val wednesday: DaySchedule = DaySchedule(enabled = true),
-    val thursday: DaySchedule = DaySchedule(enabled = true),
-    val friday: DaySchedule = DaySchedule(enabled = true),
-    val saturday: DaySchedule = DaySchedule(),
-) {
-    fun toMap(): Map<String, DaySchedule> = mapOf(
-        "Sunday" to sunday,
-        "Monday" to monday,
-        "Tuesday" to tuesday,
-        "Wednesday" to wednesday,
-        "Thursday" to thursday,
-        "Friday" to friday,
-        "Saturday" to saturday,
-    )
-
-    fun withDay(dayName: String, schedule: DaySchedule): WeeklySchedule = when (dayName) {
-        "Sunday" -> copy(sunday = schedule)
-        "Monday" -> copy(monday = schedule)
-        "Tuesday" -> copy(tuesday = schedule)
-        "Wednesday" -> copy(wednesday = schedule)
-        "Thursday" -> copy(thursday = schedule)
-        "Friday" -> copy(friday = schedule)
-        "Saturday" -> copy(saturday = schedule)
-        else -> this
-    }
-}
-
-// ─── Earnings transaction model ─────────────────────────────────────────────────
-
-data class EarningsTransaction(
-    val id: String,
-    val patientName: String,
-    val amount: String,
-    val date: String,
-    val status: String,
-)
+// Data classes (DaySchedule, WeeklySchedule, EarningsTransaction) are in DoctorDashboardModels.kt
 
 // ─── UI State ───────────────────────────────────────────────────────────────────
 
@@ -977,28 +929,40 @@ class DoctorDashboardViewModel @Inject constructor(
                 Log.w(TAG, "onToggleOnline: no session, ignoring")
                 return@launch
             }
-            val newState = !_uiState.value.isOnline
+            val previousState = _uiState.value.isOnline
+            val newState = !previousState
             Log.d(TAG, "onToggleOnline: setting isOnline=$newState for ${session.user.id}")
-            doctorProfileRepository.updateAvailability(session.user.id, newState)
-            _uiState.update {
-                it.copy(
-                    isOnline = newState,
-                    isAvailable = newState,
-                    profileAvailableForConsultations = newState,
-                )
-            }
-            // Emit service command for foreground service
-            if (newState) {
-                _serviceCommand.tryEmit(ServiceCommand.Start(session.user.id))
-            } else {
-                _serviceCommand.tryEmit(ServiceCommand.Stop)
-            }
-            // Sync to Supabase so patients can see the doctor's online status
-            try {
-                profileService.updateAvailability(session.user.id, newState)
+
+            // Sync to Supabase FIRST so patients see the correct status
+            val remoteResult = profileService.updateAvailability(session.user.id, newState)
+            if (remoteResult is ApiResult.Success) {
                 Log.d(TAG, "onToggleOnline: synced to Supabase successfully")
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to sync availability to Supabase", e)
+                // Only update local state after server confirms
+                doctorProfileRepository.updateAvailability(session.user.id, newState)
+                _uiState.update {
+                    it.copy(
+                        isOnline = newState,
+                        isAvailable = newState,
+                        profileAvailableForConsultations = newState,
+                    )
+                }
+                // Emit service command for foreground service
+                if (newState) {
+                    _serviceCommand.tryEmit(ServiceCommand.Start(session.user.id))
+                } else {
+                    _serviceCommand.tryEmit(ServiceCommand.Stop)
+                }
+            } else {
+                Log.e(TAG, "Failed to sync availability to Supabase: $remoteResult")
+                // Keep state unchanged — notify user
+                _uiState.update {
+                    it.copy(
+                        isOnline = previousState,
+                        isAvailable = previousState,
+                        profileAvailableForConsultations = previousState,
+                        suspensionMessage = "Failed to update online status. Please try again.",
+                    )
+                }
             }
         }
     }

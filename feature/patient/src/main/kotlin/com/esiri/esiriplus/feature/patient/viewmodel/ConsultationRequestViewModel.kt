@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.util.Base64
 import com.esiri.esiriplus.core.common.result.Result
+import com.esiri.esiriplus.core.common.validation.InputValidators
+import com.esiri.esiriplus.core.common.validation.validateAll
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
@@ -282,6 +284,17 @@ class ConsultationRequestViewModel @Inject constructor(
     ) {
         // Prevent duplicate requests
         if (_uiState.value.activeRequestId != null || _uiState.value.isSending) return
+
+        // Validate inputs before sending
+        val validation = validateAll(
+            InputValidators.validateRequiredId(doctorId, "Doctor"),
+            InputValidators.validateServiceType(serviceType),
+            InputValidators.validateConsultationType(consultationType),
+        )
+        if (!validation.isValid) {
+            _uiState.update { it.copy(errorMessage = validation.errorMessage) }
+            return
+        }
 
         val state = _uiState.value
         _uiState.update {

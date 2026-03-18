@@ -6,18 +6,29 @@ import {
   requireMethod,
 } from "../_shared/errors.ts";
 
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+
 /**
  * Receives a batch of performance metrics from the Android app
  * and inserts them into the performance_metrics table.
  *
- * No auth required — the endpoint is rate-limited and only accepts
- * well-formed metric payloads. The anon key provides basic gating.
+ * Gated by anon-key check — the client must send the project anon key
+ * in the apikey header to prove it is a legitimate app instance.
  */
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return handlePreflight(req);
   requireMethod(req, "POST");
 
   const origin = req.headers.get("origin") ?? "";
+
+  // Verify the caller is a legitimate app instance via the anon key
+  const apikey = req.headers.get("apikey") ?? "";
+  if (!SUPABASE_ANON_KEY || apikey !== SUPABASE_ANON_KEY) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } },
+    );
+  }
 
   try {
     const body = await req.json();

@@ -286,10 +286,10 @@ async function handleGetSlots(
 ): Promise<Response> {
   const supabase = getServiceClient();
 
-  // Parse the target date — use UTC to avoid timezone shift issues
-  const [year, month, day] = body.date.split("-").map(Number);
-  const targetDate = new Date(Date.UTC(year, month - 1, day));
-  const dayOfWeek = targetDate.getUTCDay(); // 0=Sunday
+  // Parse the target date in East Africa Time (UTC+3) to match the
+  // book_appointment RPC which uses AT TIME ZONE 'Africa/Nairobi'.
+  const targetDate = new Date(body.date + "T12:00:00+03:00"); // noon EAT avoids boundary issues
+  const dayOfWeek = targetDate.getUTCDay(); // 0=Sunday (safe — noon EAT is 09:00 UTC, same calendar day)
 
   // 1. Get doctor's availability slots for this day of week
   const { data: availabilitySlots, error: slotsError } = await supabase
@@ -401,10 +401,16 @@ Deno.serve(async (req: Request) => {
   try {
     const auth = await validateAuth(req);
     const identifier = auth.userId ?? auth.sessionId ?? "anon";
-    await LIMITS.payment(identifier);
 
     const raw = await req.json();
     const body = validate(raw);
+
+    // Use read limiter for queries, payment limiter for mutations
+    if (body.action === "get_slots" || body.action === "get_appointments") {
+      await LIMITS.read(identifier);
+    } else {
+      await LIMITS.payment(identifier);
+    }
 
     switch (body.action) {
       case "book":

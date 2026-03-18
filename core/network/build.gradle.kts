@@ -1,16 +1,28 @@
+import java.util.Properties
+
 plugins {
     id("esiriplus.android.library")
     id("esiriplus.android.hilt")
     alias(libs.plugins.kotlin.serialization)
 }
 
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+fun localOrEnv(key: String): String =
+    localProperties.getProperty(key)
+        ?: System.getenv(key)
+        ?: error("Missing $key in local.properties or environment")
+
 android {
     namespace = "com.esiri.esiriplus.core.network"
 
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "SUPABASE_URL", "\"https://nzzvphhqbcscoetzfzkd.supabase.co\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${localOrEnv("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localOrEnv("SUPABASE_ANON_KEY")}\"")
     }
 }
 

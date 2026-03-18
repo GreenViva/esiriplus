@@ -13,6 +13,8 @@ concurrency:
 
 env:
   JAVA_VERSION: '17'
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
 jobs:
   lint:
@@ -78,6 +80,8 @@ jobs:
             :core:database:testDebugUnitTest \
             :core:domain:testDebugUnitTest \
             :feature:auth:testDebugUnitTest \
+            :feature:patient:testDebugUnitTest \
+            :feature:doctor:testDebugUnitTest \
             --continue
       - name: Upload test reports
         if: always()

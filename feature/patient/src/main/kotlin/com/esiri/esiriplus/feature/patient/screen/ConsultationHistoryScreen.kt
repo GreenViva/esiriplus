@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.screen
 
+import com.esiri.esiriplus.core.ui.LoadingScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -91,12 +92,7 @@ fun ConsultationHistoryScreen(
 
             when {
                 uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator(color = BrandTeal)
-                    }
+                    LoadingScreen()
                 }
                 uiState.error != null -> {
                     Box(

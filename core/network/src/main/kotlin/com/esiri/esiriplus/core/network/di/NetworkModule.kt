@@ -18,6 +18,7 @@ import com.esiri.esiriplus.core.network.service.NotificationRepositoryImpl
 
 import android.content.Context
 import com.esiri.esiriplus.core.network.interceptor.AuthInterceptor
+import com.esiri.esiriplus.core.network.interceptor.CircuitBreakerInterceptor
 import com.esiri.esiriplus.core.network.interceptor.ClientRateLimiterInterceptor
 import com.esiri.esiriplus.core.network.interceptor.LoggingInterceptorFactory
 import com.esiri.esiriplus.core.network.interceptor.ProactiveTokenRefreshInterceptor
@@ -78,6 +79,7 @@ object NetworkModule {
         tokenRefreshAuthenticator: TokenRefreshAuthenticator,
         metricsInterceptor: MetricsInterceptor,
         clientRateLimiter: ClientRateLimiterInterceptor,
+        circuitBreaker: CircuitBreakerInterceptor,
     ): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -91,6 +93,7 @@ object NetworkModule {
         )
         .cache(Cache(File(context.cacheDir, "http_cache"), CACHE_SIZE_BYTES))
         .certificatePinner(CertificatePinning.createCertificatePinner())
+        .addInterceptor(circuitBreaker)
         .addInterceptor(clientRateLimiter)
         .addInterceptor(metricsInterceptor)
         .addInterceptor(proactiveTokenRefreshInterceptor)

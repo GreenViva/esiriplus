@@ -1,9 +1,17 @@
 package com.esiri.esiriplus.feature.auth.screen
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -90,6 +98,38 @@ fun PatientSetupScreen(
 
     LaunchedEffect(state.isComplete) {
         if (state.isComplete) onComplete()
+    }
+
+    // Auto-detect location for health analytics (silent, no UI)
+    val fetchLocation = {
+        try {
+            val client = LocationServices.getFusedLocationProviderClient(context)
+            @Suppress("MissingPermission")
+            client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                .addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        viewModel.detectRegionFromLocation(
+                            context, location.latitude, location.longitude,
+                        )
+                    }
+                }
+        } catch (_: Exception) { /* Location not available — skip silently */ }
+        Unit
+    }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted -> if (granted) fetchLocation() }
+
+    LaunchedEffect(Unit) {
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (hasPermission) {
+            fetchLocation()
+        } else {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
     }
 
     GradientBackground(modifier = modifier) {

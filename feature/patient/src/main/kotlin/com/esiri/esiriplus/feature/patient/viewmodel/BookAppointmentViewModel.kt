@@ -3,6 +3,7 @@ package com.esiri.esiriplus.feature.patient.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
+import com.esiri.esiriplus.core.common.validation.InputValidators
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
@@ -290,8 +291,9 @@ class BookAppointmentViewModel @Inject constructor(
             _uiState.update { it.copy(errorMessage = "Please select a date and time") }
             return
         }
-        if (state.chiefComplaint.trim().length < 10) {
-            _uiState.update { it.copy(errorMessage = "Please describe your complaint (at least 10 characters)") }
+        val complaintValidation = InputValidators.validateChiefComplaint(state.chiefComplaint)
+        if (!complaintValidation.isValid) {
+            _uiState.update { it.copy(errorMessage = complaintValidation.errorMessage) }
             return
         }
         if (state.isSubmitting) return

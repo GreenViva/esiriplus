@@ -319,6 +319,9 @@
     <string name="vm_specify_category">Please specify the category</string>
     <string name="vm_treatment_plan_required">Treatment plan is required</string>
     <string name="vm_failed_load_availability">Failed to load availability</string>
+    <string name="vm_invalid_time_format">Time must be in HH:mm format (e.g. 08:00)</string>
+    <string name="vm_end_before_start">End time must be after start time</string>
+    <string name="vm_invalid_buffer">Buffer minutes cannot be negative</string>
     <string name="vm_failed_save_slot">Failed to save slot</string>
     <string name="vm_failed_delete_slot">Failed to delete slot</string>
     <string name="vm_slot_added">Slot added</string>

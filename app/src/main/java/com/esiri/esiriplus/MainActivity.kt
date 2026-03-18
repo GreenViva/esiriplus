@@ -1,5 +1,6 @@
 package com.esiri.esiriplus
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -24,6 +25,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.esiri.esiriplus.call.IncomingCallOverlay
 import com.esiri.esiriplus.call.IncomingCallStateHolder
+import com.esiri.esiriplus.core.common.security.RootDetector
 import com.esiri.esiriplus.core.domain.model.AuthState
 import com.esiri.esiriplus.core.domain.model.UserRole
 import com.esiri.esiriplus.fcm.EsiriplusFirebaseMessagingService
@@ -104,6 +106,22 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Block rooted, tampered, or emulated devices
+        if (RootDetector.isDeviceCompromised(this)) {
+            AlertDialog.Builder(this)
+                .setTitle("Security Alert")
+                .setMessage(
+                    "eSIRI+ cannot run on this device.\n\n" +
+                        "Rooted, modified, or emulated devices are not supported " +
+                        "to protect your sensitive medical data.\n\n" +
+                        "Please use an unmodified device."
+                )
+                .setCancelable(false)
+                .setPositiveButton("Close App") { _, _ -> finishAffinity() }
+                .show()
+            return
+        }
 
         splashScreen.setKeepOnScreenCondition {
             viewModel.appInitState.value is AppInitState.Loading
