@@ -515,10 +515,22 @@ Deno.serve(async (req: Request) => {
   try {
     const auth = await validateAuth(req);
     const identifier = auth.userId ?? auth.sessionId ?? "anon";
-    await LIMITS.payment(identifier);
 
     const raw = await req.json();
     const body = validate(raw);
+
+    // Apply per-action rate limits so frequent sync calls don't exhaust the
+    // quota and block end/timer_expired from going through.
+    // sync           → read limit (30/min) — may be polled several times
+    // payment actions → payment limit (10/min) — strict, matches payment risk
+    // everything else → consultation limit (15/min)
+    if (body.action === "sync") {
+      await LIMITS.read(identifier);
+    } else if (body.action === "payment_confirmed" || body.action === "cancel_payment") {
+      await LIMITS.payment(identifier);
+    } else {
+      await LIMITS.consultation(identifier);
+    }
 
     switch (body.action) {
       case "sync":
