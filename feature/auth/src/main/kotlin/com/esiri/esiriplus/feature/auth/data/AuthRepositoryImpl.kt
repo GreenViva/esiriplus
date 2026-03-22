@@ -302,9 +302,25 @@ class AuthRepositoryImpl @Inject constructor(
                 // Supabase gateway (no --no-verify-jwt) which cascades into
                 // TokenRefreshAuthenticator → session invalidation → logout.
 
+                // Push FCM token so the server can send push notifications to this doctor.
+                // onNewToken() fires before login, so the token isn't saved until here.
+                pushFcmTokenToServer()
+
                 Result.Success(session)
             }
             else -> apiResult.map { error("unreachable") }.toDomainResult()
+        }
+    }
+
+    private suspend fun pushFcmTokenToServer() {
+        try {
+            val fcmToken = com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                .token.await()
+            val body = buildJsonObject { put("fcm_token", fcmToken) }
+            edgeFunctionClient.invoke("update-fcm-token", body)
+            Log.d(TAG, "FCM token pushed to server after login")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to push FCM token to server after login", e)
         }
     }
 
@@ -478,6 +494,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout() {
+        Log.w(TAG, "logout() called!", Exception("AuthRepo logout stack trace"))
         // Best-effort server-side revocation
         try {
             edgeFunctionClient.invoke("logout")

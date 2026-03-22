@@ -4,6 +4,7 @@ import android.util.Log
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.network.EdgeFunctionException
 import io.github.jan.supabase.exceptions.RestException
+import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
@@ -41,6 +42,10 @@ suspend fun <T> safeApiCall(block: suspend () -> T): ApiResult<T> =
     } catch (e: IOException) {
         Log.e(TAG, "IOException: ${e.message}", e)
         ApiErrorMapper.fromException(e)
+    } catch (e: CancellationException) {
+        // Coroutine was cancelled (e.g. ViewModel cleared during navigation) — rethrow so
+        // the structured concurrency machinery handles it properly.  Do NOT log as an error.
+        throw e
     } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
         Log.e(TAG, "Exception: ${e::class.simpleName} - ${e.message}", e)
         ApiErrorMapper.fromException(e)

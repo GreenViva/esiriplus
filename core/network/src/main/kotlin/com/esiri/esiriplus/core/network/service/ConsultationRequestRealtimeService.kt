@@ -165,6 +165,40 @@ class ConsultationRequestRealtimeService @Inject constructor(
     }
 
     /**
+     * Emit an incoming PENDING request directly (FCM fallback path).
+     * Called by the FCM service when a consultation_request push arrives and
+     * Realtime cannot be trusted (race condition before auth import, etc.).
+     * The ViewModel deduplicates so double-firing is safe.
+     */
+    fun emitExternalRequest(requestId: String, serviceType: String?) {
+        appScope.launch {
+            _requestEvents.emit(
+                RequestRealtimeEvent(
+                    requestId = requestId,
+                    status = "pending",
+                    serviceType = serviceType,
+                )
+            )
+        }
+    }
+
+    /**
+     * Emit a resolved status for a request the doctor just acted on via the in-app UI.
+     * Called by IncomingRequestViewModel after a successful HTTP accept/reject so that
+     * DoctorOnlineService immediately stops ringing without waiting for a Realtime event.
+     */
+    fun emitRequestResolved(requestId: String, status: String) {
+        appScope.launch {
+            _requestEvents.emit(
+                RequestRealtimeEvent(
+                    requestId = requestId,
+                    status = status,
+                )
+            )
+        }
+    }
+
+    /**
      * Decrement the subscriber reference count. Only actually unsubscribes the
      * Realtime channel when the count reaches 0.
      */

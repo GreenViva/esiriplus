@@ -68,6 +68,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onLogout() {
+        Log.w("MainViewModel", "onLogout() called!", Exception("Logout stack trace"))
         viewModelScope.launch {
             biometricLockStateHolder.setLocked(true)
             logoutUseCase()

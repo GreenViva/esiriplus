@@ -419,8 +419,7 @@ class PatientConsultationViewModel @Inject constructor(
 
                 val isImage = mimeType.startsWith("image/")
                 val messageType = if (isImage) "image" else "document"
-                val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "bin"
-                val fileName = getFileNameFromUri(uri, context) ?: "file.$ext"
+                val fileName = getFileNameFromUri(uri, context)
 
                 // Apply eSIRI watermark for traceability
                 val uploadBytes = when {
@@ -435,12 +434,23 @@ class PatientConsultationViewModel @Inject constructor(
                     else -> bytes
                 }
 
-                val storagePath = "$consultationId/${UUID.randomUUID()}.$ext"
+                // WatermarkUtil re-encodes images: PNG→PNG, WebP→WebP, everything else
+                // (incl. HEIC/HEIF from gallery) → JPEG. Normalize to the actual output
+                // format so Supabase Storage accepts the upload.
+                val (uploadMimeType, uploadExt) = when {
+                    isImage && mimeType.contains("png", ignoreCase = true) -> "image/png" to "png"
+                    isImage && mimeType.contains("webp", ignoreCase = true) -> "image/webp" to "webp"
+                    isImage -> "image/jpeg" to "jpg"
+                    else -> "application/pdf" to "pdf"
+                }
+                val displayFileName = fileName ?: "file.$uploadExt"
+
+                val storagePath = "$consultationId/${UUID.randomUUID()}.$uploadExt"
                 val uploadResult = fileUploadService.uploadFile(
                     bucketName = ATTACHMENT_BUCKET,
                     path = storagePath,
                     bytes = uploadBytes,
-                    contentType = mimeType,
+                    contentType = uploadMimeType,
                 )
 
                 when (uploadResult) {
@@ -453,7 +463,7 @@ class PatientConsultationViewModel @Inject constructor(
                             consultationId = consultationId,
                             senderType = state.currentUserType,
                             senderId = state.currentUserId,
-                            messageText = fileName,
+                            messageText = displayFileName,
                             messageType = messageType,
                             attachmentUrl = publicUrl,
                             synced = false,
@@ -466,7 +476,7 @@ class PatientConsultationViewModel @Inject constructor(
                             consultationId = consultationId,
                             senderType = state.currentUserType,
                             senderId = state.currentUserId,
-                            messageText = fileName,
+                            messageText = displayFileName,
                             messageType = messageType,
                             attachmentUrl = publicUrl,
                         )) {

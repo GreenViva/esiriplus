@@ -24,6 +24,11 @@ class ProactiveTokenRefreshInterceptor @Inject constructor(
                     if (refreshToken != null) {
                         tokenRefresher.refreshToken(refreshToken)
                     }
+                } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
+                    // Swallow proactive-refresh failures — the interceptor must never
+                    // crash the OkHttp chain.  If the refresh fails here (network error
+                    // or bad token), the subsequent 401 will be handled by
+                    // TokenRefreshAuthenticator with proper error classification.
                 } finally {
                     refreshing.set(false)
                 }

@@ -24,6 +24,7 @@ import com.esiri.esiriplus.MainActivity
 import com.esiri.esiriplus.R
 import com.esiri.esiriplus.core.common.locale.LocaleHelper
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
@@ -49,6 +50,7 @@ import javax.inject.Inject
 class DoctorOnlineService : Service() {
 
     @Inject lateinit var realtimeService: ConsultationRequestRealtimeService
+    @Inject lateinit var supabaseClientProvider: SupabaseClientProvider
     @Inject lateinit var tokenManager: TokenManager
     @Inject lateinit var tokenRefresher: TokenRefresher
     @Inject lateinit var overlayBubbleManager: OverlayBubbleManager
@@ -163,6 +165,18 @@ class DoctorOnlineService : Service() {
     private suspend fun subscribeWithRetry(doctorId: String) {
         while (reconnectAttempt < MAX_RECONNECT_RETRIES) {
             try {
+                // Import auth token before subscribing so Supabase Realtime passes RLS checks.
+                // Without this, the channel is created unauthenticated and INSERT events are
+                // blocked by RLS policies that require auth.uid() = doctor_id.
+                val access = tokenManager.getAccessTokenSync()
+                val refresh = tokenManager.getRefreshTokenSync()
+                if (access != null && refresh != null) {
+                    try {
+                        supabaseClientProvider.importAuthToken(access, refresh)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "importAuthToken failed before realtime subscribe", e)
+                    }
+                }
                 Log.d(TAG, "Subscribing realtime for doctor=$doctorId (attempt=$reconnectAttempt)")
                 realtimeService.subscribeAsDoctor(doctorId, serviceScope)
                 reconnectAttempt = 0 // reset on successful subscribe

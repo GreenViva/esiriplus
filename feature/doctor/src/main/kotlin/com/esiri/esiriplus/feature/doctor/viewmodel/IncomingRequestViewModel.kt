@@ -8,6 +8,7 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
+import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -61,6 +63,7 @@ class IncomingRequestViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
     private val tokenRefresher: TokenRefresher,
+    private val supabaseClientProvider: SupabaseClientProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(IncomingRequestUiState())
@@ -77,8 +80,19 @@ class IncomingRequestViewModel @Inject constructor(
 
     private fun observeRealtime() {
         viewModelScope.launch {
-            val session = authRepository.currentSession.first() ?: return@launch
+            // Use filter { it != null }.first() instead of first() so that a transient null
+            // emission (Room still initializing on cold start) doesn't cause an early return.
+            val session = authRepository.currentSession.filter { it != null }.first()
+                ?: return@launch
             val doctorId = session.user.id
+            // Import auth token before subscribing so Supabase Realtime can pass RLS checks
+            val freshAccess = tokenManager.getAccessTokenSync() ?: session.accessToken
+            val freshRefresh = tokenManager.getRefreshTokenSync() ?: session.refreshToken
+            try {
+                supabaseClientProvider.importAuthToken(freshAccess, freshRefresh)
+            } catch (e: Exception) {
+                Log.w(TAG, "importAuthToken failed before realtime subscribe", e)
+            }
             Log.d(TAG, "Subscribing to realtime requests for doctor=$doctorId")
             realtimeService.subscribeAsDoctor(doctorId, viewModelScope)
 
@@ -224,6 +238,9 @@ class IncomingRequestViewModel @Inject constructor(
                 is Result.Success -> {
                     Log.d(TAG, "acceptRequest SUCCESS: consultationId=${result.data.consultationId}")
                     stopCountdown()
+                    // Stop ringing/vibration in DoctorOnlineService immediately without
+                    // waiting for the Realtime event (which may be delayed).
+                    realtimeService.emitRequestResolved(requestId, "accepted")
                     _uiState.update {
                         it.copy(
                             isResponding = false,
@@ -282,6 +299,8 @@ class IncomingRequestViewModel @Inject constructor(
             when (val result = consultationRequestRepository.rejectRequest(requestId)) {
                 is Result.Success -> {
                     stopCountdown()
+                    // Stop ringing/vibration in DoctorOnlineService immediately.
+                    realtimeService.emitRequestResolved(requestId, "rejected")
                     _uiState.update {
                         it.copy(
                             isResponding = false,

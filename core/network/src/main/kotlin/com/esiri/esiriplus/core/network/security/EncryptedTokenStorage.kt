@@ -39,11 +39,16 @@ class EncryptedTokenStorage @Inject constructor(
 
     fun getAccessToken(): String? = prefs.getString(KEY_ACCESS_TOKEN, null)
 
-    fun getRefreshToken(): String? = prefs.getString(KEY_REFRESH_TOKEN, null)
+    fun getRefreshToken(): String? {
+        val token = prefs.getString(KEY_REFRESH_TOKEN, null)
+        if (token == null) Log.w(TAG, "getRefreshToken: returning NULL (tokens cleared or never saved)")
+        return token
+    }
 
     fun getExpiresAt(): Long = prefs.getLong(KEY_EXPIRES_AT, 0L)
 
     fun saveTokens(accessToken: String, refreshToken: String, expiresAtMillis: Long) {
+        Log.d(TAG, "saveTokens: accessToken len=${accessToken.length}, refreshToken len=${refreshToken.length}, expiresAt=$expiresAtMillis")
         prefs.edit()
             .putString(KEY_ACCESS_TOKEN, accessToken)
             .putString(KEY_REFRESH_TOKEN, refreshToken)
@@ -52,6 +57,7 @@ class EncryptedTokenStorage @Inject constructor(
     }
 
     fun clearTokens() {
+        Log.w(TAG, "clearTokens() called", Exception("clearTokens stack trace"))
         prefs.edit().clear().apply()
     }
 

@@ -53,7 +53,15 @@ Deno.serve(async (req: Request) => {
           origin,
         );
       }
-      throw signInError;
+      // Surface the actual auth error (e.g. rate limit, email not confirmed)
+      // instead of throwing — signInError is not a plain Error instance, so
+      // errorResponse would not extract its message and would return a generic 500.
+      return errorResponse(
+        Object.assign(new Error(signInError.message || "Authentication failed"), {
+          status: signInError.status ?? 400,
+        }),
+        origin,
+      );
     }
 
     if (!signInData.session || !signInData.user) {

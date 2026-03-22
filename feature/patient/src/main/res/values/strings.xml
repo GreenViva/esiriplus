@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ===== Common ===== -->
+    <string name="common_cancel">Cancel</string>
+
     <!-- ===== PatientHomeScreen ===== -->
     <string name="home_welcome_back">Welcome Back \uD83D\uDC4B</string>
     <string name="home_your_patient_id">Your Patient ID:</string>
@@ -284,6 +287,7 @@
     <string name="consultation_start_call">Start Call</string>
     <string name="consultation_voice_call">Voice Call</string>
     <string name="consultation_video_call">Video Call</string>
+    <string name="consultation_attach_title">Send Attachment</string>
     <string name="consultation_camera">Camera</string>
     <string name="consultation_gallery">Gallery</string>
     <string name="consultation_document">Document</string>

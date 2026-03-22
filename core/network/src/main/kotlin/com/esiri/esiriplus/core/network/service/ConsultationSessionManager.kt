@@ -70,7 +70,7 @@ class ConsultationSessionManager @Inject constructor(
         }
     }
 
-    private suspend fun syncWithServer(consultationId: String) {
+    private suspend fun syncWithServer(consultationId: String, retryOnUnauthorized: Boolean = true) {
         when (val result = timerService.sync(consultationId)) {
             is ApiResult.Success -> {
                 val data = result.data
@@ -79,22 +79,42 @@ class ConsultationSessionManager @Inject constructor(
                 val gracePeriodEndMs = data.gracePeriodEndAt?.let { parseIso(it) } ?: 0L
                 val phase = mapStatusToPhase(data.status)
 
+                // Ensure duration is never 0 — fall back to DEFAULT_DURATION_MINUTES if the
+                // DB returned an unexpected zero value.
+                val durationMinutes = data.originalDurationMinutes
+                    .takeIf { it > 0 } ?: DEFAULT_DURATION_MINUTES
+
                 val remainingMs = when (phase) {
                     ConsultationPhase.ACTIVE -> {
-                        if (scheduledEndMs > 0L) {
-                            (scheduledEndMs - serverTimeMs).coerceAtLeast(0L)
+                        if (scheduledEndMs > 0L && scheduledEndMs > serverTimeMs) {
+                            // Normal case: scheduled_end_at is set and in the future.
+                            scheduledEndMs - serverTimeMs
+                        } else if (scheduledEndMs > 0L) {
+                            // scheduled_end_at exists but appears to be in the past —
+                            // could be a premature sync or a stale value from an old RPC.
+                            // Check if session_start_time + duration still has time remaining.
+                            val sessionStartMs = data.sessionStartTime?.let { parseIso(it) } ?: 0L
+                            if (sessionStartMs > 0L) {
+                                val endMs = sessionStartMs + durationMinutes * 60_000L
+                                val remaining = (endMs - serverTimeMs).coerceAtLeast(0L)
+                                if (remaining > 0L) {
+                                    Log.w(TAG, "scheduled_end_at is past but session_start_time gives ${remaining / 1000}s remaining — using session_start fallback")
+                                }
+                                remaining
+                            } else {
+                                Log.w(TAG, "scheduled_end_at is past and no session_start_time — treating as expired")
+                                0L
+                            }
                         } else {
-                            // Fallback: scheduled_end_at is null (consultation created
-                            // without timer fields). Use originalDurationMinutes as
-                            // the full session duration to avoid immediate expiry.
+                            // scheduled_end_at is null — use session_start_time or full duration fallback.
                             Log.w(TAG, "scheduled_end_at is null for ACTIVE consultation, using duration fallback")
                             val sessionStartMs = data.sessionStartTime?.let { parseIso(it) } ?: 0L
                             if (sessionStartMs > 0L) {
-                                val endMs = sessionStartMs + data.originalDurationMinutes * 60_000L
+                                val endMs = sessionStartMs + durationMinutes * 60_000L
                                 (endMs - serverTimeMs).coerceAtLeast(0L)
                             } else {
                                 // Last resort: assume session just started
-                                data.originalDurationMinutes * 60_000L
+                                durationMinutes * 60_000L
                             }
                         }
                     }
@@ -110,8 +130,8 @@ class ConsultationSessionManager @Inject constructor(
                         consultationId = consultationId,
                         phase = phase,
                         remainingSeconds = (remainingMs / 1000).toInt(),
-                        totalDurationMinutes = data.originalDurationMinutes,
-                        originalDurationMinutes = data.originalDurationMinutes,
+                        totalDurationMinutes = durationMinutes,
+                        originalDurationMinutes = durationMinutes,
                         extensionCount = data.extensionCount,
                         serviceType = data.serviceType,
                         consultationFee = data.consultationFee,
@@ -137,7 +157,18 @@ class ConsultationSessionManager @Inject constructor(
                 _state.update { it.copy(isLoading = false, error = result.message) }
             }
             is ApiResult.Unauthorized -> {
-                _state.update { it.copy(isLoading = false, error = "Unauthorized") }
+                // The token may have been mid-refresh when this sync fired (race between
+                // DoctorChatViewModel.initChat() and consultationSessionManager.start()).
+                // Wait for the OkHttp Authenticator to finish, then retry once so that
+                // a concurrent refresh doesn't leave the session manager in an error state.
+                if (retryOnUnauthorized) {
+                    Log.w(TAG, "Sync got Unauthorized; retrying after token refresh window")
+                    delay(UNAUTHORIZED_RETRY_DELAY_MS)
+                    syncWithServer(consultationId, retryOnUnauthorized = false)
+                } else {
+                    Log.e(TAG, "Sync still Unauthorized after retry — session may have expired")
+                    _state.update { it.copy(isLoading = false, error = "Unauthorized") }
+                }
             }
         }
     }
@@ -181,14 +212,20 @@ class ConsultationSessionManager @Inject constructor(
                         }
                         persistTimerState(cid, data)
                     }
+                    is ApiResult.Error, is ApiResult.NetworkError -> {
+                        // The server rejected the timer-expired call — this most likely means the
+                        // timer fired prematurely on the client (e.g. initial sync returned 0 due
+                        // to a stale/missing scheduled_end_at in the DB).  Re-sync to get the
+                        // authoritative remaining time rather than blindly transitioning to
+                        // AWAITING_EXTENSION and locking the doctor out of the session.
+                        Log.w(TAG, "timerExpired rejected by server — re-syncing to get authoritative state")
+                        syncWithServer(cid, retryOnUnauthorized = true)
+                    }
                     else -> {
-                        // Fallback: set local state even if server call fails
-                        _state.update {
-                            it.copy(
-                                phase = ConsultationPhase.AWAITING_EXTENSION,
-                                remainingSeconds = 0,
-                            )
-                        }
+                        // Unauthorized or other — re-sync after short delay (token refresh window)
+                        Log.w(TAG, "timerExpired got unexpected result ($result) — re-syncing")
+                        delay(UNAUTHORIZED_RETRY_DELAY_MS)
+                        syncWithServer(cid, retryOnUnauthorized = false)
                     }
                 }
             }
@@ -386,5 +423,11 @@ class ConsultationSessionManager @Inject constructor(
 
     companion object {
         private const val TAG = "ConsultSessionMgr"
+        // Time to wait before retrying a sync that returned 401.
+        // OkHttp's TokenRefreshAuthenticator completes within one round-trip (~1–3 s),
+        // so 3 s is a safe upper bound before we assume the session truly expired.
+        private const val UNAUTHORIZED_RETRY_DELAY_MS = 3_000L
+        // Fallback duration when original_duration_minutes is unexpectedly 0 from the server.
+        private const val DEFAULT_DURATION_MINUTES = 15
     }
 }

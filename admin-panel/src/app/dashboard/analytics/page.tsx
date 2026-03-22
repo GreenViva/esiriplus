@@ -90,17 +90,11 @@ export default function HealthAnalyticsPage() {
     Promise.all([
       consultQuery,
       diagQuery.then((res) => (res.error ? { data: [] } : res)),
-      reportQuery.then((res) => (res.error ? { data: [] } : res)),
+      reportQuery,
     ]).then(([consultationsRes, diagnosesRes, reportsRes]) => {
-      if (consultationsRes.error) {
-        console.error("[Analytics] Consultations query failed:", consultationsRes.error);
-      }
       setConsultations((consultationsRes.data ?? []) as unknown as ConsultationRow[]);
       setDiagnoses((diagnosesRes.data ?? []) as unknown as DiagnosisRow[]);
       setReports((reportsRes.data ?? []) as unknown as ReportRow[]);
-      setLoading(false);
-    }).catch((err) => {
-      console.error("[Analytics] Failed to fetch data:", err);
       setLoading(false);
     });
   }, [dateRange]);

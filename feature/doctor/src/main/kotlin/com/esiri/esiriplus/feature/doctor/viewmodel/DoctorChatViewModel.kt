@@ -380,8 +380,7 @@ class DoctorChatViewModel @Inject constructor(
                 // Determine message type and file extension
                 val isImage = mimeType.startsWith("image/")
                 val messageType = if (isImage) "image" else "document"
-                val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "bin"
-                val fileName = getFileNameFromUri(uri, context) ?: "file.$ext"
+                val fileName = getFileNameFromUri(uri, context)
 
                 // Apply eSIRI watermark for traceability
                 val uploadBytes = when {
@@ -396,13 +395,24 @@ class DoctorChatViewModel @Inject constructor(
                     else -> bytes
                 }
 
+                // WatermarkUtil re-encodes images: PNG→PNG, WebP→WebP, everything else (incl.
+                // HEIC/HEIF from gallery) → JPEG. Normalize the MIME type and extension to match
+                // the actual output format so Supabase Storage accepts the upload.
+                val (uploadMimeType, uploadExt) = when {
+                    isImage && mimeType.contains("png", ignoreCase = true) -> "image/png" to "png"
+                    isImage && mimeType.contains("webp", ignoreCase = true) -> "image/webp" to "webp"
+                    isImage -> "image/jpeg" to "jpg"
+                    else -> "application/pdf" to "pdf"
+                }
+                val displayFileName = fileName ?: "file.$uploadExt"
+
                 // Upload to Supabase Storage
-                val storagePath = "$consultationId/${UUID.randomUUID()}.$ext"
+                val storagePath = "$consultationId/${UUID.randomUUID()}.$uploadExt"
                 val uploadResult = fileUploadService.uploadFile(
                     bucketName = ATTACHMENT_BUCKET,
                     path = storagePath,
                     bytes = uploadBytes,
-                    contentType = mimeType,
+                    contentType = uploadMimeType,
                 )
 
                 when (uploadResult) {
@@ -417,7 +427,7 @@ class DoctorChatViewModel @Inject constructor(
                             consultationId = consultationId,
                             senderType = state.currentUserType,
                             senderId = state.currentUserId,
-                            messageText = fileName,
+                            messageText = displayFileName,
                             messageType = messageType,
                             attachmentUrl = publicUrl,
                             synced = false,
@@ -431,7 +441,7 @@ class DoctorChatViewModel @Inject constructor(
                             consultationId = consultationId,
                             senderType = state.currentUserType,
                             senderId = state.currentUserId,
-                            messageText = fileName,
+                            messageText = displayFileName,
                             messageType = messageType,
                             attachmentUrl = publicUrl,
                         )) {

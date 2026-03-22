@@ -957,6 +957,7 @@ class DoctorDashboardViewModel @Inject constructor(
     }
 
     fun onSignOut() {
+        Log.w(TAG, "onSignOut() called!", Exception("DoctorDashboard logout stack trace"))
         _serviceCommand.tryEmit(ServiceCommand.Stop)
         viewModelScope.launch {
             logoutUseCase()

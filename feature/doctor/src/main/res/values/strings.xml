@@ -186,6 +186,7 @@
     <string name="consultation_detail_write_report">Write Report</string>
     <string name="consultation_detail_patient_summary">Patient Summary</string>
     <string name="consultation_detail_end_consultation">End Consultation</string>
+    <string name="consultation_detail_attach_title">Send Attachment</string>
     <string name="consultation_detail_camera">Camera</string>
     <string name="consultation_detail_gallery">Gallery</string>
     <string name="consultation_detail_document">Document</string>

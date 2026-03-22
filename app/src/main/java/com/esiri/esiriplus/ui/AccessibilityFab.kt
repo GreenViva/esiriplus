@@ -15,18 +15,25 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import kotlin.math.roundToInt
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -82,7 +89,21 @@ fun AccessibilityFab(
         label = "fab_rotation",
     )
 
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+    // Drag offset — starts at bottom-end, user can drag anywhere
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val fabSizePx = with(density) { 52.dp.toPx() }
+        val paddingPx = with(density) { 16.dp.toPx() }
+        val maxWidthPx = with(density) { maxWidth.toPx() }
+        val maxHeightPx = with(density) { maxHeight.toPx() }
+
+        // Clamp so the FAB never leaves the screen
+        val clampedX = offsetX.coerceIn(-(maxWidthPx - fabSizePx - paddingPx), 0f)
+        val clampedY = offsetY.coerceIn(-(maxHeightPx - fabSizePx - paddingPx), 0f)
+
         // Scrim when panel is open
         if (expanded) {
             Box(
@@ -97,13 +118,17 @@ fun AccessibilityFab(
             )
         }
 
-        // Settings panel
+        // Settings panel — anchored near the FAB
         AnimatedVisibility(
             visible = expanded,
             enter = scaleIn(tween(250), initialScale = 0.8f) + fadeIn(tween(200)),
             exit = scaleOut(tween(200), targetScale = 0.8f) + fadeOut(tween(150)),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
+                .offset(
+                    x = with(density) { clampedX.roundToInt().toDp() },
+                    y = with(density) { clampedY.roundToInt().toDp() },
+                )
                 .padding(end = 16.dp, bottom = 80.dp),
         ) {
             AccessibilityPanel(
@@ -112,12 +137,24 @@ fun AccessibilityFab(
             )
         }
 
-        // FAB
+        // Draggable FAB
         FloatingActionButton(
             onClick = { expanded = !expanded },
             modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(
+                    x = with(density) { clampedX.roundToInt().toDp() },
+                    y = with(density) { clampedY.roundToInt().toDp() },
+                )
                 .padding(16.dp)
-                .size(52.dp),
+                .size(52.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures { change, dragAmount ->
+                        change.consume()
+                        offsetX = (offsetX + dragAmount.x).coerceIn(-(maxWidthPx - fabSizePx - paddingPx), 0f)
+                        offsetY = (offsetY + dragAmount.y).coerceIn(-(maxHeightPx - fabSizePx - paddingPx), 0f)
+                    }
+                },
             shape = CircleShape,
             containerColor = BrandTeal,
             contentColor = Color.White,

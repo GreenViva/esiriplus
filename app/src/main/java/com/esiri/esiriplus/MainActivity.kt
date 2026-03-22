@@ -183,6 +183,10 @@ class MainActivity : AppCompatActivity() {
                                     WindowManager.LayoutParams.FLAG_SECURE,
                                     WindowManager.LayoutParams.FLAG_SECURE,
                                 )
+                                // After login/registration the doctor just authenticated
+                                // (password + optional biometric enrollment). Don't show
+                                // the biometric lock screen again immediately.
+                                biometricLockStateHolder.unlock()
                             } else {
                                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                             }

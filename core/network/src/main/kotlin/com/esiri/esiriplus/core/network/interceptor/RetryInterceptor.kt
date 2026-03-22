@@ -40,7 +40,6 @@ class RetryInterceptor(
 
     private fun isRetryableStatusCode(code: Int): Boolean =
         code == HTTP_REQUEST_TIMEOUT ||
-            code == HTTP_TOO_MANY_REQUESTS ||
             code in HTTP_SERVER_ERROR_RANGE
 
     private fun sleepWithBackoff(attempt: Int, retryAfterSeconds: Long? = null) {

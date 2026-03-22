@@ -19,6 +19,7 @@ import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
 import com.esiri.esiriplus.core.domain.repository.NotificationRepository
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,6 +54,9 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
     lateinit var edgeFunctionClient: EdgeFunctionClient
 
     @Inject
+    lateinit var consultationRequestRealtimeService: ConsultationRequestRealtimeService
+
+    @Inject
     lateinit var userPreferencesManager: com.esiri.esiriplus.core.common.preferences.UserPreferencesManager
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -68,18 +72,19 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         val notificationId = remoteMessage.data["notification_id"]
         val type = remoteMessage.data["type"] ?: "GENERAL"
 
-        // FCM fallback for consultation requests when realtime service is dead
-        if (type.equals("CONSULTATION_REQUEST", ignoreCase = true) && DoctorOnlineService.isRunning) {
-            // Service is running with active realtime — skip FCM notification to avoid duplicates
-            Log.d(TAG, "Skipping CONSULTATION_REQUEST FCM — realtime service is active")
-            return
-        }
-
-        if (type.equals("CONSULTATION_REQUEST", ignoreCase = true) && !DoctorOnlineService.isRunning) {
-            // Realtime is dead — show high-priority notification as fallback
-            Log.d(TAG, "CONSULTATION_REQUEST FCM fallback — service not running")
+        // Consultation request — always emit to IncomingRequestViewModel so the dialog
+        // shows reliably even when Realtime is slow/unauthenticated.
+        if (type.equals("CONSULTATION_REQUEST", ignoreCase = true)) {
             val requestId = remoteMessage.data["request_id"] ?: notificationId ?: ""
-            showConsultationRequestFallback(requestId)
+            val serviceType = remoteMessage.data["service_type"]
+            Log.d(TAG, "CONSULTATION_REQUEST FCM: requestId=$requestId serviceRunning=${DoctorOnlineService.isRunning}")
+            // Emit to ViewModel so the in-app dialog appears (deduplicated by requestId).
+            consultationRequestRealtimeService.emitExternalRequest(requestId, serviceType)
+            // Also show system notification so the doctor is alerted if the app is backgrounded.
+            if (!DoctorOnlineService.isRunning) {
+                // Service not running — show high-priority fallback notification
+                showConsultationRequestFallback(requestId)
+            }
             return
         }
 

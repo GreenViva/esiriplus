@@ -30,41 +30,58 @@ class TokenRefresherImpl @Inject constructor(
     }
 
     override fun refreshToken(currentRefreshToken: String): Boolean {
-        val url = "${BuildConfig.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token"
-
-        val bodyJson = """{"refresh_token":"$currentRefreshToken"}"""
-        val requestBody = bodyJson.toRequestBody("application/json".toMediaType())
-
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .header("apikey", BuildConfig.SUPABASE_ANON_KEY)
-            .header("Content-Type", "application/json")
-            .build()
-
-        return try {
-            bareClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    val body = response.body?.string() ?: return false
-                    val adapter = moshi.adapter(TokenRefreshResponse::class.java)
-                    val tokenResponse = adapter.fromJson(body) ?: return false
-
-                    val expiresAtMillis = System.currentTimeMillis() + (tokenResponse.expiresIn * 1000L)
-                    tokenManager.saveTokens(
-                        accessToken = tokenResponse.accessToken,
-                        refreshToken = tokenResponse.refreshToken,
-                        expiresAtMillis = expiresAtMillis,
-                    )
-                    Log.d(TAG, "Token refreshed successfully, expires in ${tokenResponse.expiresIn}s")
-                    true
-                } else {
-                    Log.e(TAG, "Token refresh failed: HTTP ${response.code} - ${response.body?.string()}")
-                    false
-                }
+        // Serialize all refresh attempts so that concurrent calls (e.g. from
+        // ProactiveTokenRefreshInterceptor on request A and TokenRefreshAuthenticator
+        // on request B's 401) never send the same refresh token twice.  Supabase
+        // rotates refresh tokens on every use, so a double-submission always causes
+        // the second call to fail and triggers a spurious session-invalidation.
+        synchronized(this) {
+            // Double-check: another thread may have already refreshed while we waited.
+            val latestRefreshToken = tokenManager.getRefreshTokenSync()
+            if (latestRefreshToken != null && latestRefreshToken != currentRefreshToken) {
+                Log.d(TAG, "Token already refreshed by another thread, skipping duplicate refresh")
+                return true
             }
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-            Log.e(TAG, "Token refresh exception", e)
-            false
+
+            val url = "${BuildConfig.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token"
+            val bodyJson = """{"refresh_token":"$currentRefreshToken"}"""
+            val requestBody = bodyJson.toRequestBody("application/json".toMediaType())
+
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .header("apikey", BuildConfig.SUPABASE_ANON_KEY)
+                .header("Content-Type", "application/json")
+                .build()
+
+            return try {
+                bareClient.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val body = response.body?.string() ?: return false
+                        val adapter = moshi.adapter(TokenRefreshResponse::class.java)
+                        val tokenResponse = adapter.fromJson(body) ?: return false
+
+                        val expiresAtMillis = System.currentTimeMillis() + (tokenResponse.expiresIn * 1000L)
+                        tokenManager.saveTokens(
+                            accessToken = tokenResponse.accessToken,
+                            refreshToken = tokenResponse.refreshToken,
+                            expiresAtMillis = expiresAtMillis,
+                        )
+                        Log.d(TAG, "Token refreshed successfully, expires in ${tokenResponse.expiresIn}s")
+                        true
+                    } else {
+                        Log.e(TAG, "Token refresh failed: HTTP ${response.code} - ${response.body?.string()}")
+                        false
+                    }
+                }
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                // Re-throw network/IO exceptions so callers can distinguish a transient
+                // connectivity failure (e.g. DNS not ready after device wake-up) from an
+                // explicit auth rejection (bad refresh token → HTTP 400/401 → returns false).
+                // TokenRefreshAuthenticator must NOT invalidate the session for transient errors.
+                Log.e(TAG, "Token refresh network exception (not invalidating session)", e)
+                throw e
+            }
         }
     }
 }

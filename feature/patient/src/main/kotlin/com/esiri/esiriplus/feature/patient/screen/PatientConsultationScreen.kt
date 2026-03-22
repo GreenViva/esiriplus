@@ -14,11 +14,28 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,6 +60,25 @@ import com.esiri.esiriplus.feature.patient.viewmodel.PatientConsultationViewMode
 import java.io.File
 
 private val BrandTeal = Color(0xFF2A9D8F)
+
+@Composable
+private fun AttachmentOption(
+    icon: @Composable () -> Unit,
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        icon()
+        Spacer(Modifier.width(16.dp))
+        Text(label, color = Color.Black)
+    }
+}
 
 @Composable
 fun PatientConsultationScreen(
@@ -223,60 +259,64 @@ fun PatientConsultationScreen(
         )
     }
 
-    // Attachment popup menu
-    DropdownMenu(
-        expanded = showAttachmentMenu,
-        onDismissRequest = { showAttachmentMenu = false },
-    ) {
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.consultation_camera), color = Color.Black) },
-            onClick = {
-                showAttachmentMenu = false
-                val hasCameraPermission = ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.CAMERA,
-                ) == PackageManager.PERMISSION_GRANTED
-                if (hasCameraPermission) {
-                    val photoFile = File.createTempFile("photo_", ".jpg", context.cacheDir)
-                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", photoFile)
-                    cameraImageUri = uri
-                    cameraLauncher.launch(uri)
-                } else {
-                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    // Attachment picker dialog
+    if (showAttachmentMenu) {
+        AlertDialog(
+            onDismissRequest = { showAttachmentMenu = false },
+            title = { Text(stringResource(R.string.consultation_attach_title), color = Color.Black) },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    AttachmentOption(
+                        icon = { Icon(Icons.Default.CameraAlt, contentDescription = null, tint = BrandTeal, modifier = Modifier.size(24.dp)) },
+                        label = stringResource(R.string.consultation_camera),
+                        onClick = {
+                            showAttachmentMenu = false
+                            val hasCameraPermission = ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.CAMERA,
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (hasCameraPermission) {
+                                val photoFile = File.createTempFile("photo_", ".jpg", context.cacheDir)
+                                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", photoFile)
+                                cameraImageUri = uri
+                                cameraLauncher.launch(uri)
+                            } else {
+                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        },
+                    )
+                    AttachmentOption(
+                        icon = { Icon(Icons.Default.Image, contentDescription = null, tint = BrandTeal, modifier = Modifier.size(24.dp)) },
+                        label = stringResource(R.string.consultation_gallery),
+                        onClick = {
+                            showAttachmentMenu = false
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                val hasPermission = ContextCompat.checkSelfPermission(
+                                    context, Manifest.permission.READ_MEDIA_IMAGES,
+                                ) == PackageManager.PERMISSION_GRANTED
+                                if (hasPermission) {
+                                    imagePickerLauncher.launch("image/*")
+                                } else {
+                                    mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                }
+                            } else {
+                                imagePickerLauncher.launch("image/*")
+                            }
+                        },
+                    )
+                    AttachmentOption(
+                        icon = { Icon(Icons.Default.Description, contentDescription = null, tint = BrandTeal, modifier = Modifier.size(24.dp)) },
+                        label = stringResource(R.string.consultation_document),
+                        onClick = {
+                            showAttachmentMenu = false
+                            documentPickerLauncher.launch("application/pdf")
+                        },
+                    )
                 }
             },
-            leadingIcon = {
-                Icon(Icons.Default.CameraAlt, contentDescription = null, tint = BrandTeal)
-            },
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.consultation_gallery), color = Color.Black) },
-            onClick = {
-                showAttachmentMenu = false
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val hasPermission = ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.READ_MEDIA_IMAGES,
-                    ) == PackageManager.PERMISSION_GRANTED
-                    if (hasPermission) {
-                        imagePickerLauncher.launch("image/*")
-                    } else {
-                        mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                    }
-                } else {
-                    imagePickerLauncher.launch("image/*")
+            confirmButton = {
+                TextButton(onClick = { showAttachmentMenu = false }) {
+                    Text(stringResource(R.string.common_cancel), color = Color.Black)
                 }
-            },
-            leadingIcon = {
-                Icon(Icons.Default.Image, contentDescription = null, tint = BrandTeal)
-            },
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.consultation_document), color = Color.Black) },
-            onClick = {
-                showAttachmentMenu = false
-                documentPickerLauncher.launch("application/pdf")
-            },
-            leadingIcon = {
-                Icon(Icons.Default.Description, contentDescription = null, tint = BrandTeal)
             },
         )
     }

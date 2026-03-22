@@ -167,8 +167,12 @@ fun EsiriplusNavHost(
                     popUpTo(0) { inclusive = true }
                 }
             },
-            // Doctor login/registration auto-navigates via LaunchedEffect.
-            onDoctorAuthenticated = {},
+            onDoctorAuthenticated = {
+                hasNavigatedForAuth.value = true
+                navController.navigate(DoctorGraph) {
+                    popUpTo(0) { inclusive = true }
+                }
+            },
         )
         patientGraph(navController = navController)
         doctorGraph(navController = navController, onSignOut = onLogout)

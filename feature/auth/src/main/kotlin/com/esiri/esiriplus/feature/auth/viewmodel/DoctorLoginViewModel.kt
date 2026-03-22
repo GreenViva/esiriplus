@@ -13,7 +13,7 @@ import com.esiri.esiriplus.core.network.service.DoctorProfileService
 import com.esiri.esiriplus.feature.auth.biometric.BiometricAuthManager
 import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -73,32 +73,26 @@ class DoctorLoginViewModel @Inject constructor(
             val email = uiState.value.email
             val password = uiState.value.password
 
-            var lastError: String? = null
-            for (attempt in 1..MAX_LOGIN_ATTEMPTS) {
-                when (val result = loginDoctor(email, password)) {
-                    is Result.Success -> {
-                        val session = result.data
-                        val doctorId = session.user.id
+            when (val result = loginDoctor(email, password)) {
+                is Result.Success -> {
+                    val session = result.data
+                    val doctorId = session.user.id
 
-                        // Check ban/suspension/warning status before allowing navigation
-                        val blocked = checkAccountStatus(session.accessToken, session.refreshToken, doctorId, onSuccess)
-                        if (blocked) return@launch
+                    // Check ban/suspension/warning status before allowing navigation
+                    val blocked = checkAccountStatus(session.accessToken, session.refreshToken, doctorId, onSuccess)
+                    if (blocked) return@launch
 
-                        _uiState.update { it.copy(isLoading = false) }
-                        onSuccess()
-                        return@launch
-                    }
-                    is Result.Error -> {
-                        lastError = result.message ?: "Login failed"
-                        Log.w(TAG, "Login attempt $attempt failed: $lastError")
-                        if (attempt < MAX_LOGIN_ATTEMPTS) {
-                            delay(RETRY_DELAY_MS)
-                        }
-                    }
-                    is Result.Loading -> Unit
+                    _uiState.update { it.copy(isLoading = false) }
+                    onSuccess()
+                    return@launch
                 }
+                is Result.Error -> {
+                    val error = result.message ?: "Login failed"
+                    Log.w(TAG, "Login failed: $error")
+                    _uiState.update { it.copy(isLoading = false, error = error) }
+                }
+                is Result.Loading -> Unit
             }
-            _uiState.update { it.copy(isLoading = false, error = lastError) }
         }
     }
 
@@ -216,7 +210,5 @@ class DoctorLoginViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "DoctorLoginVM"
-        private const val MAX_LOGIN_ATTEMPTS = 2
-        private const val RETRY_DELAY_MS = 1500L
     }
 }

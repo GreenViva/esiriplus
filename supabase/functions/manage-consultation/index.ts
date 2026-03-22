@@ -189,6 +189,27 @@ async function handleEnd(
   }
 
   const supabase = getServiceClient();
+
+  // Fetch consultation first so we can verify ownership and check current status.
+  const consultation = await fetchConsultation(body.consultation_id);
+
+  // HTTP-level ownership check (belt-and-suspenders on top of the SQL RPC check).
+  if (consultation.doctor_id !== auth.userId) {
+    throw new ValidationError("You are not the doctor for this consultation");
+  }
+
+  // Idempotent: if the consultation is already completed (e.g. timer cron ran
+  // first, or the doctor hit the button twice), return the current state as
+  // success so both iOS and Android can transition their UI without errors.
+  if (consultation.status === "completed") {
+    const { data: timeData } = await supabase.rpc("get_server_time");
+    return successResponse(
+      buildSyncPayload(consultation, timeData ?? new Date().toISOString()),
+      200,
+      origin
+    );
+  }
+
   const { error } = await supabase.rpc("end_consultation", {
     p_consultation_id: body.consultation_id,
     p_doctor_id: auth.userId,
@@ -200,6 +221,26 @@ async function handleEnd(
 
   await insertSystemMessage(body.consultation_id, "Consultation ended by doctor.");
 
+  // Notify patient via push so they are informed even when the Realtime
+  // WebSocket is disconnected (background, doze mode, network switch).
+  // This is the only reliable delivery path on both iOS and Android.
+  try {
+    await supabase.functions.invoke("send-push-notification", {
+      body: {
+        session_id: consultation.patient_session_id,
+        title: "Consultation Ended",
+        body: "Your doctor has ended the consultation. Your report will be ready shortly.",
+        type: "consultation_ended",
+        data: {
+          consultation_id: body.consultation_id,
+        },
+      },
+    });
+  } catch (e) {
+    // Non-fatal: Realtime is still a fallback; log and continue.
+    console.error("Failed to send consultation_ended push to patient:", e);
+  }
+
   await logEvent({
     function_name: "manage-consultation",
     level: "info",
@@ -208,11 +249,11 @@ async function handleEnd(
     metadata: { consultation_id: body.consultation_id },
   });
 
-  const consultation = await fetchConsultation(body.consultation_id);
+  const updated = await fetchConsultation(body.consultation_id);
   const { data: timeData } = await supabase.rpc("get_server_time");
 
   return successResponse(
-    buildSyncPayload(consultation, timeData ?? new Date().toISOString()),
+    buildSyncPayload(updated, timeData ?? new Date().toISOString()),
     200,
     origin
   );

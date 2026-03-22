@@ -15,7 +15,6 @@
 
 import { handlePreflight, corsHeaders } from "../_shared/cors.ts";
 import { validateAuth, type AuthResult } from "../_shared/auth.ts";
-import { LIMITS } from "../_shared/rateLimit.ts";
 import {
   errorResponse,
   successResponse,
@@ -216,6 +215,9 @@ async function handleCreate(
           request_id: request.request_id,
           service_type: body.service_type,
         },
+      },
+      headers: {
+        "X-Service-Key": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       },
     });
   } catch (e) {
@@ -421,6 +423,9 @@ async function handleAccept(
           consultation_id: consultation.consultation_id,
         },
       },
+      headers: {
+        "X-Service-Key": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      },
     });
   } catch (e) {
     console.error("Failed to send acceptance notification:", e);
@@ -490,6 +495,9 @@ async function handleReject(
         body: "The doctor is unavailable. You can request another doctor.",
         type: "consultation_rejected",
         data: { request_id: body.request_id },
+      },
+      headers: {
+        "X-Service-Key": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       },
     });
   } catch (e) {
@@ -607,8 +615,6 @@ Deno.serve(async (req: Request) => {
 
   try {
     const auth = await validateAuth(req);
-    const identifier = auth.userId ?? auth.sessionId ?? "anon";
-    await LIMITS.payment(identifier);
 
     const raw = await req.json();
     const body = validate(raw);
