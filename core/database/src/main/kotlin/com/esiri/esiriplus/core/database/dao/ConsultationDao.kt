@@ -85,9 +85,10 @@ interface ConsultationDao {
         "SELECT c.* FROM consultations c " +
             "LEFT JOIN doctor_ratings r ON c.consultationId = r.consultationId " +
             "WHERE LOWER(c.status) = 'completed' AND r.ratingId IS NULL " +
+            "AND c.patientSessionId = :patientSessionId " +
             "ORDER BY c.updatedAt DESC LIMIT 1",
     )
-    suspend fun getUnratedCompletedConsultation(): ConsultationEntity?
+    suspend fun getUnratedCompletedConsultation(patientSessionId: String): ConsultationEntity?
 
     @Query(
         "SELECT d.fullName FROM consultations c " +

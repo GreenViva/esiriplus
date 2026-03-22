@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
+import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,6 +37,7 @@ class PatientHomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val logoutUseCase: LogoutUseCase,
     private val consultationDao: ConsultationDao,
+    private val patientSessionDao: PatientSessionDao,
     private val doctorRatingRepository: DoctorRatingRepository,
 ) : ViewModel() {
 
@@ -83,7 +86,8 @@ class PatientHomeViewModel @Inject constructor(
     private fun checkPendingRatings() {
         viewModelScope.launch {
             try {
-                val unrated = consultationDao.getUnratedCompletedConsultation()
+                val session = patientSessionDao.getSession().first { it != null } ?: return@launch
+                val unrated = consultationDao.getUnratedCompletedConsultation(session.sessionId)
                 _pendingRating.value = unrated
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to check pending ratings", e)
