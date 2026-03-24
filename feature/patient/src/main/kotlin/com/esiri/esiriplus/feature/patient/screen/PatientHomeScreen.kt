@@ -40,6 +40,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +52,8 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -79,6 +82,7 @@ import com.esiri.esiriplus.feature.patient.viewmodel.PatientHomeViewModel
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientHomeScreen(
     onStartConsultation: (String) -> Unit,
@@ -131,6 +135,8 @@ fun PatientHomeScreen(
         )
     }
 
+    val pullRefreshState = rememberPullToRefreshState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -138,6 +144,12 @@ fun PatientHomeScreen(
                 Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MintLight))
             ),
     ) {
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = { viewModel.refresh() },
+            state = pullRefreshState,
+            modifier = Modifier.fillMaxSize(),
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -218,6 +230,7 @@ fun PatientHomeScreen(
             )
 
         }
+        } // PullToRefreshBox
 
         // Pulsing chat FAB when there is an active consultation
         val activeConsultation = uiState.activeConsultation

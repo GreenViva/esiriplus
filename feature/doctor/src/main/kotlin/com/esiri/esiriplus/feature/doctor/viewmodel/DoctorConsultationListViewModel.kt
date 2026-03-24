@@ -11,8 +11,11 @@ import com.esiri.esiriplus.core.network.service.ConsultationRow
 import com.esiri.esiriplus.core.network.service.DoctorConsultationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -24,6 +27,7 @@ import javax.inject.Inject
 data class DoctorConsultationListUiState(
     val consultations: List<ConsultationEntity> = emptyList(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
 )
 
@@ -34,8 +38,10 @@ class DoctorConsultationListViewModel @Inject constructor(
     private val consultationService: DoctorConsultationService,
 ) : ViewModel() {
 
+    private val _isRefreshing = MutableStateFlow(false)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<DoctorConsultationListUiState> = authRepository.currentSession
+    private val _dataState = authRepository.currentSession
         .flatMapLatest { session ->
             val id = session?.user?.id
             if (id == null) {
@@ -51,26 +57,47 @@ class DoctorConsultationListViewModel @Inject constructor(
                 }
             }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = DoctorConsultationListUiState(),
-        )
+
+    val uiState: StateFlow<DoctorConsultationListUiState> = combine(
+        _dataState,
+        _isRefreshing,
+    ) { state, refreshing ->
+        state.copy(isRefreshing = refreshing)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = DoctorConsultationListUiState(),
+    )
+
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                val session = authRepository.currentSession.first()
+                val id = session?.user?.id ?: return@launch
+                doSync(id)
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
+    }
 
     private fun syncFromBackend(doctorId: String) {
-        viewModelScope.launch {
-            when (val result = consultationService.getConsultationsForDoctor(doctorId)) {
-                is ApiResult.Success -> {
-                    val entities = result.data.map { it.toEntity() }
-                    if (entities.isNotEmpty()) {
-                        consultationDao.insertAll(entities)
-                    }
+        viewModelScope.launch { doSync(doctorId) }
+    }
+
+    private suspend fun doSync(doctorId: String) {
+        when (val result = consultationService.getConsultationsForDoctor(doctorId)) {
+            is ApiResult.Success -> {
+                val entities = result.data.map { it.toEntity() }
+                if (entities.isNotEmpty()) {
+                    consultationDao.insertAll(entities)
                 }
-                is ApiResult.Error -> {
-                    Log.w(TAG, "Failed to sync consultations: ${result.message}")
-                }
-                else -> { /* no-op */ }
             }
+            is ApiResult.Error -> {
+                Log.w(TAG, "Failed to sync consultations: ${result.message}")
+            }
+            else -> { /* no-op */ }
         }
     }
 

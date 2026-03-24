@@ -17,11 +17,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,6 +48,7 @@ private val RoyalPurple = Color(0xFF4C1D95)
 private val RoyalGold = Color(0xFFF59E0B)
 private val BrandTeal = Color(0xFF2A9D8F)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoyalClientsScreen(
     onBack: () -> Unit,
@@ -54,6 +58,7 @@ fun RoyalClientsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val royalConsultations = uiState.royalConsultations
+    val pullRefreshState = rememberPullToRefreshState()
 
     Surface(modifier = modifier.fillMaxSize(), color = Color.White) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -90,36 +95,43 @@ fun RoyalClientsScreen(
                 }
             }
 
-            if (royalConsultations.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "\u2605",
-                            fontSize = 48.sp,
-                            color = RoyalGold.copy(alpha = 0.4f),
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = "No Royal consultations yet",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                        )
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.weight(1f),
+            ) {
+                if (royalConsultations.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "\u2605",
+                                fontSize = 48.sp,
+                                color = RoyalGold.copy(alpha = 0.4f),
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = "No Royal consultations yet",
+                                color = Color.Black,
+                                fontSize = 16.sp,
+                            )
+                        }
                     }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    items(royalConsultations, key = { it.consultationId }) { consultation ->
-                        RoyalClientCard(
-                            consultation = consultation,
-                            onClick = { onOpenConsultation(consultation.consultationId) },
-                        )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(royalConsultations, key = { it.consultationId }) { consultation ->
+                            RoyalClientCard(
+                                consultation = consultation,
+                                onClick = { onOpenConsultation(consultation.consultationId) },
+                            )
+                        }
+                        item { Spacer(Modifier.height(16.dp)) }
                     }
-                    item { Spacer(Modifier.height(16.dp)) }
                 }
             }
         }

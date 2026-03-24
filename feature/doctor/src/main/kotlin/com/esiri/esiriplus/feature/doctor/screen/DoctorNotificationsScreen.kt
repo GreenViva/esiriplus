@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -79,6 +81,8 @@ fun DoctorNotificationsScreen(
             )
         },
     ) { padding ->
+        val pullRefreshState = rememberPullToRefreshState()
+
         when {
             uiState.isLoading -> {
                 Box(
@@ -91,44 +95,49 @@ fun DoctorNotificationsScreen(
                 }
             }
 
-            uiState.notifications.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.Default.Notifications,
-                            contentDescription = null,
-                            tint = Color.LightGray,
-                            modifier = Modifier.size(64.dp),
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            stringResource(R.string.notifications_empty),
-                            color = Color.Black,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    }
-                }
-            }
-
             else -> {
-                LazyColumn(
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { viewModel.refresh() },
+                    state = pullRefreshState,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
                 ) {
-                    items(
-                        items = uiState.notifications,
-                        key = { it.notificationId },
-                    ) { notification ->
-                        NotificationItem(
-                            notification = notification,
-                            onClick = { viewModel.markAsRead(notification.notificationId) },
-                        )
+                    if (uiState.notifications.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    Icons.Default.Notifications,
+                                    contentDescription = null,
+                                    tint = Color.LightGray,
+                                    modifier = Modifier.size(64.dp),
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    stringResource(R.string.notifications_empty),
+                                    color = Color.Black,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            items(
+                                items = uiState.notifications,
+                                key = { it.notificationId },
+                            ) { notification ->
+                                NotificationItem(
+                                    notification = notification,
+                                    onClick = { viewModel.markAsRead(notification.notificationId) },
+                                )
+                            }
+                        }
                     }
                 }
             }

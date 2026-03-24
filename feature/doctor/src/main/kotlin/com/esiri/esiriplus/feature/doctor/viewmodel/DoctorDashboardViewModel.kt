@@ -26,6 +26,7 @@ import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.service.AvailabilitySlotRow
 import com.esiri.esiriplus.core.network.service.DoctorAvailabilityService
 import com.esiri.esiriplus.core.network.service.DoctorConsultationService
 import com.esiri.esiriplus.core.network.service.DoctorEarningsService
@@ -60,6 +61,7 @@ import javax.inject.Inject
 
 data class DoctorDashboardUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val doctorId: String = "",
     val doctorName: String = "",
     val specialty: String = "",
@@ -165,6 +167,23 @@ class DoctorDashboardViewModel @Inject constructor(
     init {
         loadDoctorProfile()
         observeOngoingConsultations()
+    }
+
+    /**
+     * Pull-to-refresh: re-fetches profile, consultations, earnings, and appointments
+     * from the backend without showing the full-screen loading spinner.
+     */
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                val session = authRepository.currentSession.first() ?: return@launch
+                val userId = session.user.id
+                authenticateAndFetchRemoteData(session.accessToken, session.refreshToken, userId)
+            } finally {
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
+        }
     }
 
     private fun observeOngoingConsultations() {
@@ -733,8 +752,9 @@ class DoctorDashboardViewModel @Inject constructor(
             val doctorId = _uiState.value.doctorId
             if (doctorId.isBlank()) return@launch
 
-            val isAvailable = _uiState.value.weeklySchedule.toMap().values.any { it.enabled }
-            val scheduleJson = json.encodeToString(_uiState.value.weeklySchedule.toMap())
+            val schedule = _uiState.value.weeklySchedule
+            val isAvailable = schedule.toMap().values.any { it.enabled }
+            val scheduleJson = json.encodeToString(schedule.toMap())
 
             try {
                 // 1. Save locally
@@ -756,6 +776,42 @@ class DoctorDashboardViewModel @Inject constructor(
                 isAvailable = isAvailable,
                 scheduleJson = scheduleJson,
             )
+
+            // 3. Sync availability slots for the appointment booking system.
+            // The weekly schedule on the dashboard and the structured
+            // doctor_availability_slots table must stay in sync so patients
+            // can book appointments for the times the doctor has enabled.
+            try {
+                val dayNames = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+                val dayMap = schedule.toMap()
+
+                // Delete existing slots for this doctor, then re-insert enabled ones
+                for ((index, dayName) in dayNames.withIndex()) {
+                    val day = dayMap[dayName] ?: continue
+                    // Delete any existing slot for this day
+                    val existing = availabilityService.getSlots(doctorId)
+                        .filter { it.dayOfWeek == index }
+                    for (slot in existing) {
+                        availabilityService.deleteSlot(slot.slotId)
+                    }
+                    // Insert if enabled
+                    if (day.enabled) {
+                        availabilityService.insertSlot(
+                            AvailabilitySlotRow(
+                                doctorId = doctorId,
+                                dayOfWeek = index,
+                                startTime = day.start,
+                                endTime = day.end,
+                                bufferMinutes = 5,
+                                isActive = true,
+                            ),
+                        )
+                    }
+                }
+                Log.d(TAG, "Availability slots synced to doctor_availability_slots")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to sync availability slots (appointments may not work)", e)
+            }
 
             _uiState.update { it.copy(availabilitySaved = true) }
         }

@@ -24,6 +24,7 @@ data class PatientAppointmentsUiState(
     val upcomingAppointments: List<Appointment> = emptyList(),
     val pastAppointments: List<Appointment> = emptyList(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val isCancelling: String? = null, // appointment ID being cancelled
     val errorMessage: String? = null,
 )
@@ -43,6 +44,49 @@ class PatientAppointmentsViewModel @Inject constructor(
 
     fun selectTab(tab: AppointmentTab) {
         _uiState.update { it.copy(selectedTab = tab) }
+    }
+
+    fun refresh() {
+        _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
+        viewModelScope.launch {
+            when (val result = appointmentRepository.getAppointments(limit = 100)) {
+                is Result.Success -> {
+                    val upcoming = result.data.filter { apt ->
+                        apt.status in listOf(
+                            AppointmentStatus.BOOKED,
+                            AppointmentStatus.CONFIRMED,
+                            AppointmentStatus.IN_PROGRESS,
+                        )
+                    }.sortedBy { it.scheduledAt }
+
+                    val past = result.data.filter { apt ->
+                        apt.status in listOf(
+                            AppointmentStatus.COMPLETED,
+                            AppointmentStatus.MISSED,
+                            AppointmentStatus.CANCELLED,
+                            AppointmentStatus.RESCHEDULED,
+                        )
+                    }.sortedByDescending { it.scheduledAt }
+
+                    _uiState.update {
+                        it.copy(
+                            upcomingAppointments = upcoming,
+                            pastAppointments = past,
+                            isRefreshing = false,
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isRefreshing = false,
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_load_appointments),
+                        )
+                    }
+                }
+                is Result.Loading -> { /* no-op */ }
+            }
+        }
     }
 
     fun loadAppointments() {

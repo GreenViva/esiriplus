@@ -34,6 +34,7 @@ data class FindDoctorUiState(
     val availabilityFilter: AvailabilityFilter = AvailabilityFilter.ALL,
     val serviceCategory: String = "",
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
 )
 
@@ -157,10 +158,10 @@ class FindDoctorViewModel @Inject constructor(
 
     /** Allows the UI to trigger a manual refresh (e.g. pull-to-refresh). */
     fun refresh() {
-        _uiState.update { it.copy(isLoading = true, error = null) }
+        _uiState.update { it.copy(isRefreshing = true, error = null) }
         viewModelScope.launch {
             fetchDoctorsFromBackend()
-            _uiState.update { it.copy(isLoading = false) }
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
 

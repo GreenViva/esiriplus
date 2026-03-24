@@ -53,6 +53,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -373,6 +375,7 @@ fun DoctorDashboardScreen(
                     onOpenSidebar = { isSidebarOpen = true },
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
                     onNotificationsClick = onNavigateToNotifications,
+                    onRefresh = viewModel::refresh,
                 )
                 DoctorNavItem.CONSULTATIONS -> ConsultationsContent(
                     uiState = uiState,
@@ -646,6 +649,7 @@ private fun SideNavigation(
 
 // ─── Dashboard Content (right panel) ────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DashboardContent(
     uiState: DoctorDashboardUiState,
@@ -655,7 +659,16 @@ private fun DashboardContent(
     onOpenSidebar: () -> Unit,
     onSetAvailability: () -> Unit,
     onNotificationsClick: () -> Unit = {},
+    onRefresh: () -> Unit = {},
 ) {
+    val pullRefreshState = rememberPullToRefreshState()
+
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = onRefresh,
+        state = pullRefreshState,
+        modifier = Modifier.fillMaxSize(),
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -718,6 +731,7 @@ private fun DashboardContent(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
     }
 }
 

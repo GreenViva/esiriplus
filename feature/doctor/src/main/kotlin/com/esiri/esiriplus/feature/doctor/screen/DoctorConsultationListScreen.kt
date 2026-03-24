@@ -22,9 +22,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,6 +57,7 @@ private val WarningOrange = Color(0xFFEA580C)
 private val EAT = ZoneId.of("Africa/Nairobi")
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d 'at' HH:mm", Locale.ENGLISH)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorConsultationListScreen(
     onConsultationSelected: (String) -> Unit,
@@ -96,22 +100,33 @@ fun DoctorConsultationListScreen(
             )
         }
 
+        val pullRefreshState = rememberPullToRefreshState()
+
         if (uiState.isLoading) {
             LoadingScreen()
-        } else if (uiState.consultations.isEmpty()) {
-            EmptyState(title = stringResource(R.string.consultation_list_empty))
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.weight(1f),
             ) {
-                items(uiState.consultations, key = { it.consultationId }) { consultation ->
-                    ConsultationHistoryCard(
-                        consultation = consultation,
-                        onClick = { onConsultationSelected(consultation.consultationId) },
-                    )
+                if (uiState.consultations.isEmpty()) {
+                    EmptyState(title = stringResource(R.string.consultation_list_empty))
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(uiState.consultations, key = { it.consultationId }) { consultation ->
+                            ConsultationHistoryCard(
+                                consultation = consultation,
+                                onClick = { onConsultationSelected(consultation.consultationId) },
+                            )
+                        }
+                    }
                 }
             }
         }

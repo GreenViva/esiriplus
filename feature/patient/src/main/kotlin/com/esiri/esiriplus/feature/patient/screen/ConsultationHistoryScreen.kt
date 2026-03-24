@@ -19,11 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +55,7 @@ private val SubtitleGrey = Color(0xFF1F2937)
 
 private val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConsultationHistoryScreen(
     onBack: () -> Unit,
@@ -59,6 +63,7 @@ fun ConsultationHistoryScreen(
     viewModel: ConsultationHistoryViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val pullRefreshState = rememberPullToRefreshState()
 
     Box(
         modifier = modifier
@@ -90,49 +95,56 @@ fun ConsultationHistoryScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            when {
-                uiState.isLoading -> {
-                    LoadingScreen()
-                }
-                uiState.error != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = uiState.error ?: stringResource(R.string.history_unknown_error),
-                            color = Color.Red,
-                            fontSize = 14.sp,
-                        )
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                when {
+                    uiState.isLoading -> {
+                        LoadingScreen()
                     }
-                }
-                uiState.consultations.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_consultation),
-                                contentDescription = null,
-                                tint = CardBorder,
-                                modifier = Modifier.size(48.dp),
-                            )
-                            Spacer(Modifier.height(12.dp))
+                    uiState.error != null -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Text(
-                                text = stringResource(R.string.history_no_consultations),
-                                color = SubtitleGrey,
-                                fontSize = 16.sp,
+                                text = uiState.error ?: stringResource(R.string.history_unknown_error),
+                                color = Color.Red,
+                                fontSize = 14.sp,
                             )
                         }
                     }
-                }
-                else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(uiState.consultations, key = { it.id }) { consultation ->
-                            ConsultationItem(consultation)
+                    uiState.consultations.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_consultation),
+                                    contentDescription = null,
+                                    tint = CardBorder,
+                                    modifier = Modifier.size(48.dp),
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    text = stringResource(R.string.history_no_consultations),
+                                    color = SubtitleGrey,
+                                    fontSize = 16.sp,
+                                )
+                            }
+                        }
+                    }
+                    else -> {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            items(uiState.consultations, key = { it.id }) { consultation ->
+                                ConsultationItem(consultation)
+                            }
                         }
                     }
                 }

@@ -34,6 +34,7 @@ data class DoctorAppointmentsUiState(
     val upcomingAppointments: List<Appointment> = emptyList(),
     val missedAppointments: List<Appointment> = emptyList(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val isRescheduling: String? = null,
     val isStartingSession: String? = null,
     val errorMessage: String? = null,
@@ -70,6 +71,58 @@ class DoctorAppointmentsViewModel @Inject constructor(
 
     fun selectTab(tab: DoctorAppointmentTab) {
         _uiState.update { it.copy(selectedTab = tab) }
+    }
+
+    fun refresh() {
+        _uiState.update { it.copy(isRefreshing = true, errorMessage = null) }
+        viewModelScope.launch {
+            when (val result = appointmentRepository.getAppointments(limit = 100)) {
+                is Result.Success -> {
+                    val now = System.currentTimeMillis()
+                    val todayStart = now - (now % (24 * 60 * 60 * 1000))
+                    val todayEnd = todayStart + (24 * 60 * 60 * 1000)
+
+                    val today = result.data.filter { apt ->
+                        apt.scheduledAt in todayStart until todayEnd &&
+                            apt.status in listOf(
+                                AppointmentStatus.BOOKED,
+                                AppointmentStatus.CONFIRMED,
+                                AppointmentStatus.IN_PROGRESS,
+                            )
+                    }.sortedBy { it.scheduledAt }
+
+                    val upcoming = result.data.filter { apt ->
+                        apt.scheduledAt >= todayEnd &&
+                            apt.status in listOf(
+                                AppointmentStatus.BOOKED,
+                                AppointmentStatus.CONFIRMED,
+                            )
+                    }.sortedBy { it.scheduledAt }
+
+                    val missed = result.data.filter { apt ->
+                        apt.status == AppointmentStatus.MISSED
+                    }.sortedByDescending { it.scheduledAt }
+
+                    _uiState.update {
+                        it.copy(
+                            todayAppointments = today,
+                            upcomingAppointments = upcoming,
+                            missedAppointments = missed,
+                            isRefreshing = false,
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isRefreshing = false,
+                            errorMessage = result.message ?: application.getString(R.string.vm_failed_load_appointments),
+                        )
+                    }
+                }
+                is Result.Loading -> { /* no-op */ }
+            }
+        }
     }
 
     fun loadAppointments() {

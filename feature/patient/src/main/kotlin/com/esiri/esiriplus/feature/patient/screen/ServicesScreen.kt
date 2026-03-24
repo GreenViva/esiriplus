@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +38,8 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -96,6 +99,7 @@ private val comingSoonCategories = emptySet<String>()
 
 private val numberFormat = NumberFormat.getNumberInstance(Locale.US)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServicesScreen(
     onServiceSelected: (serviceCategory: String, priceAmount: Int, durationMinutes: Int, serviceTier: String) -> Unit,
@@ -104,6 +108,7 @@ fun ServicesScreen(
     viewModel: ServicesViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val pullRefreshState = rememberPullToRefreshState()
     var showPaymentDialog by remember { mutableStateOf(false) }
 
     // Find the selected service for the dialog subtitle
@@ -186,33 +191,42 @@ fun ServicesScreen(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(color = BrandTeal)
-                }
-            } else {
-                // Service list
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    items(uiState.services, key = { it.id }) { service ->
-                        ServiceCard(
-                            service = service,
-                            displayPrice = uiState.effectivePrice(service.priceAmount),
-                            isSelected = uiState.selectedServiceId == service.id,
-                            onSelect = { viewModel.selectService(service.id) },
-                        )
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.weight(1f),
+            ) {
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = BrandTeal)
                     }
-                    item { Spacer(Modifier.height(8.dp)) }
+                } else {
+                    // Service list
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        items(uiState.services, key = { it.id }) { service ->
+                            ServiceCard(
+                                service = service,
+                                displayPrice = uiState.effectivePrice(service.priceAmount),
+                                isSelected = uiState.selectedServiceId == service.id,
+                                onSelect = { viewModel.selectService(service.id) },
+                            )
+                        }
+                        item { Spacer(Modifier.height(8.dp)) }
+                    }
                 }
+            } // PullToRefreshBox
 
-                // Bottom section
+            // Bottom section
+            if (!uiState.isLoading) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                 Column(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),

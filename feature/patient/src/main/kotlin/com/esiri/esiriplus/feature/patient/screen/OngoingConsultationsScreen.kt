@@ -20,12 +20,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,6 +58,7 @@ private val BrandTeal = Color(0xFF2A9D8F)
 private val RoyalPurple = Color(0xFF4C1D95)
 private val RoyalGold = Color(0xFFF59E0B)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OngoingConsultationsScreen(
     onBack: () -> Unit,
@@ -64,6 +68,7 @@ fun OngoingConsultationsScreen(
     viewModel: OngoingConsultationsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val pullRefreshState = rememberPullToRefreshState()
 
     // Follow-up confirmation dialog state
     var followUpItem by remember { mutableStateOf<OngoingConsultationItem?>(null) }
@@ -141,54 +146,61 @@ fun OngoingConsultationsScreen(
                 )
             }
 
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    androidx.compose.material3.CircularProgressIndicator(color = BrandTeal)
-                }
-            } else if (uiState.consultations.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Filled.Chat,
-                            contentDescription = null,
-                            tint = BrandTeal.copy(alpha = 0.4f),
-                            modifier = Modifier.size(64.dp),
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.ongoing_consultations_empty),
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                        )
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                if (uiState.isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        androidx.compose.material3.CircularProgressIndicator(color = BrandTeal)
                     }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    items(uiState.consultations, key = { it.consultation.consultationId }) { item ->
-                        val consultation = item.consultation
-                        val now = System.currentTimeMillis()
-                        val isFollowUpEligible =
-                            consultation.status.lowercase() == "completed" &&
-                            (consultation.followUpExpiry ?: 0L) > now
+                } else if (uiState.consultations.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Filled.Chat,
+                                contentDescription = null,
+                                tint = BrandTeal.copy(alpha = 0.4f),
+                                modifier = Modifier.size(64.dp),
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.ongoing_consultations_empty),
+                                color = Color.Black,
+                                fontSize = 16.sp,
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(uiState.consultations, key = { it.consultation.consultationId }) { item ->
+                            val consultation = item.consultation
+                            val now = System.currentTimeMillis()
+                            val isFollowUpEligible =
+                                consultation.status.lowercase() == "completed" &&
+                                (consultation.followUpExpiry ?: 0L) > now
 
-                        OngoingConsultationCard(
-                            consultation = consultation,
-                            doctorName = item.doctorName,
-                            onClick = {
-                                if (isFollowUpEligible) {
-                                    followUpItem = item
-                                } else {
-                                    onOpenConsultation(consultation.consultationId)
-                                }
-                            },
-                        )
+                            OngoingConsultationCard(
+                                consultation = consultation,
+                                doctorName = item.doctorName,
+                                onClick = {
+                                    if (isFollowUpEligible) {
+                                        followUpItem = item
+                                    } else {
+                                        onOpenConsultation(consultation.consultationId)
+                                    }
+                                },
+                            )
+                        }
+                        item { Spacer(Modifier.height(16.dp)) }
                     }
-                    item { Spacer(Modifier.height(16.dp)) }
                 }
             }
         }

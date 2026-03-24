@@ -23,8 +23,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -65,6 +68,7 @@ private val EAT = ZoneId.of("Africa/Nairobi")
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d 'at' HH:mm", Locale.ENGLISH)
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorAppointmentsScreen(
     onNavigateToConsultation: (String) -> Unit,
@@ -170,6 +174,8 @@ fun DoctorAppointmentsScreen(
         Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = CardBorder, thickness = 1.dp)
 
+        val pullRefreshState = rememberPullToRefreshState()
+
         // Content
         if (uiState.isLoading) {
             Box(
@@ -185,38 +191,45 @@ fun DoctorAppointmentsScreen(
                 DoctorAppointmentTab.MISSED -> uiState.missedAppointments
             }
 
-            if (appointments.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = when (uiState.selectedTab) {
-                            DoctorAppointmentTab.TODAY -> stringResource(R.string.appointments_no_today)
-                            DoctorAppointmentTab.UPCOMING -> stringResource(R.string.appointments_no_upcoming)
-                            DoctorAppointmentTab.MISSED -> stringResource(R.string.appointments_no_missed)
-                        },
-                        fontSize = 16.sp,
-                        color = SubtitleGrey,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(appointments, key = { it.appointmentId }) { appointment ->
-                        DoctorAppointmentCard(
-                            appointment = appointment,
-                            isRescheduling = uiState.isRescheduling == appointment.appointmentId,
-                            isStartingSession = uiState.isStartingSession == appointment.appointmentId,
-                            onStartSession = { viewModel.startSession(appointment) },
-                            onReschedule = { viewModel.showRescheduleDialog(appointment.appointmentId) },
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.weight(1f),
+            ) {
+                if (appointments.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = when (uiState.selectedTab) {
+                                DoctorAppointmentTab.TODAY -> stringResource(R.string.appointments_no_today)
+                                DoctorAppointmentTab.UPCOMING -> stringResource(R.string.appointments_no_upcoming)
+                                DoctorAppointmentTab.MISSED -> stringResource(R.string.appointments_no_missed)
+                            },
+                            fontSize = 16.sp,
+                            color = SubtitleGrey,
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(appointments, key = { it.appointmentId }) { appointment ->
+                            DoctorAppointmentCard(
+                                appointment = appointment,
+                                isRescheduling = uiState.isRescheduling == appointment.appointmentId,
+                                isStartingSession = uiState.isStartingSession == appointment.appointmentId,
+                                onStartSession = { viewModel.startSession(appointment) },
+                                onReschedule = { viewModel.showRescheduleDialog(appointment.appointmentId) },
+                            )
+                        }
                     }
                 }
             }

@@ -22,11 +22,14 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,6 +65,7 @@ private val ErrorRed = Color(0xFFDC2626)
 private val EAT = ZoneId.of("Africa/Nairobi")
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d 'at' HH:mm", Locale.ENGLISH)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientAppointmentsScreen(
     onBack: () -> Unit,
@@ -69,6 +73,7 @@ fun PatientAppointmentsScreen(
     viewModel: PatientAppointmentsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val pullRefreshState = rememberPullToRefreshState()
 
     Box(
         modifier = modifier
@@ -143,55 +148,62 @@ fun PatientAppointmentsScreen(
             HorizontalDivider(color = CardBorder, thickness = 1.dp)
 
             // Content
-            if (uiState.isLoading) {
-                com.esiri.esiriplus.core.ui.LoadingScreen()
-            } else {
-                val appointments = when (uiState.selectedTab) {
-                    AppointmentTab.UPCOMING -> uiState.upcomingAppointments
-                    AppointmentTab.PAST -> uiState.pastAppointments
-                }
-
-                if (appointments.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_calendar),
-                                contentDescription = null,
-                                tint = BrandTeal.copy(alpha = 0.4f),
-                                modifier = Modifier.size(64.dp),
-                            )
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                text = when (uiState.selectedTab) {
-                                    AppointmentTab.UPCOMING -> stringResource(R.string.appointments_no_upcoming)
-                                    AppointmentTab.PAST -> stringResource(R.string.appointments_no_past)
-                                },
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.Black,
-                            )
-                        }
-                    }
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.weight(1f),
+            ) {
+                if (uiState.isLoading) {
+                    com.esiri.esiriplus.core.ui.LoadingScreen()
                 } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(appointments, key = { it.appointmentId }) { appointment ->
-                            AppointmentCard(
-                                appointment = appointment,
-                                isCancelling = uiState.isCancelling == appointment.appointmentId,
-                                onCancel = { viewModel.cancelAppointment(appointment.appointmentId) },
-                            )
+                    val appointments = when (uiState.selectedTab) {
+                        AppointmentTab.UPCOMING -> uiState.upcomingAppointments
+                        AppointmentTab.PAST -> uiState.pastAppointments
+                    }
+
+                    if (appointments.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_calendar),
+                                    contentDescription = null,
+                                    tint = BrandTeal.copy(alpha = 0.4f),
+                                    modifier = Modifier.size(64.dp),
+                                )
+                                Spacer(Modifier.height(16.dp))
+                                Text(
+                                    text = when (uiState.selectedTab) {
+                                        AppointmentTab.UPCOMING -> stringResource(R.string.appointments_no_upcoming)
+                                        AppointmentTab.PAST -> stringResource(R.string.appointments_no_past)
+                                    },
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.Black,
+                                )
+                            }
                         }
-                        item { Spacer(Modifier.height(8.dp)) }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            items(appointments, key = { it.appointmentId }) { appointment ->
+                                AppointmentCard(
+                                    appointment = appointment,
+                                    isCancelling = uiState.isCancelling == appointment.appointmentId,
+                                    onCancel = { viewModel.cancelAppointment(appointment.appointmentId) },
+                                )
+                            }
+                            item { Spacer(Modifier.height(8.dp)) }
+                        }
                     }
                 }
             }

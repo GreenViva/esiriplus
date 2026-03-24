@@ -21,6 +21,7 @@ data class ServicesUiState(
     val services: List<ServiceTierEntity> = emptyList(),
     val selectedServiceId: String? = null,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val patientId: String = "",
     val tier: ConsultationTier = ConsultationTier.ECONOMY,
 ) {
@@ -68,5 +69,14 @@ class ServicesViewModel @Inject constructor(
 
     fun selectService(serviceId: String) {
         _uiState.update { it.copy(selectedServiceId = serviceId) }
+    }
+
+    fun refresh() {
+        _uiState.update { it.copy(isRefreshing = true) }
+        viewModelScope.launch {
+            serviceTierDao.getActiveServiceTiers().first().let { tiers ->
+                _uiState.update { it.copy(services = tiers, isRefreshing = false) }
+            }
+        }
     }
 }

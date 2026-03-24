@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -40,6 +41,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,6 +93,7 @@ private fun categoryDisplayName(code: String): String {
 
 private val numberFormat = NumberFormat.getNumberInstance(Locale.US)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindDoctorScreen(
     servicePriceAmount: Int,
@@ -108,6 +112,7 @@ fun FindDoctorScreen(
     val requestState by requestViewModel.uiState.collectAsState()
     val categoryName = categoryDisplayName(uiState.serviceCategory)
     val snackbarHostState = remember { SnackbarHostState() }
+    val pullRefreshState = rememberPullToRefreshState()
 
     // Navigate on accepted consultation
     LaunchedEffect(Unit) {
@@ -277,86 +282,93 @@ fun FindDoctorScreen(
             HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
             // Doctor list
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    androidx.compose.material3.CircularProgressIndicator(color = BrandTeal)
-                }
-            } else if (uiState.filteredDoctors.isEmpty()) {
-                // Empty state
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_stethoscope),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            alpha = 0.4f,
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.find_doctor_no_doctors_found),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.find_doctor_no_doctors_hint),
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                        )
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refresh() },
+                state = pullRefreshState,
+                modifier = Modifier.weight(1f),
+            ) {
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        androidx.compose.material3.CircularProgressIndicator(color = BrandTeal)
                     }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    // Countdown overlay (shown when request is active)
-                    if (requestState.activeRequestId != null) {
-                        item {
-                            RequestStatusBanner(
-                                status = requestState.status,
-                                secondsRemaining = requestState.secondsRemaining,
-                                statusMessage = requestState.statusMessage,
-                                onDismiss = requestViewModel::dismissStatus,
+                } else if (uiState.filteredDoctors.isEmpty()) {
+                    // Empty state
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_stethoscope),
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                alpha = 0.4f,
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.find_doctor_no_doctors_found),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(R.string.find_doctor_no_doctors_hint),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }
-
-                    items(uiState.filteredDoctors, key = { it.doctorId }) { doctor ->
-                        val isThisDoctorRequested = requestState.activeRequestDoctorId == doctor.doctorId
-                        val hasActiveRequest = requestState.activeRequestId != null
-                        DoctorCard(
-                            doctor = doctor,
-                            priceAmount = servicePriceAmount,
-                            durationMinutes = serviceDurationMinutes,
-                            inSession = doctor.inSession,
-                            isRequestActive = hasActiveRequest,
-                            isThisDoctorRequested = isThisDoctorRequested,
-                            isSending = requestState.isSending && isThisDoctorRequested,
-                            secondsRemaining = if (isThisDoctorRequested) requestState.secondsRemaining else 0,
-                            onBookAppointment = { onBookAppointment(doctor.doctorId) },
-                            onRequestConsultation = {
-                                requestViewModel.requestConsultation(
-                                    doctorId = doctor.doctorId,
-                                    serviceType = uiState.serviceCategory.lowercase(),
-                                    serviceTier = serviceTier,
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        // Countdown overlay (shown when request is active)
+                        if (requestState.activeRequestId != null) {
+                            item {
+                                RequestStatusBanner(
+                                    status = requestState.status,
+                                    secondsRemaining = requestState.secondsRemaining,
+                                    statusMessage = requestState.statusMessage,
+                                    onDismiss = requestViewModel::dismissStatus,
                                 )
-                            },
-                        )
+                            }
+                        }
+
+                        items(uiState.filteredDoctors, key = { it.doctorId }) { doctor ->
+                            val isThisDoctorRequested = requestState.activeRequestDoctorId == doctor.doctorId
+                            val hasActiveRequest = requestState.activeRequestId != null
+                            DoctorCard(
+                                doctor = doctor,
+                                priceAmount = servicePriceAmount,
+                                durationMinutes = serviceDurationMinutes,
+                                inSession = doctor.inSession,
+                                isRequestActive = hasActiveRequest,
+                                isThisDoctorRequested = isThisDoctorRequested,
+                                isSending = requestState.isSending && isThisDoctorRequested,
+                                secondsRemaining = if (isThisDoctorRequested) requestState.secondsRemaining else 0,
+                                onBookAppointment = { onBookAppointment(doctor.doctorId) },
+                                onRequestConsultation = {
+                                    requestViewModel.requestConsultation(
+                                        doctorId = doctor.doctorId,
+                                        serviceType = uiState.serviceCategory.lowercase(),
+                                        serviceTier = serviceTier,
+                                    )
+                                },
+                            )
+                        }
+                        item { Spacer(Modifier.height(8.dp)) }
                     }
-                    item { Spacer(Modifier.height(8.dp)) }
                 }
             }
         }

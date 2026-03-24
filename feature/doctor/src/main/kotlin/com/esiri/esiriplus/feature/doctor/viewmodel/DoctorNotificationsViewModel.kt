@@ -22,6 +22,7 @@ import javax.inject.Inject
 data class NotificationsUiState(
     val notifications: List<NotificationEntity> = emptyList(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val unreadCount: Int = 0,
 )
 
@@ -93,6 +94,19 @@ class DoctorNotificationsViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch notifications from Supabase", e)
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                val session = authRepository.currentSession.first() ?: return@launch
+                val userId = session.user.id
+                fetchFromSupabase(userId, session.accessToken, session.refreshToken)
+            } finally {
+                _uiState.update { it.copy(isRefreshing = false) }
+            }
         }
     }
 

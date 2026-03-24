@@ -27,6 +27,7 @@ data class PatientHomeUiState(
     val maskedPatientId: String = "",
     val soundsEnabled: Boolean = true,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val activeConsultation: ConsultationEntity? = null,
     val pendingRatingConsultation: ConsultationEntity? = null,
     val ongoingConsultations: List<ConsultationEntity> = emptyList(),
@@ -47,6 +48,7 @@ class PatientHomeViewModel @Inject constructor(
     private val prefs = application.getSharedPreferences("patient_prefs", android.content.Context.MODE_PRIVATE)
     private val _soundsEnabled = MutableStateFlow(prefs.getBoolean(KEY_SOUNDS_ENABLED, true))
     private val _pendingRating = MutableStateFlow<ConsultationEntity?>(null)
+    private val _isRefreshing = MutableStateFlow(false)
 
     init {
         checkPendingRatings()
@@ -69,8 +71,8 @@ class PatientHomeViewModel @Inject constructor(
         _soundsEnabled,
         consultationDao.getActiveConsultation(),
         _pendingRating,
-        ongoingConsultations,
-    ) { session, soundsEnabled, activeConsultation, pendingRating, ongoing ->
+        combine(ongoingConsultations, _isRefreshing) { ongoing, refreshing -> ongoing to refreshing },
+    ) { session, soundsEnabled, activeConsultation, pendingRating, (ongoing, refreshing) ->
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -78,6 +80,7 @@ class PatientHomeViewModel @Inject constructor(
                 maskedPatientId = maskPatientId(id),
                 soundsEnabled = soundsEnabled,
                 isLoading = false,
+                isRefreshing = refreshing,
                 activeConsultation = activeConsultation,
                 pendingRatingConsultation = pendingRating,
                 ongoingConsultations = ongoing,
@@ -90,6 +93,17 @@ class PatientHomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PatientHomeUiState(),
     )
+
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            checkPendingRatings()
+            syncUnsyncedRatings()
+            // Allow the combined flow to re-emit with updated data
+            kotlinx.coroutines.delay(500)
+            _isRefreshing.value = false
+        }
+    }
 
     fun dismissPendingRating() {
         _pendingRating.value = null
