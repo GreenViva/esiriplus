@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +29,7 @@ data class PatientHomeUiState(
     val isLoading: Boolean = true,
     val activeConsultation: ConsultationEntity? = null,
     val pendingRatingConsultation: ConsultationEntity? = null,
+    val ongoingConsultations: List<ConsultationEntity> = emptyList(),
 )
 
 // TODO: Localize hardcoded user-facing strings (error messages).
@@ -50,12 +53,24 @@ class PatientHomeViewModel @Inject constructor(
         syncUnsyncedRatings()
     }
 
+    private val ongoingConsultations = patientSessionDao.getSession().flatMapLatest { session ->
+        if (session != null) {
+            consultationDao.getOngoingConsultationsForPatient(
+                patientSessionId = session.sessionId,
+                currentTimeMillis = System.currentTimeMillis(),
+            )
+        } else {
+            flowOf(emptyList())
+        }
+    }
+
     val uiState: StateFlow<PatientHomeUiState> = combine(
         authRepository.currentSession,
         _soundsEnabled,
         consultationDao.getActiveConsultation(),
         _pendingRating,
-    ) { session, soundsEnabled, activeConsultation, pendingRating ->
+        ongoingConsultations,
+    ) { session, soundsEnabled, activeConsultation, pendingRating, ongoing ->
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -65,6 +80,7 @@ class PatientHomeViewModel @Inject constructor(
                 isLoading = false,
                 activeConsultation = activeConsultation,
                 pendingRatingConsultation = pendingRating,
+                ongoingConsultations = ongoing,
             )
         } else {
             PatientHomeUiState(isLoading = false)

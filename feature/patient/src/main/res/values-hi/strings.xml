@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ===== TierSelectionScreen ===== -->
+    <string name="tier_back">वापस</string>
+    <string name="tier_title">अपनी सेवा चुनें</string>
+    <string name="tier_subtitle">अपनी ज़रूरत के अनुसार देखभाल का स्तर चुनें</string>
+    <string name="tier_royal_badge">★ प्रीमियम</string>
+    <string name="tier_royal_multiplier">आधार मूल्य का 10 गुना</string>
+    <string name="tier_royal_title">रॉयल सेवा</string>
+    <string name="tier_royal_tagline">विस्तारित लाभों के साथ प्राथमिकता देखभाल</string>
+    <string name="tier_royal_benefit_1">14-दिन की फ़ॉलो-अप विंडो</string>
+    <string name="tier_royal_benefit_2">प्राथमिकता परामर्श प्रबंधन</string>
+    <string name="tier_royal_benefit_3">डॉक्टर तक निरंतर पहुँच</string>
+    <string name="tier_royal_benefit_4">2 घर विज़िट अनुरोध तक</string>
+    <string name="tier_royal_benefit_5">विस्तारित परामर्श अनुभव</string>
+    <string name="tier_economy_badge">मानक</string>
+    <string name="tier_economy_title">इकॉनमी सेवा</string>
+    <string name="tier_economy_tagline">मानक दरों पर गुणवत्तापूर्ण देखभाल</string>
+    <string name="tier_economy_benefit_1">बुनियादी परामर्श</string>
+    <string name="tier_economy_benefit_2">1 फ़ॉलो-अप परामर्श</string>
+    <string name="tier_economy_benefit_3">मानक डॉक्टर पहुँच</string>
+    <string name="tier_select">चुनें</string>
+    <string name="tier_comparison_note">दिखाई गई कीमतों में सभी परामर्श शुल्क शामिल हैं। रॉयल सेवा की कीमतें मानक दर की 10 गुना हैं।</string>
+    <string name="services_royal_banner_title">रॉयल सेवा — प्रीमियम लाभ सक्रिय</string>
+    <string name="services_royal_banner_subtitle">कीमतें रॉयल स्तर (10×) को दर्शाती हैं। 14-दिन की फ़ॉलो-अप विंडो शामिल है।</string>
+
     <!-- ===== PatientHomeScreen ===== -->
     <string name="home_welcome_back">वापसी पर स्वागत है \uD83D\uDC4B</string>
     <string name="home_your_patient_id">आपकी मरीज़ आईडी:</string>
@@ -16,6 +40,11 @@
     <string name="home_start_consultation">परामर्श शुरू करें</string>
     <string name="home_start_consultation_subtitle">सेवा चुनें और सत्यापित डॉक्टरों से जुड़ें</string>
     <string name="home_content_desc_start">शुरू करें</string>
+    <string name="home_ongoing_consultations">चल रहे परामर्श</string>
+    <string name="home_ongoing_consultations_subtitle">अपने सक्रिय परामर्श सत्र देखें और उनमें शामिल हों</string>
+    <string name="ongoing_consultations_empty">अभी कोई चल रहा परामर्श नहीं है</string>
+    <string name="ongoing_follow_up_mode">★ अनुवर्ती मोड</string>
+    <string name="ongoing_follow_up_days_remaining">%d दिन शेष</string>
     <string name="home_consultation_history">परामर्श इतिहास</string>
     <string name="home_consultation_history_subtitle">अपने पिछले परामर्श देखें</string>
     <string name="home_reports">रिपोर्ट</string>

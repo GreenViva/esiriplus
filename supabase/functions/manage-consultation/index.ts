@@ -115,6 +115,7 @@ interface ConsultationRow {
   doctor_id: string;
   status: string;
   service_type: string;
+  service_tier: string;
   consultation_fee: number;
   scheduled_end_at: string | null;
   extension_count: number;
@@ -128,7 +129,7 @@ async function fetchConsultation(consultationId: string): Promise<ConsultationRo
   const { data, error } = await supabase
     .from("consultations")
     .select(
-      "consultation_id, patient_session_id, doctor_id, status, service_type, " +
+      "consultation_id, patient_session_id, doctor_id, status, service_type, service_tier, " +
       "consultation_fee, scheduled_end_at, extension_count, grace_period_end_at, " +
       "original_duration_minutes, session_start_time"
     )
@@ -144,8 +145,10 @@ async function fetchConsultation(consultationId: string): Promise<ConsultationRo
 function buildSyncPayload(c: ConsultationRow, serverTime: string) {
   return {
     consultation_id: c.consultation_id,
+    doctor_id: c.doctor_id,
     status: c.status,
     service_type: c.service_type,
+    service_tier: c.service_tier,
     consultation_fee: c.consultation_fee,
     scheduled_end_at: c.scheduled_end_at,
     extension_count: c.extension_count,
@@ -218,6 +221,15 @@ async function handleEnd(
   if (error) {
     throw new ValidationError(error.message);
   }
+
+  // Stamp follow-up expiry: Royal = 14 days, Economy = 14 days (1 follow-up only)
+  const tier = (consultation.service_tier ?? "ECONOMY").toUpperCase();
+  const followUpDays = tier === "ROYAL" ? 14 : 14;
+  await supabase
+    .from("consultations")
+    .update({ follow_up_expiry: new Date(Date.now() + followUpDays * 24 * 60 * 60 * 1000).toISOString() })
+    .eq("consultation_id", body.consultation_id)
+    .is("follow_up_expiry", null);
 
   await insertSystemMessage(body.consultation_id, "Consultation ended by doctor.");
 

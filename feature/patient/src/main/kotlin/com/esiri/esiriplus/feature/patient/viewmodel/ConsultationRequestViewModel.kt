@@ -50,6 +50,7 @@ data class ConsultationRequestUiState(
     val showSymptomsDialog: Boolean = false,
     val pendingDoctorId: String? = null,
     val pendingServiceType: String? = null,
+    val pendingServiceTier: String = "ECONOMY",
     /** Cached patient profile fields */
     val patientAgeGroup: String? = null,
     val patientSex: String? = null,
@@ -236,13 +237,14 @@ class ConsultationRequestViewModel @Inject constructor(
     /**
      * Patient taps "Request Consultation" — opens symptoms entry dialog.
      */
-    fun requestConsultation(doctorId: String, serviceType: String) {
+    fun requestConsultation(doctorId: String, serviceType: String, serviceTier: String = "ECONOMY") {
         if (_uiState.value.activeRequestId != null || _uiState.value.isSending) return
         _uiState.update {
             it.copy(
                 showSymptomsDialog = true,
                 pendingDoctorId = doctorId,
                 pendingServiceType = serviceType,
+                pendingServiceTier = serviceTier,
             )
         }
     }
@@ -254,6 +256,7 @@ class ConsultationRequestViewModel @Inject constructor(
         val state = _uiState.value
         val doctorId = state.pendingDoctorId ?: return
         val serviceType = state.pendingServiceType ?: return
+        val serviceTier = state.pendingServiceTier
 
         _uiState.update {
             it.copy(showSymptomsDialog = false, pendingDoctorId = null, pendingServiceType = null)
@@ -262,6 +265,7 @@ class ConsultationRequestViewModel @Inject constructor(
         sendRequest(
             doctorId = doctorId,
             serviceType = serviceType,
+            serviceTier = serviceTier,
             symptoms = symptoms.trim().ifBlank { null },
         )
     }
@@ -278,6 +282,7 @@ class ConsultationRequestViewModel @Inject constructor(
     fun sendRequest(
         doctorId: String,
         serviceType: String,
+        serviceTier: String = "ECONOMY",
         consultationType: String = "chat",
         chiefComplaint: String = "General consultation",
         symptoms: String? = null,
@@ -309,6 +314,7 @@ class ConsultationRequestViewModel @Inject constructor(
             when (val result = consultationRequestRepository.createRequest(
                 doctorId = doctorId,
                 serviceType = serviceType,
+                serviceTier = serviceTier,
                 consultationType = consultationType,
                 chiefComplaint = chiefComplaint,
                 symptoms = symptoms,

@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.database.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -29,6 +30,11 @@ data class ConsultationEntity(
     val extensionCount: Int = 0,
     val gracePeriodEndAt: Long? = null,
     val originalDurationMinutes: Int = DEFAULT_SESSION_DURATION,
+    // ── Tier system (DB v26) ──────────────────────────────────────────────────
+    @ColumnInfo(defaultValue = "ECONOMY") val serviceTier: String = "ECONOMY",
+    @ColumnInfo(defaultValue = "TANZANIA") val serviceRegion: String = "TANZANIA",
+    val followUpExpiry: Long? = null,
+    @ColumnInfo(defaultValue = "0") val isPremium: Boolean = false,
 ) {
     companion object {
         const val DEFAULT_SESSION_DURATION = 15

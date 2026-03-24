@@ -11,6 +11,9 @@ data class Consultation(
     val notes: String? = null,
     val createdAt: Instant,
     val updatedAt: Instant? = null,
+    val serviceTier: String = "ECONOMY",
+    val serviceRegion: String = "TANZANIA",
+    val followUpExpiry: Long? = null,
 )
 
 enum class ConsultationStatus {

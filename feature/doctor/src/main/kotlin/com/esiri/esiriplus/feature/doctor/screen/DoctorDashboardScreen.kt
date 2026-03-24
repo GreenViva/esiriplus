@@ -1438,6 +1438,7 @@ private fun AppointmentRow(appointment: Appointment) {
 private enum class ConsultationTab(val labelRes: Int) {
     PENDING(R.string.consultations_tab_pending),
     ACTIVE(R.string.consultations_tab_active),
+    ONGOING(R.string.consultations_tab_ongoing),
     COMPLETED(R.string.consultations_tab_completed),
     CANCELLED(R.string.consultations_tab_cancelled),
 }
@@ -1522,6 +1523,7 @@ private fun ConsultationsContent(
         val consultations = when (selectedTab) {
             ConsultationTab.PENDING -> uiState.pendingConsultations
             ConsultationTab.ACTIVE -> uiState.activeConsultationsList
+            ConsultationTab.ONGOING -> uiState.ongoingConsultations
             ConsultationTab.COMPLETED -> uiState.completedConsultations
             ConsultationTab.CANCELLED -> uiState.cancelledConsultations
         }

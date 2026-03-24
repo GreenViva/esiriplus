@@ -94,6 +94,7 @@ private val numberFormat = NumberFormat.getNumberInstance(Locale.US)
 fun FindDoctorScreen(
     servicePriceAmount: Int,
     serviceDurationMinutes: Int,
+    serviceTier: String = "ECONOMY",
     onBookAppointment: (doctorId: String) -> Unit,
     onNavigateToConsultation: (consultationId: String) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -350,6 +351,7 @@ fun FindDoctorScreen(
                                 requestViewModel.requestConsultation(
                                     doctorId = doctor.doctorId,
                                     serviceType = uiState.serviceCategory.lowercase(),
+                                    serviceTier = serviceTier,
                                 )
                             },
                         )

@@ -5,6 +5,8 @@ import android.util.Log
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.domain.model.ConsultationPhase
 import com.esiri.esiriplus.core.domain.model.ConsultationSessionState
+import com.esiri.esiriplus.core.domain.pricing.PricingEngine
+import com.esiri.esiriplus.core.domain.model.ConsultationTier
 import com.esiri.esiriplus.core.network.di.ApplicationScope
 import com.esiri.esiriplus.core.network.model.ApiResult
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +44,7 @@ class ConsultationSessionManager @Inject constructor(
 
     fun start(consultationId: String, scope: CoroutineScope) {
         synchronized(lock) {
+            timerJob?.cancel()
             this.scope = scope
             this.currentConsultationId = consultationId
             this.stopped = false
@@ -71,9 +74,12 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     private suspend fun syncWithServer(consultationId: String, retryOnUnauthorized: Boolean = true) {
+        if (currentConsultationId != consultationId) return
+        Log.d(TAG, "syncWithServer: consultationId=$consultationId")
         when (val result = timerService.sync(consultationId)) {
             is ApiResult.Success -> {
                 val data = result.data
+                Log.d(TAG, "syncWithServer SUCCESS: status=${data.status}, tier=${data.serviceTier}")
                 val serverTimeMs = parseIso(data.serverTime)
                 val scheduledEndMs = data.scheduledEndAt?.let { parseIso(it) } ?: 0L
                 val gracePeriodEndMs = data.gracePeriodEndAt?.let { parseIso(it) } ?: 0L
@@ -267,6 +273,24 @@ class ConsultationSessionManager @Inject constructor(
 
         if (phase == ConsultationPhase.COMPLETED) {
             timerJob?.cancel()
+            appScope.launch {
+                // Do a final sync so Room gets the correct serviceTier, status, etc.
+                // from the server before we stamp the follow-up expiry.
+                try {
+                    val syncResult = timerService.sync(event.consultationId)
+                    if (syncResult is ApiResult.Success) {
+                        persistTimerState(event.consultationId, syncResult.data)
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Final sync on COMPLETED failed, updating status directly", e)
+                }
+                try {
+                    consultationDao.updateStatus(event.consultationId, "completed")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to update status to completed in Room", e)
+                }
+                persistFollowUpExpiryIfRoyal(event.consultationId)
+            }
         }
     }
 
@@ -280,6 +304,14 @@ class ConsultationSessionManager @Inject constructor(
         if (result is ApiResult.Success) {
             timerJob?.cancel()
             _state.update { it.copy(phase = ConsultationPhase.COMPLETED, remainingSeconds = 0) }
+            appScope.launch {
+                try {
+                    consultationDao.updateStatus(cid, "completed")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to update status to completed in Room", e)
+                }
+                persistFollowUpExpiryIfRoyal(cid)
+            }
         }
         return result
     }
@@ -396,9 +428,46 @@ class ConsultationSessionManager @Inject constructor(
                 gracePeriodEndAt = data.gracePeriodEndAt?.let { parseIso(it) },
                 originalDurationMinutes = data.originalDurationMinutes,
                 status = data.status.uppercase(),
+                serviceTier = data.serviceTier.uppercase(),
+                doctorId = data.doctorId,
+                serviceType = data.serviceType,
             )
+            if (data.status.lowercase() == "completed") {
+                persistFollowUpExpiryIfRoyal(consultationId)
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to persist timer state to Room", e)
+        }
+    }
+
+    /**
+     * Stamps the 14-day follow-up expiry in Room for completed Royal consultations.
+     * Safe to call multiple times — no-op if expiry is already set.
+     * Uses appScope so it survives ViewModel teardown (patient navigating away on rating).
+     */
+    private suspend fun persistFollowUpExpiryIfRoyal(consultationId: String) {
+        try {
+            val consultation = consultationDao.getById(consultationId)
+            Log.d(TAG, "persistFollowUpExpiryIfRoyal: id=$consultationId, found=${consultation != null}, " +
+                "tier=${consultation?.serviceTier}, status=${consultation?.status}, followUpExpiry=${consultation?.followUpExpiry}")
+            if (consultation == null || consultation.followUpExpiry != null) return
+
+            // Always set follow-up expiry for completed consultations.
+            // Room's serviceTier may still be "ECONOMY" (default) if the first sync
+            // hasn't run yet.  The Ongoing Consultations DAO query already filters
+            // by UPPER(serviceTier) = 'ROYAL', so economy consultations won't appear.
+            // The sync will update serviceTier shortly after, and the expiry will be
+            // ready for the DAO query to find.
+            val expiry = PricingEngine.calculateFollowUpExpiry(
+                System.currentTimeMillis(),
+                ConsultationTier.ROYAL,
+            )
+            Log.d(TAG, "persistFollowUpExpiryIfRoyal: setting expiry=$expiry for $consultationId (tier=${consultation.serviceTier})")
+            if (expiry != null) {
+                consultationDao.setFollowUpExpiry(consultationId, expiry)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to persist follow-up expiry for $consultationId", e)
         }
     }
 

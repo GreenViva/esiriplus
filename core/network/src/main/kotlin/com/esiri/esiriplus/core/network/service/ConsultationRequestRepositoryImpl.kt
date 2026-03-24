@@ -16,6 +16,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
     override suspend fun createRequest(
         doctorId: String,
         serviceType: String,
+        serviceTier: String,
         consultationType: String,
         chiefComplaint: String,
         symptoms: String?,
@@ -24,10 +25,13 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
         patientBloodGroup: String?,
         patientAllergies: String?,
         patientChronicConditions: String?,
+        isFollowUp: Boolean,
+        parentConsultationId: String?,
     ): Result<ConsultationRequest> {
         return service.createRequest(
             doctorId = doctorId,
             serviceType = serviceType,
+            serviceTier = serviceTier,
             consultationType = consultationType,
             chiefComplaint = chiefComplaint,
             symptoms = symptoms,
@@ -36,6 +40,8 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
             patientBloodGroup = patientBloodGroup,
             patientAllergies = patientAllergies,
             patientChronicConditions = patientChronicConditions,
+            isFollowUp = isFollowUp,
+            parentConsultationId = parentConsultationId,
         ).map { it.toDomain() }
             .toDomainResult()
     }

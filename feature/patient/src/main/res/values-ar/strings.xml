@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ===== TierSelectionScreen ===== -->
+    <string name="tier_back">رجوع</string>
+    <string name="tier_title">اختر خدمتك</string>
+    <string name="tier_subtitle">اختر مستوى الرعاية المناسب لك</string>
+    <string name="tier_royal_badge">★ مميز</string>
+    <string name="tier_royal_multiplier">10× السعر الأساسي</string>
+    <string name="tier_royal_title">الخدمة الملكية</string>
+    <string name="tier_royal_tagline">رعاية ذات أولوية مع مزايا موسعة</string>
+    <string name="tier_royal_benefit_1">نافذة متابعة لمدة 14 يومًا</string>
+    <string name="tier_royal_benefit_2">معالجة الاستشارات ذات الأولوية</string>
+    <string name="tier_royal_benefit_3">وصول مستمر إلى الطبيب</string>
+    <string name="tier_royal_benefit_4">حتى طلبي زيارة منزلية</string>
+    <string name="tier_royal_benefit_5">تجربة استشارة موسعة</string>
+    <string name="tier_economy_badge">قياسي</string>
+    <string name="tier_economy_title">الخدمة الاقتصادية</string>
+    <string name="tier_economy_tagline">رعاية جيدة بأسعار قياسية</string>
+    <string name="tier_economy_benefit_1">استشارة أساسية</string>
+    <string name="tier_economy_benefit_2">استشارة متابعة واحدة</string>
+    <string name="tier_economy_benefit_3">وصول قياسي إلى الطبيب</string>
+    <string name="tier_select">اختر</string>
+    <string name="tier_comparison_note">الأسعار المعروضة تشمل جميع الرسوم. أسعار الخدمة الملكية هي 10× السعر القياسي.</string>
+    <string name="services_royal_banner_title">الخدمة الملكية — المزايا المميزة نشطة</string>
+    <string name="services_royal_banner_subtitle">الأسعار تعكس المستوى الملكي (10×). تشمل نافذة متابعة لمدة 14 يومًا.</string>
+
     <!-- ===== PatientHomeScreen ===== -->
     <string name="home_welcome_back">مرحبًا بعودتك \uD83D\uDC4B</string>
     <string name="home_your_patient_id">رقم المريض الخاص بك:</string>
@@ -16,6 +40,11 @@
     <string name="home_start_consultation">بدء الاستشارة</string>
     <string name="home_start_consultation_subtitle">اختر خدمة وتواصل مع أطباء معتمدين</string>
     <string name="home_content_desc_start">بدء</string>
+    <string name="home_ongoing_consultations">الاستشارات الجارية</string>
+    <string name="home_ongoing_consultations_subtitle">عرض جلسات استشارتك النشطة والانضمام إليها</string>
+    <string name="ongoing_consultations_empty">لا توجد استشارات جارية الآن</string>
+    <string name="ongoing_follow_up_mode">★ وضع المتابعة</string>
+    <string name="ongoing_follow_up_days_remaining">%d أيام متبقية</string>
     <string name="home_consultation_history">سجل الاستشارات</string>
     <string name="home_consultation_history_subtitle">عرض استشاراتك السابقة</string>
     <string name="home_reports">التقارير</string>

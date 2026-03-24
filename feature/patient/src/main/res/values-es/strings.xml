@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ===== TierSelectionScreen ===== -->
+    <string name="tier_back">Atrás</string>
+    <string name="tier_title">Elige tu servicio</string>
+    <string name="tier_subtitle">Selecciona el nivel de atención que más te convenga</string>
+    <string name="tier_royal_badge">★ PREMIUM</string>
+    <string name="tier_royal_multiplier">10× el precio base</string>
+    <string name="tier_royal_title">Servicio Real</string>
+    <string name="tier_royal_tagline">Atención prioritaria con beneficios extendidos</string>
+    <string name="tier_royal_benefit_1">Ventana de seguimiento de 14 días</string>
+    <string name="tier_royal_benefit_2">Gestión prioritaria de consultas</string>
+    <string name="tier_royal_benefit_3">Acceso continuo al médico</string>
+    <string name="tier_royal_benefit_4">Hasta 2 solicitudes de visita domiciliaria</string>
+    <string name="tier_royal_benefit_5">Experiencia de consulta extendida</string>
+    <string name="tier_economy_badge">ESTÁNDAR</string>
+    <string name="tier_economy_title">Servicio Económico</string>
+    <string name="tier_economy_tagline">Atención de calidad a tarifas estándar</string>
+    <string name="tier_economy_benefit_1">Consulta básica</string>
+    <string name="tier_economy_benefit_2">1 consulta de seguimiento</string>
+    <string name="tier_economy_benefit_3">Acceso estándar al médico</string>
+    <string name="tier_select">Seleccionar</string>
+    <string name="tier_comparison_note">Los precios mostrados incluyen todos los honorarios. Los precios del Servicio Real son 10× la tarifa estándar.</string>
+    <string name="services_royal_banner_title">Servicio Real — Beneficios premium activos</string>
+    <string name="services_royal_banner_subtitle">Los precios reflejan el nivel Real (10×). Incluye ventana de seguimiento de 14 días.</string>
+
     <!-- ===== PatientHomeScreen ===== -->
     <string name="home_welcome_back">Bienvenido de nuevo \uD83D\uDC4B</string>
     <string name="home_your_patient_id">Su ID de Paciente:</string>
@@ -16,6 +40,11 @@
     <string name="home_start_consultation">Iniciar Consulta</string>
     <string name="home_start_consultation_subtitle">Elija un servicio y con\u00E9ctese con m\u00E9dicos verificados</string>
     <string name="home_content_desc_start">Iniciar</string>
+    <string name="home_ongoing_consultations">Consultas en Curso</string>
+    <string name="home_ongoing_consultations_subtitle">Ver y unirse a sus sesiones de consulta activas</string>
+    <string name="ongoing_consultations_empty">No hay consultas en curso ahora mismo</string>
+    <string name="ongoing_follow_up_mode">★ Modo Seguimiento</string>
+    <string name="ongoing_follow_up_days_remaining">%d días restantes</string>
     <string name="home_consultation_history">Historial de Consultas</string>
     <string name="home_consultation_history_subtitle">Vea sus consultas anteriores</string>
     <string name="home_reports">Informes</string>

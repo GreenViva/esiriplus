@@ -103,7 +103,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AppointmentEntity::class,
         DoctorAvailabilitySlotEntity::class,
     ],
-    version = 24,
+    version = 25,
     exportSchema = true,
 )
 @TypeConverters(

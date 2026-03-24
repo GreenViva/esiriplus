@@ -15,6 +15,8 @@ interface ConsultationRepository {
         consultationType: String,
         chiefComplaint: String,
         preferredLanguage: String,
+        serviceTier: String = "ECONOMY",
+        serviceRegion: String = "TANZANIA",
     ): Result<Consultation>
     suspend fun updateConsultationStatus(consultationId: String, status: String): Result<Consultation>
     suspend fun getConsultation(consultationId: String): Result<Consultation>

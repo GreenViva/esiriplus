@@ -44,7 +44,10 @@ interface ConsultationDao {
     @Query(
         "UPDATE consultations SET scheduledEndAt = :scheduledEndAt, extensionCount = :extensionCount, " +
             "gracePeriodEndAt = :gracePeriodEndAt, originalDurationMinutes = :originalDurationMinutes, " +
-            "status = :status, updatedAt = :updatedAt WHERE consultationId = :consultationId",
+            "status = :status, serviceTier = :serviceTier, " +
+            "doctorId = CASE WHEN :doctorId = '' THEN doctorId ELSE :doctorId END, " +
+            "serviceType = CASE WHEN :serviceType = '' THEN serviceType ELSE :serviceType END, " +
+            "updatedAt = :updatedAt WHERE consultationId = :consultationId",
     )
     suspend fun updateTimerState(
         consultationId: String,
@@ -53,6 +56,9 @@ interface ConsultationDao {
         gracePeriodEndAt: Long?,
         originalDurationMinutes: Int,
         status: String,
+        serviceTier: String,
+        doctorId: String = "",
+        serviceType: String = "",
         updatedAt: Long = System.currentTimeMillis(),
     )
 
@@ -96,4 +102,45 @@ interface ConsultationDao {
             "WHERE c.consultationId = :consultationId LIMIT 1",
     )
     suspend fun getDoctorNameForConsultation(consultationId: String): String?
+
+    /**
+     * Ongoing consultations for the patient dashboard:
+     * - Any consultation that is currently active/in-progress, OR
+     * - Completed consultations still within the follow-up window (Royal: unlimited, Economy: 1).
+     */
+    @Query(
+        "SELECT * FROM consultations " +
+            "WHERE patientSessionId = :patientSessionId " +
+            "AND (LOWER(status) IN ('active', 'in_progress', 'awaiting_extension', 'grace_period') " +
+            "OR (LOWER(status) = 'completed' AND followUpExpiry > :currentTimeMillis)) " +
+            "ORDER BY updatedAt DESC",
+    )
+    fun getOngoingConsultationsForPatient(
+        patientSessionId: String,
+        currentTimeMillis: Long,
+    ): Flow<List<ConsultationEntity>>
+
+    /**
+     * Ongoing consultations for the doctor dashboard:
+     * - Any consultation that is currently active/in-progress, OR
+     * - Completed consultations still within the follow-up window.
+     */
+    @Query(
+        "SELECT * FROM consultations " +
+            "WHERE doctorId = :doctorId " +
+            "AND (LOWER(status) IN ('active', 'in_progress', 'awaiting_extension', 'grace_period') " +
+            "OR (LOWER(status) = 'completed' AND followUpExpiry > :currentTimeMillis)) " +
+            "ORDER BY updatedAt DESC",
+    )
+    fun getOngoingConsultationsForDoctor(
+        doctorId: String,
+        currentTimeMillis: Long,
+    ): Flow<List<ConsultationEntity>>
+
+    @Query("UPDATE consultations SET followUpExpiry = :followUpExpiry, updatedAt = :updatedAt WHERE consultationId = :consultationId")
+    suspend fun setFollowUpExpiry(
+        consultationId: String,
+        followUpExpiry: Long,
+        updatedAt: Long = System.currentTimeMillis(),
+    )
 }

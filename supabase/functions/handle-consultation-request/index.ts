@@ -51,6 +51,7 @@ interface CreateRequest {
   action: "create";
   doctor_id: string;
   service_type: string;
+  service_tier?: string;
   consultation_type?: string;
   chief_complaint?: string;
   symptoms?: string;
@@ -59,6 +60,8 @@ interface CreateRequest {
   patient_blood_group?: string;
   patient_allergies?: string;
   patient_chronic_conditions?: string;
+  is_follow_up?: boolean;
+  parent_consultation_id?: string;
 }
 
 interface RespondRequest {
@@ -121,6 +124,47 @@ async function handleCreate(
   }
 
   const supabase = getServiceClient();
+  const isFollowUp = body.is_follow_up === true && !!body.parent_consultation_id;
+
+  // Validate follow-up request against parent consultation
+  if (isFollowUp) {
+    const { data: parentConsultation } = await supabase
+      .from("consultations")
+      .select("consultation_id, doctor_id, patient_session_id, status, service_tier, follow_up_expiry")
+      .eq("consultation_id", body.parent_consultation_id!)
+      .single();
+
+    if (!parentConsultation) {
+      throw new ValidationError("Parent consultation not found");
+    }
+    if (parentConsultation.patient_session_id !== auth.sessionId) {
+      throw new ValidationError("Not authorized for this consultation");
+    }
+    if (parentConsultation.status !== "completed") {
+      throw new ValidationError("Parent consultation is not completed");
+    }
+    if (parentConsultation.follow_up_expiry && new Date(parentConsultation.follow_up_expiry) < new Date()) {
+      throw new ValidationError("Follow-up window has expired");
+    }
+    if (body.doctor_id !== parentConsultation.doctor_id) {
+      throw new ValidationError("Follow-up must be with the same doctor");
+    }
+
+    // Economy patients: limited to 1 follow-up per consultation
+    const parentTier = (parentConsultation.service_tier ?? "ECONOMY").toUpperCase();
+    if (parentTier !== "ROYAL") {
+      const { count: existingFollowUps } = await supabase
+        .from("consultations")
+        .select("consultation_id", { count: "exact", head: true })
+        .eq("parent_consultation_id", body.parent_consultation_id!);
+
+      if ((existingFollowUps ?? 0) >= 1) {
+        throw new ValidationError(
+          "Economy consultations are limited to 1 follow-up. You have already used your follow-up."
+        );
+      }
+    }
+  }
 
   // Prevent duplicate active requests from same patient
   const { data: existing } = await supabase
@@ -184,6 +228,7 @@ async function handleCreate(
       patient_session_id: auth.sessionId,
       doctor_id: body.doctor_id,
       service_type: body.service_type,
+      service_tier: (body.service_tier ?? "ECONOMY").toUpperCase(),
       consultation_type: body.consultation_type ?? "chat",
       chief_complaint: body.chief_complaint ?? "",
       symptoms: body.symptoms ?? null,
@@ -192,6 +237,8 @@ async function handleCreate(
       patient_blood_group: body.patient_blood_group ?? null,
       patient_allergies: body.patient_allergies ?? null,
       patient_chronic_conditions: body.patient_chronic_conditions ?? null,
+      is_follow_up: isFollowUp,
+      parent_consultation_id: isFollowUp ? body.parent_consultation_id : null,
       status: "pending",
       created_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
@@ -206,10 +253,12 @@ async function handleCreate(
     await supabase.functions.invoke("send-push-notification", {
       body: {
         user_id: body.doctor_id,
-        title: "New Consultation Request",
-        body: body.symptoms
-          ? `Patient: ${[body.patient_age_group, body.patient_sex].filter(Boolean).join(" | ") || "N/A"} — "${body.symptoms.slice(0, 80)}". Respond within 60s.`
-          : `A patient is requesting a ${body.service_type} consultation. You have 60 seconds to respond.`,
+        title: isFollowUp ? "Follow-up Request (Royal)" : "New Consultation Request",
+        body: isFollowUp
+          ? `A Royal patient is requesting a follow-up ${body.service_type} consultation. Respond within 60s.`
+          : body.symptoms
+            ? `Patient: ${[body.patient_age_group, body.patient_sex].filter(Boolean).join(" | ") || "N/A"} — "${body.symptoms.slice(0, 80)}". Respond within 60s.`
+            : `A patient is requesting a ${body.service_type} consultation. You have 60 seconds to respond.`,
         type: "consultation_request",
         data: {
           request_id: request.request_id,
@@ -295,7 +344,8 @@ async function handleAccept(
   // Use atomic RPC that closes stale consultations + inserts new one in a single transaction.
   const patientSessionId = request.patient_session_id;
 
-  const consultationFee = SERVICE_FEES[request.service_type] ?? 5000;
+  // Follow-up consultations are free
+  const consultationFee = request.is_follow_up ? 0 : (SERVICE_FEES[request.service_type] ?? 5000);
 
   // Try the atomic RPC first (close stale + insert in one transaction)
   let consultation: { consultation_id: string; status: string; created_at: string } | null = null;
@@ -312,6 +362,8 @@ async function handleAccept(
       p_consultation_fee: consultationFee,
       p_request_expires_at: request.expires_at,
       p_request_id: body.request_id,
+      p_service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
+      p_parent_consultation_id: request.parent_consultation_id ?? null,
     }
   ).maybeSingle();
 
@@ -335,8 +387,10 @@ async function handleAccept(
       patient_session_id: patientSessionId,
       doctor_id: auth.userId,
       service_type: request.service_type,
+      service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
       consultation_type: request.consultation_type ?? "chat",
       chief_complaint: request.chief_complaint ?? "",
+      parent_consultation_id: request.parent_consultation_id ?? null,
       status: "active",
       consultation_fee: consultationFee,
       request_expires_at: request.expires_at,

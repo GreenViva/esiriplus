@@ -130,6 +130,8 @@ class ConsultationRepositoryImpl @Inject constructor(
         consultationType: String,
         chiefComplaint: String,
         preferredLanguage: String,
+        serviceTier: String,
+        serviceRegion: String,
     ): Result<Consultation> {
         val request = CreateConsultationRequest(
             serviceType = serviceType,
@@ -137,6 +139,8 @@ class ConsultationRepositoryImpl @Inject constructor(
             chiefComplaint = chiefComplaint,
             preferredLanguage = preferredLanguage,
             doctorId = doctorId,
+            serviceTier = serviceTier,
+            serviceRegion = serviceRegion,
         )
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
@@ -258,6 +262,9 @@ private fun ConsultationEntity.toDomain(): Consultation = Consultation(
         ?: ConsultationStatus.PENDING,
     createdAt = Instant.ofEpochMilli(createdAt),
     updatedAt = Instant.ofEpochMilli(updatedAt),
+    serviceTier = serviceTier,
+    serviceRegion = serviceRegion,
+    followUpExpiry = followUpExpiry,
 )
 
 private fun Consultation.toEntity(): ConsultationEntity = ConsultationEntity(
@@ -270,4 +277,8 @@ private fun Consultation.toEntity(): ConsultationEntity = ConsultationEntity(
     requestExpiresAt = createdAt.plusSeconds(86400).toEpochMilli(),
     createdAt = createdAt.toEpochMilli(),
     updatedAt = (updatedAt ?: createdAt).toEpochMilli(),
+    serviceTier = serviceTier,
+    serviceRegion = serviceRegion,
+    followUpExpiry = followUpExpiry,
+    isPremium = serviceTier == "ROYAL",
 )

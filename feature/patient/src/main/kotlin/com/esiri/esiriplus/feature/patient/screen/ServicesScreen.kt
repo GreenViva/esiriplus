@@ -98,7 +98,7 @@ private val numberFormat = NumberFormat.getNumberInstance(Locale.US)
 
 @Composable
 fun ServicesScreen(
-    onServiceSelected: (serviceCategory: String, priceAmount: Int, durationMinutes: Int) -> Unit,
+    onServiceSelected: (serviceCategory: String, priceAmount: Int, durationMinutes: Int, serviceTier: String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ServicesViewModel = hiltViewModel(),
@@ -108,10 +108,14 @@ fun ServicesScreen(
 
     // Find the selected service for the dialog subtitle
     val selectedService = uiState.services.find { it.id == uiState.selectedServiceId }
+    // Effective (tier-adjusted) price for the currently selected service
+    val selectedEffectivePrice = selectedService?.let { uiState.effectivePrice(it.priceAmount) } ?: 0
 
     // Payment verification simulation states
     var showVerifyingDialog by remember { mutableStateOf(false) }
     var showSuccessDialog by remember { mutableStateOf(false) }
+
+    val isRoyal = uiState.tier == com.esiri.esiriplus.core.domain.model.ConsultationTier.ROYAL
 
     Box(
         modifier = modifier
@@ -148,6 +152,38 @@ fun ServicesScreen(
                 }
             }
 
+            // ── Royal Service banner ─────────────────────────────────────────
+            if (isRoyal) {
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                listOf(Color(0xFF4C1D95), Color(0xFF7C3AED)),
+                            ),
+                        )
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "♛", fontSize = 18.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.services_royal_banner_title),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                            )
+                            Text(
+                                text = stringResource(R.string.services_royal_banner_subtitle),
+                                fontSize = 11.sp,
+                                color = Color.White.copy(alpha = 0.85f),
+                            )
+                        }
+                    }
+                }
+            }
+
             HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
             if (uiState.isLoading) {
@@ -168,6 +204,7 @@ fun ServicesScreen(
                     items(uiState.services, key = { it.id }) { service ->
                         ServiceCard(
                             service = service,
+                            displayPrice = uiState.effectivePrice(service.priceAmount),
                             isSelected = uiState.selectedServiceId == service.id,
                             onSelect = { viewModel.selectService(service.id) },
                         )
@@ -220,7 +257,7 @@ fun ServicesScreen(
     if (showPaymentDialog && selectedService != null) {
         PaymentMethodDialog(
             serviceName = selectedService.displayName,
-            priceAmount = selectedService.priceAmount,
+            priceAmount = selectedEffectivePrice,
             onMobileMoneySelected = {
                 showPaymentDialog = false
                 showProviderDialog = true
@@ -245,11 +282,11 @@ fun ServicesScreen(
         )
     }
 
-    // Step 3: Payment Instructions
+    // Step 3: Payment Instructions (uses tier-adjusted price)
     if (showInstructionsDialog && selectedService != null && selectedProvider != null) {
         PaymentInstructionsDialog(
             provider = selectedProvider!!,
-            priceAmount = selectedService.priceAmount,
+            priceAmount = selectedEffectivePrice,
             patientId = uiState.patientId,
             onChangeProvider = {
                 showInstructionsDialog = false
@@ -273,15 +310,16 @@ fun ServicesScreen(
         )
     }
 
-    // Step 5: Payment Successful
+    // Step 5: Payment Successful — pass tier-adjusted price and tier name
     if (showSuccessDialog && selectedService != null) {
         PaymentSuccessDialog(
             onContinue = {
                 showSuccessDialog = false
                 onServiceSelected(
                     selectedService.category,
-                    selectedService.priceAmount,
+                    selectedEffectivePrice,
                     selectedService.durationMinutes,
+                    uiState.tier.name,
                 )
             },
         )
@@ -291,6 +329,7 @@ fun ServicesScreen(
 @Composable
 private fun ServiceCard(
     service: ServiceTierEntity,
+    displayPrice: Int,
     isSelected: Boolean,
     onSelect: () -> Unit,
 ) {
@@ -395,7 +434,7 @@ private fun ServiceCard(
                 // Price + duration
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "TSh ${numberFormat.format(service.priceAmount)}",
+                        text = "TSh ${numberFormat.format(displayPrice)}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         color = BrandTeal.copy(alpha = contentAlpha),

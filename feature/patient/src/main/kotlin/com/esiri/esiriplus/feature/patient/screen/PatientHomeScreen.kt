@@ -86,6 +86,7 @@ fun PatientHomeScreen(
     onNavigateToReports: () -> Unit,
     onNavigateToConsultationHistory: () -> Unit,
     onNavigateToAppointments: () -> Unit,
+    onNavigateToOngoingConsultations: () -> Unit,
     onResumeConsultation: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientHomeViewModel = hiltViewModel(),
@@ -177,6 +178,14 @@ fun PatientHomeScreen(
 
             // Start Consultation Card
             StartConsultationCard(onClick = { onStartConsultation("") })
+
+            Spacer(Modifier.height(12.dp))
+
+            // Ongoing Consultations
+            OngoingConsultationsCard(
+                count = uiState.ongoingConsultations.size,
+                onClick = onNavigateToOngoingConsultations,
+            )
 
             Spacer(Modifier.height(12.dp))
 
@@ -493,6 +502,75 @@ private fun StartConsultationCard(onClick: () -> Unit) {
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = stringResource(R.string.home_content_desc_start),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun OngoingConsultationsCard(count: Int, onClick: () -> Unit) {
+    OutlinedCard(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BrandTeal.copy(alpha = 0.4f)),
+        colors = CardDefaults.outlinedCardColors(containerColor = BrandTeal.copy(alpha = 0.06f)),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = BrandTeal.copy(alpha = 0.15f),
+                modifier = Modifier.size(44.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_consultation),
+                        contentDescription = null,
+                        tint = BrandTeal,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.home_ongoing_consultations),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.home_ongoing_consultations_subtitle),
+                    fontSize = 13.sp,
+                    color = Color.Black,
+                )
+            }
+            if (count > 0) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(BrandTeal, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = count.toString(),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = stringResource(R.string.home_content_desc_open),
+                tint = BrandTeal,
             )
         }
     }

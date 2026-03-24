@@ -40,6 +40,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -114,6 +116,8 @@ data class DoctorDashboardUiState(
     val upcomingAppointments: List<Appointment> = emptyList(),
     val todayAppointments: List<Appointment> = emptyList(),
     val isLoadingAppointments: Boolean = false,
+    /** Active + Royal completed-but-in-follow-up-window consultations. */
+    val ongoingConsultations: List<ConsultationEntity> = emptyList(),
 )
 
 // ─── Service Command ────────────────────────────────────────────────────────────
@@ -158,6 +162,20 @@ class DoctorDashboardViewModel @Inject constructor(
 
     init {
         loadDoctorProfile()
+        observeOngoingConsultations()
+    }
+
+    private fun observeOngoingConsultations() {
+        viewModelScope.launch {
+            val session = authRepository.currentSession.first() ?: return@launch
+            val doctorId = session.user.id
+            consultationDao.getOngoingConsultationsForDoctor(
+                doctorId = doctorId,
+                currentTimeMillis = System.currentTimeMillis(),
+            ).onEach { ongoing ->
+                _uiState.update { it.copy(ongoingConsultations = ongoing) }
+            }.launchIn(viewModelScope)
+        }
     }
 
     private fun loadDoctorProfile() {

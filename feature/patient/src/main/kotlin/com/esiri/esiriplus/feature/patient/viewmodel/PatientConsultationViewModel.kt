@@ -58,6 +58,10 @@ data class ChatUiState(
     val error: String? = null,
     val sendError: String? = null,
     val isUploading: Boolean = false,
+    /** True when a Royal consultation has completed but is still within its 14-day follow-up window. */
+    val isFollowUpMode: Boolean = false,
+    /** Epoch millis when the follow-up window closes (null when not in follow-up mode). */
+    val followUpExpiry: Long? = null,
 )
 
 @HiltViewModel
@@ -97,8 +101,21 @@ class PatientConsultationViewModel @Inject constructor(
 
     init {
         if (consultationId.isNotBlank()) {
+            // Start session manager only for non-follow-up consultations.
+            // Follow-up mode (Royal, completed, within 14-day window) has no timer — starting the
+            // session manager would re-sync phase = COMPLETED and race against isFollowUpMode.
+            viewModelScope.launch(safeHandler) {
+                val existing = consultationDao.getById(consultationId)
+                val now = System.currentTimeMillis()
+                val isFollowUp = existing != null &&
+                    existing.serviceTier.uppercase() == "ROYAL" &&
+                    existing.status.lowercase() == "completed" &&
+                    (existing.followUpExpiry ?: 0L) > now
+                if (!isFollowUp) {
+                    consultationSessionManager.start(consultationId, viewModelScope)
+                }
+            }
             initChat()
-            consultationSessionManager.start(consultationId, viewModelScope)
         }
     }
 
@@ -153,8 +170,19 @@ class PatientConsultationViewModel @Inject constructor(
                     )
                 } else {
                     val doctorName = doctorProfileDao.getById(existing.doctorId)?.fullName ?: ""
-                    _uiState.update { it.copy(doctorId = existing.doctorId, doctorName = doctorName) }
-                    if (existing.status != "ACTIVE") {
+                    val now = System.currentTimeMillis()
+                    val isFollowUp = existing.serviceTier.uppercase() == "ROYAL" &&
+                        existing.status.lowercase() == "completed" &&
+                        (existing.followUpExpiry ?: 0L) > now
+                    _uiState.update {
+                        it.copy(
+                            doctorId = existing.doctorId,
+                            doctorName = doctorName,
+                            isFollowUpMode = isFollowUp,
+                            followUpExpiry = if (isFollowUp) existing.followUpExpiry else null,
+                        )
+                    }
+                    if (!isFollowUp && existing.status != "ACTIVE") {
                         consultationDao.updateStatus(consultationId, "ACTIVE")
                     }
                 }

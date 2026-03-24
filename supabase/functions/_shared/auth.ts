@@ -79,17 +79,22 @@ export async function sha256Hex(input: string): Promise<string> {
 
 // ── Main validator ────────────────────────────────────────────────────────────
 export async function validateAuth(req: Request): Promise<AuthResult> {
-  // Check for patient token in custom header first — this bypasses the
-  // Supabase gateway JWT verification (which rejects custom patient JWTs)
-  // while still allowing function-level auth.
+  // All requests use anon key in Authorization to bypass the Supabase gateway
+  // JWT check. The actual user JWT arrives in a custom header:
+  //   X-Patient-Token  — custom HS256 JWT for patients
+  //   X-Doctor-Token   — Supabase Auth JWT for doctors/admins
   const patientTokenHeader = req.headers.get("X-Patient-Token");
-  const authHeader = req.headers.get("Authorization");
+  const doctorTokenHeader  = req.headers.get("X-Doctor-Token");
+  const authHeader         = req.headers.get("Authorization");
 
   let jwt: string;
-  let authMethod: "patient-header" | "bearer";
+  let authMethod: "patient-header" | "doctor-header" | "bearer";
   if (patientTokenHeader?.trim()) {
     jwt = patientTokenHeader.trim();
     authMethod = "patient-header";
+  } else if (doctorTokenHeader?.trim()) {
+    jwt = doctorTokenHeader.trim();
+    authMethod = "doctor-header";
   } else if (authHeader?.startsWith("Bearer ")) {
     jwt = authHeader.replace("Bearer ", "").trim();
     authMethod = "bearer";
@@ -108,7 +113,9 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   }
 
   // ── Path A: Patient JWT (app_role:"patient" or legacy role:"patient") ─────
-  const isPatientJwt = (claims.app_role === "patient" || claims.role === "patient") &&
+  // Doctor-header tokens skip this path even if they somehow have patient-like claims.
+  const isPatientJwt = authMethod !== "doctor-header" &&
+    (claims.app_role === "patient" || claims.role === "patient") &&
     claims.session_id;
   if (isPatientJwt) {
     const sessionId = claims.session_id as string;

@@ -70,6 +70,7 @@ fun ServiceLocationScreen(
     onSelectInsideTanzania: () -> Unit,
     onSelectOutsideTanzania: () -> Unit,
     onBack: () -> Unit,
+    tier: String = "ECONOMY",
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current

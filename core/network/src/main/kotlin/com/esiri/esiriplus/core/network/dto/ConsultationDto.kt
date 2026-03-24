@@ -10,6 +10,8 @@ data class CreateConsultationRequest(
     @SerialName("chief_complaint") val chiefComplaint: String,
     @SerialName("preferred_language") val preferredLanguage: String = "en",
     @SerialName("doctor_id") val doctorId: String? = null,
+    @SerialName("service_tier") val serviceTier: String = "ECONOMY",
+    @SerialName("service_region") val serviceRegion: String = "TANZANIA",
 )
 
 @Serializable

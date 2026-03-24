@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ===== TierSelectionScreen ===== -->
+    <string name="tier_back">Rudi</string>
+    <string name="tier_title">Chagua Huduma Yako</string>
+    <string name="tier_subtitle">Chagua kiwango cha huduma kinachokufaa</string>
+    <string name="tier_royal_badge">★ HUDUMA YA JUU</string>
+    <string name="tier_royal_multiplier">Mara 10 ya bei ya kawaida</string>
+    <string name="tier_royal_title">Huduma ya Kifalme</string>
+    <string name="tier_royal_tagline">Huduma ya kipaumbele na faida zaidi</string>
+    <string name="tier_royal_benefit_1">Dirisha la kufuatilia la siku 14</string>
+    <string name="tier_royal_benefit_2">Usimamizi wa mashauriano wa kipaumbele</string>
+    <string name="tier_royal_benefit_3">Upatikanaji wa daktari wa kuendelea</string>
+    <string name="tier_royal_benefit_4">Hadi maombi 2 ya ziara za nyumbani</string>
+    <string name="tier_royal_benefit_5">Uzoefu wa mashauriano uliopanuliwa</string>
+    <string name="tier_economy_badge">KAWAIDA</string>
+    <string name="tier_economy_title">Huduma ya Kawaida</string>
+    <string name="tier_economy_tagline">Huduma bora kwa bei ya kawaida</string>
+    <string name="tier_economy_benefit_1">Mashauriano ya msingi</string>
+    <string name="tier_economy_benefit_2">Mashauriano 1 ya kufuatilia</string>
+    <string name="tier_economy_benefit_3">Upatikanaji wa kawaida wa daktari</string>
+    <string name="tier_select">Chagua</string>
+    <string name="tier_comparison_note">Bei zinaonyeshwa ni pamoja na ada zote. Bei za Huduma ya Kifalme ni mara 10 ya kawaida.</string>
+    <string name="services_royal_banner_title">Huduma ya Kifalme — Faida za Juu Zimewashwa</string>
+    <string name="services_royal_banner_subtitle">Bei zinaonyesha kiwango cha Kifalme (mara 10). Inajumuisha dirisha la siku 14 la kufuatilia.</string>
+
     <!-- ===== PatientHomeScreen ===== -->
     <string name="home_welcome_back">Karibu Tena \uD83D\uDC4B</string>
     <string name="home_your_patient_id">Nambari yako ya Mgonjwa:</string>
@@ -16,6 +40,11 @@
     <string name="home_start_consultation">Anza Mashauriano</string>
     <string name="home_start_consultation_subtitle">Chagua huduma na uwasiliane na madaktari walioidhinishwa</string>
     <string name="home_content_desc_start">Anza</string>
+    <string name="home_ongoing_consultations">Mashauriano Yanayoendelea</string>
+    <string name="home_ongoing_consultations_subtitle">Angalia na jiunge na vikao vyako vya mashauriano vinavyoendelea</string>
+    <string name="ongoing_consultations_empty">Hakuna mashauriano yanayoendelea sasa hivi</string>
+    <string name="ongoing_follow_up_mode">★ Hali ya Ufuatiliaji</string>
+    <string name="ongoing_follow_up_days_remaining">Siku %d zimesalia</string>
     <string name="home_consultation_history">Historia ya Mashauriano</string>
     <string name="home_consultation_history_subtitle">Angalia mashauriano yako yaliyopita</string>
     <string name="home_reports">Ripoti</string>

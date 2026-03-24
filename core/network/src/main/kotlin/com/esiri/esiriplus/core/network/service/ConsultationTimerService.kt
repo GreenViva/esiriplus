@@ -12,8 +12,10 @@ import javax.inject.Singleton
 @Serializable
 data class ConsultationSyncResponse(
     @SerialName("consultation_id") val consultationId: String,
+    @SerialName("doctor_id") val doctorId: String = "",
     val status: String,
     @SerialName("service_type") val serviceType: String,
+    @SerialName("service_tier") val serviceTier: String = "ECONOMY",
     @SerialName("consultation_fee") val consultationFee: Int,
     @SerialName("scheduled_end_at") val scheduledEndAt: String? = null,
     @SerialName("extension_count") val extensionCount: Int = 0,

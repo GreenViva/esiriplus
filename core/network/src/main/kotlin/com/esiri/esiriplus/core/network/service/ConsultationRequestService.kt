@@ -29,6 +29,7 @@ class ConsultationRequestService @Inject constructor(
     suspend fun createRequest(
         doctorId: String,
         serviceType: String,
+        serviceTier: String = "ECONOMY",
         consultationType: String,
         chiefComplaint: String,
         symptoms: String? = null,
@@ -37,11 +38,14 @@ class ConsultationRequestService @Inject constructor(
         patientBloodGroup: String? = null,
         patientAllergies: String? = null,
         patientChronicConditions: String? = null,
+        isFollowUp: Boolean = false,
+        parentConsultationId: String? = null,
     ): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
             put("action", "create")
             put("doctor_id", doctorId)
             put("service_type", serviceType)
+            put("service_tier", serviceTier.uppercase())
             put("consultation_type", consultationType)
             put("chief_complaint", chiefComplaint)
             if (!symptoms.isNullOrBlank()) put("symptoms", symptoms)
@@ -50,6 +54,10 @@ class ConsultationRequestService @Inject constructor(
             if (!patientBloodGroup.isNullOrBlank()) put("patient_blood_group", patientBloodGroup)
             if (!patientAllergies.isNullOrBlank()) put("patient_allergies", patientAllergies)
             if (!patientChronicConditions.isNullOrBlank()) put("patient_chronic_conditions", patientChronicConditions)
+            if (isFollowUp) {
+                put("is_follow_up", true)
+                if (!parentConsultationId.isNullOrBlank()) put("parent_consultation_id", parentConsultationId)
+            }
         }
         return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
     }

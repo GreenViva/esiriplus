@@ -88,18 +88,20 @@ class EdgeFunctionClient @Inject constructor(
                 else -> {
                     val token =
                         tokenManager.getAccessTokenSync() ?: BuildConfig.SUPABASE_ANON_KEY
+                    // Always bypass the Supabase gateway JWT check by sending the
+                    // anon key in Authorization. The edge function's validateAuth()
+                    // reads the actual JWT from a custom header for function-level auth.
+                    // This avoids the gateway rejecting doctor Supabase JWTs as
+                    // "Invalid JWT".
+                    requestBuilder.header(
+                        "Authorization",
+                        "Bearer ${BuildConfig.SUPABASE_ANON_KEY}",
+                    )
+                    requestBuilder.header(HEADER_SKIP_AUTH, "true")
                     if (JwtUtils.isPatientToken(token)) {
-                        // Patient JWT detected — bypass Supabase gateway JWT
-                        // verification (which rejects custom-signed patient JWTs)
-                        // and pass the token via a custom header instead.
-                        requestBuilder.header(
-                            "Authorization",
-                            "Bearer ${BuildConfig.SUPABASE_ANON_KEY}",
-                        )
-                        requestBuilder.header(HEADER_SKIP_AUTH, "true")
                         requestBuilder.header(HEADER_PATIENT_TOKEN, token)
                     } else {
-                        requestBuilder.header("Authorization", "Bearer $token")
+                        requestBuilder.header(HEADER_DOCTOR_TOKEN, token)
                     }
                 }
             }
@@ -121,6 +123,9 @@ class EdgeFunctionClient @Inject constructor(
 
         /** Custom header to pass patient JWT for function-level auth (bypasses gateway). */
         const val HEADER_PATIENT_TOKEN = "X-Patient-Token"
+
+        /** Custom header to pass doctor/admin Supabase JWT for function-level auth (bypasses gateway). */
+        const val HEADER_DOCTOR_TOKEN = "X-Doctor-Token"
     }
 }
 

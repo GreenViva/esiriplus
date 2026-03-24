@@ -8,6 +8,7 @@ interface ConsultationRequestRepository {
     suspend fun createRequest(
         doctorId: String,
         serviceType: String,
+        serviceTier: String = "ECONOMY",
         consultationType: String,
         chiefComplaint: String,
         symptoms: String? = null,
@@ -16,6 +17,8 @@ interface ConsultationRequestRepository {
         patientBloodGroup: String? = null,
         patientAllergies: String? = null,
         patientChronicConditions: String? = null,
+        isFollowUp: Boolean = false,
+        parentConsultationId: String? = null,
     ): Result<ConsultationRequest>
 
     /** Doctor accepts a pending request. Returns request with consultationId. */

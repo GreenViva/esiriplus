@@ -4,6 +4,31 @@
     <!-- ===== Common ===== -->
     <string name="common_cancel">Cancel</string>
 
+    <!-- ===== TierSelectionScreen ===== -->
+    <string name="tier_back">Back</string>
+    <string name="tier_title">Choose Your Service</string>
+    <string name="tier_subtitle">Select the level of care that suits you</string>
+    <string name="tier_royal_badge">★ PREMIUM</string>
+    <string name="tier_royal_multiplier">10× base price</string>
+    <string name="tier_royal_title">Royal Service</string>
+    <string name="tier_royal_tagline">Priority care with extended benefits</string>
+    <string name="tier_royal_benefit_1">14-day follow-up window</string>
+    <string name="tier_royal_benefit_2">Priority consultation handling</string>
+    <string name="tier_royal_benefit_3">Continuous doctor access</string>
+    <string name="tier_royal_benefit_4">Up to 2 home visit requests</string>
+    <string name="tier_royal_benefit_5">Extended consultation experience</string>
+    <string name="tier_economy_badge">STANDARD</string>
+    <string name="tier_economy_title">Economy Service</string>
+    <string name="tier_economy_tagline">Quality care at standard rates</string>
+    <string name="tier_economy_benefit_1">Basic consultation</string>
+    <string name="tier_economy_benefit_2">1 follow-up consultation</string>
+    <string name="tier_economy_benefit_3">Standard doctor access</string>
+    <string name="tier_select">Select</string>
+    <string name="tier_comparison_note">Prices shown include all consultation fees. Royal Service prices are 10× the standard rate.</string>
+    <!-- ===== ServicesScreen – Royal banner ===== -->
+    <string name="services_royal_banner_title">Royal Service — Premium Benefits Active</string>
+    <string name="services_royal_banner_subtitle">Royal Service — Includes 14-day follow-up window and priority care.</string>
+
     <!-- ===== PatientHomeScreen ===== -->
     <string name="home_welcome_back">Welcome Back \uD83D\uDC4B</string>
     <string name="home_your_patient_id">Your Patient ID:</string>
@@ -19,6 +44,11 @@
     <string name="home_start_consultation">Start Consultation</string>
     <string name="home_start_consultation_subtitle">Choose a service and connect with verified doctors</string>
     <string name="home_content_desc_start">Start</string>
+    <string name="home_ongoing_consultations">Ongoing Consultations</string>
+    <string name="home_ongoing_consultations_subtitle">View and join your active consultation sessions</string>
+    <string name="ongoing_consultations_empty">No ongoing consultations right now</string>
+    <string name="ongoing_follow_up_mode">★ Follow-up Mode</string>
+    <string name="ongoing_follow_up_days_remaining">%d days left</string>
     <string name="home_consultation_history">Consultation History</string>
     <string name="home_consultation_history_subtitle">View your past consultations</string>
     <string name="home_reports">Reports</string>
@@ -322,6 +352,22 @@
     <string name="vm_failed_send_attachment_retrying">Failed to send attachment. Retrying\u2026</string>
     <string name="vm_failed_upload_file">Failed to upload file. Please try again.</string>
     <string name="vm_not_signed_in">Not signed in</string>
+
+    <!-- ===== FollowUpWaitingScreen ===== -->
+    <string name="followup_confirm_title">Request Follow-up</string>
+    <string name="followup_confirm_message">Request a follow-up consultation with this doctor?</string>
+    <string name="followup_confirm_yes">Request</string>
+    <string name="followup_confirm_no">Cancel</string>
+    <string name="followup_waiting_title">Follow-up Request</string>
+    <string name="followup_requesting">Requesting follow-up\u2026</string>
+    <string name="followup_waiting_response">Waiting for doctor response\u2026</string>
+    <string name="followup_seconds_remaining">%d seconds remaining</string>
+    <string name="followup_accepted">Doctor accepted! Opening consultation\u2026</string>
+    <string name="followup_rejected">Doctor declined the follow-up request.</string>
+    <string name="followup_expired">Doctor did not respond in time.</string>
+    <string name="followup_error">Failed to send follow-up request</string>
+    <string name="followup_cancel">Cancel</string>
+    <string name="followup_go_back">Go Back</string>
     <string name="vm_report_not_found">Report not found</string>
     <string name="vm_connection_lost">Connection lost \u2014 messages may be delayed</string>
     <string name="vm_reconnecting">Reconnecting\u2026</string>

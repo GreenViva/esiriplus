@@ -96,6 +96,7 @@
     <string name="consultations_subtitle">Manage your patient consultations</string>
     <string name="consultations_tab_pending">Pending</string>
     <string name="consultations_tab_active">Active</string>
+    <string name="consultations_tab_ongoing">Ongoing</string>
     <string name="consultations_tab_completed">Completed</string>
     <string name="consultations_tab_cancelled">Cancelled</string>
     <string name="consultations_empty">No %s consultations</string>

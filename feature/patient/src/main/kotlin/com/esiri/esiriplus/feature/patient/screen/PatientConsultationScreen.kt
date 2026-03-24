@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,7 +34,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
@@ -95,14 +98,17 @@ fun PatientConsultationScreen(
 
     var showRatingSheet by remember { mutableStateOf(false) }
 
-    // Block back navigation during active consultation
+    val isFollowUpMode = uiState.isFollowUpMode
+
+    // Block back navigation during active consultation (not in follow-up mode)
     val isActive = sessionState.phase != ConsultationPhase.COMPLETED
-    BackHandler(enabled = isActive) {
+    BackHandler(enabled = isActive && !isFollowUpMode) {
         // Swallow back press — patient must wait for doctor to end consultation
     }
 
-    // Handle consultation phase transitions
+    // Handle consultation phase transitions (skip when in follow-up mode)
     LaunchedEffect(sessionState.phase) {
+        if (isFollowUpMode) return@LaunchedEffect
         when (sessionState.phase) {
             ConsultationPhase.COMPLETED -> { showRatingSheet = true }
             ConsultationPhase.GRACE_PERIOD -> {
@@ -118,7 +124,7 @@ fun PatientConsultationScreen(
         }
     }
 
-    val isInputEnabled = sessionState.phase == ConsultationPhase.ACTIVE
+    val isInputEnabled = isFollowUpMode || sessionState.phase == ConsultationPhase.ACTIVE
     var showAttachmentMenu by remember { mutableStateOf(false) }
     var showCallTypeMenu by remember { mutableStateOf(false) }
 
@@ -220,7 +226,9 @@ fun PatientConsultationScreen(
             }
         },
         timerContent = {
-            if (!sessionState.isLoading) {
+            if (isFollowUpMode) {
+                FollowUpModeBanner(followUpExpiry = uiState.followUpExpiry)
+            } else if (!sessionState.isLoading) {
                 ConsultationTimerBar(
                     phase = sessionState.phase,
                     remainingSeconds = sessionState.remainingSeconds,
@@ -319,5 +327,38 @@ fun PatientConsultationScreen(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun FollowUpModeBanner(followUpExpiry: Long?) {
+    val daysRemaining = if (followUpExpiry != null) {
+        val millis = followUpExpiry - System.currentTimeMillis()
+        java.util.concurrent.TimeUnit.MILLISECONDS.toDays(millis).toInt().coerceAtLeast(0)
+    } else null
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Brush.horizontalGradient(listOf(Color(0xFF4C1D95), Color(0xFF7C3AED))),
+            )
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "★ Royal Follow-up Mode",
+            color = Color(0xFFF59E0B),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+        )
+        if (daysRemaining != null) {
+            Text(
+                text = "$daysRemaining days left",
+                color = Color.White,
+                fontSize = 12.sp,
+            )
+        }
     }
 }
