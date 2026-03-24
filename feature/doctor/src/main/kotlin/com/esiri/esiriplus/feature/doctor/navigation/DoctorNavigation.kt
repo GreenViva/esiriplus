@@ -12,6 +12,7 @@ import com.esiri.esiriplus.feature.doctor.screen.DoctorDashboardScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorNotificationsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorReportScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorVideoCallScreen
+import com.esiri.esiriplus.feature.doctor.screen.RoyalClientsScreen
 import kotlinx.serialization.Serializable
 
 @Serializable object DoctorGraph
@@ -23,6 +24,7 @@ import kotlinx.serialization.Serializable
 @Serializable data class DoctorReportRoute(val consultationId: String)
 @Serializable object DoctorAppointmentsRoute
 @Serializable object DoctorAvailabilitySettingsRoute
+@Serializable object RoyalClientsRoute
 
 fun NavGraphBuilder.doctorGraph(
     navController: NavController,
@@ -32,6 +34,7 @@ fun NavGraphBuilder.doctorGraph(
         composable<DoctorDashboardRoute> {
             DoctorDashboardScreen(
                 onNavigateToConsultations = { navController.navigate(DoctorConsultationListRoute) },
+                onNavigateToRoyalClients = { navController.navigate(RoyalClientsRoute) },
                 onNavigateToConsultation = { consultationId ->
                     navController.navigate(DoctorConsultationDetailRoute(consultationId))
                 },
@@ -90,6 +93,14 @@ fun NavGraphBuilder.doctorGraph(
         composable<DoctorAvailabilitySettingsRoute> {
             DoctorAvailabilitySettingsScreen(
                 onBack = { navController.popBackStack() },
+            )
+        }
+        composable<RoyalClientsRoute> {
+            RoyalClientsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenConsultation = { consultationId ->
+                    navController.navigate(DoctorConsultationDetailRoute(consultationId))
+                },
             )
         }
     }

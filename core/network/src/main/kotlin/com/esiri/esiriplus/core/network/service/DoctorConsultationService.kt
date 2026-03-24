@@ -17,6 +17,7 @@ data class ConsultationRow(
     @SerialName("doctor_id") val doctorId: String,
     val status: String,
     @SerialName("service_type") val serviceType: String = "general",
+    @SerialName("service_tier") val serviceTier: String = "ECONOMY",
     @SerialName("consultation_fee") val consultationFee: Int = 0,
     @SerialName("session_start_time") val sessionStartTime: String? = null,
     @SerialName("session_end_time") val sessionEndTime: String? = null,

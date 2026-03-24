@@ -216,6 +216,7 @@ fun PatientHomeScreen(
                 subtitle = stringResource(R.string.home_my_appointments_subtitle),
                 onClick = onNavigateToAppointments,
             )
+
         }
 
         // Pulsing chat FAB when there is an active consultation
@@ -742,4 +743,5 @@ private fun ActiveChatFab(
         }
     }
 }
+
 

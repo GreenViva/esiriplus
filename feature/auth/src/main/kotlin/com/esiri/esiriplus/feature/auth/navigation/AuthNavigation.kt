@@ -16,6 +16,7 @@ import com.esiri.esiriplus.feature.auth.screen.LanguageSelectionScreen
 import com.esiri.esiriplus.feature.auth.screen.AccessRecordsScreen
 import com.esiri.esiriplus.feature.auth.screen.PatientRecoveryScreen
 import com.esiri.esiriplus.feature.auth.screen.PatientSetupScreen
+import com.esiri.esiriplus.feature.auth.screen.AgentAuthScreen
 import com.esiri.esiriplus.feature.auth.screen.RoleSelectionScreen
 import com.esiri.esiriplus.feature.auth.screen.SecurityQuestionsSetupScreen
 import com.esiri.esiriplus.feature.auth.screen.SplashScreen
@@ -35,11 +36,13 @@ import kotlinx.serialization.Serializable
 @Serializable object DoctorRegistrationRoute
 @Serializable object AccessRecordsRoute
 @Serializable object PatientRecoveryRoute
+@Serializable object AgentAuthRoute
 
 fun NavGraphBuilder.authGraph(
     navController: NavController,
     onPatientAuthenticated: () -> Unit,
     onDoctorAuthenticated: () -> Unit,
+    onAgentAuthenticated: () -> Unit = {},
 ) {
     navigation<AuthGraph>(startDestination = SplashRoute) {
         composable<SplashRoute> {
@@ -82,6 +85,7 @@ fun NavGraphBuilder.authGraph(
                 onDoctorRegister = { navController.navigate(DoctorTermsRoute) },
                 onRecoverPatientId = { navController.navigate(PatientRecoveryRoute) },
                 onHaveMyId = { navController.navigate(AccessRecordsRoute) },
+                onAgentSelected = { navController.navigate(AgentAuthRoute) },
             )
         }
         composable<TermsRoute> {
@@ -170,6 +174,12 @@ fun NavGraphBuilder.authGraph(
         composable<PatientRecoveryRoute> {
             PatientRecoveryScreen(
                 onRecovered = onPatientAuthenticated,
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable<AgentAuthRoute> {
+            AgentAuthScreen(
+                onAuthenticated = onAgentAuthenticated,
                 onBack = { navController.popBackStack() },
             )
         }

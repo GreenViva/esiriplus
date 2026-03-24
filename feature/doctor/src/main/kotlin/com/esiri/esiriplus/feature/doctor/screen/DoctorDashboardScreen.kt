@@ -117,6 +117,7 @@ private val TabLabelRes = listOf(R.string.tab_all_consultations, R.string.tab_av
 @Composable
 fun DoctorDashboardScreen(
     onNavigateToConsultations: () -> Unit,
+    onNavigateToRoyalClients: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToConsultation: (consultationId: String) -> Unit = {},
     onNavigateToAppointments: () -> Unit = {},
@@ -367,7 +368,7 @@ fun DoctorDashboardScreen(
                 DoctorNavItem.DASHBOARD -> DashboardContent(
                     uiState = uiState,
                     onToggleOnline = viewModel::onToggleOnline,
-                    onViewAllRequests = onNavigateToConsultations,
+                    onViewAllRequests = onNavigateToRoyalClients,
                     onViewAllAppointments = onNavigateToAppointments,
                     onOpenSidebar = { isSidebarOpen = true },
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
@@ -685,7 +686,7 @@ private fun DashboardContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Stats grid (2 columns)
-        StatsGrid(uiState = uiState, modifier = Modifier.padding(horizontal = 12.dp))
+        StatsGrid(uiState = uiState, onRoyalClientsClick = onViewAllRequests, modifier = Modifier.padding(horizontal = 12.dp))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -698,9 +699,9 @@ private fun DashboardContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Pending Requests
+        // Royal Clients
         PendingRequestsSection(
-            count = uiState.pendingRequests,
+            count = uiState.royalClientsCount,
             onViewAll = onViewAllRequests,
             modifier = Modifier.padding(horizontal = 12.dp),
         )
@@ -1020,7 +1021,7 @@ private fun TabChipRow(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun StatsGrid(uiState: DoctorDashboardUiState, modifier: Modifier = Modifier) {
+private fun StatsGrid(uiState: DoctorDashboardUiState, onRoyalClientsClick: () -> Unit = {}, modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         // Row 1: Pending Requests + Active Consultations
         Row(
@@ -1028,11 +1029,12 @@ private fun StatsGrid(uiState: DoctorDashboardUiState, modifier: Modifier = Modi
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             StatCard(
-                value = "${uiState.pendingRequests}",
+                value = "${uiState.royalClientsCount}",
                 label = stringResource(R.string.stats_pending_requests),
-                iconColor = Color(0xFFF59E0B),
-                iconBg = Color(0xFFFEF3C7),
+                iconColor = Color(0xFF7C3AED),
+                iconBg = Color(0xFFEDE9FE),
                 modifier = Modifier.weight(1f),
+                onClick = onRoyalClientsClick,
             )
             StatCard(
                 value = "${uiState.activeConsultations}",
@@ -1092,12 +1094,14 @@ private fun StatCard(
     iconColor: Color,
     iconBg: Color,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(12.dp),
     ) {
         Box(

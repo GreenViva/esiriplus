@@ -62,6 +62,7 @@ interface CreateRequest {
   patient_chronic_conditions?: string;
   is_follow_up?: boolean;
   parent_consultation_id?: string;
+  agent_id?: string;
 }
 
 interface RespondRequest {
@@ -239,6 +240,7 @@ async function handleCreate(
       patient_chronic_conditions: body.patient_chronic_conditions ?? null,
       is_follow_up: isFollowUp,
       parent_consultation_id: isFollowUp ? body.parent_consultation_id : null,
+      agent_id: body.agent_id ?? null,
       status: "pending",
       created_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
@@ -344,8 +346,11 @@ async function handleAccept(
   // Use atomic RPC that closes stale consultations + inserts new one in a single transaction.
   const patientSessionId = request.patient_session_id;
 
-  // Follow-up consultations are free
-  const consultationFee = request.is_follow_up ? 0 : (SERVICE_FEES[request.service_type] ?? 5000);
+  // Follow-up consultations are free.
+  // Royal tier pays 10× the base fee; Economy pays 1×.
+  const baseFee = SERVICE_FEES[request.service_type] ?? 5000;
+  const tierMultiplier = (request.service_tier ?? "ECONOMY").toUpperCase() === "ROYAL" ? 10 : 1;
+  const consultationFee = request.is_follow_up ? 0 : baseFee * tierMultiplier;
 
   // Try the atomic RPC first (close stale + insert in one transaction)
   let consultation: { consultation_id: string; status: string; created_at: string } | null = null;
@@ -364,6 +369,7 @@ async function handleAccept(
       p_request_id: body.request_id,
       p_service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
       p_parent_consultation_id: request.parent_consultation_id ?? null,
+      p_agent_id: request.agent_id ?? null,
     }
   ).maybeSingle();
 
@@ -391,6 +397,7 @@ async function handleAccept(
       consultation_type: request.consultation_type ?? "chat",
       chief_complaint: request.chief_complaint ?? "",
       parent_consultation_id: request.parent_consultation_id ?? null,
+      agent_id: request.agent_id ?? null,
       status: "active",
       consultation_fee: consultationFee,
       request_expires_at: request.expires_at,

@@ -74,7 +74,12 @@ class ConsultationRequestViewModel @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
     private val patientProfileDao: PatientProfileDao,
     private val authRepository: AuthRepository,
+    application: android.app.Application,
 ) : ViewModel() {
+
+    private val agentId: String? = application
+        .getSharedPreferences("agent_prefs", android.content.Context.MODE_PRIVATE)
+        .getString("agent_id", null)
 
     private val _uiState = MutableStateFlow(ConsultationRequestUiState())
     val uiState: StateFlow<ConsultationRequestUiState> = _uiState.asStateFlow()
@@ -323,6 +328,7 @@ class ConsultationRequestViewModel @Inject constructor(
                 patientBloodGroup = state.patientBloodGroup,
                 patientAllergies = state.patientAllergies,
                 patientChronicConditions = state.patientChronicConditions,
+                agentId = agentId,
             )) {
                 is Result.Success -> {
                     val request = result.data

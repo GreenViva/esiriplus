@@ -27,6 +27,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
         patientChronicConditions: String?,
         isFollowUp: Boolean,
         parentConsultationId: String?,
+        agentId: String?,
     ): Result<ConsultationRequest> {
         return service.createRequest(
             doctorId = doctorId,
@@ -42,6 +43,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
             patientChronicConditions = patientChronicConditions,
             isFollowUp = isFollowUp,
             parentConsultationId = parentConsultationId,
+            agentId = agentId,
         ).map { it.toDomain() }
             .toDomainResult()
     }

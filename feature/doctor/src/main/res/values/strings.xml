@@ -61,7 +61,7 @@
     <string name="banner_rejected_resubmit">Please review the reason and resubmit your credentials.</string>
 
     <!-- ═══ Dashboard: Stats Grid ═══ -->
-    <string name="stats_pending_requests">Pending Requests</string>
+    <string name="stats_pending_requests">Royal Clients</string>
     <string name="stats_active_consultations">Active Consultations</string>
     <string name="stats_todays_earnings">Today\'s Earnings</string>
     <string name="stats_total_patients">Total Patients</string>
@@ -74,10 +74,10 @@
     <string name="availability_not_available_today">Not available today</string>
     <string name="availability_set">Set Availability</string>
 
-    <!-- ═══ Dashboard: Pending Requests Section ═══ -->
-    <string name="pending_requests_title">Pending Requests</string>
-    <string name="pending_requests_none">No pending requests</string>
-    <string name="pending_requests_count">%d pending request(s)</string>
+    <!-- ═══ Dashboard: Royal Clients Section ═══ -->
+    <string name="pending_requests_title">Royal Clients</string>
+    <string name="pending_requests_none">No royal clients</string>
+    <string name="pending_requests_count">%d royal client(s)</string>
 
     <!-- ═══ Dashboard: Appointments Section ═══ -->
     <string name="appointments_upcoming_title">Upcoming Appointments</string>

@@ -30,6 +30,7 @@ import com.esiri.esiriplus.feature.doctor.navigation.DoctorVideoCallRoute
 import com.esiri.esiriplus.feature.doctor.navigation.doctorGraph
 import com.esiri.esiriplus.feature.patient.navigation.ExtensionPaymentRoute
 import com.esiri.esiriplus.feature.patient.navigation.PatientConsultationRoute
+import com.esiri.esiriplus.feature.patient.navigation.AgentDashboardRoute
 import com.esiri.esiriplus.feature.patient.navigation.PatientGraph
 import com.esiri.esiriplus.feature.patient.navigation.PatientPaymentRoute
 import com.esiri.esiriplus.feature.patient.navigation.PatientVideoCallRoute
@@ -49,6 +50,7 @@ fun EsiriplusNavHost(
             is AuthState.Authenticated -> when (authState.session.user.role) {
                 UserRole.PATIENT -> PatientGraph
                 UserRole.DOCTOR -> DoctorGraph
+                UserRole.AGENT -> PatientGraph // Agents use the patient flow
             }
             else -> AuthGraph
         }
@@ -123,6 +125,7 @@ fun EsiriplusNavHost(
                         val dest: Any = when (authState.session.user.role) {
                             UserRole.PATIENT -> PatientGraph
                             UserRole.DOCTOR -> DoctorGraph
+                            UserRole.AGENT -> PatientGraph
                         }
                         navController.navigate(dest) {
                             popUpTo(0) { inclusive = true }
@@ -172,6 +175,14 @@ fun EsiriplusNavHost(
                 navController.navigate(DoctorGraph) {
                     popUpTo(0) { inclusive = true }
                 }
+            },
+            onAgentAuthenticated = {
+                hasNavigatedForAuth.value = true
+                navController.navigate(PatientGraph) {
+                    popUpTo(0) { inclusive = true }
+                }
+                // Navigate to agent dashboard within the patient graph
+                navController.navigate(AgentDashboardRoute)
             },
         )
         patientGraph(navController = navController)

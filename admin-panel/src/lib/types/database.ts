@@ -122,6 +122,18 @@ export interface AdminLogRow {
   created_at: string;
 }
 
+export interface AgentProfile {
+  id: string;
+  agent_id: string;
+  full_name: string;
+  mobile_number: string;
+  email: string;
+  place_of_residence: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PerformanceStat {
   bucket: string;
   metric_type: string;

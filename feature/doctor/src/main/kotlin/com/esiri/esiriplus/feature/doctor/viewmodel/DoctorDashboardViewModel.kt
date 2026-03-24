@@ -66,6 +66,8 @@ data class DoctorDashboardUiState(
     val isVerified: Boolean = false,
     val isOnline: Boolean = false,
     val pendingRequests: Int = 0,
+    val royalClientsCount: Int = 0,
+    val royalConsultations: List<ConsultationEntity> = emptyList(),
     val activeConsultations: Int = 0,
     val todaysEarnings: String = "TSh 0",
     val totalPatients: Int = 0,
@@ -395,6 +397,7 @@ class DoctorDashboardViewModel @Inject constructor(
                         doctorId = row.doctorId,
                         status = row.status.uppercase(),
                         serviceType = row.serviceType,
+                        serviceTier = row.serviceTier.uppercase(),
                         consultationFee = row.consultationFee,
                         sessionStartTime = parseInstantToMillis(row.sessionStartTime),
                         sessionEndTime = parseInstantToMillis(row.sessionEndTime),
@@ -455,6 +458,13 @@ class DoctorDashboardViewModel @Inject constructor(
             consultationDao.getByDoctorIdAndStatus(doctorId, "PENDING").collect { list ->
                 _uiState.update {
                     it.copy(pendingConsultations = list, pendingRequests = list.size)
+                }
+            }
+        }
+        viewModelScope.launch {
+            consultationDao.getRoyalConsultationsForDoctor(doctorId).collect { list ->
+                _uiState.update {
+                    it.copy(royalConsultations = list, royalClientsCount = list.size)
                 }
             }
         }
