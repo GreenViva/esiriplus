@@ -63,6 +63,8 @@ interface CreateRequest {
   is_follow_up?: boolean;
   parent_consultation_id?: string;
   agent_id?: string;
+  is_substitute_follow_up?: boolean;
+  original_doctor_id?: string;
 }
 
 interface RespondRequest {
@@ -126,6 +128,7 @@ async function handleCreate(
 
   const supabase = getServiceClient();
   const isFollowUp = body.is_follow_up === true && !!body.parent_consultation_id;
+  const isSubstituteFollowUp = body.is_substitute_follow_up === true && isFollowUp;
 
   // Validate follow-up request against parent consultation
   if (isFollowUp) {
@@ -147,8 +150,15 @@ async function handleCreate(
     if (parentConsultation.follow_up_expiry && new Date(parentConsultation.follow_up_expiry) < new Date()) {
       throw new ValidationError("Follow-up window has expired");
     }
-    if (body.doctor_id !== parentConsultation.doctor_id) {
+    // Substitute follow-ups can use a different doctor
+    if (!isSubstituteFollowUp && body.doctor_id !== parentConsultation.doctor_id) {
       throw new ValidationError("Follow-up must be with the same doctor");
+    }
+    // For substitute, validate original_doctor_id matches parent's doctor
+    if (isSubstituteFollowUp) {
+      if (!body.original_doctor_id || body.original_doctor_id !== parentConsultation.doctor_id) {
+        throw new ValidationError("original_doctor_id must match the parent consultation's doctor");
+      }
     }
 
     // Economy patients: limited to 1 follow-up per consultation
@@ -241,6 +251,8 @@ async function handleCreate(
       is_follow_up: isFollowUp,
       parent_consultation_id: isFollowUp ? body.parent_consultation_id : null,
       agent_id: body.agent_id ?? null,
+      is_substitute_follow_up: isSubstituteFollowUp,
+      original_doctor_id: isSubstituteFollowUp ? body.original_doctor_id : null,
       status: "pending",
       created_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
@@ -255,8 +267,10 @@ async function handleCreate(
     await supabase.functions.invoke("send-push-notification", {
       body: {
         user_id: body.doctor_id,
-        title: isFollowUp ? "Follow-up Request (Royal)" : "New Consultation Request",
-        body: isFollowUp
+        title: isSubstituteFollowUp ? "Follow-up Patient Request" : isFollowUp ? "Follow-up Request (Royal)" : "New Consultation Request",
+        body: isSubstituteFollowUp
+          ? `Follow-up patient calling — ${body.service_type} consultation. Respond within 60s.`
+          : isFollowUp
           ? `A Royal patient is requesting a follow-up ${body.service_type} consultation. Respond within 60s.`
           : body.symptoms
             ? `Patient: ${[body.patient_age_group, body.patient_sex].filter(Boolean).join(" | ") || "N/A"} — "${body.symptoms.slice(0, 80)}". Respond within 60s.`
@@ -370,6 +384,8 @@ async function handleAccept(
       p_service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
       p_parent_consultation_id: request.parent_consultation_id ?? null,
       p_agent_id: request.agent_id ?? null,
+      p_is_substitute_follow_up: request.is_substitute_follow_up ?? false,
+      p_original_doctor_id: request.original_doctor_id ?? null,
     }
   ).maybeSingle();
 
@@ -398,6 +414,8 @@ async function handleAccept(
       chief_complaint: request.chief_complaint ?? "",
       parent_consultation_id: request.parent_consultation_id ?? null,
       agent_id: request.agent_id ?? null,
+      is_substitute_follow_up: request.is_substitute_follow_up ?? false,
+      original_doctor_id: request.original_doctor_id ?? null,
       status: "active",
       consultation_fee: consultationFee,
       request_expires_at: request.expires_at,

@@ -368,6 +368,9 @@
     <string name="followup_error">Failed to send follow-up request</string>
     <string name="followup_cancel">Cancel</string>
     <string name="followup_go_back">Go Back</string>
+    <string name="followup_unavailable_prompt">The doctor is not available. What would you like to do?</string>
+    <string name="followup_book_appointment">Book Appointment</string>
+    <string name="followup_request_another_doctor">Request Another Doctor</string>
     <string name="vm_report_not_found">Report not found</string>
     <string name="vm_connection_lost">Connection lost \u2014 messages may be delayed</string>
     <string name="vm_reconnecting">Reconnecting\u2026</string>

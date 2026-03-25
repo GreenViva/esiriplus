@@ -2,6 +2,7 @@ package com.esiri.esiriplus.feature.patient.viewmodel
 
 import android.app.Application
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.util.Base64
@@ -75,11 +76,20 @@ class ConsultationRequestViewModel @Inject constructor(
     private val patientProfileDao: PatientProfileDao,
     private val authRepository: AuthRepository,
     application: android.app.Application,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val agentId: String? = application
         .getSharedPreferences("agent_prefs", android.content.Context.MODE_PRIVATE)
         .getString("agent_id", null)
+
+    /** Substitute follow-up context (populated from SubstituteFollowUpRoute via SavedStateHandle) */
+    private val isSubstituteFollowUp: Boolean =
+        savedStateHandle.get<Boolean>("isSubstituteFollowUp") ?: false
+    private val parentConsultationId: String? =
+        savedStateHandle.get<String>("parentConsultationId")
+    private val originalDoctorId: String? =
+        savedStateHandle.get<String>("originalDoctorId")
 
     private val _uiState = MutableStateFlow(ConsultationRequestUiState())
     val uiState: StateFlow<ConsultationRequestUiState> = _uiState.asStateFlow()
@@ -329,6 +339,10 @@ class ConsultationRequestViewModel @Inject constructor(
                 patientAllergies = state.patientAllergies,
                 patientChronicConditions = state.patientChronicConditions,
                 agentId = agentId,
+                isFollowUp = isSubstituteFollowUp,
+                parentConsultationId = parentConsultationId,
+                isSubstituteFollowUp = isSubstituteFollowUp,
+                originalDoctorId = originalDoctorId,
             )) {
                 is Result.Success -> {
                     val request = result.data

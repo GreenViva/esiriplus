@@ -204,12 +204,16 @@ class FollowUpRequestViewModel @Inject constructor(
                     startCountdown(request.requestId)
                 }
                 is Result.Error -> {
-                    Log.e(TAG, "Failed to create follow-up request", result.exception)
+                    val msg = result.message ?: result.exception.message ?: ""
+                    Log.e(TAG, "Failed to create follow-up request: $msg", result.exception)
+                    // Doctor unavailable/in-session → show choice dialog (same as EXPIRED)
+                    val isDoctorUnavailable = msg.contains("not currently available", ignoreCase = true)
+                        || msg.contains("in a session", ignoreCase = true)
+                        || msg.contains("doctor_in_session", ignoreCase = true)
                     _uiState.update {
                         it.copy(
-                            status = FollowUpStatus.ERROR,
-                            errorMessage = result.message ?: result.exception.message
-                                ?: "Failed to send follow-up request",
+                            status = if (isDoctorUnavailable) FollowUpStatus.EXPIRED else FollowUpStatus.ERROR,
+                            errorMessage = if (isDoctorUnavailable) null else msg.ifBlank { "Failed to send follow-up request" },
                         )
                     }
                 }

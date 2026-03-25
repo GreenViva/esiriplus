@@ -69,6 +69,16 @@ import kotlinx.serialization.Serializable
     val doctorId: String,
     val serviceType: String,
 )
+@Serializable data class SubstituteFollowUpRoute(
+    val parentConsultationId: String,
+    val originalDoctorId: String,
+    val serviceType: String,
+    /** Alias for serviceType so FindDoctorViewModel can read it from SavedStateHandle */
+    val serviceCategory: String = "",
+    val serviceTier: String = "ECONOMY",
+    val serviceDurationMinutes: Int = 15,
+    val isSubstituteFollowUp: Boolean = true,
+)
 
 // ── Navigation graph ──────────────────────────────────────────────────────────
 
@@ -253,7 +263,8 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
 
         // ── Follow-up waiting ─────────────────────────────────────────────────
-        composable<FollowUpWaitingRoute> {
+        composable<FollowUpWaitingRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<FollowUpWaitingRoute>()
             FollowUpWaitingScreen(
                 onAccepted = { consultationId ->
                     navController.navigate(PatientConsultationRoute(consultationId)) {
@@ -261,6 +272,52 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                     }
                 },
                 onBack = { navController.popBackStack() },
+                onBookAppointment = {
+                    navController.navigate(
+                        BookAppointmentRoute(
+                            doctorId = route.doctorId,
+                            serviceCategory = route.serviceType,
+                            servicePriceAmount = 0,
+                            serviceDurationMinutes = 15,
+                        ),
+                    )
+                },
+                onRequestSubstitute = {
+                    navController.navigate(
+                        SubstituteFollowUpRoute(
+                            parentConsultationId = route.parentConsultationId,
+                            originalDoctorId = route.doctorId,
+                            serviceType = route.serviceType,
+                            serviceCategory = route.serviceType,
+                        ),
+                    )
+                },
+            )
+        }
+
+        // ── Substitute follow-up (find another doctor for a follow-up) ──────
+        composable<SubstituteFollowUpRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<SubstituteFollowUpRoute>()
+            FindDoctorScreen(
+                servicePriceAmount = 0,
+                serviceDurationMinutes = route.serviceDurationMinutes,
+                serviceTier = route.serviceTier,
+                onBookAppointment = { doctorId ->
+                    navController.navigate(
+                        BookAppointmentRoute(
+                            doctorId = doctorId,
+                            serviceCategory = route.serviceType,
+                            servicePriceAmount = 0,
+                            serviceDurationMinutes = route.serviceDurationMinutes,
+                            serviceTier = route.serviceTier,
+                        ),
+                    )
+                },
+                onNavigateToConsultation = { consultationId ->
+                    navController.navigate(PatientConsultationRoute(consultationId)) {
+                        popUpTo<PatientHomeRoute> { inclusive = false }
+                    }
+                },
             )
         }
 

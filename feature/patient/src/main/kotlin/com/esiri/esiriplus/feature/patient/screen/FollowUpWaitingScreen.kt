@@ -24,8 +24,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -52,6 +54,8 @@ private val RoyalGold = Color(0xFFF59E0B)
 fun FollowUpWaitingScreen(
     onAccepted: (consultationId: String) -> Unit,
     onBack: () -> Unit,
+    onBookAppointment: () -> Unit = {},
+    onRequestSubstitute: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: FollowUpRequestViewModel = hiltViewModel(),
 ) {
@@ -115,18 +119,22 @@ fun FollowUpWaitingScreen(
                         AcceptedContent()
                     }
                     FollowUpStatus.REJECTED -> {
-                        TerminalContent(
+                        DoctorUnavailableContent(
                             message = stringResource(R.string.followup_rejected),
                             icon = Icons.Filled.Close,
                             iconTint = Color(0xFFEF4444),
+                            onBookAppointment = onBookAppointment,
+                            onRequestSubstitute = onRequestSubstitute,
                             onGoBack = onBack,
                         )
                     }
                     FollowUpStatus.EXPIRED -> {
-                        TerminalContent(
+                        DoctorUnavailableContent(
                             message = stringResource(R.string.followup_expired),
                             icon = Icons.Filled.Schedule,
                             iconTint = Color(0xFFF59E0B),
+                            onBookAppointment = onBookAppointment,
+                            onRequestSubstitute = onRequestSubstitute,
                             onGoBack = onBack,
                         )
                     }
@@ -291,6 +299,94 @@ private fun TerminalContent(
             Text(
                 text = stringResource(R.string.followup_go_back),
                 fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DoctorUnavailableContent(
+    message: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconTint: Color,
+    onBookAppointment: () -> Unit,
+    onRequestSubstitute: () -> Unit,
+    onGoBack: () -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .background(iconTint.copy(alpha = 0.12f), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(48.dp),
+            )
+        }
+        Spacer(Modifier.height(20.dp))
+        Text(
+            text = message,
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.followup_unavailable_prompt),
+            color = Color.Black,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(24.dp))
+
+        // Book Appointment — outlined / secondary
+        OutlinedButton(
+            onClick = onBookAppointment,
+            modifier = Modifier.fillMaxWidth(0.8f),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = BrandTeal),
+        ) {
+            Text(
+                text = stringResource(R.string.followup_book_appointment),
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black,
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // Request Another Doctor — filled / primary
+        Button(
+            onClick = onRequestSubstitute,
+            modifier = Modifier.fillMaxWidth(0.8f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BrandTeal,
+                contentColor = Color.White,
+            ),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.followup_request_another_doctor),
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Go Back — small text button
+        TextButton(onClick = onGoBack) {
+            Text(
+                text = stringResource(R.string.followup_go_back),
+                color = Color.Black,
+                fontSize = 13.sp,
             )
         }
     }
