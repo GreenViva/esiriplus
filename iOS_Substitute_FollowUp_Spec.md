@@ -273,3 +273,54 @@ SHOW CHOICE states:
 - [ ] `original_doctor_id` must match parent consultation's doctor (server validates)
 - [ ] Normal follow-up flow (doctor online + accepts) still works unchanged
 - [ ] Normal consultation flow (non-follow-up) still works unchanged
+- [ ] Substitute doctor can END the consultation without errors
+- [ ] After ending, two earnings rows exist in doctor_earnings for the same consultation_id
+
+---
+
+## 11. Backend Migrations Applied (DO NOT re-run)
+
+The following migrations are already deployed on the shared Supabase instance. iOS does NOT need to run these — they are listed for reference only.
+
+### Migration: `20260326200000_substitute_followup_support.sql`
+- Added `is_substitute_follow_up BOOLEAN DEFAULT FALSE` to `consultation_requests` and `consultations`
+- Added `original_doctor_id UUID` to `consultation_requests` and `consultations`
+- Updated `create_consultation_with_cleanup` RPC with `p_is_substitute_follow_up` and `p_original_doctor_id` params
+- Changed `doctor_earnings` unique constraint from `UNIQUE(consultation_id)` to `UNIQUE(doctor_id, consultation_id)`
+- Created earnings trigger with 60/40 split logic
+
+### Migration: `20260326210000_fix_substitute_earnings_conflict.sql`
+- Fixed `fn_auto_create_doctor_earning()` trigger to use `ON CONFLICT (doctor_id, consultation_id)` instead of the old `ON CONFLICT (consultation_id)` which no longer exists
+
+### Critical Backend Detail:
+The `doctor_earnings` table now has a **composite unique constraint** on `(doctor_id, consultation_id)` instead of just `(consultation_id)`. This allows two earnings rows per consultation — one for the original doctor (60%) and one for the substitute doctor (40%). All `ON CONFLICT` clauses in triggers use this composite key.
+
+---
+
+## 12. Edge Function Changes (Already Deployed)
+
+### `handle-consultation-request` changes:
+1. `CreateRequest` interface accepts `is_substitute_follow_up` and `original_doctor_id`
+2. Follow-up validation skips same-doctor check when `is_substitute_follow_up = true`
+3. Validates `original_doctor_id` matches parent consultation's doctor
+4. Push notification title: "Follow-up Patient Request" (vs "Follow-up Request (Royal)" for normal follow-ups)
+5. Push notification body: "Follow-up patient calling — {service_type} consultation. Respond within 60s."
+6. New fields passed through to `consultation_requests` insert, RPC call, and fallback insert
+7. `consultation_fee = 0` for all follow-ups (including substitute)
+
+### `doctor_availability` check behavior:
+- Normal consultations: blocked if doctor is offline (`is_available = false`)
+- Follow-up consultations (both normal and substitute): **also blocked** if doctor is offline
+- The iOS app should detect the error message "Doctor is not currently available" and show the choice dialog immediately (no 60-second wait)
+
+---
+
+## 13. Summary of What iOS Needs to Implement
+
+| Component | What to Do |
+|-----------|-----------|
+| **Follow-up waiting screen** | Add choice dialog (Book Appointment / Request Another Doctor) for EXPIRED, REJECTED, and doctor-unavailable errors |
+| **Error detection** | Match "not currently available" or "in a session" in error messages → show choice immediately |
+| **Find Doctor (substitute mode)** | Reuse existing doctor list screen with `servicePriceAmount = 0`, pass `isSubstituteFollowUp`, `parentConsultationId`, `originalDoctorId` |
+| **Consultation request** | Add `is_substitute_follow_up` and `original_doctor_id` fields to the create request JSON |
+| **Everything else** | No changes — earnings, notifications, and validation are handled server-side |
