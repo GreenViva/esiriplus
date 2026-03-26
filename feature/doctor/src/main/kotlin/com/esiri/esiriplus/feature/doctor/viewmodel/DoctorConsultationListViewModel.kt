@@ -123,6 +123,7 @@ class DoctorConsultationListViewModel @Inject constructor(
             originalDurationMinutes = originalDurationMinutes,
             createdAt = parseTimestamp(createdAt) ?: now,
             updatedAt = parseTimestamp(updatedAt) ?: now,
+            parentConsultationId = parentConsultationId,
         )
     }
 

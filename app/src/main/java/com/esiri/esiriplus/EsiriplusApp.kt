@@ -1,6 +1,7 @@
 package com.esiri.esiriplus
 
 import android.app.Application
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
@@ -62,6 +63,7 @@ class EsiriplusApp : Application(), Configuration.Provider {
                 description = ctx.getString(R.string.channel_incoming_request_description)
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             notificationManager.createNotificationChannel(incomingChannel)
 

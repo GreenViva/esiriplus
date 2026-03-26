@@ -35,6 +35,7 @@ data class ConsultationEntity(
     @ColumnInfo(defaultValue = "TANZANIA") val serviceRegion: String = "TANZANIA",
     val followUpExpiry: Long? = null,
     @ColumnInfo(defaultValue = "0") val isPremium: Boolean = false,
+    val parentConsultationId: String? = null,
 ) {
     companion object {
         const val DEFAULT_SESSION_DURATION = 15

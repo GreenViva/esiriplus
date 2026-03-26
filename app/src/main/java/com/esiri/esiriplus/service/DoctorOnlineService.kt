@@ -195,6 +195,7 @@ class DoctorOnlineService : Service() {
                             stopRinging()
                             stopVibration()
                             overlayBubbleManager.resetPulse()
+                            dismissIncomingRequestNotification(event.requestId)
                         }
                     }
                 }
@@ -284,11 +285,11 @@ class DoctorOnlineService : Service() {
             putExtra(OverlayBubbleManager.EXTRA_ACTION, OverlayBubbleManager.ACTION_INCOMING_REQUEST)
             putExtra(OverlayBubbleManager.EXTRA_REQUEST_ID, requestId)
         }
-        val pendingIntent = PendingIntent.getActivity(
+        val fullScreenIntent = PendingIntent.getActivity(
             this,
             requestId.hashCode(),
             tapIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
         val ctx = LocaleHelper.getLocalizedContext(this)
@@ -297,9 +298,13 @@ class DoctorOnlineService : Service() {
             .setContentTitle(ctx.getString(R.string.notification_new_consultation))
             .setContentText(ctx.getString(R.string.notification_patient_waiting))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setOngoing(true)
+            .setAutoCancel(false)
+            .setTimeoutAfter(60_000)
+            .setContentIntent(fullScreenIntent)
+            .setFullScreenIntent(fullScreenIntent, true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
 
         try {
@@ -310,6 +315,14 @@ class DoctorOnlineService : Service() {
         } catch (e: SecurityException) {
             Log.w(TAG, "POST_NOTIFICATIONS permission not granted", e)
         }
+    }
+
+    private fun dismissIncomingRequestNotification(requestId: String) {
+        try {
+            NotificationManagerCompat.from(this).cancel(
+                INCOMING_NOTIFICATION_ID_BASE + requestId.hashCode(),
+            )
+        } catch (_: Exception) { }
     }
 
     private fun startRinging() {

@@ -54,11 +54,21 @@ class DoctorRegistrationViewModel @Inject constructor(
 
     fun onContinue() {
         val state = _uiState.value
-        if (state.currentStep == 8) {
-            completeRegistration()
-        } else {
-            _uiState.update { it.copy(currentStep = (it.currentStep + 1).coerceAtMost(8)) }
+        when {
+            // Step 1: send OTP instead of advancing (sendOtp sets currentStep = 2 on success)
+            state.currentStep == 1 && !state.otpVerified -> {
+                sendOtp()
+                return
+            }
+            // Step 2 (OTP): verify OTP — do not advance manually
+            state.currentStep == 2 && !state.otpVerified -> return
+            // Last step: complete registration
+            state.currentStep == 9 -> {
+                completeRegistration()
+                return
+            }
         }
+        _uiState.update { it.copy(currentStep = (it.currentStep + 1).coerceAtMost(9)) }
     }
 
     // OTP: Send
@@ -381,7 +391,7 @@ data class DoctorRegistrationUiState(
     val biometricEnrolled: Boolean = false,
     val deviceAlreadyBound: Boolean = false,
 ) {
-    val totalSteps: Int get() = 8
+    val totalSteps: Int get() = 9
 
     val isCurrentStepValid: Boolean
         get() = when (currentStep) {
@@ -390,19 +400,20 @@ data class DoctorRegistrationUiState(
                 password.any { it.isUpperCase() } &&
                 password.any { it.isDigit() } &&
                 confirmPassword == password
-            2 -> true // photo is optional
-            3 -> fullName.trim().length in 2..100 &&
+            2 -> otpVerified // OTP must be verified to continue
+            3 -> true // photo is optional
+            4 -> fullName.trim().length in 2..100 &&
                 phone.trim().length in 7..15 &&
                 phone.trim().all { it.isDigit() } &&
                 specialty.isNotBlank() &&
                 (specialty != "Specialist" || customSpecialty.isNotBlank())
-            4 -> selectedLanguages.isNotEmpty()
-            5 -> licenseNumber.isNotBlank() &&
+            5 -> selectedLanguages.isNotEmpty()
+            6 -> licenseNumber.isNotBlank() &&
                 bio.trim().length in 10..1000 &&
                 (yearsExperience.toIntOrNull()?.let { it in 0..70 } ?: false)
-            6 -> selectedServices.isNotEmpty()
-            7 -> licenseDocumentUri != null
-            8 -> biometricEnrolled
+            7 -> selectedServices.isNotEmpty()
+            8 -> licenseDocumentUri != null
+            9 -> biometricEnrolled
             else -> false
         }
 

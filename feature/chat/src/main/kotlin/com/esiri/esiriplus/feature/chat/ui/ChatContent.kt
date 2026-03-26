@@ -1,9 +1,11 @@
 package com.esiri.esiriplus.feature.chat.ui
 
-import android.content.Intent
-import android.net.Uri
+import android.annotation.SuppressLint
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -43,6 +48,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +56,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -59,8 +68,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -87,6 +100,7 @@ fun ChatContent(
     onTypingChanged: (Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    previousSessionMessages: List<MessageData> = emptyList(),
     error: String? = null,
     sendError: String? = null,
     isInputEnabled: Boolean = true,
@@ -98,14 +112,19 @@ fun ChatContent(
 ) {
     var textInput by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    var viewingImageUrl by remember { mutableStateOf<String?>(null) }
+    var viewingDocumentUrl by remember { mutableStateOf<String?>(null) }
 
     // 5.5: Only auto-scroll if user is near the bottom
+    val totalItems = previousSessionMessages.size +
+        (if (previousSessionMessages.isNotEmpty()) 1 else 0) + // separator
+        messages.size
     LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
+        if (totalItems > 0) {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val isNearBottom = lastVisibleItem >= messages.size - 3
+            val isNearBottom = lastVisibleItem >= totalItems - 3
             if (isNearBottom || messages.size <= 1) {
-                listState.animateScrollToItem(messages.size - 1)
+                listState.animateScrollToItem(totalItems - 1)
             }
         }
     }
@@ -156,9 +175,12 @@ fun ChatContent(
             } else {
                 MessageList(
                     messages = messages,
+                    previousSessionMessages = previousSessionMessages,
                     currentUserId = currentUserId,
                     otherPartyTyping = otherPartyTyping,
                     listState = listState,
+                    onImageClick = { viewingImageUrl = it },
+                    onDocumentClick = { viewingDocumentUrl = it },
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -228,6 +250,22 @@ fun ChatContent(
                 DisabledInputBar()
             }
         }
+
+        // Fullscreen image viewer (pinch-to-zoom, no save/share)
+        viewingImageUrl?.let { url ->
+            FullscreenImageViewer(
+                imageUrl = url,
+                onDismiss = { viewingImageUrl = null },
+            )
+        }
+
+        // In-app document viewer (no download)
+        viewingDocumentUrl?.let { url ->
+            InAppDocumentViewer(
+                documentUrl = url,
+                onDismiss = { viewingDocumentUrl = null },
+            )
+        }
     }
 }
 
@@ -274,9 +312,12 @@ private fun ChatTopBar(
 @Composable
 private fun MessageList(
     messages: List<MessageData>,
+    previousSessionMessages: List<MessageData>,
     currentUserId: String,
     otherPartyTyping: Boolean,
     listState: LazyListState,
+    onImageClick: (String) -> Unit,
+    onDocumentClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -287,6 +328,23 @@ private fun MessageList(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(bottom = 8.dp),
     ) {
+        if (previousSessionMessages.isNotEmpty()) {
+            items(
+                items = previousSessionMessages,
+                key = { "prev_${it.messageId}" },
+            ) { message ->
+                MessageBubble(
+                    message = message,
+                    isOwn = message.senderId == currentUserId,
+                    dimmed = true,
+                    onImageClick = onImageClick,
+                    onDocumentClick = onDocumentClick,
+                )
+            }
+            item(key = "session_separator") {
+                PreviousSessionSeparator()
+            }
+        }
         items(
             items = messages,
             key = { it.messageId },
@@ -294,6 +352,8 @@ private fun MessageList(
             MessageBubble(
                 message = message,
                 isOwn = message.senderId == currentUserId,
+                onImageClick = onImageClick,
+                onDocumentClick = onDocumentClick,
             )
         }
         if (otherPartyTyping) {
@@ -305,12 +365,46 @@ private fun MessageList(
 }
 
 @Composable
+private fun PreviousSessionSeparator() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color(0xFFD1D5DB)),
+        )
+        Text(
+            text = stringResource(R.string.chat_previous_session),
+            modifier = Modifier.padding(horizontal = 12.dp),
+            color = Color(0xFF6B7280),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color(0xFFD1D5DB)),
+        )
+    }
+}
+
+@Composable
 private fun MessageBubble(
     message: MessageData,
     isOwn: Boolean,
+    dimmed: Boolean = false,
+    onImageClick: (String) -> Unit = {},
+    onDocumentClick: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
-    val bubbleColor = if (isOwn) BrandTeal else Color.White
+    val alpha = if (dimmed) 0.55f else 1f
+    val bubbleColor = if (isOwn) BrandTeal.copy(alpha = alpha) else Color.White.copy(alpha = alpha)
     val textColor = if (isOwn) Color.White else Color.Black
     val alignment = if (isOwn) Alignment.End else Alignment.Start
     val shape = if (isOwn) {
@@ -348,28 +442,18 @@ private fun MessageBubble(
                             .fillMaxWidth()
                             .heightIn(min = 100.dp, max = 200.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(message.attachmentUrl))
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {}
-                            },
+                            .clickable { onImageClick(message.attachmentUrl!!) },
                         contentScale = ContentScale.Crop,
                     )
                     Spacer(Modifier.height(4.dp))
                 } else if (hasAttachment) {
-                    // Document / PDF attachment
+                    // Document / PDF attachment (view in-app, no download)
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = if (isOwn) Color.White.copy(alpha = 0.15f) else Color(0xFFF3F4F6),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(message.attachmentUrl))
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {}
-                            },
+                            .clickable { onDocumentClick(message.attachmentUrl!!) },
                     ) {
                         Row(
                             modifier = Modifier.padding(10.dp),
@@ -392,7 +476,7 @@ private fun MessageBubble(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
-                                    text = stringResource(R.string.chat_tap_to_open),
+                                    text = stringResource(R.string.chat_tap_to_view),
                                     color = if (isOwn) Color.White.copy(alpha = 0.7f) else Color(0xFF6B7280),
                                     fontSize = 11.sp,
                                 )
@@ -615,5 +699,129 @@ private fun formatMessageTime(epochMillis: Long): String {
             .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
     } catch (_: Exception) {
         ""
+    }
+}
+
+/** Fullscreen image viewer with pinch-to-zoom. No save/share/download. */
+@Composable
+private fun FullscreenImageViewer(
+    imageUrl: String,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y,
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            offset = if (scale > 1f) {
+                                Offset(offset.x + pan.x, offset.y + pan.y)
+                            } else {
+                                Offset.Zero
+                            }
+                        }
+                    },
+                contentScale = ContentScale.Fit,
+            )
+
+            // Close button
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), CircleShape),
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.chat_back),
+                    tint = Color.White,
+                )
+            }
+        }
+    }
+}
+
+/** In-app document viewer using WebView with Google Docs viewer. No download. */
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+private fun InAppDocumentViewer(
+    documentUrl: String,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+        ) {
+            // Top bar with close button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(horizontal = 4.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.chat_back),
+                        tint = Color.Black,
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.chat_document),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                )
+            }
+
+            // WebView renders the document via Google Docs Viewer
+            val viewerUrl = "https://docs.google.com/gview?embedded=true&url=${java.net.URLEncoder.encode(documentUrl, "UTF-8")}"
+            AndroidView(
+                factory = { ctx ->
+                    WebView(ctx).apply {
+                        webViewClient = WebViewClient()
+                        settings.javaScriptEnabled = true
+                        settings.setSupportZoom(true)
+                        settings.builtInZoomControls = true
+                        settings.displayZoomControls = false
+                        // Block downloads
+                        setDownloadListener { _, _, _, _, _ -> }
+                        loadUrl(viewerUrl)
+                    }
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }

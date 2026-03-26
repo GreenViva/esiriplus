@@ -291,24 +291,26 @@ fun DoctorRegistrationScreen(
                     // Step title and subtitle
                     val stepTitle = when (uiState.currentStep) {
                         1 -> stringResource(R.string.doctor_reg_step1_title)
-                        2 -> stringResource(R.string.doctor_reg_step2_title)
-                        3 -> stringResource(R.string.doctor_reg_step3_title)
-                        4 -> stringResource(R.string.doctor_reg_step4_title)
-                        5 -> stringResource(R.string.doctor_reg_step5_title)
-                        6 -> stringResource(R.string.doctor_reg_step6_title)
-                        7 -> stringResource(R.string.doctor_reg_step7_title)
-                        8 -> stringResource(R.string.doctor_reg_step8_title)
+                        2 -> stringResource(R.string.doctor_reg_otp_title)
+                        3 -> stringResource(R.string.doctor_reg_step2_title)
+                        4 -> stringResource(R.string.doctor_reg_step3_title)
+                        5 -> stringResource(R.string.doctor_reg_step4_title)
+                        6 -> stringResource(R.string.doctor_reg_step5_title)
+                        7 -> stringResource(R.string.doctor_reg_step6_title)
+                        8 -> stringResource(R.string.doctor_reg_step7_title)
+                        9 -> stringResource(R.string.doctor_reg_step8_title)
                         else -> ""
                     }
                     val stepSubtitle = when (uiState.currentStep) {
                         1 -> stringResource(R.string.doctor_reg_step1_subtitle)
-                        2 -> stringResource(R.string.doctor_reg_step2_subtitle)
-                        3 -> stringResource(R.string.doctor_reg_step3_subtitle)
-                        4 -> stringResource(R.string.doctor_reg_step4_subtitle)
-                        5 -> stringResource(R.string.doctor_reg_step5_subtitle)
-                        6 -> stringResource(R.string.doctor_reg_step6_subtitle)
-                        7 -> stringResource(R.string.doctor_reg_step7_subtitle)
-                        8 -> stringResource(R.string.doctor_reg_step8_subtitle)
+                        2 -> stringResource(R.string.doctor_reg_otp_subtitle, uiState.email)
+                        3 -> stringResource(R.string.doctor_reg_step2_subtitle)
+                        4 -> stringResource(R.string.doctor_reg_step3_subtitle)
+                        5 -> stringResource(R.string.doctor_reg_step4_subtitle)
+                        6 -> stringResource(R.string.doctor_reg_step5_subtitle)
+                        7 -> stringResource(R.string.doctor_reg_step6_subtitle)
+                        8 -> stringResource(R.string.doctor_reg_step7_subtitle)
+                        9 -> stringResource(R.string.doctor_reg_step8_subtitle)
                         else -> ""
                     }
                     Text(
@@ -332,18 +334,19 @@ fun DoctorRegistrationScreen(
                     // Step content
                     when (uiState.currentStep) {
                         1 -> Step1Content(uiState, viewModel)
-                        2 -> Step2Content(uiState) {
+                        2 -> OtpVerificationContent(uiState, viewModel)
+                        3 -> Step2Content(uiState) {
                             photoPickerLauncher.launch(
                                 androidx.activity.result.PickVisualMediaRequest(
                                     ActivityResultContracts.PickVisualMedia.ImageOnly,
                                 ),
                             )
                         }
-                        3 -> Step3Content(uiState, viewModel)
-                        4 -> Step4Content(uiState, viewModel)
-                        5 -> Step5Content(uiState, viewModel)
-                        6 -> Step6Content(uiState, viewModel)
-                        7 -> Step7Content(
+                        4 -> Step3Content(uiState, viewModel)
+                        5 -> Step4Content(uiState, viewModel)
+                        6 -> Step5Content(uiState, viewModel)
+                        7 -> Step6Content(uiState, viewModel)
+                        8 -> Step7Content(
                             uiState = uiState,
                             onUploadLicense = {
                                 licenseDocLauncher.launch(arrayOf("application/pdf", "image/*"))
@@ -352,7 +355,7 @@ fun DoctorRegistrationScreen(
                                 certificatesLauncher.launch(arrayOf("application/pdf", "image/*"))
                             },
                         )
-                        8 -> BiometricEnrollmentScreen(
+                        9 -> BiometricEnrollmentScreen(
                             biometricAvailable = uiState.biometricAvailable,
                             biometricEnrolled = uiState.biometricEnrolled,
                             deviceAlreadyBound = uiState.deviceAlreadyBound,
@@ -1607,13 +1610,14 @@ private fun BottomBar(
             } else {
                 Text(
                     text = when (currentStep) {
-                        8 -> stringResource(R.string.doctor_reg_complete_registration)
+                        1 -> stringResource(R.string.doctor_reg_send_code)
+                        9 -> stringResource(R.string.doctor_reg_complete_registration)
                         else -> stringResource(R.string.doctor_reg_continue)
                     },
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
                 )
-                if (currentStep < 8) {
+                if (currentStep < 9) {
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,

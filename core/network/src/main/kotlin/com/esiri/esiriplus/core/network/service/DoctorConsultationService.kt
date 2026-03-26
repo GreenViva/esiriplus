@@ -29,6 +29,7 @@ data class ConsultationRow(
     @SerialName("original_duration_minutes") val originalDurationMinutes: Int = 15,
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String,
+    @SerialName("parent_consultation_id") val parentConsultationId: String? = null,
 )
 
 @Singleton

@@ -214,6 +214,7 @@ fun DoctorConsultationDetailScreen(
 
     ChatContent(
         messages = uiState.messages,
+        previousSessionMessages = uiState.previousSessionMessages,
         isLoading = uiState.isLoading,
         currentUserId = uiState.currentUserId,
         otherPartyTyping = uiState.otherPartyTyping,

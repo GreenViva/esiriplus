@@ -209,11 +209,11 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             putExtra(OverlayBubbleManager.EXTRA_ACTION, OverlayBubbleManager.ACTION_INCOMING_REQUEST)
             putExtra(OverlayBubbleManager.EXTRA_REQUEST_ID, requestId)
         }
-        val pendingIntent = PendingIntent.getActivity(
+        val fullScreenIntent = PendingIntent.getActivity(
             this,
             requestId.hashCode(),
             intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
         val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_REQUEST)
@@ -221,9 +221,13 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             .setContentTitle(ctx.getString(R.string.notification_new_consultation))
             .setContentText(ctx.getString(R.string.notification_patient_waiting))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setOngoing(true)
+            .setAutoCancel(false)
+            .setTimeoutAfter(60_000)
+            .setContentIntent(fullScreenIntent)
+            .setFullScreenIntent(fullScreenIntent, true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
 
         try {

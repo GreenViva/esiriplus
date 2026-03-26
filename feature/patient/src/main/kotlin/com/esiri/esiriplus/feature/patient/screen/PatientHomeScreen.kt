@@ -217,6 +217,7 @@ fun PatientHomeScreen(
                 title = stringResource(R.string.home_reports),
                 subtitle = stringResource(R.string.home_reports_subtitle),
                 onClick = onNavigateToReports,
+                showBadge = uiState.hasUnreadReports,
             )
 
             Spacer(Modifier.height(12.dp))
@@ -596,6 +597,7 @@ private fun DashboardSectionCard(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
+    showBadge: Boolean = false,
 ) {
     OutlinedCard(
         onClick = onClick,
@@ -610,17 +612,27 @@ private fun DashboardSectionCard(
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(44.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        painter = painterResource(iconRes),
-                        contentDescription = null,
-                        tint = BrandTeal,
-                        modifier = Modifier.size(22.dp),
+            Box {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(44.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(iconRes),
+                            contentDescription = null,
+                            tint = BrandTeal,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+                if (showBadge) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(Color.Red, CircleShape)
+                            .align(Alignment.TopEnd),
                     )
                 }
             }

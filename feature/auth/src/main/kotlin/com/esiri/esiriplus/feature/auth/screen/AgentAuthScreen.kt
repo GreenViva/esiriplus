@@ -2,14 +2,17 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -210,15 +213,39 @@ fun AgentAuthScreen(
 
             // Tab content
             Column(modifier = Modifier.animateContentSize()) {
-                when (selectedTab) {
-                    0 -> SignInForm(
-                        isLoading = uiState.isLoading,
-                        onSignIn = viewModel::signIn,
+                if (selectedTab == 1) {
+                    // Step indicator for sign-up
+                    val currentSignUpStep = if (uiState.otpStep) 2 else 1
+                    AgentSignUpStepIndicator(
+                        currentStep = currentSignUpStep,
+                        totalSteps = 2,
                     )
-                    1 -> SignUpForm(
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                if (uiState.otpStep && selectedTab == 1) {
+                    OtpVerificationForm(
+                        email = uiState.pendingEmail,
+                        isVerifying = uiState.otpVerifying,
                         isLoading = uiState.isLoading,
-                        onSignUp = viewModel::signUp,
+                        otpError = uiState.otpError,
+                        resendCooldown = uiState.resendCooldown,
+                        otpSending = uiState.otpSending,
+                        onVerify = viewModel::verifyOtp,
+                        onResend = viewModel::resendOtp,
+                        onBack = viewModel::cancelOtp,
                     )
+                } else {
+                    when (selectedTab) {
+                        0 -> SignInForm(
+                            isLoading = uiState.isLoading,
+                            onSignIn = viewModel::signIn,
+                        )
+                        1 -> SignUpForm(
+                            isLoading = uiState.isLoading || uiState.otpSending,
+                            onSignUp = viewModel::signUp,
+                        )
+                    }
                 }
             }
 
@@ -459,6 +486,199 @@ private fun SignUpForm(
                 color = Color.White,
             )
         }
+    }
+}
+
+@Composable
+private fun AgentSignUpStepIndicator(
+    currentStep: Int,
+    totalSteps: Int,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        for (step in 1..totalSteps) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(
+                        color = if (step <= currentStep) BrandTeal else Color(0xFFE5E7EB),
+                        shape = CircleShape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "$step",
+                    color = if (step <= currentStep) Color.White else Color.Black.copy(alpha = 0.5f),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            if (step < totalSteps) {
+                Box(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(2.dp)
+                        .background(
+                            color = if (step < currentStep) BrandTeal else Color(0xFFE5E7EB),
+                        ),
+                )
+            }
+        }
+    }
+
+    Spacer(Modifier.height(4.dp))
+
+    Text(
+        text = when (currentStep) {
+            1 -> "Step 1: Your Details"
+            2 -> "Step 2: Verify Email"
+            else -> ""
+        },
+        fontSize = 13.sp,
+        color = Color.Black.copy(alpha = 0.6f),
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun OtpVerificationForm(
+    email: String,
+    isVerifying: Boolean,
+    isLoading: Boolean,
+    otpError: String?,
+    resendCooldown: Int,
+    otpSending: Boolean,
+    onVerify: (String) -> Unit,
+    onResend: () -> Unit,
+    onBack: () -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    var otpCode by rememberSaveable { mutableStateOf("") }
+
+    Text(
+        text = "Verify your email",
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        color = Color.Black,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    Spacer(Modifier.height(8.dp))
+
+    Text(
+        text = "We sent a 6-digit code to\n$email",
+        fontSize = 14.sp,
+        color = Color.Black,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    Spacer(Modifier.height(24.dp))
+
+    OutlinedTextField(
+        value = otpCode,
+        onValueChange = { if (it.length <= 6 && it.all { c -> c.isDigit() }) otpCode = it },
+        label = { Text("Verification Code", color = Color.Black) },
+        placeholder = { Text("000000", color = Color.Black.copy(alpha = 0.3f)) },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done,
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+                onVerify(otpCode)
+            },
+        ),
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+        colors = agentTextFieldColors(),
+        isError = otpError != null,
+        supportingText = if (otpError != null) {
+            { Text(otpError, color = Color.Red, fontSize = 12.sp) }
+        } else null,
+    )
+
+    Spacer(Modifier.height(20.dp))
+
+    Button(
+        onClick = { onVerify(otpCode) },
+        enabled = otpCode.length == 6 && !isVerifying && !isLoading,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+    ) {
+        if (isVerifying || isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = Color.White,
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Text(
+                text = "Verify & Sign Up",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.White,
+            )
+        }
+    }
+
+    Spacer(Modifier.height(16.dp))
+
+    // Resend button
+    Button(
+        onClick = onResend,
+        enabled = resendCooldown == 0 && !otpSending,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = BrandTeal,
+            disabledContainerColor = Color.Transparent,
+            disabledContentColor = Color.Black.copy(alpha = 0.4f),
+        ),
+    ) {
+        if (otpSending) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                color = BrandTeal,
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Text(
+                text = if (resendCooldown > 0) "Resend code (${resendCooldown}s)" else "Resend code",
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+            )
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // Back button
+    Button(
+        onClick = onBack,
+        enabled = !isVerifying && !isLoading,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = Color.Black.copy(alpha = 0.6f),
+        ),
+    ) {
+        Text(
+            text = "Go back",
+            fontWeight = FontWeight.Medium,
+            fontSize = 14.sp,
+        )
     }
 }
 

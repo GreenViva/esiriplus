@@ -796,6 +796,13 @@ object DatabaseMigrations {
         }
     }
 
+    // ── Follow-up chat history ────────────────────────────────────────────────
+    val MIGRATION_25_26 = object : Migration(25, 26) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `parentConsultationId` TEXT DEFAULT NULL")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -821,5 +828,6 @@ object DatabaseMigrations {
         MIGRATION_22_23,
         MIGRATION_23_24,
         MIGRATION_24_25,
+        MIGRATION_25_26,
     )
 }

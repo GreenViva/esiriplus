@@ -26,4 +26,5 @@ data class MessageData(
     val createdAt: Long,
     val retryCount: Int = 0,
     val failedAt: Long? = null,
+    val isFromPreviousSession: Boolean = false,
 )

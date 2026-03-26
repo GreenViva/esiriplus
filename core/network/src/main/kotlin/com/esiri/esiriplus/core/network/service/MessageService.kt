@@ -22,6 +22,7 @@ data class MessageRow(
     @SerialName("attachment_url") val attachmentUrl: String? = null,
     @SerialName("is_read") val isRead: Boolean = false,
     @SerialName("created_at") val createdAt: String,
+    @SerialName("is_from_previous_session") val isFromPreviousSession: Boolean = false,
 )
 
 @Singleton
@@ -32,11 +33,13 @@ class MessageService @Inject constructor(
     suspend fun getMessages(
         consultationId: String,
         since: String? = null,
+        includeParent: Boolean = false,
     ): ApiResult<List<MessageRow>> {
         val body = buildJsonObject {
             put("action", "get")
             put("consultation_id", consultationId)
             if (since != null) put("since", since)
+            if (includeParent) put("include_parent", true)
         }
         return safeApiCall {
             val raw = edgeFunctionClient.invoke(FUNCTION_NAME, body).getOrThrow()

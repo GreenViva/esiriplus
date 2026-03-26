@@ -424,6 +424,7 @@ class DoctorDashboardViewModel @Inject constructor(
                         requestExpiresAt = parseInstantToMillis(row.requestExpiresAt) ?: (now + 3600_000),
                         createdAt = parseInstantToMillis(row.createdAt) ?: now,
                         updatedAt = parseInstantToMillis(row.updatedAt) ?: now,
+                        parentConsultationId = row.parentConsultationId,
                     )
                 }
                 consultationDao.insertAll(entities)

@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -35,8 +36,18 @@ class ReportDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ReportDetailUiState())
     val uiState: StateFlow<ReportDetailUiState> = _uiState.asStateFlow()
 
+    private val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
     init {
+        markAsRead()
         loadReport()
+    }
+
+    private fun markAsRead() {
+        if (reportId.isBlank()) return
+        val readIds = (prefs.getStringSet(KEY_READ_REPORT_IDS, emptySet()) ?: emptySet()).toMutableSet()
+        readIds.add(reportId)
+        prefs.edit().putStringSet(KEY_READ_REPORT_IDS, readIds).apply()
     }
 
     private fun loadReport() {
@@ -70,5 +81,7 @@ class ReportDetailViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "ReportDetailVM"
+        private const val PREFS_NAME = "report_read_prefs"
+        private const val KEY_READ_REPORT_IDS = "read_report_ids"
     }
 }

@@ -35,6 +35,8 @@
     <string name="chat_attached_image">Attached image</string>
     <string name="chat_document">Document</string>
     <string name="chat_tap_to_open">Tap to open</string>
+    <string name="chat_tap_to_view">Tap to view</string>
+    <string name="chat_view_only">View only</string>
     <string name="chat_typing">Typing</string>
     <string name="chat_no_messages">No messages yet</string>
     <string name="chat_start_conversation">Start the conversation below</string>
@@ -43,6 +45,7 @@
     <string name="chat_send">Send</string>
     <string name="chat_uploading_attachment">Uploading attachment\u2026</string>
     <string name="chat_messaging_paused">Messaging paused \u2014 session time ended</string>
+    <string name="chat_previous_session">Previous session</string>
 
     <!-- ============================================================ -->
     <!-- CallRechargeModal                                            -->

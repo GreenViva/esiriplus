@@ -76,8 +76,51 @@ async function handleGet(
 
   const since = body.since as string | undefined;
   const limit = Math.min(Math.max(1, Number(body.limit) || 100), 500);
+  const includeParent = body.include_parent === true;
 
   const supabase = getServiceClient();
+
+  // If requested, fetch messages from the parent (previous) consultation first
+  let parentMessages: Record<string, unknown>[] = [];
+  if (includeParent && !since) {
+    const { data: consultation } = await supabase
+      .from("consultations")
+      .select("parent_consultation_id")
+      .eq("consultation_id", consultationId)
+      .single();
+
+    if (consultation?.parent_consultation_id) {
+      // Walk up the chain to collect all ancestor consultation IDs
+      const ancestorIds: string[] = [];
+      let currentParentId: string | null = consultation.parent_consultation_id;
+      while (currentParentId && ancestorIds.length < 10) {
+        ancestorIds.push(currentParentId);
+        const { data: parent } = await supabase
+          .from("consultations")
+          .select("parent_consultation_id")
+          .eq("consultation_id", currentParentId)
+          .single();
+        currentParentId = parent?.parent_consultation_id ?? null;
+      }
+
+      if (ancestorIds.length > 0) {
+        const { data: pMsgs } = await supabase
+          .from("messages")
+          .select("*")
+          .in("consultation_id", ancestorIds)
+          .order("created_at", { ascending: true })
+          .limit(500);
+
+        if (pMsgs) {
+          parentMessages = pMsgs.map((m: Record<string, unknown>) => ({
+            ...m,
+            is_from_previous_session: true,
+          }));
+        }
+      }
+    }
+  }
+
   let query = supabase
     .from("messages")
     .select("*")
@@ -92,7 +135,15 @@ async function handleGet(
     .limit(limit);
 
   if (error) throw error;
-  return successResponse(data ?? [], 200, origin);
+
+  // Merge parent messages (previous sessions) before current messages
+  const currentMessages = (data ?? []).map((m: Record<string, unknown>) => ({
+    ...m,
+    is_from_previous_session: false,
+  }));
+  const allMessages = [...parentMessages, ...currentMessages];
+
+  return successResponse(allMessages, 200, origin);
 }
 
 async function handleSend(

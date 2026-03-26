@@ -42,6 +42,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 data class DoctorChatUiState(
+    val previousSessionMessages: List<MessageData> = emptyList(),
     val messages: List<MessageData> = emptyList(),
     val isLoading: Boolean = true,
     val currentUserId: String = "",
@@ -157,9 +158,11 @@ class DoctorChatViewModel @Inject constructor(
                     }
                     .launchIn(viewModelScope)
 
-                // Fetch ALL remote messages on first load (no since filter)
+                // Fetch ALL remote messages on first load (no since filter).
+                // Always request parent history — the server returns nothing extra
+                // if this consultation has no parent, so it's a safe no-op.
                 Log.d(TAG, "initChat: fetching remote messages")
-                fetchRemoteMessages(fullSync = true)
+                fetchRemoteMessages(fullSync = true, includeParent = true)
 
                 // Subscribe to realtime
                 Log.d(TAG, "initChat: subscribing to realtime")
@@ -240,7 +243,7 @@ class DoctorChatViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fetchRemoteMessages(fullSync: Boolean = false) {
+    private suspend fun fetchRemoteMessages(fullSync: Boolean = false, includeParent: Boolean = false) {
         val since = if (fullSync) {
             null
         } else {
@@ -248,10 +251,12 @@ class DoctorChatViewModel @Inject constructor(
                 Instant.ofEpochMilli(ts).toString()
             }
         }
-        when (val result = messageService.getMessages(consultationId, since)) {
+        when (val result = messageService.getMessages(consultationId, since, includeParent = includeParent && fullSync)) {
             is ApiResult.Success -> {
-                val messages = result.data.map { row ->
-                    MessageData(
+                val previousSession = mutableListOf<MessageData>()
+                val current = mutableListOf<MessageData>()
+                for (row in result.data) {
+                    val msg = MessageData(
                         messageId = row.messageId,
                         consultationId = row.consultationId,
                         senderType = row.senderType,
@@ -262,12 +267,21 @@ class DoctorChatViewModel @Inject constructor(
                         isRead = row.isRead,
                         synced = true,
                         createdAt = parseTimestamp(row.createdAt),
+                        isFromPreviousSession = row.isFromPreviousSession,
                     )
+                    if (row.isFromPreviousSession) {
+                        previousSession.add(msg)
+                    } else {
+                        current.add(msg)
+                    }
                 }
-                if (messages.isNotEmpty()) {
-                    messageRepository.saveMessages(messages)
+                if (current.isNotEmpty()) {
+                    messageRepository.saveMessages(current)
                 }
-                Log.d(TAG, "Fetched ${messages.size} remote messages (since=$since)")
+                if (previousSession.isNotEmpty()) {
+                    _uiState.update { it.copy(previousSessionMessages = previousSession) }
+                }
+                Log.d(TAG, "Fetched ${current.size} current + ${previousSession.size} previous messages (since=$since)")
             }
             else -> Log.w(TAG, "Failed to fetch remote messages: $result")
         }

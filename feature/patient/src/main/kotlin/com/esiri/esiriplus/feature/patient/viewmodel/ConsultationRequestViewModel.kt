@@ -339,10 +339,10 @@ class ConsultationRequestViewModel @Inject constructor(
                 patientAllergies = state.patientAllergies,
                 patientChronicConditions = state.patientChronicConditions,
                 agentId = agentId,
-                isFollowUp = isSubstituteFollowUp,
-                parentConsultationId = parentConsultationId,
+                isFollowUp = if (isSubstituteFollowUp) true else false,
+                parentConsultationId = if (isSubstituteFollowUp) parentConsultationId else null,
                 isSubstituteFollowUp = isSubstituteFollowUp,
-                originalDoctorId = originalDoctorId,
+                originalDoctorId = if (isSubstituteFollowUp) originalDoctorId else null,
             )) {
                 is Result.Success -> {
                     val request = result.data

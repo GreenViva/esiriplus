@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -168,18 +170,28 @@ private fun ReportItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 // Doctor name or consultation ID
-                Text(
-                    text = if (report.doctorName.isNotBlank()) {
-                        "Dr. ${report.doctorName}"
-                    } else {
-                        stringResource(R.string.reports_consultation_report)
-                    },
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp,
-                    color = Color.Black,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!report.isRead) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(BrandTeal, CircleShape),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    Text(
+                        text = if (report.doctorName.isNotBlank()) {
+                            "Dr. ${report.doctorName}"
+                        } else {
+                            stringResource(R.string.reports_consultation_report)
+                        },
+                        fontWeight = if (!report.isRead) FontWeight.Bold else FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Spacer(Modifier.height(4.dp))
 
                 // Category and severity

@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
+import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +34,7 @@ data class PatientHomeUiState(
     val activeConsultation: ConsultationEntity? = null,
     val pendingRatingConsultation: ConsultationEntity? = null,
     val ongoingConsultations: List<ConsultationEntity> = emptyList(),
+    val hasUnreadReports: Boolean = false,
 )
 
 // TODO: Localize hardcoded user-facing strings (error messages).
@@ -43,16 +47,20 @@ class PatientHomeViewModel @Inject constructor(
     private val consultationDao: ConsultationDao,
     private val patientSessionDao: PatientSessionDao,
     private val doctorRatingRepository: DoctorRatingRepository,
+    private val patientReportRepository: PatientReportRepository,
 ) : ViewModel() {
 
-    private val prefs = application.getSharedPreferences("patient_prefs", android.content.Context.MODE_PRIVATE)
+    private val prefs = application.getSharedPreferences("patient_prefs", Context.MODE_PRIVATE)
+    private val reportPrefs = application.getSharedPreferences(REPORT_PREFS_NAME, Context.MODE_PRIVATE)
     private val _soundsEnabled = MutableStateFlow(prefs.getBoolean(KEY_SOUNDS_ENABLED, true))
     private val _pendingRating = MutableStateFlow<ConsultationEntity?>(null)
     private val _isRefreshing = MutableStateFlow(false)
+    private val _hasUnreadReports = MutableStateFlow(false)
 
     init {
         checkPendingRatings()
         syncUnsyncedRatings()
+        checkUnreadReports()
     }
 
     private val ongoingConsultations = patientSessionDao.getSession().flatMapLatest { session ->
@@ -71,8 +79,8 @@ class PatientHomeViewModel @Inject constructor(
         _soundsEnabled,
         consultationDao.getActiveConsultation(),
         _pendingRating,
-        combine(ongoingConsultations, _isRefreshing) { ongoing, refreshing -> ongoing to refreshing },
-    ) { session, soundsEnabled, activeConsultation, pendingRating, (ongoing, refreshing) ->
+        combine(ongoingConsultations, _isRefreshing, _hasUnreadReports) { ongoing, refreshing, unread -> Triple(ongoing, refreshing, unread) },
+    ) { session, soundsEnabled, activeConsultation, pendingRating, (ongoing, refreshing, hasUnread) ->
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -84,6 +92,7 @@ class PatientHomeViewModel @Inject constructor(
                 activeConsultation = activeConsultation,
                 pendingRatingConsultation = pendingRating,
                 ongoingConsultations = ongoing,
+                hasUnreadReports = hasUnread,
             )
         } else {
             PatientHomeUiState(isLoading = false)
@@ -99,9 +108,22 @@ class PatientHomeViewModel @Inject constructor(
             _isRefreshing.value = true
             checkPendingRatings()
             syncUnsyncedRatings()
+            checkUnreadReports()
             // Allow the combined flow to re-emit with updated data
             kotlinx.coroutines.delay(500)
             _isRefreshing.value = false
+        }
+    }
+
+    private fun checkUnreadReports() {
+        viewModelScope.launch {
+            try {
+                val reports = patientReportRepository.fetchReportsFromServer()
+                val readIds = reportPrefs.getStringSet(KEY_READ_REPORT_IDS, emptySet()) ?: emptySet()
+                _hasUnreadReports.value = reports.any { it.reportId !in readIds }
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to check unread reports: ${e.message}")
+            }
         }
     }
 
@@ -154,6 +176,8 @@ class PatientHomeViewModel @Inject constructor(
     companion object {
         private const val TAG = "PatientHomeVM"
         private const val KEY_SOUNDS_ENABLED = "sounds_enabled"
+        private const val REPORT_PREFS_NAME = "report_read_prefs"
+        private const val KEY_READ_REPORT_IDS = "read_report_ids"
 
         /** Keeps prefix + last segment, masks the middle. e.g. "ESR-ABCDEF-P8FP" → "ESR-******-P8FP" */
         internal fun maskPatientId(id: String): String {
