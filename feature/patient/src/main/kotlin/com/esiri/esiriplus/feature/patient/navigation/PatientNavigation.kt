@@ -155,6 +155,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 servicePriceAmount = route.servicePriceAmount,
                 serviceDurationMinutes = route.serviceDurationMinutes,
                 serviceTier = route.serviceTier,
+                onBack = { navController.popBackStack() },
                 onBookAppointment = { doctorId ->
                     navController.navigate(
                         BookAppointmentRoute(
@@ -302,6 +303,7 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 servicePriceAmount = 0,
                 serviceDurationMinutes = route.serviceDurationMinutes,
                 serviceTier = route.serviceTier,
+                onBack = { navController.popBackStack() },
                 onBookAppointment = { doctorId ->
                     navController.navigate(
                         BookAppointmentRoute(

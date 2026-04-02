@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -63,6 +65,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -470,54 +473,209 @@ private fun ActionChip(
 
 @Composable
 private fun StartConsultationCard(onClick: () -> Unit) {
-    OutlinedCard(
-        onClick = onClick,
+    val tealLight = Color(0xFF3DB8A9)
+
+    // Waves radiating around the whole badge every 1.5s
+    val infiniteTransition = rememberInfiniteTransition(label = "consultPulse")
+    val wave1 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "wave1",
+    )
+    val wave2 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, delayMillis = 500, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "wave2",
+    )
+    val wave3 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, delayMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "wave3",
+    )
+    // Stethoscope breathing pulse
+    val iconScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(750, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "iconPulse",
+    )
+
+    Box(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
+        // Wave 1 - rounded rect ripple around the whole badge
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .matchParentSize()
+                .graphicsLayer {
+                    val s = 1f + wave1 * 0.06f
+                    scaleX = s
+                    scaleY = s
+                    alpha = (1f - wave1) * 0.5f
+                }
+                .border(2.dp, BrandTeal, RoundedCornerShape(16.dp)),
+        )
+        // Wave 2
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer {
+                    val s = 1f + wave2 * 0.06f
+                    scaleX = s
+                    scaleY = s
+                    alpha = (1f - wave2) * 0.35f
+                }
+                .border(1.5.dp, BrandTeal, RoundedCornerShape(16.dp)),
+        )
+        // Wave 3
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer {
+                    val s = 1f + wave3 * 0.06f
+                    scaleX = s
+                    scaleY = s
+                    alpha = (1f - wave3) * 0.2f
+                }
+                .border(1.dp, BrandTeal, RoundedCornerShape(16.dp)),
+        )
+
+        // The card
+        Card(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = BrandTeal),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         ) {
-            // Stethoscope icon in circle bg
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(52.dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                BrandTeal,
+                                tealLight.copy(alpha = 0.85f),
+                                BrandTeal,
+                            ),
+                        ),
+                    )
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_stethoscope),
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp),
+                // Stethoscope with circular waves from it
+                Box(
+                    modifier = Modifier.size(72.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    // Circle wave 1
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .graphicsLayer {
+                                val s = 0.5f + wave1 * 0.5f
+                                scaleX = s
+                                scaleY = s
+                                alpha = (1f - wave1) * 0.6f
+                            }
+                            .border(2.dp, Color.White, CircleShape),
+                    )
+                    // Circle wave 2
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .graphicsLayer {
+                                val s = 0.5f + wave2 * 0.5f
+                                scaleX = s
+                                scaleY = s
+                                alpha = (1f - wave2) * 0.45f
+                            }
+                            .border(1.5.dp, Color.White, CircleShape),
+                    )
+                    // Circle wave 3
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .graphicsLayer {
+                                val s = 0.5f + wave3 * 0.5f
+                                scaleX = s
+                                scaleY = s
+                                alpha = (1f - wave3) * 0.3f
+                            }
+                            .border(1.dp, Color.White, CircleShape),
+                    )
+                    // Stethoscope icon (source of waves)
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .graphicsLayer {
+                                scaleX = iconScale
+                                scaleY = iconScale
+                            }
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.2f))
+                            .border(1.5.dp, Color.White.copy(alpha = 0.6f), CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_stethoscope),
+                            contentDescription = null,
+                            modifier = Modifier.size(30.dp),
+                        )
+                    }
+                }
+
+                Spacer(Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.home_start_consultation),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.home_start_consultation_subtitle),
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.85f),
+                    )
+                }
+
+                Spacer(Modifier.width(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.25f))
+                        .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = stringResource(R.string.home_content_desc_start),
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.home_start_consultation),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.home_start_consultation_subtitle),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = stringResource(R.string.home_content_desc_start),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

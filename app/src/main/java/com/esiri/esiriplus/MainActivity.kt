@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -212,7 +213,11 @@ class MainActivity : AppCompatActivity() {
                         val isOnline by viewModel.isOnline
                             .collectAsStateWithLifecycle()
 
-                        Column(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .statusBarsPadding(),
+                        ) {
                             OfflineBanner(isOffline = !isOnline)
 
                             Box(modifier = Modifier.weight(1f)) {
