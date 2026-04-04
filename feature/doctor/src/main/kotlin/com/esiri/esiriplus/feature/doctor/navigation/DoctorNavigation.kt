@@ -101,6 +101,9 @@ fun NavGraphBuilder.doctorGraph(
                 onOpenConsultation = { consultationId ->
                     navController.navigate(DoctorConsultationDetailRoute(consultationId))
                 },
+                onStartCall = { consultationId, callType ->
+                    navController.navigate(DoctorVideoCallRoute(consultationId, callType))
+                },
             )
         }
     }

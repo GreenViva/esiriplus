@@ -33,11 +33,9 @@ class DatabaseInitializer @Inject constructor(
 
         _state.value = DatabaseInitState.Initializing
 
-        // Step 1: Pre-Room downgrade check
-        if (versionChecker.isDowngrade()) {
-            val failed = DatabaseInitState.Failed(DatabaseInitError.VersionDowngrade)
-            _state.value = failed
-            return failed
+        // Step 1: Pre-Room downgrade check — auto-resolve by deleting old DB
+        if (versionChecker.checkAndResolveDowngrade()) {
+            Log.i(TAG, "Database downgrade resolved — Room will recreate on open")
         }
 
         // Step 2: Force Room to open the database (runs migrations + callback.onOpen)

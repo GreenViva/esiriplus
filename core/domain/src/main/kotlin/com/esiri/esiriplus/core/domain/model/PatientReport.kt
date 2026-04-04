@@ -22,5 +22,7 @@ data class PatientReport(
     val followUpRecommended: Boolean = false,
     val furtherNotes: String = "",
     val verificationCode: String = "",
+    val prescribedMedications: String = "",
+    val prescriptionsJson: String = "[]",
     val isRead: Boolean = false,
 )

@@ -360,7 +360,7 @@ function RegionTab({ data }: { data: { name: string; count: number }[] }) {
           Top 10 regions with most consultations
         </p>
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={200}>
             <BarChart data={data} layout="vertical" margin={{ left: 20, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
               <XAxis type="number" tick={{ fontSize: 12, fill: "#9ca3af" }} />
@@ -455,7 +455,7 @@ function DiseaseTab({
             Distribution across service categories
           </p>
           <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={200}>
               <PieChart>
                 <Pie
                   data={serviceData}
@@ -497,7 +497,7 @@ function DiseaseTab({
           </p>
           {severityData.length > 0 ? (
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                 <BarChart data={severityData} margin={{ left: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#9ca3af" }} />
@@ -632,7 +632,7 @@ function TrendsTab({
           </div>
         </div>
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minHeight={200}>
             <LineChart data={data} margin={{ left: 10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
               <XAxis dataKey="week" tick={{ fontSize: 11, fill: "#9ca3af" }} />

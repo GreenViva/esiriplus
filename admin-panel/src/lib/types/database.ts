@@ -1,9 +1,12 @@
 export type PortalRole = "admin" | "hr" | "finance" | "audit";
 
 export interface UserRole {
+  role_id: string;
   user_id: string;
   role_name: PortalRole;
-  created_at: string;
+  granted_by: string | null;
+  granted_at: string;
+  created_at?: string;
 }
 
 export interface DoctorProfile {

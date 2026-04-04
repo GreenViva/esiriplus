@@ -69,9 +69,14 @@ object DatabaseModule {
             .addCallback(callback)
             .addMigrations(*DatabaseMigrations.ALL_MIGRATIONS)
 
+        // Handle missing forward migrations (e.g. dev builds skipping versions)
         if (BuildConfig.DEBUG) {
             builder.fallbackToDestructiveMigration(dropAllTables = true)
         }
+        // Handle downgrades (on-disk version > app version) — the local DB is a cache
+        // of Supabase data so it's safe to recreate. Without this, Room throws
+        // IllegalStateException on downgrade and blocks the app.
+        builder.fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
 
         return builder.build()
     }

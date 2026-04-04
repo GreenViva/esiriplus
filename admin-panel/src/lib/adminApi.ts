@@ -4,35 +4,26 @@
  * Safe for static export (no server-side dependencies).
  */
 
-import { createClient } from "@/lib/supabase/client";
+const SUPABASE_URL = "https://nzzvphhqbcscoetzfzkd.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
-// ── Helper: invoke edge function with auth ──────────────────────────────────
+// ── Helper: invoke edge function with auth (proxied via API route to avoid CORS) ──
 
 async function invokeEdgeFunction<T = Record<string, unknown>>(
   functionName: string,
   body: Record<string, unknown>,
 ): Promise<{ data?: T; error?: string }> {
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) return { error: "Not authenticated" };
-
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+  const res = await fetch("/api/edge-fn", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ functionName, body }),
   });
 
   const json = await res.json().catch(() => null);
 
   if (!res.ok) {
-    return { error: json?.error ?? `Request failed (${res.status})` };
+    return { error: json?.message ?? json?.error ?? `Request failed (${res.status})` };
   }
 
   return { data: json ?? {} };

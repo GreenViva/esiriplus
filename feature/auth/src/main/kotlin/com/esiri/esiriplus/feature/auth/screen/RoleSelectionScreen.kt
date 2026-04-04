@@ -45,6 +45,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 
@@ -60,13 +61,15 @@ fun RoleSelectionScreen(
     onAgentSelected: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
     GradientBackground(modifier = modifier) {
+        ScrollIndicatorBox(scrollState = scrollState) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -318,6 +321,7 @@ fun RoleSelectionScreen(
                 modifier = Modifier.padding(vertical = 16.dp),
             )
         }
+        } // ScrollIndicatorBox
     }
 }
 

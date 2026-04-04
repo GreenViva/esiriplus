@@ -710,7 +710,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
               </button>
               <button
                 onClick={() => handleSuspend(suspendModal)}
-                disabled={loading === suspendModal}
+                disabled={loading === suspendModal || !suspendReason.trim()}
                 className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 disabled:opacity-50 transition-colors"
               >
                 {loading === suspendModal ? "Suspending..." : "Confirm Suspension"}

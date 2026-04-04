@@ -100,7 +100,7 @@ Deno.serve(async (req: Request) => {
     if (auth.role === "doctor") {
       const { data } = await supabase
         .from("consultations")
-        .select("consultation_id, status, video_room_id, patient_session_id, doctor_id")
+        .select("consultation_id, status, video_room_id, patient_session_id, doctor_id, service_tier, follow_up_expiry")
         .eq("consultation_id", consultation_id)
         .eq("doctor_id", auth.userId)
         .single();
@@ -108,7 +108,7 @@ Deno.serve(async (req: Request) => {
     } else {
       const { data } = await supabase
         .from("consultations")
-        .select("consultation_id, status, video_room_id, doctor_id, patient_session_id")
+        .select("consultation_id, status, video_room_id, doctor_id, patient_session_id, service_tier, follow_up_expiry")
         .eq("consultation_id", consultation_id)
         .eq("patient_session_id", auth.sessionId)
         .single();
@@ -119,8 +119,13 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("Consultation not found or you are not a participant");
     }
 
+    // Royal consultations can be called within 14-day follow-up window even after completion
     const CALLABLE_STATUSES = ["active", "in_progress", "awaiting_extension", "grace_period"];
-    if (!CALLABLE_STATUSES.includes(consultation.status)) {
+    const isRoyalFollowUp = consultation.service_tier?.toUpperCase() === "ROYAL"
+      && consultation.status === "completed"
+      && (!consultation.follow_up_expiry || new Date(consultation.follow_up_expiry) > new Date());
+
+    if (!CALLABLE_STATUSES.includes(consultation.status) && !isRoyalFollowUp) {
       throw new ValidationError(`Video calls are only available for active consultations (current: ${consultation.status})`);
     }
 

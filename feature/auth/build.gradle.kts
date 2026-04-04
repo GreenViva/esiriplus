@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:common"))
     implementation(project(":core:network"))
+    implementation(project(":core:ui"))
     implementation(project(":core:database"))
     implementation(libs.room.runtime)
     implementation(libs.kotlinx.serialization.json)

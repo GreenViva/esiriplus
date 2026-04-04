@@ -70,19 +70,24 @@ function LoginForm() {
       return;
     }
 
-    const rolesRes = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/admin-portal-action`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ action: "get_my_roles" }),
-      },
-    );
+    const rolesRes = await fetch("/api/edge-fn", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        functionName: "admin-portal-action",
+        body: { action: "get_my_roles" },
+      }),
+    });
+
+    if (!rolesRes.ok) {
+      const errBody = await rolesRes.json().catch(() => ({}));
+      setError(errBody?.message ?? "Failed to verify roles. Please try again.");
+      setLoading(false);
+      return;
+    }
+
     const rolesJson = await rolesRes.json().catch(() => ({}));
-    const roles: { role_name: string }[] = rolesJson.roles ?? [];
+    const roles: { role_name: string }[] = rolesJson?.roles ?? [];
 
     const allowedRoles = ["admin", "hr", "finance", "audit"];
     const hasAccess = roles.some((r) => allowedRoles.includes(r.role_name));

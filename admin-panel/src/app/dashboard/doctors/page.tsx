@@ -7,10 +7,8 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { specialtyLabel } from "@/lib/utils";
 import type { DoctorProfile } from "@/lib/types/database";
-import DoctorCardActions from "./DoctorCardActions";
 import DoctorSearch from "./DoctorSearch";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
-import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 const PAGE_SIZE = 20;
 
@@ -183,36 +181,34 @@ export default function DoctorsPage() {
       </div>
 
       {/* Doctor cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {doctors.map((doc) => (
-          <div
+          <Link
             key={doc.doctor_id}
-            className="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
+            href={`/dashboard/doctors/detail?id=${doc.doctor_id}`}
+            className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-gray-200 transition-all cursor-pointer"
           >
-            {/* Top row: avatar + name + badge */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                {doc.profile_photo_url ? (
-                  <Image
-                    src={doc.profile_photo_url}
-                    alt=""
-                    width={44}
-                    height={44}
-                    className="h-11 w-11 rounded-full object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="h-11 w-11 rounded-full bg-brand-teal/10 flex items-center justify-center text-base font-semibold text-brand-teal">
-                    {doc.full_name.charAt(0)}
-                  </div>
-                )}
-                <div>
-                  <p className="font-semibold text-gray-900">{doc.full_name}</p>
-                  <p className="text-sm text-gray-400">{specialtyLabel(doc.specialty)}</p>
+            <div className="flex items-center gap-3">
+              {doc.profile_photo_url ? (
+                <Image
+                  src={doc.profile_photo_url}
+                  alt=""
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-full object-cover flex-shrink-0"
+                  unoptimized
+                />
+              ) : (
+                <div className="h-11 w-11 rounded-full bg-brand-teal/10 flex items-center justify-center text-base font-semibold text-brand-teal flex-shrink-0">
+                  {doc.full_name.charAt(0)}
                 </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-gray-900 truncate">{doc.full_name}</p>
+                <p className="text-sm text-gray-500 truncate">{specialtyLabel(doc.specialty)}</p>
               </div>
               <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
                   doc.is_verified
                     ? "bg-green-50 text-green-700"
                     : doc.rejection_reason
@@ -220,84 +216,10 @@ export default function DoctorsPage() {
                       : "bg-amber-50 text-amber-700"
                 }`}
               >
-                {doc.is_verified ? "Approved" : doc.rejection_reason ? "Rejected" : "Pending Verification"}
+                {doc.is_verified ? "Approved" : doc.rejection_reason ? "Rejected" : "Pending"}
               </span>
             </div>
-
-            {/* Details grid */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-4 text-sm">
-              <div>
-                <p className="text-gray-400">Email:</p>
-                <p className="text-gray-900 font-medium truncate">{doc.email}</p>
-              </div>
-              <div>
-                <p className="text-gray-400">Phone:</p>
-                <p className="text-gray-900 font-medium">{doc.phone}</p>
-              </div>
-              <div>
-                <p className="text-gray-400">Country:</p>
-                <p className="text-gray-900 font-medium">{doc.country || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-gray-400">Medical License:</p>
-                <p className="text-gray-900 font-medium">{doc.license_number}</p>
-              </div>
-              <div>
-                <p className="text-gray-400">Experience:</p>
-                <p className="text-gray-900 font-medium">{doc.years_experience} years</p>
-              </div>
-            </div>
-
-            {/* Uploaded Credentials */}
-            {(doc.profile_photo_url || doc.license_document_url || doc.certificates_url) ? (
-              <div className="mb-4 space-y-3">
-                {doc.profile_photo_url && (
-                  <CredentialPreview url={doc.profile_photo_url} label="Profile Photo" />
-                )}
-                {doc.license_document_url && (
-                  <CredentialPreview url={doc.license_document_url} label="Medical License" />
-                )}
-                {doc.certificates_url && (
-                  <CredentialPreview url={doc.certificates_url} label="Certificates" />
-                )}
-              </div>
-            ) : (
-              <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
-                <p className="text-sm text-amber-700 font-medium">No credentials uploaded</p>
-              </div>
-            )}
-
-            {/* Bio */}
-            {doc.bio && (
-              <p className="text-sm text-gray-400 mb-4 line-clamp-2">{doc.bio}</p>
-            )}
-
-            {/* Rejection reason */}
-            {doc.rejection_reason && (
-              <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-100">
-                <p className="text-xs font-medium text-red-700 mb-0.5">Rejection Reason:</p>
-                <p className="text-sm text-red-600">{doc.rejection_reason}</p>
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
-              <Link
-                href={`/dashboard/doctors/detail?id=${doc.doctor_id}`}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                View Credentials
-              </Link>
-              <DownloadPdfButton doctor={doc} />
-              {!doc.is_verified && (
-                <DoctorCardActions doctorId={doc.doctor_id} onComplete={fetchData} />
-              )}
-            </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -374,55 +296,3 @@ function TabLink({
   );
 }
 
-function CredentialPreview({ url, label }: { url: string; label: string }) {
-  const lower = url.toLowerCase();
-  const isPdf = lower.endsWith(".pdf") || lower.includes("pdf");
-  const isImage =
-    lower.endsWith(".jpg") ||
-    lower.endsWith(".jpeg") ||
-    lower.endsWith(".png") ||
-    lower.endsWith(".webp");
-
-  return (
-    <div className="rounded-lg border border-gray-200 overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <p className="text-xs font-medium text-gray-700">{label}</p>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-brand-teal hover:underline"
-        >
-          Open full
-        </a>
-      </div>
-      {isPdf ? (
-        <iframe
-          src={url}
-          className="w-full h-48 bg-white"
-          title={label}
-        />
-      ) : isImage ? (
-        <Image
-          src={url}
-          alt={label}
-          width={400}
-          height={200}
-          className="w-full h-48 object-contain bg-white"
-          unoptimized
-        />
-      ) : (
-        <div className="px-3 py-3">
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-brand-teal hover:underline"
-          >
-            Download {label}
-          </a>
-        </div>
-      )}
-    </div>
-  );
-}

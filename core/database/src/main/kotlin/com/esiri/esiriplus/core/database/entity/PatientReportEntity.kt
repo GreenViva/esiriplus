@@ -49,4 +49,6 @@ data class PatientReportEntity(
     @ColumnInfo(defaultValue = "0") val followUpRecommended: Boolean = false,
     @ColumnInfo(defaultValue = "") val furtherNotes: String = "",
     @ColumnInfo(defaultValue = "") val verificationCode: String = "",
+    @ColumnInfo(defaultValue = "") val prescribedMedications: String = "",
+    @ColumnInfo(defaultValue = "[]") val prescriptionsJson: String = "[]",
 )

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -54,15 +55,17 @@ fun TierSelectionScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFFAFAFA)),
     ) {
+        ScrollIndicatorBox(scrollState = scrollState) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
         ) {
             // ── Top bar ──────────────────────────────────────────────────────
             Row(
@@ -113,6 +116,7 @@ fun TierSelectionScreen(
 
             Spacer(Modifier.height(32.dp))
         }
+        } // ScrollIndicatorBox
     }
 }
 

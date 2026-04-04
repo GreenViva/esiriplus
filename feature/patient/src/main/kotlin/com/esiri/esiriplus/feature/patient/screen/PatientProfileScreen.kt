@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientProfileViewModel
 
@@ -96,10 +97,12 @@ fun PatientProfileScreen(
                 color = BrandTeal,
             )
         } else {
+            val scrollState = rememberScrollState()
+            ScrollIndicatorBox(scrollState = scrollState) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(horizontal = 20.dp, vertical = 24.dp),
             ) {
                 // Top bar
@@ -259,6 +262,7 @@ fun PatientProfileScreen(
 
                 Spacer(Modifier.height(24.dp))
             }
+            } // ScrollIndicatorBox
         }
     }
 }

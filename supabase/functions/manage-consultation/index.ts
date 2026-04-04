@@ -131,7 +131,7 @@ async function fetchConsultation(consultationId: string): Promise<ConsultationRo
     .select(
       "consultation_id, patient_session_id, doctor_id, status, service_type, service_tier, " +
       "consultation_fee, scheduled_end_at, extension_count, grace_period_end_at, " +
-      "original_duration_minutes, session_start_time"
+      "original_duration_minutes, session_start_time, parent_consultation_id"
     )
     .eq("consultation_id", consultationId)
     .single();
@@ -222,14 +222,18 @@ async function handleEnd(
     throw new ValidationError(error.message);
   }
 
-  // Stamp follow-up expiry: Royal = 14 days, Economy = 14 days (1 follow-up only)
-  const tier = (consultation.service_tier ?? "ECONOMY").toUpperCase();
-  const followUpDays = tier === "ROYAL" ? 14 : 14;
-  await supabase
-    .from("consultations")
-    .update({ follow_up_expiry: new Date(Date.now() + followUpDays * 24 * 60 * 60 * 1000).toISOString() })
-    .eq("consultation_id", body.consultation_id)
-    .is("follow_up_expiry", null);
+  // Stamp follow-up expiry: 14-day window for original consultations only.
+  // Economy = 1 follow-up, Royal = unlimited. Follow-up consultations themselves
+  // do NOT get their own window — this prevents Economy patients from chaining
+  // follow-ups (Original → FU1 → FU2 → ...) to bypass the 1-follow-up limit.
+  if (!consultation.parent_consultation_id) {
+    const followUpDays = 14;
+    await supabase
+      .from("consultations")
+      .update({ follow_up_expiry: new Date(Date.now() + followUpDays * 24 * 60 * 60 * 1000).toISOString() })
+      .eq("consultation_id", body.consultation_id)
+      .is("follow_up_expiry", null);
+  }
 
   await insertSystemMessage(body.consultation_id, "Consultation ended by doctor.");
 

@@ -154,7 +154,26 @@ Deno.serve(async (req: Request) => {
       }, 200, origin);
     }
 
+    // Resolve consultation fee from service tiers table
+    const { data: serviceTier } = await supabase
+      .from("service_tiers")
+      .select("price_amount, duration_minutes")
+      .eq("category", body.service_type.toUpperCase())
+      .eq("is_active", true)
+      .single();
+
+    const consultationFee = (body as Record<string, unknown>).price
+      ? Number((body as Record<string, unknown>).price)
+      : (serviceTier?.price_amount ?? 0);
+    const durationMinutes = (body as Record<string, unknown>).duration
+      ? Number((body as Record<string, unknown>).duration)
+      : (serviceTier?.duration_minutes ?? 15);
+
     // Create the consultation — always pending (doctor must accept)
+    const now = new Date();
+    const scheduledEndAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
+    const requestExpiresAt = new Date(now.getTime() + 5 * 60 * 1000); // 5 min to accept
+
     const { data: consultation, error } = await supabase
       .from("consultations")
       .insert({
@@ -165,46 +184,63 @@ Deno.serve(async (req: Request) => {
         chief_complaint: body.chief_complaint.trim(),
         preferred_language: body.preferred_language ?? "en",
         status: "pending",
-        created_at: new Date().toISOString(),
+        consultation_fee: consultationFee,
+        session_duration_minutes: durationMinutes,
+        original_duration_minutes: durationMinutes,
+        scheduled_end_at: scheduledEndAt.toISOString(),
+        request_expires_at: requestExpiresAt.toISOString(),
+        created_at: now.toISOString(),
+        updated_at: now.toISOString(),
       })
       .select("consultation_id, status, created_at")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("[create-consultation] DB insert failed:", JSON.stringify(error));
+      throw new Error(`DB insert failed: ${error.message} | code: ${error.code} | details: ${error.details}`);
+    }
 
     // Calculate remaining available slots for the doctor
     let availableSlots: number | undefined;
     if (assignedDoctorId) {
-      // Send targeted push notification to the specific doctor
-      await supabase.functions.invoke("send-push-notification", {
-        body: {
-          user_id: assignedDoctorId,
-          title: "New Appointment Request",
-          body: `You have a new ${body.service_type} appointment request`,
-          type: "new_consultation",
-          consultation_id: consultation.consultation_id,
-        },
-      });
+      // Send targeted push notification (non-fatal)
+      try {
+        await supabase.functions.invoke("send-push-notification", {
+          body: {
+            user_id: assignedDoctorId,
+            title: "New Appointment Request",
+            body: `You have a new ${body.service_type} appointment request`,
+            type: "new_consultation",
+            consultation_id: consultation.consultation_id,
+          },
+        });
+      } catch (e) {
+        console.warn("Push notification failed (non-fatal):", e);
+      }
 
       const { count } = await supabase
         .from("consultations")
         .select("consultation_id", { count: "exact", head: true })
         .eq("doctor_id", assignedDoctorId)
-        .in("status", ["pending", "active", "in_progress"]);
+        .in("status", ["pending", "active"]);
 
       availableSlots = MAX_DOCTOR_SLOTS - (count ?? 0);
     } else {
-      // Broadcast to all doctors of this specialty
-      await supabase.functions.invoke("send-push-notification", {
-        body: {
-          target: "doctors",
-          service_type: body.service_type,
-          title: "New Consultation Request",
-          body: `New ${body.service_type} consultation pending`,
-          type: "new_consultation",
-          consultation_id: consultation.consultation_id,
-        },
-      });
+      // Broadcast to all doctors of this specialty (non-fatal)
+      try {
+        await supabase.functions.invoke("send-push-notification", {
+          body: {
+            target: "doctors",
+            service_type: body.service_type,
+            title: "New Consultation Request",
+            body: `New ${body.service_type} consultation pending`,
+            type: "new_consultation",
+            consultation_id: consultation.consultation_id,
+          },
+        });
+      } catch (e) {
+        console.warn("Push broadcast failed (non-fatal):", e);
+      }
     }
 
     await logEvent({
@@ -236,6 +272,12 @@ Deno.serve(async (req: Request) => {
       action: "consultation_creation_failed",
       error_message: err instanceof Error ? err.message : String(err),
     });
-    return errorResponse(err, origin);
+    // Temporarily expose error for debugging
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("[create-consultation] CAUGHT:", errMsg);
+    return new Response(
+      JSON.stringify({ error: errMsg, code: "INTERNAL_ERROR", request_id: crypto.randomUUID().slice(0, 8) }),
+      { status: 500, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } },
+    );
   }
 });

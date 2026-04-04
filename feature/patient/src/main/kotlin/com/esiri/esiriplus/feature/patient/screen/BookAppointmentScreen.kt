@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.BookAppointmentViewModel
 import com.esiri.esiriplus.feature.patient.viewmodel.TimeSlot
@@ -86,15 +87,17 @@ fun BookAppointmentScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(colors = listOf(Color.White, MintLight))),
     ) {
+        ScrollIndicatorBox(scrollState = scrollState) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
         ) {
             // Header
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
@@ -199,6 +202,7 @@ fun BookAppointmentScreen(
                 Spacer(Modifier.height(32.dp))
             }
         }
+        } // ScrollIndicatorBox
     }
 }
 

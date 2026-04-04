@@ -63,7 +63,7 @@ private val RoyalGold = Color(0xFFF59E0B)
 fun OngoingConsultationsScreen(
     onBack: () -> Unit,
     onOpenConsultation: (consultationId: String) -> Unit,
-    onRequestFollowUp: (parentConsultationId: String, doctorId: String, serviceType: String) -> Unit = { _, _, _ -> },
+    onRequestFollowUp: (parentConsultationId: String, doctorId: String, serviceType: String, serviceTier: String) -> Unit = { _, _, _, _ -> },
     modifier: Modifier = Modifier,
     viewModel: OngoingConsultationsViewModel = hiltViewModel(),
 ) {
@@ -95,7 +95,7 @@ fun OngoingConsultationsScreen(
                     onClick = {
                         val c = item.consultation
                         followUpItem = null
-                        onRequestFollowUp(c.consultationId, c.doctorId, c.serviceType)
+                        onRequestFollowUp(c.consultationId, c.doctorId, c.serviceType, c.serviceTier)
                     },
                 ) {
                     Text(

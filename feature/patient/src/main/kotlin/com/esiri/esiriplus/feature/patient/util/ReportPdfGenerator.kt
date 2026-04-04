@@ -183,6 +183,15 @@ object ReportPdfGenerator {
         y = drawProseBlock(canvas, planText, bodyPaint, bgPaint, y) { needed -> ensureSpace(needed) }
         y += 16f
 
+        // --- Prescribed Medications ---
+        if (report.prescribedMedications.isNotBlank()) {
+            y = ensureSpace(60f)
+            canvas.drawText("PRESCRIBED MEDICATIONS", MARGIN, y, sectionPaint)
+            y += 18f
+            y = drawProseBlock(canvas, report.prescribedMedications, bodyPaint, bgPaint, y) { needed -> ensureSpace(needed) }
+            y += 16f
+        }
+
         // --- Section 5: Follow-up Instructions ---
         y = ensureSpace(60f)
         canvas.drawText(context.getString(R.string.pdf_section_followup), MARGIN, y, sectionPaint)

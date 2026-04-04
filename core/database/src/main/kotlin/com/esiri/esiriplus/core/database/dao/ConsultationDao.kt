@@ -35,8 +35,14 @@ interface ConsultationDao {
     @Query("SELECT * FROM consultations WHERE doctorId = :doctorId AND status = :status ORDER BY createdAt DESC LIMIT 200")
     fun getByDoctorIdAndStatus(doctorId: String, status: String): Flow<List<ConsultationEntity>>
 
-    @Query("SELECT * FROM consultations WHERE doctorId = :doctorId AND UPPER(serviceTier) = 'ROYAL' ORDER BY createdAt DESC LIMIT 200")
-    fun getRoyalConsultationsForDoctor(doctorId: String): Flow<List<ConsultationEntity>>
+    @Query(
+        "SELECT * FROM consultations WHERE doctorId = :doctorId AND UPPER(serviceTier) = 'ROYAL' " +
+            "AND (followUpExpiry IS NULL " +
+            "OR followUpExpiry > :nowMillis " +
+            "OR LOWER(status) IN ('active', 'awaiting_extension', 'grace_period')) " +
+            "ORDER BY createdAt DESC LIMIT 200",
+    )
+    fun getRoyalConsultationsForDoctor(doctorId: String, nowMillis: Long = System.currentTimeMillis()): Flow<List<ConsultationEntity>>
 
     @Query(
         "SELECT * FROM consultations WHERE LOWER(status) IN ('active', 'awaiting_extension', 'grace_period') " +

@@ -36,6 +36,9 @@ private data class ServerReport(
     @SerialName("follow_up_recommended") val followUpRecommended: Boolean? = null,
     @SerialName("further_notes") val furtherNotes: String? = null,
     @SerialName("treatment_plan") val treatmentPlan: String? = null,
+    val history: String? = null,
+    @SerialName("follow_up_plan") val followUpPlan: String? = null,
+    val prescriptions: kotlinx.serialization.json.JsonElement? = null,
     @SerialName("verification_code") val verificationCode: String? = null,
     @SerialName("created_at") val createdAt: String? = null,
 )
@@ -144,6 +147,8 @@ private fun PatientReportEntity.toDomain(): PatientReport = PatientReport(
     followUpRecommended = followUpRecommended,
     furtherNotes = furtherNotes,
     verificationCode = verificationCode,
+    prescribedMedications = prescribedMedications,
+    prescriptionsJson = prescriptionsJson,
 )
 
 private fun PatientReport.toEntity(): PatientReportEntity = PatientReportEntity(
@@ -168,6 +173,8 @@ private fun PatientReport.toEntity(): PatientReportEntity = PatientReportEntity(
     followUpRecommended = followUpRecommended,
     furtherNotes = furtherNotes,
     verificationCode = verificationCode,
+    prescribedMedications = prescribedMedications,
+    prescriptionsJson = prescriptionsJson,
 )
 
 private fun ServerReport.toDomain(): PatientReport {
@@ -196,9 +203,11 @@ private fun ServerReport.toDomain(): PatientReport {
         presentingSymptoms = presentingSymptoms ?: "",
         diagnosisAssessment = assessment ?: "",
         treatmentPlan = treatmentPlan ?: plan ?: "",
-        followUpInstructions = followUp ?: "",
+        followUpInstructions = followUpPlan ?: followUp ?: "",
         followUpRecommended = followUpRecommended ?: false,
         furtherNotes = furtherNotes ?: "",
         verificationCode = verificationCode ?: "",
+        prescribedMedications = history ?: "",
+        prescriptionsJson = prescriptions?.toString() ?: "[]",
     )
 }

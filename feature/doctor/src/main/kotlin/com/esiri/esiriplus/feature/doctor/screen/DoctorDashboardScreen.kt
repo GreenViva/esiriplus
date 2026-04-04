@@ -43,6 +43,8 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.layout.Layout
@@ -88,6 +90,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.esiri.esiriplus.core.domain.model.Appointment
 import com.esiri.esiriplus.core.ui.LanguageSwitchButton
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.doctor.R
 import java.time.Instant
 import java.time.ZoneId
@@ -663,16 +666,18 @@ private fun DashboardContent(
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 
+    val scrollState = rememberScrollState()
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
         onRefresh = onRefresh,
         state = pullRefreshState,
         modifier = Modifier.fillMaxSize(),
     ) {
+    ScrollIndicatorBox(scrollState = scrollState) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState),
     ) {
         // Top bar
         TopBar(
@@ -730,8 +735,14 @@ private fun DashboardContent(
             modifier = Modifier.padding(horizontal = 12.dp),
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Contact Us
+        ContactUsSection()
+
         Spacer(modifier = Modifier.height(24.dp))
     }
+    } // ScrollIndicatorBox
     }
 }
 
@@ -3037,6 +3048,63 @@ private fun BanNoticeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ContactUsSection() {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "For help contact us",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "+255 663 582 994",
+                fontSize = 12.sp,
+                color = BrandTeal,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable {
+                    context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")))
+                },
+            )
+            Spacer(Modifier.width(16.dp))
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "support@esiri.africa",
+                fontSize = 12.sp,
+                color = BrandTeal,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable {
+                    context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:support@esiri.africa")))
+                },
+            )
         }
     }
 }

@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.viewmodel.AgentAuthViewModel
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -114,11 +115,12 @@ fun AgentAuthScreen(
         },
         modifier = modifier,
     ) { padding ->
+        val scrollState = rememberScrollState()
+        ScrollIndicatorBox(scrollState = scrollState, modifier = Modifier.fillMaxSize().padding(padding)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -224,6 +226,7 @@ fun AgentAuthScreen(
 
             Spacer(Modifier.height(32.dp))
         }
+        } // ScrollIndicatorBox
     }
 }
 

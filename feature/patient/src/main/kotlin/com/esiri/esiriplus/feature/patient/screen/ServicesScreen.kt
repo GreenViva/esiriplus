@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.verticalScroll
@@ -63,6 +64,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.database.entity.ServiceTierEntity
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.ServicesViewModel
 import java.text.NumberFormat
@@ -206,7 +208,10 @@ fun ServicesScreen(
                     }
                 } else {
                     // Service list
+                    val lazyListState = rememberLazyListState()
+                    ScrollIndicatorBox(lazyListState = lazyListState) {
                     LazyColumn(
+                        state = lazyListState,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 20.dp, vertical = 12.dp),
@@ -222,6 +227,7 @@ fun ServicesScreen(
                         }
                         item { Spacer(Modifier.height(8.dp)) }
                     }
+                    } // ScrollIndicatorBox
                 }
             } // PullToRefreshBox
 

@@ -65,6 +65,7 @@ interface CreateRequest {
   agent_id?: string;
   is_substitute_follow_up?: boolean;
   original_doctor_id?: string;
+  region?: string;
 }
 
 interface RespondRequest {
@@ -161,13 +162,41 @@ async function handleCreate(
       }
     }
 
-    // Economy patients: limited to 1 follow-up per consultation
+    // Economy patients: limited to 1 follow-up per original consultation.
+    // Walk up the parent chain to find the root consultation, then count ALL
+    // follow-ups in the tree. This prevents chaining (Original → FU1 → FU2).
     const parentTier = (parentConsultation.service_tier ?? "ECONOMY").toUpperCase();
+
+    // Force follow-up to inherit parent's tier (server-side enforcement)
+    body.service_tier = parentTier;
+
     if (parentTier !== "ROYAL") {
+      // Find the root (original) consultation by walking up the chain
+      let rootId = body.parent_consultation_id!;
+      let depth = 0;
+      while (depth < 10) {
+        const { data: ancestor } = await supabase
+          .from("consultations")
+          .select("consultation_id, parent_consultation_id")
+          .eq("consultation_id", rootId)
+          .single();
+        if (!ancestor?.parent_consultation_id) break;
+        rootId = ancestor.parent_consultation_id;
+        depth++;
+      }
+
+      // Economy: block if the patient is already in a follow-up chain (depth > 0 means
+      // they're requesting a follow-up of a follow-up), OR if the root already has a follow-up
+      if (depth > 0) {
+        throw new ValidationError(
+          "Economy consultations are limited to 1 follow-up. Follow-ups of follow-ups are not allowed."
+        );
+      }
+
       const { count: existingFollowUps } = await supabase
         .from("consultations")
         .select("consultation_id", { count: "exact", head: true })
-        .eq("parent_consultation_id", body.parent_consultation_id!);
+        .eq("parent_consultation_id", rootId);
 
       if ((existingFollowUps ?? 0) >= 1) {
         throw new ValidationError(
@@ -261,6 +290,19 @@ async function handleCreate(
     .single();
 
   if (error) throw error;
+
+  // Best-effort: update patient_sessions.region if provided and currently NULL
+  if (body.region && typeof body.region === "string" && body.region.trim()) {
+    try {
+      await supabase
+        .from("patient_sessions")
+        .update({ region: body.region.trim() })
+        .eq("session_id", auth.sessionId)
+        .is("region", null);
+    } catch {
+      // Non-blocking — region capture failure must never block consultation
+    }
+  }
 
   // Send push notification to the doctor
   try {

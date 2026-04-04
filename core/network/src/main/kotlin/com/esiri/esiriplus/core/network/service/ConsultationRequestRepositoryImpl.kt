@@ -30,6 +30,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
         agentId: String?,
         isSubstituteFollowUp: Boolean,
         originalDoctorId: String?,
+        region: String?,
     ): Result<ConsultationRequest> {
         return service.createRequest(
             doctorId = doctorId,
@@ -48,6 +49,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
             agentId = agentId,
             isSubstituteFollowUp = isSubstituteFollowUp,
             originalDoctorId = originalDoctorId,
+            region = region,
         ).map { it.toDomain() }
             .toDomainResult()
     }

@@ -22,6 +22,7 @@ interface ConsultationRequestRepository {
         agentId: String? = null,
         isSubstituteFollowUp: Boolean = false,
         originalDoctorId: String? = null,
+        region: String? = null,
     ): Result<ConsultationRequest>
 
     /** Doctor accepts a pending request. Returns request with consultationId. */

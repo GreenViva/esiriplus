@@ -40,6 +40,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -137,9 +138,8 @@ fun AccessibilityFab(
             )
         }
 
-        // Draggable FAB
-        FloatingActionButton(
-            onClick = { expanded = !expanded },
+        // Draggable FAB with drag indicator
+        Row(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(
@@ -147,7 +147,6 @@ fun AccessibilityFab(
                     y = with(density) { clampedY.roundToInt().toDp() },
                 )
                 .padding(16.dp)
-                .size(52.dp)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
@@ -155,21 +154,45 @@ fun AccessibilityFab(
                         offsetY = (offsetY + dragAmount.y).coerceIn(-(maxHeightPx - fabSizePx - paddingPx), 0f)
                     }
                 },
-            shape = CircleShape,
-            containerColor = BrandTeal,
-            contentColor = Color.White,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 10.dp,
-            ),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = if (expanded) Icons.Default.Close else Icons.Default.Settings,
-                contentDescription = "Accessibility settings",
-                modifier = Modifier
-                    .size(24.dp)
-                    .rotate(rotation),
-            )
+            // Drag handle pill
+            Surface(
+                shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
+                color = BrandTeal.copy(alpha = 0.85f),
+                shadowElevation = 4.dp,
+                modifier = Modifier.size(width = 20.dp, height = 40.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Drag to move",
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
+
+            // Main FAB button
+            FloatingActionButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier.size(52.dp),
+                shape = RoundedCornerShape(topEnd = 26.dp, bottomEnd = 26.dp, topStart = 4.dp, bottomStart = 4.dp),
+                containerColor = BrandTeal,
+                contentColor = Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 10.dp,
+                ),
+            ) {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Settings,
+                    contentDescription = "Accessibility settings",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .rotate(rotation),
+                )
+            }
         }
     }
 }

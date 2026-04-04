@@ -46,7 +46,12 @@ export default function AuditLogExplorerPage() {
       );
     }
 
-    query.then(({ data, count }) => {
+    query.then(({ data, count, error }) => {
+      if (error && page > 1) {
+        // Range exceeded — reset to page 1
+        setPage(1);
+        return;
+      }
       setLogs(data ?? []);
       setTotalCount(count ?? 0);
       setLoading(false);
@@ -87,13 +92,13 @@ export default function AuditLogExplorerPage() {
             type="text"
             placeholder="Search by action or target..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/30 focus:border-brand-teal"
           />
         </div>
         <select
           value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value as ActionFilter)}
+          onChange={(e) => { setActionFilter(e.target.value as ActionFilter); setPage(1); }}
           className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-teal/30 focus:border-brand-teal min-w-[180px]"
         >
           <option value="all">All Actions</option>

@@ -10,6 +10,7 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.common.validation.InputValidators
 import com.esiri.esiriplus.core.common.validation.validateAll
 import com.esiri.esiriplus.core.database.dao.PatientProfileDao
+import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
@@ -58,6 +59,8 @@ data class ConsultationRequestUiState(
     val patientBloodGroup: String? = null,
     val patientAllergies: String? = null,
     val patientChronicConditions: String? = null,
+    /** Best-effort region from patient session */
+    val region: String? = null,
 )
 
 /** One-shot navigation event emitted when consultation is accepted. */
@@ -74,6 +77,7 @@ class ConsultationRequestViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val supabaseClientProvider: SupabaseClientProvider,
     private val patientProfileDao: PatientProfileDao,
+    private val patientSessionDao: PatientSessionDao,
     private val authRepository: AuthRepository,
     application: android.app.Application,
     savedStateHandle: SavedStateHandle,
@@ -111,6 +115,8 @@ class ConsultationRequestViewModel @Inject constructor(
             try {
                 val userId = authRepository.currentSession.first()?.user?.id ?: return@launch
                 val profile = patientProfileDao.getByUserId(userId).first() ?: return@launch
+                // Best-effort: read region from local patient session
+                val session = patientSessionDao.getSession().first()
                 _uiState.update {
                     it.copy(
                         patientAgeGroup = profile.ageGroup,
@@ -118,6 +124,7 @@ class ConsultationRequestViewModel @Inject constructor(
                         patientBloodGroup = profile.bloodGroup,
                         patientAllergies = profile.allergies,
                         patientChronicConditions = profile.chronicConditions,
+                        region = session?.region,
                     )
                 }
             } catch (e: Exception) {
@@ -343,6 +350,7 @@ class ConsultationRequestViewModel @Inject constructor(
                 parentConsultationId = if (isSubstituteFollowUp) parentConsultationId else null,
                 isSubstituteFollowUp = isSubstituteFollowUp,
                 originalDoctorId = if (isSubstituteFollowUp) originalDoctorId else null,
+                region = state.region,
             )) {
                 is Result.Success -> {
                     val request = result.data

@@ -74,15 +74,61 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleCallIntent(intent: Intent?) {
+        // Full-screen intent just opens the app — the in-app overlay handles Accept/Decline
+        if (intent?.action == com.esiri.esiriplus.service.IncomingCallService.ACTION_SHOW_INCOMING_CALL) {
+            Log.d("MainActivity", "Show incoming call overlay (full-screen intent)")
+            showOverLockScreen()
+            return
+        }
+
         if (intent?.action == EsiriplusFirebaseMessagingService.ACTION_ACCEPT_CALL) {
             val consultationId = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_CONSULTATION_ID) ?: return
             val callType = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_CALL_TYPE) ?: "VIDEO"
             val roomId = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_ROOM_ID) ?: ""
             Log.d("MainActivity", "Accept call: consultation=$consultationId type=$callType room=$roomId")
+
+            // Show over lock screen so the call UI is visible immediately
+            showOverLockScreen()
+
             incomingCallStateHolder.dismiss()
             NotificationManagerCompat.from(this).cancel(EsiriplusFirebaseMessagingService.CALL_NOTIFICATION_ID)
+            NotificationManagerCompat.from(this).cancel(com.esiri.esiriplus.service.IncomingCallService.NOTIFICATION_ID)
+            com.esiri.esiriplus.service.IncomingCallService.stop(this)
             pendingCallNavigation.value = PendingCallNav(consultationId, callType, roomId)
         }
+    }
+
+    /**
+     * Allows the activity to display over the lock screen and turns the screen on.
+     * Called when accepting an incoming call so the user doesn't have to unlock first.
+     */
+    private fun showOverLockScreen() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+            )
+        }
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    /** Restore normal lock screen behavior after the call ends. */
+    private fun clearLockScreenOverride() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(false)
+            setTurnScreenOn(false)
+        } else {
+            @Suppress("DEPRECATION")
+            window.clearFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+            )
+        }
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun navigateToVideoCall(
@@ -92,10 +138,15 @@ class MainActivity : AppCompatActivity() {
         userRole: UserRole?,
         roomId: String = "",
     ) {
-        when (userRole) {
-            UserRole.DOCTOR -> navController.navigate(DoctorVideoCallRoute(consultationId, callType, roomId))
-            UserRole.PATIENT -> navController.navigate(PatientVideoCallRoute(consultationId, callType, roomId))
-            else -> Log.w("MainActivity", "Cannot navigate to video call: unknown role $userRole")
+        Log.d("MainActivity", "navigateToVideoCall: role=$userRole consultation=$consultationId type=$callType room=$roomId currentRoute=${navController.currentDestination?.route}")
+        try {
+            when (userRole) {
+                UserRole.DOCTOR -> navController.navigate(DoctorVideoCallRoute(consultationId, callType, roomId))
+                UserRole.PATIENT -> navController.navigate(PatientVideoCallRoute(consultationId, callType, roomId))
+                else -> Log.w("MainActivity", "Cannot navigate to video call: unknown role $userRole")
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to navigate to video call", e)
         }
     }
 
@@ -199,14 +250,22 @@ class MainActivity : AppCompatActivity() {
                             .collectAsStateWithLifecycle()
 
                         // Handle pending call navigation (from notification accept action)
-                        // Key on both pendingNav AND authState so it re-fires when auth becomes Authenticated
+                        // Key on both pendingNav AND authState so it re-fires when auth becomes Authenticated.
+                        // Delay slightly to let EsiriplusNavHost finish its auth→graph navigation first,
+                        // otherwise PatientVideoCallRoute may be navigated before PatientGraph is mounted.
                         val currentAuth = authState.value
                         LaunchedEffect(pendingNav, currentAuth) {
                             val nav = pendingNav ?: return@LaunchedEffect
                             val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
+                            Log.d("MainActivity", "PendingNav LaunchedEffect: nav=$nav role=$role authState=${currentAuth::class.simpleName}")
                             if (role != null) {
+                                kotlinx.coroutines.delay(600)
                                 navigateToVideoCall(navController, nav.consultationId, nav.callType, role, nav.roomId)
                                 pendingCallNavigation.value = null
+                                // Clear lock screen override after a delay so the call screen
+                                // has time to mount; the video call keeps the screen on itself.
+                                kotlinx.coroutines.delay(3000)
+                                clearLockScreenOverride()
                             }
                         }
 
@@ -251,6 +310,9 @@ class MainActivity : AppCompatActivity() {
                                         incomingCallStateHolder.dismiss()
                                         NotificationManagerCompat.from(this@MainActivity)
                                             .cancel(EsiriplusFirebaseMessagingService.CALL_NOTIFICATION_ID)
+                                        NotificationManagerCompat.from(this@MainActivity)
+                                            .cancel(com.esiri.esiriplus.service.IncomingCallService.NOTIFICATION_ID)
+                                        com.esiri.esiriplus.service.IncomingCallService.stop(this@MainActivity)
                                         val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
                                         navigateToVideoCall(navController, call.consultationId, call.callType, role, call.roomId)
                                     },
@@ -258,6 +320,9 @@ class MainActivity : AppCompatActivity() {
                                         incomingCallStateHolder.dismiss()
                                         NotificationManagerCompat.from(this@MainActivity)
                                             .cancel(EsiriplusFirebaseMessagingService.CALL_NOTIFICATION_ID)
+                                        NotificationManagerCompat.from(this@MainActivity)
+                                            .cancel(com.esiri.esiriplus.service.IncomingCallService.NOTIFICATION_ID)
+                                        com.esiri.esiriplus.service.IncomingCallService.stop(this@MainActivity)
                                     },
                                 )
                             }

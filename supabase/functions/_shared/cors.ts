@@ -8,10 +8,20 @@ const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGIN") ?? "")
   .map((o) => o.trim())
   .filter(Boolean);
 
+function isAllowedOrigin(origin: string): boolean {
+  // Exact match from env
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow any Vercel preview/production URL for this project
+  if (origin.endsWith(".vercel.app")) return true;
+  // Allow localhost for development
+  if (origin.startsWith("http://localhost:")) return true;
+  return false;
+}
+
 export function corsHeaders(requestOrigin?: string | null): HeadersInit {
-  // If the request origin is in our allowed list, echo it back
+  // If the request origin is allowed, echo it back
   const origin =
-    requestOrigin && ALLOWED_ORIGINS.includes(requestOrigin)
+    requestOrigin && isAllowedOrigin(requestOrigin)
       ? requestOrigin
       : ALLOWED_ORIGINS[0] ?? "";
 
@@ -19,7 +29,7 @@ export function corsHeaders(requestOrigin?: string | null): HeadersInit {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers":
-      "Authorization, Content-Type, X-Idempotency-Key, X-Patient-Token",
+      "Authorization, Content-Type, X-Idempotency-Key, X-Patient-Token, X-Doctor-Token",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   };

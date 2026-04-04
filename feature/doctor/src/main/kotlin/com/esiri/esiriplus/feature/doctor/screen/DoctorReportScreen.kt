@@ -1,10 +1,13 @@
 package com.esiri.esiriplus.feature.doctor.screen
 
+import androidx.compose.foundation.BorderStroke
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +22,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -57,8 +62,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorReportViewModel
+import com.esiri.esiriplus.feature.doctor.viewmodel.Prescription
 import kotlinx.coroutines.delay
 
 private val BrandTeal = Color(0xFF2A9D8F)
@@ -90,12 +100,28 @@ fun ConsultationReportBottomSheet(
         }
     }
 
+    // Block back navigation until report is done
+    BackHandler(enabled = !uiState.submitSuccess) { /* no-op: must complete report */ }
+
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { /* block dismiss by swipe/tap outside until submitted */ },
         sheetState = sheetState,
         containerColor = Color.White,
         modifier = modifier,
     ) {
+        // Dosage configuration dialog
+        val pendingMed = uiState.pendingMedication
+        if (pendingMed != null) {
+            DosageConfigDialog(
+                medicationName = pendingMed,
+                isInjectable = Prescription.isInjectable(pendingMed),
+                onConfirm = { form, qty, times, days, route ->
+                    viewModel.confirmPrescription(form, qty, times, days, route)
+                },
+                onDismiss = { viewModel.cancelPendingMedication() },
+            )
+        }
+
         if (uiState.submitSuccess) {
             // Success state
             Box(
@@ -128,10 +154,12 @@ fun ConsultationReportBottomSheet(
                 }
             }
         } else {
+            val sheetScrollState = rememberScrollState()
+            ScrollIndicatorBox(scrollState = sheetScrollState) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(sheetScrollState)
                     .padding(horizontal = 20.dp)
                     .padding(bottom = 32.dp),
             ) {
@@ -264,6 +292,153 @@ fun ConsultationReportBottomSheet(
                     colors = textFieldColors(),
                 )
 
+                // ── Medication / Prescription (optional) ──
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Medication / Prescription (Optional)",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                )
+                Spacer(Modifier.height(6.dp))
+
+                // Search field for medications
+                var medSearchExpanded by remember { mutableStateOf(false) }
+                val prescribedNames = uiState.prescriptions.map { it.medication }.toSet()
+                val filteredMeds = remember(uiState.medicationSearchQuery, prescribedNames) {
+                    if (uiState.medicationSearchQuery.length < 2) emptyList()
+                    else DoctorReportViewModel.MEDICATIONS.filter {
+                        it.contains(uiState.medicationSearchQuery, ignoreCase = true) &&
+                            it !in prescribedNames
+                    }.take(6)
+                }
+
+                OutlinedTextField(
+                    value = uiState.medicationSearchQuery,
+                    onValueChange = {
+                        viewModel.updateMedicationSearch(it)
+                        medSearchExpanded = it.length >= 2
+                    },
+                    placeholder = { Text("Search medication...", color = Color.Gray) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = BrandTeal,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(10.dp),
+                    colors = textFieldColors(),
+                )
+
+                // Dropdown results
+                if (medSearchExpanded && filteredMeds.isNotEmpty()) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = Color.White,
+                        shadowElevation = 4.dp,
+                        border = BorderStroke(1.dp, CardBorder),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                    ) {
+                        Column {
+                            filteredMeds.forEach { med ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            viewModel.selectMedication(med)
+                                            medSearchExpanded = false
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        tint = BrandTeal,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = med,
+                                        fontSize = 13.sp,
+                                        color = Color.Black,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Selected prescriptions with dosage info
+                if (uiState.prescriptions.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        uiState.prescriptions.forEach { rx ->
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = BrandTeal.copy(alpha = 0.06f),
+                                border = BorderStroke(1.dp, BrandTeal.copy(alpha = 0.25f)),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.Top,
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = rx.medication,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = Color.Black,
+                                        )
+                                        Spacer(Modifier.height(2.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = when (rx.form) {
+                                                "Tablets" -> BrandTeal.copy(alpha = 0.12f)
+                                                "Injection" -> Color(0xFFEF4444).copy(alpha = 0.12f)
+                                                else -> Color(0xFFF59E0B).copy(alpha = 0.12f)
+                                            },
+                                        ) {
+                                            Text(
+                                                text = if (rx.form == "Injection") "${rx.form} (${rx.route})" else rx.form,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = when (rx.form) {
+                                                    "Tablets" -> BrandTeal
+                                                    "Injection" -> Color(0xFFEF4444)
+                                                    else -> Color(0xFFB45309)
+                                                },
+                                            )
+                                        }
+                                        Spacer(Modifier.height(4.dp))
+                                        Text(
+                                            text = rx.displayText(),
+                                            fontSize = 12.sp,
+                                            color = SubtitleGrey,
+                                        )
+                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Remove",
+                                        tint = ErrorRed.copy(alpha = 0.7f),
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clickable { viewModel.removePrescription(rx.medication) },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Spacer(Modifier.height(12.dp))
 
                 // Follow-up checkbox
@@ -348,6 +523,7 @@ fun ConsultationReportBottomSheet(
                     )
                 }
             }
+            } // ScrollIndicatorBox
         }
     }
 }
@@ -542,5 +718,264 @@ fun DoctorReportScreen(
                 color = SubtitleGrey,
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DosageConfigDialog(
+    medicationName: String,
+    isInjectable: Boolean,
+    onConfirm: (form: String, quantity: Int, timesPerDay: Int, days: Int, route: String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    // If injectable, pre-select "Injection"; otherwise empty so doctor picks Tablets/Syrup
+    var selectedForm by remember { mutableStateOf(if (isInjectable) "Injection" else "") }
+    var selectedRoute by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("1") }
+    var timesPerDay by remember { mutableStateOf("1") }
+    var days by remember { mutableStateOf("1") }
+
+    val formOptions = if (isInjectable) listOf("Injection") else listOf("Tablets", "Syrup")
+    val isInjectionForm = selectedForm == "Injection"
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        title = {
+            Column {
+                Text(
+                    text = "Dosage Instructions",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = medicationName,
+                    fontSize = 13.sp,
+                    color = SubtitleGrey,
+                )
+                if (isInjectable) {
+                    Spacer(Modifier.height(4.dp))
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color(0xFFEF4444).copy(alpha = 0.1f),
+                    ) {
+                        Text(
+                            text = "Injectable medication",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFFEF4444),
+                        )
+                    }
+                }
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                // Form selection
+                Text("Form", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    formOptions.forEach { form ->
+                        val isSelected = selectedForm == form
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSelected) BrandTeal else Color.Transparent,
+                            border = BorderStroke(
+                                1.dp,
+                                if (isSelected) BrandTeal else CardBorder,
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { selectedForm = form },
+                        ) {
+                            Text(
+                                text = form,
+                                modifier = Modifier.padding(vertical = 12.dp),
+                                textAlign = TextAlign.Center,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isSelected) Color.White else Color.Black,
+                            )
+                        }
+                    }
+                }
+
+                if (selectedForm.isNotEmpty()) {
+                    // ── Injection-specific: Route selector ──
+                    if (isInjectionForm) {
+                        Text("Route of Administration", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("IM" to "Intramuscular", "IV" to "Intravenous", "SC" to "Subcutaneous").forEach { (abbr, full) ->
+                                val isSelected = selectedRoute == abbr
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isSelected) BrandTeal else Color.Transparent,
+                                    border = BorderStroke(
+                                        1.dp,
+                                        if (isSelected) BrandTeal else CardBorder,
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { selectedRoute = abbr },
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.padding(vertical = 10.dp, horizontal = 4.dp),
+                                    ) {
+                                        Text(
+                                            text = abbr,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isSelected) Color.White else Color.Black,
+                                        )
+                                        Text(
+                                            text = full,
+                                            fontSize = 9.sp,
+                                            color = if (isSelected) Color.White.copy(alpha = 0.8f) else SubtitleGrey,
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // ── Tablets/Syrup: Quantity per dose ──
+                    if (!isInjectionForm) {
+                        Text(
+                            text = if (selectedForm == "Tablets") "How many tablets per dose?" else "How many ml per dose?",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black,
+                        )
+                        StepperRow(
+                            value = quantity,
+                            onValueChange = { quantity = it },
+                            maxLength = 3,
+                            unitLabel = if (selectedForm == "Tablets") "tablet(s)" else "ml",
+                        )
+                    }
+
+                    // Times per day
+                    Text("How many times per day?", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                    StepperRow(
+                        value = timesPerDay,
+                        onValueChange = { timesPerDay = it },
+                        maxLength = 2,
+                        unitLabel = "time(s)/day",
+                    )
+
+                    // For how many days
+                    Text("For how many days?", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.Black)
+                    StepperRow(
+                        value = days,
+                        onValueChange = { days = it },
+                        maxLength = 3,
+                        unitLabel = "day(s)",
+                    )
+
+                    // Preview
+                    val previewQty = quantity.toIntOrNull() ?: 1
+                    val previewTimes = timesPerDay.toIntOrNull() ?: 1
+                    val previewDays = days.toIntOrNull() ?: 1
+                    val preview = Prescription(medicationName, selectedForm, previewQty, previewTimes, previewDays, selectedRoute)
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = BrandTeal.copy(alpha = 0.08f),
+                        border = BorderStroke(1.dp, BrandTeal.copy(alpha = 0.2f)),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = preview.displayText(),
+                            modifier = Modifier.padding(12.dp),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = BrandTeal,
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            val isValid = if (isInjectionForm) {
+                selectedForm.isNotEmpty() && selectedRoute.isNotEmpty()
+            } else {
+                selectedForm.isNotEmpty() && (quantity.toIntOrNull() ?: 0) > 0
+            }
+            Button(
+                onClick = {
+                    val qty = quantity.toIntOrNull() ?: 1
+                    val times = timesPerDay.toIntOrNull() ?: 1
+                    val d = days.toIntOrNull() ?: 1
+                    onConfirm(selectedForm, qty, times, d, selectedRoute)
+                },
+                enabled = isValid,
+                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("Add Prescription", fontWeight = FontWeight.SemiBold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = SubtitleGrey)
+            }
+        },
+    )
+}
+
+@Composable
+private fun StepperRow(
+    value: String,
+    onValueChange: (String) -> Unit,
+    maxLength: Int,
+    unitLabel: String,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = BrandTeal,
+            modifier = Modifier
+                .size(36.dp)
+                .clickable {
+                    val v = (value.toIntOrNull() ?: 1) - 1
+                    if (v >= 1) onValueChange(v.toString())
+                },
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text("-", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        }
+        OutlinedTextField(
+            value = value,
+            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= maxLength) onValueChange(it) },
+            modifier = Modifier.width(70.dp),
+            singleLine = true,
+            textStyle = androidx.compose.ui.text.TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+            ),
+            shape = RoundedCornerShape(10.dp),
+            colors = textFieldColors(),
+        )
+        Surface(
+            shape = CircleShape,
+            color = BrandTeal,
+            modifier = Modifier
+                .size(36.dp)
+                .clickable { onValueChange(((value.toIntOrNull() ?: 1) + 1).toString()) },
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        }
+        Text(unitLabel, fontSize = 13.sp, color = SubtitleGrey)
     }
 }

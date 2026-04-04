@@ -14,6 +14,7 @@ import com.esiri.esiriplus.call.IncomingCall
 import com.esiri.esiriplus.call.IncomingCallStateHolder
 import com.esiri.esiriplus.core.common.locale.LocaleHelper
 import com.esiri.esiriplus.service.DoctorOnlineService
+import com.esiri.esiriplus.service.IncomingCallService
 import com.esiri.esiriplus.service.overlay.OverlayBubbleManager
 import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.entity.NotificationEntity
@@ -88,7 +89,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
-        // Incoming video/voice call — show full-screen call notification
+        // Incoming video/voice call — start foreground service + show full-screen notification
         if (type.equals("VIDEO_CALL_INCOMING", ignoreCase = true)) {
             val consultationId = remoteMessage.data["consultation_id"] ?: ""
             val roomId = remoteMessage.data["room_id"] ?: ""
@@ -96,6 +97,24 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             val callerRole = remoteMessage.data["caller_role"] ?: "doctor"
             Log.d(TAG, "Incoming call: consultation=$consultationId room=$roomId type=$callType caller=$callerRole allData=${remoteMessage.data}")
 
+            // Start foreground service FIRST — this keeps the process alive on aggressive
+            // OEMs (Samsung, OnePlus, Xiaomi) that kill apps seconds after data-only FCM.
+            // The service acquires a wake lock and shows the full-screen call notification.
+            try {
+                IncomingCallService.start(
+                    context = applicationContext,
+                    consultationId = consultationId,
+                    callType = callType,
+                    callerRole = callerRole,
+                    roomId = roomId,
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to start IncomingCallService, falling back to notification", e)
+                // Fallback: show notification directly (less reliable but still works)
+                showIncomingCallNotification(consultationId, callType, callerRole, roomId)
+            }
+
+            // Also update the in-app overlay state for when app is in foreground
             incomingCallStateHolder.showIncomingCall(
                 IncomingCall(
                     consultationId = consultationId,
@@ -104,7 +123,6 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
                     callerRole = callerRole,
                 ),
             )
-            showIncomingCallNotification(consultationId, callType, callerRole, roomId)
             return
         }
 

@@ -103,7 +103,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AppointmentEntity::class,
         DoctorAvailabilitySlotEntity::class,
     ],
-    version = 26,
+    version = 27,
     exportSchema = true,
 )
 @TypeConverters(
@@ -112,6 +112,11 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
     JsonConverter::class,
 )
 abstract class EsiriplusDatabase : RoomDatabase() {
+
+    companion object {
+        /** Must match the @Database(version = …) annotation above. */
+        const val VERSION = 27
+    }
 
     /**
      * Re-inserts reference data (service tiers, app config) that gets wiped by [clearAllTables].

@@ -70,6 +70,7 @@ class FollowUpRequestViewModel @Inject constructor(
     private val parentConsultationId: String = checkNotNull(savedStateHandle["parentConsultationId"])
     private val doctorId: String = checkNotNull(savedStateHandle["doctorId"])
     private val serviceType: String = checkNotNull(savedStateHandle["serviceType"])
+    private val serviceTier: String = checkNotNull(savedStateHandle["serviceTier"])
 
     private val _uiState = MutableStateFlow(
         FollowUpRequestUiState(
@@ -186,7 +187,7 @@ class FollowUpRequestViewModel @Inject constructor(
             when (val result = consultationRequestRepository.createRequest(
                 doctorId = doctorId,
                 serviceType = serviceType,
-                serviceTier = "ROYAL",
+                serviceTier = serviceTier,
                 consultationType = "chat",
                 chiefComplaint = "Follow-up consultation",
                 isFollowUp = true,

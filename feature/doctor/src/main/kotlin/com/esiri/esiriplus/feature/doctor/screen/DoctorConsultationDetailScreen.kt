@@ -65,6 +65,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.domain.model.ConsultationPhase
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.feature.chat.ui.ChatContent
 import com.esiri.esiriplus.feature.chat.ui.ConsultationTimerBar
@@ -483,10 +484,12 @@ private fun PatientSummaryDialog(
                 HorizontalDivider(color = Color(0xFFE5E7EB))
 
                 // Scrollable content
+                val dialogScrollState = rememberScrollState()
+                ScrollIndicatorBox(scrollState = dialogScrollState, modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(dialogScrollState)
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
@@ -515,6 +518,7 @@ private fun PatientSummaryDialog(
                     }
                     Spacer(Modifier.height(16.dp))
                 }
+                } // ScrollIndicatorBox
             }
         }
     }

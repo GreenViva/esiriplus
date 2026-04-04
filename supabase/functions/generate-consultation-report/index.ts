@@ -13,6 +13,13 @@ import { getServiceClient } from "../_shared/supabase.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 
+interface PrescriptionItem {
+  medication: string;
+  form: string;
+  dosage: string;
+  route?: string; // "IM", "IV", or "SC" — only for injections
+}
+
 interface ReportRequest {
   consultation_id: string;
   diagnosed_problem: string;
@@ -21,6 +28,7 @@ interface ReportRequest {
   treatment_plan: string;
   further_notes?: string;
   follow_up_recommended: boolean;
+  prescriptions?: PrescriptionItem[];
 }
 
 Deno.serve(async (req: Request) => {
@@ -55,7 +63,10 @@ Deno.serve(async (req: Request) => {
       treatment_plan,
       further_notes,
       follow_up_recommended,
+      prescriptions,
     } = raw as ReportRequest;
+
+    const prescriptionsList = Array.isArray(prescriptions) ? prescriptions : [];
 
     // Fail fast if OpenAI key is not configured
     if (!OPENAI_API_KEY) {
@@ -121,6 +132,7 @@ DOCTOR'S CLINICAL NOTES:
 - Category: ${category}
 - Severity: ${severity || "Not specified"}
 - Treatment Plan / Decision: ${treatment_plan}
+- Prescribed Medications: ${prescriptionsList.length > 0 ? prescriptionsList.map((p) => `${p.medication} [${p.form}${p.route ? ` — ${p.route}` : ""}] (${p.dosage})`).join("; ") : "None"}
 - Further Notes: ${further_notes || "None"}
 - Follow-up Recommended: ${follow_up_recommended ? "Yes" : "No"}
 
@@ -135,8 +147,9 @@ ${chatTranscript || "No chat messages recorded"}
 Generate a professional medical report with these EXACT JSON keys:
 1. "presenting_symptoms" — Expand the diagnosed problem and chat context into a professional summary of the patient's presenting symptoms and complaints. 2-4 sentences.
 2. "diagnosis_assessment" — Professional clinical assessment based on the doctor's diagnosis, category, and severity. 2-4 sentences.
-3. "treatment_plan_prose" — Expand the doctor's treatment plan into a professional recommendation. 2-4 sentences.
-4. "follow_up_instructions" — Professional follow-up care instructions. If follow-up is recommended, include that. 2-3 sentences.
+3. "treatment_plan_prose" — Expand the doctor's treatment plan into a professional recommendation. If medications were prescribed, incorporate them naturally into the treatment plan prose. 2-4 sentences.
+4. "prescribed_medications_prose" — If medications were prescribed, write a professional medication section listing each medication with its dosage instructions. If no medications were prescribed, write "No medications prescribed for this consultation."
+5. "follow_up_instructions" — Professional follow-up care instructions. If follow-up is recommended, include that. 2-3 sentences.
 
 Use professional medical language suitable for a telemedicine consultation report. Do not fabricate information not present in the inputs.
 Respond ONLY with valid JSON, no markdown, no backticks.
@@ -199,10 +212,16 @@ Respond ONLY with valid JSON, no markdown, no backticks.
         diagnosed_problem,
         category,
         severity: severity || "Mild",
-        treatment_plan,
+        treatment_plan: reportContent.treatment_plan_prose ?? treatment_plan,
         further_notes: further_notes ?? null,
         follow_up_recommended: follow_up_recommended ?? false,
         presenting_symptoms: reportContent.presenting_symptoms ?? "",
+        assessment: reportContent.diagnosis_assessment ?? "",
+        follow_up_plan: reportContent.follow_up_instructions ?? "",
+        history: prescriptionsList.length > 0
+          ? prescriptionsList.map((p, i) => `${i + 1}. ${p.medication}${p.route ? ` [${p.route}]` : ""}\n   ${p.dosage}`).join("\n")
+          : "",
+        prescriptions: prescriptionsList,
         doctor_name: doctorName,
         patient_session_id: consultation.patient_session_id,
         consultation_date: consultationDate,
@@ -217,6 +236,13 @@ Respond ONLY with valid JSON, no markdown, no backticks.
       console.error("[generate-report] Insert report error:", JSON.stringify(reportErr));
       throw new ValidationError(`Report save failed: ${reportErr.message}`);
     }
+
+    // Mark report as submitted — this triggers fn_sync_doctor_in_session()
+    // which clears in_session, making the doctor available for new requests.
+    await supabase
+      .from("consultations")
+      .update({ report_submitted: true })
+      .eq("consultation_id", consultation_id);
 
     // Send push notification to patient
     const serviceKey = Deno.env.get("INTERNAL_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.core.domain.model.PatientReport
 import com.esiri.esiriplus.feature.patient.util.ReportPdfGenerator
@@ -137,13 +138,16 @@ fun ReportDetailScreen(
             }
             uiState.report != null -> {
                 val report = uiState.report!!
+                val reportScrollState = rememberScrollState()
+                ScrollIndicatorBox(scrollState = reportScrollState, modifier = Modifier.weight(1f)) {
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
+                        .fillMaxSize()
+                        .verticalScroll(reportScrollState),
                 ) {
                     ReportContent(report)
                 }
+                } // ScrollIndicatorBox
 
                 // Download PDF button
                 Button(
@@ -295,6 +299,14 @@ private fun ReportContent(report: PatientReport) {
         ProseBlock(
             report.treatmentPlan.ifBlank { stringResource(R.string.report_detail_no_treatment) },
         )
+
+        // Section: Prescribed Medications
+        if (report.prescribedMedications.isNotBlank()) {
+            Spacer(Modifier.height(20.dp))
+            SectionHeader("Prescribed Medications")
+            Spacer(Modifier.height(8.dp))
+            ProseBlock(report.prescribedMedications)
+        }
 
         Spacer(Modifier.height(20.dp))
 

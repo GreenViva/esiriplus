@@ -80,6 +80,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.AvailabilityFilter
@@ -675,10 +676,12 @@ private fun DoctorDetailSheet(
             )
         }
 
+        val detailScrollState = rememberScrollState()
+        ScrollIndicatorBox(scrollState = detailScrollState) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(detailScrollState)
                 .navigationBarsPadding()
                 .padding(top = 56.dp),
         ) {
@@ -1144,6 +1147,7 @@ private fun DoctorDetailSheet(
 
             Spacer(Modifier.height(24.dp))
         }
+        } // ScrollIndicatorBox
     }
 }
 

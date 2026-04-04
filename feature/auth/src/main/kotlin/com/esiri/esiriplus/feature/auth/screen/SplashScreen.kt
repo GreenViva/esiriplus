@@ -4,6 +4,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -73,11 +76,15 @@ fun SplashScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Earth logo
+            // Earth logo — artwork is vertically elongated, scale X wider to appear round
             Image(
                 painter = painterResource(R.drawable.ic_splash_logo),
                 contentDescription = stringResource(R.string.splash_app_name),
-                modifier = Modifier.size(120.dp),
+                modifier = Modifier
+                    .size(120.dp)
+                    .graphicsLayer { scaleX = 1.15f }
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
             )
 
             Spacer(modifier = Modifier.height(24.dp))

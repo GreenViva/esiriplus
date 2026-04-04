@@ -21,7 +21,7 @@ class UserPreferencesManager @Inject constructor(
         context.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
 
     private val _themeMode = MutableStateFlow(
-        ThemeMode.entries.getOrElse(prefs.getInt(KEY_THEME, 0)) { ThemeMode.SYSTEM },
+        ThemeMode.entries.getOrElse(prefs.getInt(KEY_THEME, 1)) { ThemeMode.LIGHT },
     )
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 

@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,6 +14,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +43,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,6 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.ui.LanguageSwitchButton
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientHomeViewModel
 
@@ -147,16 +153,18 @@ fun PatientHomeScreen(
                 Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MintLight))
             ),
     ) {
+        val scrollState = rememberScrollState()
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.refresh() },
             state = pullRefreshState,
             modifier = Modifier.fillMaxSize(),
         ) {
+        ScrollIndicatorBox(scrollState = scrollState) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 20.dp, vertical = 24.dp),
         ) {
             // Welcome Header
@@ -233,7 +241,14 @@ fun PatientHomeScreen(
                 onClick = onNavigateToAppointments,
             )
 
+            Spacer(Modifier.height(16.dp))
+
+            // Contact Us
+            ContactUsSection()
+
+            Spacer(Modifier.height(8.dp))
         }
+        } // ScrollIndicatorBox
         } // PullToRefreshBox
 
         // Pulsing chat FAB when there is an active consultation
@@ -927,4 +942,60 @@ private fun ActiveChatFab(
     }
 }
 
+@Composable
+private fun ContactUsSection() {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "For help contact us",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "+255 663 582 994",
+                fontSize = 12.sp,
+                color = BrandTeal,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable {
+                    context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")))
+                },
+            )
+            Spacer(Modifier.width(16.dp))
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "support@esiri.africa",
+                fontSize = 12.sp,
+                color = BrandTeal,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable {
+                    context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:support@esiri.africa")))
+                },
+            )
+        }
+    }
+}
 

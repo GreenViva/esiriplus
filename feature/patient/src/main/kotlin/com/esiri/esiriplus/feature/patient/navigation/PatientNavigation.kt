@@ -68,6 +68,7 @@ import kotlinx.serialization.Serializable
     val parentConsultationId: String,
     val doctorId: String,
     val serviceType: String,
+    val serviceTier: String,
 )
 @Serializable data class SubstituteFollowUpRoute(
     val parentConsultationId: String,
@@ -251,12 +252,13 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onOpenConsultation = { consultationId ->
                     navController.navigate(PatientConsultationRoute(consultationId))
                 },
-                onRequestFollowUp = { parentConsultationId, doctorId, serviceType ->
+                onRequestFollowUp = { parentConsultationId, doctorId, serviceType, serviceTier ->
                     navController.navigate(
                         FollowUpWaitingRoute(
                             parentConsultationId = parentConsultationId,
                             doctorId = doctorId,
                             serviceType = serviceType,
+                            serviceTier = serviceTier,
                         ),
                     )
                 },

@@ -24,7 +24,7 @@ export default function UsersPage() {
       supabase
         .from("user_roles")
         .select("*")
-        .order("created_at", { ascending: true }),
+        .order("granted_at", { ascending: true }),
       supabase.auth.getUser(),
       getAllAuthUsers(),
     ]).then(([rolesRes, userRes, authUsersRes]) => {
@@ -170,7 +170,7 @@ export default function UsersPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-500">
-                      {formatDate(r.created_at)}
+                      {formatDate(r.granted_at ?? r.created_at)}
                     </td>
                     <td className="px-5 py-4">
                       {isCurrentUser ? (

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 import com.esiri.esiriplus.feature.auth.viewmodel.AccessRecordsViewModel
@@ -62,13 +63,15 @@ fun AccessRecordsScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
     GradientBackground(modifier = modifier) {
+        ScrollIndicatorBox(scrollState = scrollState) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -205,5 +208,6 @@ fun AccessRecordsScreen(
                 modifier = Modifier.clickable(onClick = onDontHaveId),
             )
         }
+        } // ScrollIndicatorBox
     }
 }
