@@ -103,6 +103,10 @@ data class DoctorDashboardUiState(
     val isBanned: Boolean = false,
     val bannedAt: String? = null,
     val banReason: String? = null,
+    val warningMessage: String? = null,
+    val warningAt: String? = null,
+    val warningCount: Int = 0,
+    val warningAcknowledged: Boolean = true,
     val profileUploading: Boolean = false,
     // For preserving original DB values when saving
     val registeredYearsExperience: Int = 0,
@@ -372,6 +376,10 @@ class DoctorDashboardViewModel @Inject constructor(
                         isBanned = row.isBanned,
                         bannedAt = row.bannedAt,
                         banReason = row.banReason,
+                        warningMessage = row.warningMessage,
+                        warningAt = row.warningAt,
+                        warningCount = row.warningCount,
+                        warningAcknowledged = row.warningAcknowledged,
                     )
                     if (isSuspended || row.isBanned) {
                         updated = updated.copy(isOnline = false, isAvailable = false, profileAvailableForConsultations = false)
@@ -1081,6 +1089,15 @@ class DoctorDashboardViewModel @Inject constructor(
             "${date.dayOfMonth}/${date.monthValue}/${date.year}"
         } catch (_: Exception) {
             ""
+        }
+    }
+
+    fun acknowledgeWarning() {
+        viewModelScope.launch {
+            val doctorId = _uiState.value.doctorId
+            if (doctorId.isBlank()) return@launch
+            _uiState.update { it.copy(warningAcknowledged = true) }
+            profileService.acknowledgeWarning(doctorId)
         }
     }
 

@@ -69,7 +69,7 @@ class ConsultationRequestService @Inject constructor(
             }
             if (!region.isNullOrBlank()) put("region", region)
         }
-        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
+        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body, patientAuth = true))
     }
 
     suspend fun acceptRequest(requestId: String): ApiResult<ConsultationRequestRow> {
@@ -140,7 +140,7 @@ class ConsultationRequestService @Inject constructor(
             put("action", "status")
             put("request_id", requestId)
         }
-        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body))
+        return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body, patientAuth = true))
     }
 
     /**

@@ -20,9 +20,9 @@ function validate(body: unknown): Record<string, unknown> {
   }
   const b = body as Record<string, unknown>;
   const action = b.action as string;
-  if (!["get", "send", "typing", "mark_read"].includes(action)) {
+  if (!["get", "send", "typing", "get_typing", "mark_read"].includes(action)) {
     throw new ValidationError(
-      'action must be one of: get, send, typing, mark_read'
+      'action must be one of: get, send, typing, get_typing, mark_read'
     );
   }
   return b;
@@ -238,6 +238,30 @@ async function handleTyping(
   return successResponse({ ok: true }, 200, origin);
 }
 
+async function handleGetTyping(
+  body: Record<string, unknown>,
+  auth: AuthResult,
+  origin: string | null
+): Promise<Response> {
+  const consultationId = body.consultation_id as string;
+  if (!consultationId) throw new ValidationError("consultation_id is required");
+
+  await verifyConsultationParticipant(consultationId, auth);
+
+  const supabase = getServiceClient();
+  // Only return indicators updated in the last 10 seconds (stale = not typing)
+  const cutoff = new Date(Date.now() - 10_000).toISOString();
+  const { data, error } = await supabase
+    .from("typing_indicators")
+    .select("user_id, is_typing, updated_at")
+    .eq("consultation_id", consultationId)
+    .gte("updated_at", cutoff);
+
+  if (error) throw error;
+
+  return successResponse({ typing_indicators: data ?? [] }, 200, origin);
+}
+
 async function handleMarkRead(
   body: Record<string, unknown>,
   auth: AuthResult,
@@ -288,7 +312,7 @@ Deno.serve(async (req: Request) => {
       await LIMITS.read(rateKey);
     } else if (action === "send") {
       await LIMITS.message(rateKey);
-    } else if (action === "typing" || action === "mark_read") {
+    } else if (action === "typing" || action === "get_typing" || action === "mark_read") {
       await LIMITS.notification(rateKey);
     }
 
@@ -299,6 +323,8 @@ Deno.serve(async (req: Request) => {
         return await handleSend(body, auth, origin);
       case "typing":
         return await handleTyping(body, auth, origin);
+      case "get_typing":
+        return await handleGetTyping(body, auth, origin);
       case "mark_read":
         return await handleMarkRead(body, auth, origin);
       default:

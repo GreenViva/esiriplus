@@ -113,8 +113,10 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   }
 
   // ── Path A: Patient JWT (app_role:"patient" or legacy role:"patient") ─────
-  // Doctor-header tokens skip this path even if they somehow have patient-like claims.
-  const isPatientJwt = authMethod !== "doctor-header" &&
+  // Auto-detect patient JWTs regardless of which header they arrived in.
+  // This prevents auth failures when the client accidentally sends a patient
+  // token via X-Doctor-Token instead of X-Patient-Token.
+  const isPatientJwt =
     (claims.app_role === "patient" || claims.role === "patient") &&
     claims.session_id;
   if (isPatientJwt) {

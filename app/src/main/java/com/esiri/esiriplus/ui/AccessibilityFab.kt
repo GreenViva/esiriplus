@@ -40,7 +40,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -138,8 +137,8 @@ fun AccessibilityFab(
             )
         }
 
-        // Draggable FAB with drag indicator
-        Row(
+        // Draggable FAB with directional arrows (↑↓←→)
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .offset(
@@ -154,30 +153,43 @@ fun AccessibilityFab(
                         offsetY = (offsetY + dragAmount.y).coerceIn(-(maxHeightPx - fabSizePx - paddingPx), 0f)
                     }
                 },
-            verticalAlignment = Alignment.CenterVertically,
+            contentAlignment = Alignment.Center,
         ) {
-            // Drag handle pill
-            Surface(
-                shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
-                color = BrandTeal.copy(alpha = 0.85f),
-                shadowElevation = 4.dp,
-                modifier = Modifier.size(width = 20.dp, height = 40.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Drag to move",
-                        tint = Color.White.copy(alpha = 0.8f),
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
-            }
+            // Arrow indicators around the FAB
+            // Top arrow
+            Text(
+                text = "\u25B2",
+                fontSize = 8.sp,
+                color = BrandTeal.copy(alpha = 0.5f),
+                modifier = Modifier.offset(y = (-30).dp),
+            )
+            // Bottom arrow
+            Text(
+                text = "\u25BC",
+                fontSize = 8.sp,
+                color = BrandTeal.copy(alpha = 0.5f),
+                modifier = Modifier.offset(y = 30.dp),
+            )
+            // Left arrow
+            Text(
+                text = "\u25C0",
+                fontSize = 8.sp,
+                color = BrandTeal.copy(alpha = 0.5f),
+                modifier = Modifier.offset(x = (-30).dp),
+            )
+            // Right arrow
+            Text(
+                text = "\u25B6",
+                fontSize = 8.sp,
+                color = BrandTeal.copy(alpha = 0.5f),
+                modifier = Modifier.offset(x = 30.dp),
+            )
 
             // Main FAB button
             FloatingActionButton(
                 onClick = { expanded = !expanded },
                 modifier = Modifier.size(52.dp),
-                shape = RoundedCornerShape(topEnd = 26.dp, bottomEnd = 26.dp, topStart = 4.dp, bottomStart = 4.dp),
+                shape = CircleShape,
                 containerColor = BrandTeal,
                 contentColor = Color.White,
                 elevation = FloatingActionButtonDefaults.elevation(

@@ -10,8 +10,15 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,8 +62,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -379,6 +389,7 @@ fun DoctorDashboardScreen(
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
                     onNotificationsClick = onNavigateToNotifications,
                     onRefresh = viewModel::refresh,
+                    onAcknowledgeWarning = viewModel::acknowledgeWarning,
                 )
                 DoctorNavItem.CONSULTATIONS -> ConsultationsContent(
                     uiState = uiState,
@@ -663,6 +674,7 @@ private fun DashboardContent(
     onSetAvailability: () -> Unit,
     onNotificationsClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
+    onAcknowledgeWarning: () -> Unit = {},
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 
@@ -699,6 +711,19 @@ private fun DashboardContent(
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
             else -> PendingReviewBanner(modifier = Modifier.padding(horizontal = 12.dp))
+        }
+
+        // Warnings badge (visible if count > 0, heartbeat only if unacknowledged)
+        if (uiState.warningCount > 0) {
+            Spacer(modifier = Modifier.height(8.dp))
+            WarningBadge(
+                message = uiState.warningMessage,
+                warningAt = uiState.warningAt,
+                warningCount = uiState.warningCount,
+                isNew = !uiState.warningAcknowledged,
+                onDismiss = onAcknowledgeWarning,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -1008,6 +1033,169 @@ private fun RejectedBanner(reason: String, modifier: Modifier = Modifier) {
                 color = Color(0xFF991B1B),
                 lineHeight = 14.sp,
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WarningBadge(
+    message: String?,
+    warningAt: String?,
+    warningCount: Int,
+    isNew: Boolean,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // Heartbeat animation — only pulses when there's an unacknowledged warning
+    val infiniteTransition = rememberInfiniteTransition(label = "warning_heartbeat")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (isNew) 1.04f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "warning_scale",
+    )
+
+    var expanded by remember { mutableStateOf(isNew) }
+
+    // Swipe to dismiss
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            if (value != SwipeToDismissBoxValue.Settled) {
+                onDismiss()
+                true
+            } else false
+        },
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        modifier = modifier,
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF10B981))
+                    .padding(horizontal = 20.dp),
+                contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                    Alignment.CenterStart
+                } else {
+                    Alignment.CenterEnd
+                },
+            ) {
+                Text(
+                    text = "\u2713  Acknowledged",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+            }
+        },
+        enableDismissFromStartToEnd = isNew,
+        enableDismissFromEndToStart = isNew,
+    ) {
+        Column(
+            modifier = Modifier
+                .graphicsLayer { scaleX = scale; scaleY = scale }
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, if (isNew) Color(0xFFFCD34D) else Color(0xFFE5E7EB), RoundedCornerShape(12.dp))
+                .background(if (isNew) Color(0xFFFEF3C7) else Color(0xFFF9FAFB))
+                .clickable { expanded = !expanded }
+                .padding(12.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                // Warning icon with count badge
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(if (isNew) Color(0xFFF59E0B) else Color(0xFF9CA3AF), CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(text = "\u26A0", fontSize = 14.sp, color = Color.White)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 4.dp, y = (-4).dp)
+                            .size(18.dp)
+                            .background(Color(0xFFDC2626), CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "$warningCount",
+                            fontSize = if (warningCount >= 10) 8.sp else 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Warnings ($warningCount)",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isNew) Color(0xFFB45309) else Color(0xFF6B7280),
+                    )
+                    Text(
+                        text = if (isNew) "Swipe to acknowledge" else "Tap to view details",
+                        fontSize = 11.sp,
+                        color = if (isNew) Color(0xFF92400E) else Color(0xFF9CA3AF),
+                    )
+                }
+                Text(
+                    text = if (expanded) "\u25B2" else "\u25BC",
+                    fontSize = 10.sp,
+                    color = if (isNew) Color(0xFFB45309) else Color(0xFF9CA3AF),
+                )
+            }
+
+            // Expanded warning detail
+            if (expanded && message != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White.copy(alpha = 0.6f))
+                        .padding(10.dp),
+                ) {
+                    Column {
+                        Text(
+                            text = "From Administration",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF92400E),
+                        )
+                        if (warningAt != null) {
+                            val formattedDate = try {
+                                val instant = java.time.Instant.parse(warningAt)
+                                val formatter = java.time.format.DateTimeFormatter
+                                    .ofPattern("MMM d, yyyy 'at' HH:mm")
+                                    .withZone(java.time.ZoneId.systemDefault())
+                                formatter.format(instant)
+                            } catch (_: Exception) { warningAt }
+                            Text(text = formattedDate, fontSize = 10.sp, color = Color(0xFFB45309))
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = message,
+                            fontSize = 13.sp,
+                            color = Color.Black,
+                            lineHeight = 18.sp,
+                        )
+                    }
+                }
+            }
         }
     }
 }

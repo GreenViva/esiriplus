@@ -127,6 +127,19 @@ class PatientHomeViewModel @Inject constructor(
         }
     }
 
+    fun markAllReportsRead() {
+        viewModelScope.launch {
+            try {
+                val reports = patientReportRepository.fetchReportsFromServer()
+                val allIds = reports.map { it.reportId }.toSet()
+                reportPrefs.edit().putStringSet(KEY_READ_REPORT_IDS, allIds).apply()
+                _hasUnreadReports.value = false
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to mark all reports read: ${e.message}")
+            }
+        }
+    }
+
     fun dismissPendingRating() {
         _pendingRating.value = null
     }

@@ -108,6 +108,12 @@ fun PatientHomeScreen(
     val context = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
 
+    // Wrap reports navigation to clear the unread dot
+    val handleNavigateToReports = {
+        viewModel.markAllReportsRead()
+        onNavigateToReports()
+    }
+
     // Request POST_NOTIFICATIONS permission on Android 13+
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
@@ -194,7 +200,7 @@ fun PatientHomeScreen(
             QuickActionChips(
                 onServicesClick = { onStartConsultation("") },
                 onNewConsultationClick = { onStartConsultation("") },
-                onReportsClick = onNavigateToReports,
+                onReportsClick = handleNavigateToReports,
             )
 
             Spacer(Modifier.height(12.dp))
@@ -227,7 +233,7 @@ fun PatientHomeScreen(
                 iconRes = R.drawable.ic_reports,
                 title = stringResource(R.string.home_reports),
                 subtitle = stringResource(R.string.home_reports_subtitle),
-                onClick = onNavigateToReports,
+                onClick = handleNavigateToReports,
                 showBadge = uiState.hasUnreadReports,
             )
 
