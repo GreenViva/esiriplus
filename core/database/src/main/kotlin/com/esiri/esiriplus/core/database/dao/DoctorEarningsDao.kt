@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.esiri.esiriplus.core.database.entity.DoctorEarningsEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -16,6 +17,12 @@ interface DoctorEarningsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(earnings: List<DoctorEarningsEntity>)
+
+    @Transaction
+    suspend fun replaceAll(earnings: List<DoctorEarningsEntity>) {
+        clearAll()
+        insertAll(earnings)
+    }
 
     @Query("SELECT * FROM doctor_earnings WHERE earningId = :earningId")
     suspend fun getById(earningId: String): DoctorEarningsEntity?

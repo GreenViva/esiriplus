@@ -572,14 +572,6 @@ private fun RoyalClientCard(
                         color = Color(0xFF6B7280),
                         fontSize = 12.sp,
                     )
-                    Spacer(Modifier.height(2.dp))
-                    // Fee
-                    Text(
-                        text = feeFormatted,
-                        color = RoyalPurple,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 13.sp,
-                    )
                 }
 
                 // Call icon hint

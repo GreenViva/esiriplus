@@ -50,4 +50,5 @@ data class EarningsTransaction(
     val amount: String,
     val date: String,
     val status: String,
+    val earningType: String = "consultation",
 )

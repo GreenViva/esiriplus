@@ -36,12 +36,16 @@ class DoctorRealtimeService @Inject constructor(
     private val _profileEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 16)
     val profileEvents: SharedFlow<Unit> = _profileEvents.asSharedFlow()
 
+    private val _earningsEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 16)
+    val earningsEvents: SharedFlow<Unit> = _earningsEvents.asSharedFlow()
+
     private val _connectionState = MutableStateFlow(RealtimeConnectionState.DISCONNECTED)
     val connectionState: StateFlow<RealtimeConnectionState> = _connectionState.asStateFlow()
 
     private val lock = Any()
     @Volatile private var channel: RealtimeChannel? = null
     @Volatile private var profileChannel: RealtimeChannel? = null
+    @Volatile private var earningsChannel: RealtimeChannel? = null
 
     private var reconnectJob: Job? = null
     private var currentDoctorId: String? = null
@@ -145,6 +149,37 @@ class DoctorRealtimeService @Inject constructor(
         }
     }
 
+    suspend fun subscribeToEarnings(doctorId: String, scope: CoroutineScope) {
+        doSubscribeEarnings(doctorId, scope)
+    }
+
+    private suspend fun doSubscribeEarnings(doctorId: String, scope: CoroutineScope) {
+        try {
+            earningsChannel?.let { ch ->
+                try { ch.unsubscribe() } catch (_: Exception) {}
+            }
+            synchronized(lock) { earningsChannel = null }
+
+            val ch = supabaseClientProvider.client.channel("doctor-earnings-$doctorId-${System.currentTimeMillis()}")
+            synchronized(lock) { earningsChannel = ch }
+
+            val changeFlow = ch.postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "doctor_earnings"
+                filter("doctor_id", FilterOperator.EQ, doctorId)
+            }
+
+            changeFlow.onEach { action ->
+                Log.d(TAG, "Earnings realtime event: ${action::class.simpleName}")
+                _earningsEvents.emit(Unit)
+            }.launchIn(scope)
+
+            ch.subscribe()
+            Log.d(TAG, "Subscribed to realtime earnings for doctor $doctorId")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to subscribe to realtime earnings", e)
+        }
+    }
+
     private fun scheduleReconnect() {
         synchronized(lock) {
             if (reconnectJob?.isActive == true) return
@@ -166,6 +201,7 @@ class DoctorRealtimeService @Inject constructor(
                 if (!isActive) return@launch
                 doSubscribeConsultations(doctorId, scope)
                 doSubscribeProfile(doctorId, scope)
+                doSubscribeEarnings(doctorId, scope)
             }
         }
     }
@@ -189,6 +225,15 @@ class DoctorRealtimeService @Inject constructor(
         }
     }
 
+    private suspend fun unsubscribeEarnings() {
+        try {
+            earningsChannel?.unsubscribe()
+            synchronized(lock) { earningsChannel = null }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to unsubscribe from earnings realtime", e)
+        }
+    }
+
     suspend fun unsubscribeAll() {
         synchronized(lock) {
             intentionalUnsubscribe = true
@@ -199,6 +244,7 @@ class DoctorRealtimeService @Inject constructor(
         }
         unsubscribe()
         unsubscribeProfile()
+        unsubscribeEarnings()
         _connectionState.value = RealtimeConnectionState.DISCONNECTED
     }
 

@@ -17,6 +17,7 @@ data class EarningsRow(
     @SerialName("consultation_id") val consultationId: String,
     val amount: Int,
     val status: String,
+    @SerialName("earning_type") val earningType: String = "consultation",
     @SerialName("paid_at") val paidAt: String? = null,
     @SerialName("created_at") val createdAt: String,
 )

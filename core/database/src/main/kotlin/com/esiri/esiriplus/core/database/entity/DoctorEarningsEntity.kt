@@ -32,6 +32,7 @@ data class DoctorEarningsEntity(
     val consultationId: String,
     val amount: Int,
     val status: String,
+    val earningType: String = "consultation",
     val paidAt: Long? = null,
     val createdAt: Long,
 )

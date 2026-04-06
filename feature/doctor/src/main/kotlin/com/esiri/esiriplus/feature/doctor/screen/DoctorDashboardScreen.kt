@@ -165,12 +165,17 @@ fun DoctorDashboardScreen(
         }
     }
 
-    // ── Retry overlay bubble after user grants permission and returns ──────────
+    // ── Auto-refresh when returning from consultation/report ──────────────────
     var sentToOverlaySettings by remember { mutableStateOf(false) }
 
     val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                // Refresh profile + earnings when returning to dashboard
+                // (picks up in_session=false after report submission)
+                viewModel.refresh()
+            }
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME && sentToOverlaySettings) {
                 sentToOverlaySettings = false
                 // Send RETRY_BUBBLE intent to running service
@@ -2922,6 +2927,16 @@ private fun EarningsContent(
                 }
             } else {
                 uiState.recentTransactions.forEach { tx ->
+                    val typeLabel = when (tx.earningType) {
+                        "follow_up" -> "Follow-up"
+                        "substitute_follow_up" -> "Substitute FU"
+                        "substitute_consultation" -> "Substitute"
+                        else -> "Consultation"
+                    }
+                    val typeColor = when (tx.earningType) {
+                        "follow_up", "substitute_follow_up" -> Color(0xFF8B5CF6)
+                        else -> BrandTeal
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -2929,12 +2944,24 @@ private fun EarningsContent(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = tx.patientName,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = typeLabel,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (tx.earningType.contains("follow")) "20%" else "30%",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = typeColor,
+                                    modifier = Modifier
+                                        .background(typeColor.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 4.dp, vertical = 1.dp),
+                                )
+                            }
                             Text(
                                 text = tx.date,
                                 fontSize = 11.sp,

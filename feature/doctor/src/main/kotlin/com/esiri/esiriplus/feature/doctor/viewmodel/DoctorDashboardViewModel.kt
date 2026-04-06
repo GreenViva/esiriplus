@@ -31,6 +31,7 @@ import com.esiri.esiriplus.core.network.service.DoctorAvailabilityService
 import com.esiri.esiriplus.core.network.service.DoctorConsultationService
 import com.esiri.esiriplus.core.network.service.DoctorEarningsService
 import com.esiri.esiriplus.core.network.service.DoctorProfileService
+import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
 import com.esiri.esiriplus.core.network.service.DoctorRealtimeService
 import com.esiri.esiriplus.core.network.storage.FileUploadService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -153,6 +154,7 @@ class DoctorDashboardViewModel @Inject constructor(
     private val earningsService: DoctorEarningsService,
     private val profileService: DoctorProfileService,
     private val realtimeService: DoctorRealtimeService,
+    private val requestRealtimeService: ConsultationRequestRealtimeService,
     private val fileUploadService: FileUploadService,
     private val supabaseClientProvider: SupabaseClientProvider,
     private val fcmTokenRepository: FcmTokenRepository,
@@ -464,13 +466,14 @@ class DoctorDashboardViewModel @Inject constructor(
                         consultationId = row.consultationId,
                         amount = row.amount,
                         status = row.status,
+                        earningType = row.earningType,
                         paidAt = parseInstantToMillis(row.paidAt),
                         createdAt = parseInstantToMillis(row.createdAt) ?: now,
                     )
                 }
                 try {
                     doctorEarningsDao.insertAll(entities)
-                    Log.d(TAG, "Cached ${entities.size} earnings from Supabase")
+                    Log.d(TAG, "Synced ${entities.size} earnings from Supabase")
                 } catch (e: Exception) {
                     // FK constraint can fail if an earning references a consultation
                     // that wasn't fetched (e.g. old/deleted). Log and continue.
@@ -528,9 +531,11 @@ class DoctorDashboardViewModel @Inject constructor(
                 val pending = earnings.filter { it.status.equals("pending", ignoreCase = true) }.sumOf { it.amount }
 
                 val now = LocalDate.now()
+                val todayStart = now.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 val thisMonthStart = now.withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 val lastMonthStart = now.minusMonths(1).withDayOfMonth(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
+                val todayTotal = earnings.filter { it.createdAt >= todayStart }.sumOf { it.amount }
                 val thisMonth = earnings.filter { it.createdAt >= thisMonthStart }.sumOf { it.amount }
                 val lastMonth = earnings.filter { it.createdAt >= lastMonthStart && it.createdAt < thisMonthStart }.sumOf { it.amount }
 
@@ -541,11 +546,13 @@ class DoctorDashboardViewModel @Inject constructor(
                         amount = formatTsh(e.amount),
                         date = formatDate(e.createdAt),
                         status = e.status,
+                        earningType = e.earningType,
                     )
                 }
 
                 _uiState.update {
                     it.copy(
+                        todaysEarnings = formatTsh(todayTotal),
                         totalEarnings = formatTsh(total),
                         thisMonthEarnings = formatTsh(thisMonth),
                         lastMonthEarnings = formatTsh(lastMonth),
@@ -605,16 +612,12 @@ class DoctorDashboardViewModel @Inject constructor(
         val totalDecided = completed + cancelled
         val rate = if (totalDecided > 0) "${(completed * 100 / totalDecided)}%" else "\u2014"
 
-        val todayStart = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val todayEarnings = consultations
-            .filter { it.status.equals("COMPLETED", ignoreCase = true) && it.createdAt >= todayStart }
-            .sumOf { it.consultationFee }
-
         _uiState.update {
             it.copy(
                 totalPatients = uniquePatients,
                 acceptanceRate = rate,
-                todaysEarnings = formatTsh(todayEarnings),
+                // todaysEarnings is now driven by observeEarnings() from doctor_earnings table
+                // NOT from consultationFee (which is the full patient payment, not doctor's share)
             )
         }
     }
@@ -626,7 +629,12 @@ class DoctorDashboardViewModel @Inject constructor(
         }
     }
 
+    @Volatile private var realtimeSubscribed = false
+
     private fun subscribeToRealtime(doctorId: String) {
+        if (realtimeSubscribed) return
+        realtimeSubscribed = true
+
         viewModelScope.launch {
             realtimeService.subscribeToConsultations(doctorId, viewModelScope)
             realtimeService.consultationEvents.collect {
@@ -639,6 +647,21 @@ class DoctorDashboardViewModel @Inject constructor(
             realtimeService.profileEvents.collect {
                 Log.d(TAG, "Profile realtime event received, re-fetching profile")
                 fetchProfileFromSupabase(doctorId)
+            }
+        }
+        viewModelScope.launch {
+            realtimeService.subscribeToEarnings(doctorId, viewModelScope)
+            realtimeService.earningsEvents.collect {
+                Log.d(TAG, "Earnings realtime event received, re-fetching earnings")
+                fetchEarningsFromSupabase(doctorId)
+            }
+        }
+        viewModelScope.launch {
+            requestRealtimeService.subscribeAsDoctor(doctorId, viewModelScope)
+            requestRealtimeService.requestEvents.collect { event ->
+                Log.d(TAG, "Consultation request realtime event: ${event.status}")
+                fetchProfileFromSupabase(doctorId)
+                fetchConsultationsFromSupabase(doctorId)
             }
         }
     }
