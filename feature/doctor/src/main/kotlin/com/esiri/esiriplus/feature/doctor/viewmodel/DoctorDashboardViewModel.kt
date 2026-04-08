@@ -108,6 +108,7 @@ data class DoctorDashboardUiState(
     val warningAt: String? = null,
     val warningCount: Int = 0,
     val warningAcknowledged: Boolean = true,
+    val canServeAsGp: Boolean = false,
     val profileUploading: Boolean = false,
     // For preserving original DB values when saving
     val registeredYearsExperience: Int = 0,
@@ -219,22 +220,24 @@ class DoctorDashboardViewModel @Inject constructor(
                 val yearsSinceRegistration = ((System.currentTimeMillis() - createdAt) / (365.25 * 24 * 3600 * 1000)).toInt()
                 val currentYearsExperience = storedYears + yearsSinceRegistration
 
+                // Use raw DB specialty string (e.g. "specialist", "gp") for feature checks,
+                // and a display-friendly version for UI labels.
+                val rawSpecialty = dbProfile?.specialty ?: profile.specialty.name.lowercase()
+                val displaySpecialty = rawSpecialty.replaceFirstChar { c -> c.uppercase() }
+                    .replace("_", " ")
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         doctorId = userId,
                         doctorName = profile.fullName,
-                        specialty = profile.specialty.name.lowercase()
-                            .replaceFirstChar { c -> c.uppercase() }
-                            .replace("_", " "),
+                        specialty = rawSpecialty,
                         isVerified = profile.isVerified,
                         isOnline = profile.isAvailable,
                         isAvailable = profile.isAvailable,
                         profilePhone = profile.phone,
                         profileEmail = profile.email,
-                        profileSpecialty = profile.specialty.name.lowercase()
-                            .replaceFirstChar { c -> c.uppercase() }
-                            .replace("_", " "),
+                        profileSpecialty = displaySpecialty,
                         profileLicenseNumber = profile.licenseNumber,
                         profileYearsExperience = currentYearsExperience.toString(),
                         profileBio = profile.bio,
@@ -330,7 +333,13 @@ class DoctorDashboardViewModel @Inject constructor(
                         doctorProfileDao.insert(localProfile.copy(isVerified = row.isVerified, rejectionReason = row.rejectionReason))
                     }
                     _uiState.update {
-                        it.copy(isVerified = row.isVerified, rejectionReason = row.rejectionReason)
+                        it.copy(
+                            isVerified = row.isVerified,
+                            rejectionReason = row.rejectionReason,
+                            specialty = row.specialty,
+                            profileSpecialty = row.specialty.replaceFirstChar { c -> c.uppercase() }.replace("_", " "),
+                            canServeAsGp = row.canServeAsGp,
+                        )
                     }
                     return
                 }
@@ -374,6 +383,8 @@ class DoctorDashboardViewModel @Inject constructor(
                     var updated = it.copy(
                         isVerified = row.isVerified,
                         rejectionReason = row.rejectionReason,
+                        specialty = row.specialty,
+                        profileSpecialty = row.specialty.replaceFirstChar { c -> c.uppercase() }.replace("_", " "),
                         suspendedUntil = row.suspendedUntil,
                         isBanned = row.isBanned,
                         bannedAt = row.bannedAt,
@@ -382,6 +393,7 @@ class DoctorDashboardViewModel @Inject constructor(
                         warningAt = row.warningAt,
                         warningCount = row.warningCount,
                         warningAcknowledged = row.warningAcknowledged,
+                        canServeAsGp = row.canServeAsGp,
                     )
                     if (isSuspended || row.isBanned) {
                         updated = updated.copy(isOnline = false, isAvailable = false, profileAvailableForConsultations = false)
@@ -607,18 +619,20 @@ class DoctorDashboardViewModel @Inject constructor(
 
     private fun updateDashboardStats(consultations: List<ConsultationEntity>) {
         val uniquePatients = consultations.map { it.patientSessionId }.distinct().size
-        val completed = consultations.count { it.status.equals("COMPLETED", ignoreCase = true) }
-        val cancelled = consultations.count { it.status.equals("CANCELLED", ignoreCase = true) }
-        val totalDecided = completed + cancelled
-        val rate = if (totalDecided > 0) "${(completed * 100 / totalDecided)}%" else "\u2014"
 
         _uiState.update {
             it.copy(
                 totalPatients = uniquePatients,
-                acceptanceRate = rate,
                 // todaysEarnings is now driven by observeEarnings() from doctor_earnings table
                 // NOT from consultationFee (which is the full patient payment, not doctor's share)
             )
+        }
+    }
+
+    private fun fetchAcceptanceRate(doctorId: String) {
+        viewModelScope.launch {
+            val rate = profileService.getAcceptanceRate(doctorId)
+            _uiState.update { it.copy(acceptanceRate = rate) }
         }
     }
 
@@ -627,6 +641,7 @@ class DoctorDashboardViewModel @Inject constructor(
             val all = consultationDao.getByDoctorId(doctorId).first()
             updateDashboardStats(all)
         }
+        fetchAcceptanceRate(doctorId)
     }
 
     @Volatile private var realtimeSubscribed = false
@@ -1112,6 +1127,17 @@ class DoctorDashboardViewModel @Inject constructor(
             "${date.dayOfMonth}/${date.monthValue}/${date.year}"
         } catch (_: Exception) {
             ""
+        }
+    }
+
+    fun toggleServeAsGp() {
+        val state = _uiState.value
+        if (!state.profileSpecialty.contains("specialist", ignoreCase = true) &&
+            !state.specialty.contains("specialist", ignoreCase = true)) return
+        viewModelScope.launch {
+            val newValue = !state.canServeAsGp
+            _uiState.update { it.copy(canServeAsGp = newValue) }
+            profileService.updateCanServeAsGp(state.doctorId, newValue)
         }
     }
 

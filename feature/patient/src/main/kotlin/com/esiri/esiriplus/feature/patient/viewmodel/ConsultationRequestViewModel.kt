@@ -333,6 +333,23 @@ class ConsultationRequestViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            // Proactive patient token refresh — patient JWTs are custom HS256
+            // and can't be refreshed by the OkHttp interceptor chain. Refresh
+            // now if the token is missing or expiring within 5 minutes to avoid 401.
+            val currentToken = tokenManager.getAccessTokenSync()
+            if (currentToken == null || tokenManager.isTokenExpiringSoon(5)) {
+                val refreshResult = try {
+                    authRepository.refreshSession()
+                } catch (e: Exception) {
+                    com.esiri.esiriplus.core.common.result.Result.Error(e)
+                }
+                if (refreshResult is com.esiri.esiriplus.core.common.result.Result.Success) {
+                    Log.d("ConsultRequestVM", "Patient token refreshed proactively before request")
+                } else {
+                    Log.w("ConsultRequestVM", "Proactive patient token refresh FAILED — request will likely 401")
+                }
+            }
+
             when (val result = consultationRequestRepository.createRequest(
                 doctorId = doctorId,
                 serviceType = serviceType,

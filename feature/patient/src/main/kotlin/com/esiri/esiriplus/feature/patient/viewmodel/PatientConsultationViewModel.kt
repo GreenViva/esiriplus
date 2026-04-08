@@ -46,6 +46,22 @@ import java.time.Instant
 import java.util.UUID
 import javax.inject.Inject
 
+/** Tracks the auto-greeting flow shown once when the chat first opens. */
+enum class GreetingPhase {
+    /** Greeting sequence not started or already completed. */
+    NONE,
+    /** Typing indicator visible — "doctor is typing". */
+    TYPING,
+    /** First message visible: "Hello, welcome!" */
+    MSG_WELCOME,
+    /** Second message visible: "We are here to serve you." */
+    MSG_SERVE,
+    /** Third message visible: "How would you like to proceed?" + choice buttons. */
+    MSG_CHOICES,
+    /** Patient picked a choice — greeting done. */
+    DONE,
+}
+
 data class ChatUiState(
     val previousSessionMessages: List<MessageData> = emptyList(),
     val messages: List<MessageData> = emptyList(),
@@ -63,6 +79,8 @@ data class ChatUiState(
     val isFollowUpMode: Boolean = false,
     /** Epoch millis when the follow-up window closes (null when not in follow-up mode). */
     val followUpExpiry: Long? = null,
+    /** Auto-greeting flow state. */
+    val greetingPhase: GreetingPhase = GreetingPhase.NONE,
 )
 
 @HiltViewModel
@@ -94,6 +112,23 @@ class PatientConsultationViewModel @Inject constructor(
     private var typingClearJob: Job? = null
     private var lastTypingSendMs = 0L
 
+    /**
+     * Ensures the patient JWT is valid before a critical call.
+     * If missing or expiring within 2 minutes, proactively refreshes.
+     * This prevents 401s during active consultations.
+     */
+    private suspend fun ensureValidToken() {
+        val token = tokenManager.getAccessTokenSync()
+        if (token == null || tokenManager.isTokenExpiringSoon(2)) {
+            try {
+                authRepository.refreshSession()
+                Log.d(TAG, "Patient token refreshed proactively")
+            } catch (_: Exception) {
+                Log.w(TAG, "Proactive token refresh failed")
+            }
+        }
+    }
+
     /** Catches any uncaught coroutine exception to prevent app crash. */
     private val safeHandler = CoroutineExceptionHandler { _, throwable ->
         if (throwable is kotlinx.coroutines.CancellationException) throw throwable
@@ -122,12 +157,14 @@ class PatientConsultationViewModel @Inject constructor(
 
     fun acceptExtension() {
         viewModelScope.launch(safeHandler) {
+            ensureValidToken()
             consultationSessionManager.acceptExtension()
         }
     }
 
     fun declineExtension() {
         viewModelScope.launch(safeHandler) {
+            ensureValidToken()
             consultationSessionManager.declineExtension()
         }
     }
@@ -216,6 +253,9 @@ class PatientConsultationViewModel @Inject constructor(
                     Log.e(TAG, "initChat: importAuthToken FAILED — Realtime will be degraded", e)
                 }
 
+                // Ensure token is fresh before any server calls
+                ensureValidToken()
+
                 // Fetch ALL remote messages on first load (no since filter).
                 // Always request parent history — the server returns nothing extra
                 // if this consultation has no parent, so it's a safe no-op.
@@ -272,11 +312,48 @@ class PatientConsultationViewModel @Inject constructor(
                 Log.d(TAG, "initChat: syncing unsynced messages")
                 syncUnsyncedMessages()
                 Log.d(TAG, "initChat DONE — all subscriptions active")
+
+                // Start the auto-greeting sequence for new consultations (no existing messages).
+                // Skip for follow-ups — the greeting already happened in the original session.
+                if (!_uiState.value.isFollowUpMode && _uiState.value.messages.isEmpty()) {
+                    startGreetingSequence()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "initChat CRASHED", e)
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    /**
+     * Runs the staged greeting sequence with typing-indicator pauses between each message.
+     * TYPING → MSG_WELCOME → MSG_SERVE → MSG_CHOICES (waits for patient pick).
+     */
+    private fun startGreetingSequence() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(greetingPhase = GreetingPhase.TYPING) }
+            delay(1200)
+            _uiState.update { it.copy(greetingPhase = GreetingPhase.MSG_WELCOME) }
+            delay(800)
+            _uiState.update { it.copy(greetingPhase = GreetingPhase.TYPING) }
+            delay(1000)
+            _uiState.update { it.copy(greetingPhase = GreetingPhase.MSG_SERVE) }
+            delay(800)
+            _uiState.update { it.copy(greetingPhase = GreetingPhase.TYPING) }
+            delay(1000)
+            _uiState.update { it.copy(greetingPhase = GreetingPhase.MSG_CHOICES) }
+        }
+    }
+
+    /** Patient chose "Text Messages" — dismiss greeting, send a system-like prompt. */
+    fun onGreetingChooseText() {
+        _uiState.update { it.copy(greetingPhase = GreetingPhase.DONE) }
+        sendMessage(application.getString(R.string.greeting_text_auto_message))
+    }
+
+    /** Patient chose "Call" — returns true so the UI can open the call-type dialog. */
+    fun onGreetingChooseCall() {
+        _uiState.update { it.copy(greetingPhase = GreetingPhase.DONE) }
     }
 
     private var currentPollInterval = POLL_FAST_MS
@@ -312,6 +389,7 @@ class PatientConsultationViewModel @Inject constructor(
     }
 
     private suspend fun fetchRemoteMessages(fullSync: Boolean = false, includeParent: Boolean = false) {
+        ensureValidToken()
         val since = if (fullSync) {
             null
         } else {
@@ -389,7 +467,10 @@ class PatientConsultationViewModel @Inject constructor(
             // 1. Insert locally immediately (optimistic UI)
             messageRepository.saveMessage(messageData)
 
-            // 2. Send to Supabase
+            // 2. Ensure token is fresh before sending
+            ensureValidToken()
+
+            // 3. Send to Supabase
             when (val result = messageService.sendMessage(
                 messageId = messageId,
                 consultationId = consultationId,
@@ -433,6 +514,7 @@ class PatientConsultationViewModel @Inject constructor(
         _uiState.update { it.copy(isUploading = true, sendError = null) }
 
         viewModelScope.launch(safeHandler) {
+            ensureValidToken()
             try {
                 val contentResolver = context.contentResolver
                 val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"

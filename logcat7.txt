@@ -1,0 +1,338 @@
+02-28 18:29:31.401  2026  3214 D SensorService: SensorDevice::batch: ident=0xb400007a7b5a9c00, handle=0x00000029, flags=0, period_ns=20000000 timeout=0
+02-28 18:29:31.401  2026  3214 D SensorService: 	>>> actuating h/w BATCH 0x00000029 20000000 0
+02-28 18:29:31.401  1479  1479 I sensors-hal: batch:254, android.sensor.gyroscope/41, period=20000000, max_latency=0
+02-28 18:29:31.401  1479  1479 I sensors-hal: send_sensor_config_request:517, dt=gyro, sp=20000, bp=0, fp=0, resampling=1
+02-28 18:29:31.401  1479  1479 I sensors-hal: send_sync_sensor_request:368, send sync request
+02-28 18:29:31.401  1479  1479 I sensors-hal: send_sync_sensor_request:394, wait for notification of response
+02-28 18:29:31.403  2026  4013 I IPCThreadState: oneway function results for code 10007 on binder at 0xb400007b6cc807a0 will be dropped but finished with status UNKNOWN_TRANSACTION
+02-28 18:29:31.403  2026  4013 W BroadcastQueue: Ignoring finishReceiverLocked; no active broadcast for BroadcastProcessQueue{4fd4e8f 21506:com.lemon.lvoverseas/u0a343}
+02-28 18:29:31.595  7792  7792 E UTraceContext: jsonString parse to json error: org.json.JSONException: End of input at character 0 of  [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.596  7792  7792 E UTraceContext: jsonString parse to json error: org.json.JSONException: End of input at character 0 of  [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.676  7792  9522 I UTrace.Sdk: startHead, spanName: 102 [7f0000011772292571676296507792|null|p_7792_357a6e5@1020|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.676  7792  9522 I UTrace.Sdk: addTraceTags, tags: {flag=2, pkgName=com.oplus.battery, grade=4, isMilestone=true, pageId=pages/ps, intent=pantanal.intent.business.app.system.POWER_SAVE} [7f0000011772292571676296507792|null|p_7792_357a6e5@1020|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.677  7792  9522 I UTrace.Sdk: startHead, spanName: 920000 [7f0000011772292571677296607792|null|p_7792_357a6e5@1021|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.677  7792  9522 I UTrace.Sdk: addSpanTags, tags: {seedling_support_ver=3.0.4, pkgName=com.oplus.battery, appVersionName=, intent=pantanal.intent.business.app.system.POWER_SAVE} [7f0000011772292571677296607792|null|p_7792_357a6e5@1021|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.677  7792  9522 I UTrace.Sdk: addTraceTags, tags: {seedling_support_ver=3.0.4} [7f0000011772292571677296607792|null|p_7792_357a6e5@1021|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.678  7792  9522 I UTrace.Sdk: start, spanName: 103 [7f0000011772292571676296507792|p_7792_357a6e5@1020|p_7792_357a6e5@1022|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.678  7792  9522 I UTrace.Sdk: addTraceTags, tags: {seedling_support_ver=3.0.4} [7f0000011772292571676296507792|p_7792_357a6e5@1020|p_7792_357a6e5@1022|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.678  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [7f0000011772292571676296507792|p_7792_357a6e5@1020|p_7792_357a6e5@1022|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.679  7792  9522 I UTrace.Sdk: start, spanName: 104 [7f0000011772292571676296507792|p_7792_357a6e5@1022|p_7792_357a6e5@1023|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.679  7792  9522 I UTrace.Sdk: addTraceTags, tags: {seedling_support_ver=3.0.4} [7f0000011772292571676296507792|p_7792_357a6e5@1022|p_7792_357a6e5@1023|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.679  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [7f0000011772292571676296507792|p_7792_357a6e5@1022|p_7792_357a6e5@1023|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.679  7792  9522 I UTrace.Sdk: start, spanName: 105 [7f0000011772292571676296507792|p_7792_357a6e5@1023|p_7792_357a6e5@1024|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.680  7792  9522 I UTrace.Sdk: addTraceTags, tags: {seedling_support_ver=3.0.4} [7f0000011772292571676296507792|p_7792_357a6e5@1023|p_7792_357a6e5@1024|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.692  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [7f0000011772292571676296507792|p_7792_357a6e5@1023|p_7792_357a6e5@1024|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.692  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.692  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.720  7792  7792 E UTraceContext: jsonString parse to json error: org.json.JSONException: End of input at character 0 of  [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.720  7792  7792 E UTraceContext: jsonString parse to json error: org.json.JSONException: End of input at character 0 of  [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.838 30497 30497 I WeatherS_UpdateWeatherService: setUpdateWeather: ,currentUpdateAttendId:2,isUpdateAll:false,isWeatherLight:true,isForceRefresh:false,updateScene:20100,callingPkg:android.uid.systemui:10214
+7a6e5@1023|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.679  7792  9522 D CardWidget_TraceHelper: (PowerSaveNotify) startTrace spanName=105.parentTraceCtx=UTraceContext(traceID='7f0000011772292571676296507792', current=p_7792_357a6e5@1023, parent=p_7792_357a6e5@1022, spanType=2, valid=1, tag=null)
+02-28 18:29:31.679  7792  9522 I UTrace.Sdk: start, spanName: 105 [7f0000011772292571676296507792|p_7792_357a6e5@1023|p_7792_357a6e5@1024|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.680  7792  9522 D CardWidget_TraceHelper: (PowerSaveNotify) saveTraceContext to bundle=UTraceContext(traceID='7f0000011772292571676296507792', current=p_7792_357a6e5@1024, parent=p_7792_357a6e5@1023, spanType=2, valid=1, tag=null)
+02-28 18:29:31.680  7792  9522 I UTrace.Sdk: addTraceTags, tags: {seedling_support_ver=3.0.4} [7f0000011772292571676296507792|p_7792_357a6e5@1023|p_7792_357a6e5@1024|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.680  7792  9522 D CardWidget_TraceHelper: (PowerSaveNotify) supportSDK_send_intent_trace_context_to_ums is {"traceID":"7f0000011772292571676296507792","current":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1024}","parent":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1023}","spanType":2,"valid":1}
+02-28 18:29:31.680  7792  9522 D CardWidget_SEEDLING_SUPPORT_SDK(3000004): (PowerSaveNotify) seedlingIntent to UMS start: [{"timestamp":1772292571675,"action":"pantanal.intent.business.app.system.POWER_SAVE","flag":2,"instance_id":1772292571675,"serviceInstanceId":"","isSupportMultiInstance":false,"card_options":{"pageId":"pages\/ps","isMilestone":true,"requestShowPanel":true,"requestHideStatusBar":false,"importance":4,"lockScreenShowHostMap":{"8":false},"panelActionConfigMap":{"101":2},"remind_type":12,"should_focus":false,"focus_timestamp":1772292571675},"intent_trace_context":"{\"traceID\":\"7f0000011772292571676296507792\",\"current\":\"{\\\"spanID\\\":\\\"p_7792_357a6e5\\\",\\\"sequence\\\":1024}\",\"parent\":\"{\\\"spanID\\\":\\\"p_7792_357a6e5\\\",\\\"sequence\\\":1023}\",\"spanType\":2,\"valid\":1}"}]
+02-28 18:29:31.683 22632 22632 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+02-28 18:29:31.683 22632 22632 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+02-28 18:29:31.683 22632 22632 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+02-28 18:29:31.683 22632 22632 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+02-28 18:29:31.687  7757  9115 I UMS.IntentProvider: panta-sugg(16001060-release): start call method:start_intents, callingPackage=com.oplus.b***y
+02-28 18:29:31.687  7757  9115 E UMS.CommonUtils: Failed to get meta data for health.fluid.export in com.heytap.health.international
+02-28 18:29:31.687  7757  9115 I UMS.CommonUtils: health.fluid.export :-1 ,metaValue=-1 Type=int
+02-28 18:29:31.688  7757  9115 I UMS.IntentProviderManager: panta-sugg(16001060-release): checkPackageIsLegal,pkgName:com.oplus.battery,pkgNotExistsInWhiteList:true,pkgNotExistsInStaticManagerLocal:false
+02-28 18:29:31.688  7757  9115 I UMS.IntentProviderManager: panta-sugg(16001060-release): getValidIntent, jsonArray:[{"timestamp":1772292571675,"action":"pantanal.intent.business.app.system.POWER_SAVE","flag":2,"instance_id":1772292571675,"serviceInstanceId":"","isSupportMultiInstance":false,"card_options":{"pageId":"pages\/ps","isMilestone":true,"requestShowPanel":true,"requestHideStatusBar":false,"importance":4,"lockScreenShowHostMap":{"8":false},"panelActionConfigMap":{"101":2},"remind_type":12,"should_focus":false,"focus_timestamp":1772292571675},"intent_trace_context":"{\"traceID\":\"7f0000011772292571676296507792\",\"current\":\"{\\\"spanID\\\":\\\"p_7792_357a6e5\\\",\\\"sequence\\\":1024}\",\"parent\":\"{\\\"spanID\\\":\\\"p_7792_357a6e5\\\",\\\"sequence\\\":1023}\",\"spanType\":2,\"valid\":1}"}]
+02-28 18:29:31.688  7757  9115 I UMS.IntentProviderManager: panta-sugg(16001060-release): getValidIntent, intentKey:pantanal.intent.business.app.system.POWER_SAVE, timestamp:1772292571675
+02-28 18:29:31.688  7757  8517 I UMS.IntentProviderManager: panta-sugg(16001060-release): asyncSendIntent start.
+02-28 18:29:31.688  7757  8517 I SG::StaticAndDecisionSdk: sendIntents... parentCtx:UTraceContext2
+02-28 18:29:31.688  7757 30744 I SG::IntentProviderHelper: intent intentValue=[{"timestamp":1772292571675,"action":"pantanal.intent.business.app.system.POWER_SAVE","flag":2,"instance_id":1772292571675,"serviceInstanceId":"","isSupportMultiInstance":false,"card_options":{"pageId":"pages\/ps","isMilestone":true,"requestShowPanel":true,"requestHideStatusBar":false,"importance":4,"lockScreenShowHostMap":{"8":false},"panelActionConfigMap":{"101":2},"remind_type":12,"should_focus":false,"focus_timestamp":1772292571675},"intent_trace_context":"{\"traceID\":\"7f0000011772292571676296507792\",\"current\":\"{\\\"spanID\\\":\\\"p_7792_357a6e5\\\",\\\"sequence\\\":1024}\",\"parent\":\"{\\\"spanID\\\":\\\"p_7792_357a6e5\\\",\\\"sequence\\\":1023}\",\"spanType\":2,\"valid\":1}"}]
+02-28 18:29:31.688  7757 30744 I SG::IntentProviderHelper: [saveCacheIntent] Save seedlingIntent to sharedPreferences, the item is : pantanal.intent.business.app.system.POWER_SAVE
+02-28 18:29:31.688  7757 30744 I SG::IntentProviderHelper: [filterCacheIntent] filter intent pantanal.intent.business.app.system.POWER_SAVE
+02-28 18:29:31.689  7757 30744 I SG::IntentProviderHelper: [saveCacheIntent] save data
+02-28 18:29:31.689  7757 30744 I SG::IntentProviderHelper: [intent_trace] systemIntent stm_get_intent_trace_context_from_ums  action:pantanal.intent.business.app.system.POWER_SAVE, contextString: {"traceID":"7f0000011772292571676296507792","current":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1024}","parent":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1023}","spanType":2,"valid":1}
+02-28 18:29:31.689  7757 30744 I SG::IntentProviderHelper: [intent_trace] systemIntent uTraceContext parse result null 
+02-28 18:29:31.689  7757 30744 E SG::IntentProviderHelper: getPendingIntentFromIntentData succeed: null
+02-28 18:29:31.689  7757 30744 I SG::IntentProviderHelper: pendingIntent is null
+02-28 18:29:31.689  7757 30744 I SG::IntentProviderHelper: [sendIntents] send seedlingIntents from sendIntents function.
+02-28 18:29:31.689  7757 30744 I SG::IntentProviderHelper: start system decision.
+02-28 18:29:31.689  7757 30744 I SG::DecisionStoreHelper: get mapping, services: [pantanal.intent.business.app.system.POWER_SAVE]
+02-28 18:29:31.689  7757 30744 I SG::DecisionStoreHelper: findServiceInDecision actions[pantanal.intent.business.app.system.POWER_SAVE] 
+02-28 18:29:31.689  7757 30744 I SG::DecisionStoreHelper: findServiceInDecision intents[SeedlingIntent(timestamp=1772292571675, action=pantanal.intent.business.app.system.POWER_SAVE, flag=2, data=null, options={"initData":{"expandedImg":"assets\/images\/expanded\/battery_level_.png","compactImg":"assets\/images\/compact\/battery_level_.png","level":48,"levelPercent":"48%","title":"$t('strings.low_status')","subtitle":"$t('strings.ps_suggest')","show":true,"progcolor":"#DB382C"}}, seedlingCardOptions={"pageId":"pages\/ps","isMilestone":true,"requestShowPanel":true,"requestHideStatusBar":false,"importance":4,"lockScreenShowHostMap":{"8":false},"panelActionConfigMap":{"101":2},"remind_type":12,"should_focus":false,"focus_timestamp":1772292571675}, instanceId=1772292571675, uTraceContext=null, serviceInstanceId=, isSupportMultiInstance=false)] seedlingCacheInfoMap={}
+02-28 18:29:31.690  7757 30744 I SG::DecisionStoreHelper: systemResultInfo: []  notFindIntentList = [pantanal.intent.business.app.system.POWER_SAVE]
+02-28 18:29:31.690  7757 30744 I SG::SeedlingDiscover: start find seedling for: [pantanal.intent.business.app.system.POWER_SAVE]
+02-28 18:29:31.690  7757 30744 I SG::SeedlingDiscover: local repo found: [pantanal.intent.business.app.system.POWER_SAVE],mix data result size: 1
+--------- beginning of system
+02-28 18:29:31.692 22632 22632 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:-1
+02-28 18:29:31.692  7792  9522 D CardWidget_TraceHelper: (PowerSaveNotify) endNodeTrace traceCtxStr={"traceID":"7f0000011772292571676296507792","current":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1024}","parent":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1023}","spanType":2,"valid":1}
+02-28 18:29:31.692  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [7f0000011772292571676296507792|p_7792_357a6e5@1023|p_7792_357a6e5@1024|com.oplus.battery] [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.692  7792  9522 D CardWidget_TraceHelper: (PowerSaveNotify) endNodeTrace traceCtxStr={"traceID":"7f0000011772292571676296507792","current":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1020}","spanType":2,"valid":1}
+02-28 18:29:31.692  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.692  7792  9522 D CardWidget_TraceHelper: (PowerSaveNotify) endNodeTrace traceCtxStr={"traceID":"7f0000011772292571677296607792","current":"{\"spanID\":\"p_7792_357a6e5\",\"sequence\":1021}","spanType":1,"valid":1}
+02-28 18:29:31.692  7792  9522 I UTrace.Sdk: end, completionType: GOAHEAD [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.694 30497 22726 E WeatherS_WeatherServiceVersionUtils: NameNotFoundException android.uid.systemui:10214 app version code get fail.
+02-28 18:29:31.694 30497 22726 I Weather_Location_LocationController: startLocationWithTimeOut, forceLocation:false, needCityFromNet:true
+02-28 18:29:31.694 30497 22726 W Weather_Location_LocationController: start isStartPassiveLocation true
+02-28 18:29:31.696 22656 22656 D nativeloader: Configuring clns-shared-7 for other apk /system_ext/app/LFEHer/LFEHer.apk. target_sdk_version=35, uses_libraries=, library_path=/system_ext/app/LFEHer/lib/arm64:/system_ext/app/LFEHer/LFEHer.apk!/lib/arm64-v8a:/system/lib64:/system_ext/lib64, permitted_path=/data:/mnt/expand:/data/user/0/com.oplus.lfeh:/system_ext/app/LFEHer:/system/lib64:/system_ext/lib64
+02-28 18:29:31.697 30497 22726 W Weather_Location_LocationController: isPassiveLocationPermissionGranted:true
+02-28 18:29:31.697 30497 22726 W Weather_Location_LocationController: isPassiveLocationServiceEnable:true
+02-28 18:29:31.697 30497 22726 W Weather_Location_LocationController: isStartPassiveLocation true
+02-28 18:29:31.697 30497 22726 W Weather_Location_LocationController: not have permission not canPassiveLocation
+02-28 18:29:31.697 30497 22726 I WeatherS_AutoGetLocationService: onLocationSdkCall for scene:[5] at step:[4] by extra:[check location environment start]
+02-28 18:29:31.697 30497 22726 W Weather_Location_LocationController: isLocationServiceEnable:true
+02-28 18:29:31.698 30497 22726 W Weather_Location_LocationController: isLocationPermissionGranted:true
+02-28 18:29:31.698 16567 16567 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-28 18:29:31.699 16567 16567 D VRI[Conversation]: setWindowStopped stopped:true
+02-28 18:29:31.700  2026  7712 W UserManagerService: Requested status bar icon for non-badged user 0
+02-28 18:29:31.701 16567 16567 I ImeTracker: com.whatsapp:75dfc1cc: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+02-28 18:29:31.701 16567 16567 I ImeTracker: com.whatsapp:75dfc1cc: onFailed at PHASE_CLIENT_VIEW_SERVED
+02-28 18:29:31.701  7757 30744 I SG::ContextState: skip filter,isSystem:true
+02-28 18:29:31.701  7757 30744 I SG::SeedlingDiscover: final results --> [SeedlingCacheInfo(serviceId=268451902, versionCode=2000001, url=com.oplus.battery, name=BatterySeedling, subDomain=common, action=pantanal.intent.business.app.system.POWER_SAVE, supportEntry=28, supportSize=7,8,9, type=100, platformVersion=3000000, hostName=com.oplus.battery, hostComponentName=com.oplus.powermanager.powersave.PowerSaveSeedlingCardProvider, minHostVersion=1, cardIds=-1, singleAction=pantanal.intent.business.app.system.POWER_SAVE, seedlingType=immediate, useTemplate=, remindControl=1, brandName=null, brandCode=null)]
+02-28 18:29:31.703  2026  3235 W ActivityManager: Slow operation: 97ms so far, now at startProcess: done creating new process record
+02-28 18:29:31.703  7757 30744 I SG::DecisionStoreHelper: intent: [pantanal.intent.business.app.system.POWER_SAVE]
+02-28 18:29:31.703  2026  3235 W ActivityManager: Slow operation: 97ms so far, now at startProcess: stepping in to startProcess
+02-28 18:29:31.703  7757 30744 I SG::DecisionStoreHelper: startIntent is empty.
+02-28 18:29:31.703  7757 30744 I SG::DecisionStoreHelper: start delete system decision.
+02-28 18:29:31.703  7757 30744 I SG::DecisionStoreHelper: deleteSystemStoreItems, serviceIds: [268451902]
+02-28 18:29:31.703  7757 30744 I SG::DecisionStoreHelper: [deleteEndService] start
+02-28 18:29:31.705  2026  4009 W UserManagerService: Requested status bar icon for non-badged user 0
+02-28 18:29:31.706  2026  3235 W ActivityManager: Slow operation: 99ms so far, now at startProcess: done starting proc!
+02-28 18:29:31.706  2026  3235 W ContentProviderHelper: Slow operation: 109ms so far, now at getContentProviderImpl: after start process
+02-28 18:29:31.706 22656 22656 D CompatChangeReporter: Compat change id reported: 202956589; UID 1000; state: ENABLED
+02-28 18:29:31.706  7757 30744 I SG::DecisionStoreHelper: [deleteEndService] end
+02-28 18:29:31.706  7757 30744 I SG::DecisionStoreHelper: deleteStoreItem, deleteNum: 0
+02-28 18:29:31.707  7757 30744 I SG::DecisionStoreHelper: deleteExpiredItems, deleteNum: 0
+02-28 18:29:31.707  7757 30744 I SG::DecisionStoreHelper: deleteSystemStoreItems : no bootTime condition meet
+02-28 18:29:31.707  7757 30744 I SG::DecisionStoreHelper: deleteStoreItem, no changed
+02-28 18:29:31.707  7757 30744 I SG::IntentProviderHelper: [removeCacheIntent] Remove intent cache from SharedPreferences, the list is : [pantanal.intent.business.app.system.POWER_SAVE]
+02-28 18:29:31.707  7757 30744 I SG::IntentProviderHelper: [removeCacheIntent] remove end...
+02-28 18:29:31.707  7757 30744 I SG::IntentProviderHelper: storeResult is 2, seedlingIntents size:1
+02-28 18:29:31.709 30497 22726 W Weather_Location_LocationController: isNetAvailable:true
+02-28 18:29:31.706  2026  3235 W ContentProviderHelper: Slow operation: 109ms so far, now at getContentProviderImpl: updating data structures
+02-28 18:29:31.709 30497 22726 W Weather_Location_LocationController: meetLocationInterval:false
+02-28 18:29:31.709  2026  4233 W FillRequestEventLogger: Shouldn't be logging AutofillFillRequestReported again for same event
+02-28 18:29:31.709  2026  4233 W FillResponseEventLogger: Shouldn't be logging AutofillFillRequestReported again for same event
+02-28 18:29:31.709  2026  4233 W PresentationStatsEventLogger: Shouldn't be logging AutofillPresentationEventReported again for same event
+02-28 18:29:31.709  2026  3235 W ContentProviderHelper: Slow operation: 113ms so far, now at getContentProviderImpl: done!
+02-28 18:29:31.709 30497 22726 I WeatherS_AutoGetLocationService: onLocationSdkCall for scene:[5] at step:[4] by extra:[location interval no meet]
+02-28 18:29:31.709 30497 22726 I WeatherS_AutoGetLocationService: location interval no meet,call update city weather.
+02-28 18:29:31.709 30497 22726 I WeatherS_LocalUtils: notifyChange errorCode: 410000 uri: content://com.oplus.weather.provider.locationCallBack?errorCode=410000
+02-28 18:29:31.709  2026  4233 D AutofillSession: clearPendingIntentLocked
+02-28 18:29:31.712 16567 16567 D OplusScrollToTopManager: com.whatsapp/com.whatsapp.Conversation,window dying
+02-28 18:29:31.712 16567 16567 D OplusScrollToTopManager: com.whatsapp/com.whatsapp.Conversation,unregisterSystemUIBroadcastReceiver 
+02-28 18:29:31.712 16567 16567 D OplusScrollToTopManager: com.whatsapp/com.whatsapp.Conversation, unregisterSystemUIBroadcastReceiver failed java.lang.IllegalArgumentException: Receiver not registered: android.view.OplusScrollToTopManager$2@40920ea
+02-28 18:29:31.712 16567 16567 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@5a0c139
+02-28 18:29:31.713  2026  3235 D CoreBackPreview: Window{fb71002 u0 com.whatsapp/com.whatsapp.Conversation}: Setting back callback null
+02-28 18:29:31.713 16567 16567 D OplusCursorFeedback: editorDetachFromWindow android.widget.Editor@ee67fdb
+02-28 18:29:31.713 16567 16567 D OplusCursorFeedback: clear
+02-28 18:29:31.714 16567 16567 D HWUI    : RenderProxy::destroy: this=0xb400007ab4e2b700, mContext=0xb400007ab8dedac0
+02-28 18:29:31.714 16567  9586 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007aae14af40, surface=NULL
+02-28 18:29:31.714  2026  7712 I InputDispatcher: channel 'fb71002 com.whatsapp/com.whatsapp.Conversation (server)'~ abortBrokenDispatchCycleLocked - notify=false
+02-28 18:29:31.714  2026  7712 W InputManager-JNI: Input channel object 'fb71002 com.whatsapp/com.whatsapp.Conversation (client)' was disposed without first being removed with the input manager!
+02-28 18:29:31.715  2026  7712 I WindowManager: Window{fb71002 u0 com.whatsapp/com.whatsapp.Conversation} state from HAS_DRAWN to NO_SURFACE; reason: destroySurface
+02-28 18:29:31.716  1319  1319 D Zygote  : Forked child process 22735
+02-28 18:29:31.716 19788 20237 I SpellCheckerSession: SpellCheckerSession.onClose():410 com.google.android.keyboard.client.delight5.LanguageIdentifier@1c95704 is closed
+02-28 18:29:31.717  2026  7712 D WindowManager: NFW_findFocusedWindowIfNeeded:Window{f3a75b0 u0 com.whatsapp/com.whatsapp.home.ui.HomeActivity} mCurrentFocus:Window{f3a75b0 u0 com.whatsapp/com.whatsapp.home.ui.HomeActivity}
+02-28 18:29:31.718  2026  7712 D ActivityTaskManager: removeAppToken: ActivityRecord{62975aa u0 com.whatsapp/.Conversation t8252 f}} delayed=false parent=Task{4a4a967 #8252 type=standard A=10333:com.whatsapp} animating=false Callers=com.android.server.wm.DisplayContent.removeAppToken:1734 com.android.server.wm.ActivityRecord.removeFromHistory:5062 com.android.server.wm.ActivityRecord.destroyed:5148 com.android.server.wm.ActivityClientController.activityDestroyed:337 
+02-28 18:29:31.720  7792  7792 E UTraceContext: jsonString parse to json error: org.json.JSONException: End of input at character 0 of  [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.720  7792  7792 E UTraceContext: org.json.JSONException: End of input at character 0 of 
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONTokener.syntaxError(JSONTokener.java:469)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONTokener.nextValue(JSONTokener.java:101)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONObject.<init>(JSONObject.java:168)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONObject.<init>(JSONObject.java:185)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.oplus.utrace.sdk.UTraceContextV2$Companion.fromJSONString(UTraceContextV2.kt:17)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.oplus.utrace.sdk.UTraceCompat.readFromJsonString(UTraceCompat.kt:10)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at l7.d.a(Unknown Source:21)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at l7.c.b(Unknown Source:13)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at l7.a$a.a(Unknown Source:8)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.oplus.pantanal.seedling.intent.a$d.handleMessage(Unknown Source:29)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.os.Looper.loopOnce(Looper.java:282)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.os.Looper.loop(Looper.java:387)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.app.ActivityThread.main(ActivityThread.java:9500)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at java.lang.reflect.Method.invoke(Native Method)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:600)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1005)
+02-28 18:29:31.720  7792  7792 D CardWidget_TraceHelper: (main) startTrace spanName=106.parentTraceCtx=null
+02-28 18:29:31.720  7792  7792 D CardWidget_SEEDLING_SUPPORT_SDK(3000004): (main) createResultCallBackMessenger,call back to user.action=pantanal.intent.business.app.system.POWER_SAVE,flag=2
+02-28 18:29:31.720  7792  7792 D CardWidget_SEEDLING_SUPPORT_SDK(3000004): (main) createCallBack: resultCode = 2
+02-28 18:29:31.720  7792  7792 D CardWidget_SEEDLING_SUPPORT_SDK(3000004): (main) createCallBack: key = pantanal.intent.business.app.system.POWER_SAVE_1772292571675,callBackMap = {pantanal.intent.business.app.system.POWER_SAVE_1772292571675=w8.h$c@5277160}
+02-28 18:29:31.720  7792  7792 I Channel.Client[1000028].battery.SEEDLING_SUPPORT_SDK(3000004): createCallBack,action = pantanal.intent.business.app.system.POWER_SAVE,flag=2,resultCode=2
+02-28 18:29:31.720  7792  7792 E UTraceContext: jsonString parse to json error: org.json.JSONException: End of input at character 0 of  [Battery.apk|com.oplus.battery|1.4.7-8671218-20240809-163401]
+02-28 18:29:31.720  7792  7792 E UTraceContext: org.json.JSONException: End of input at character 0 of 
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONTokener.syntaxError(JSONTokener.java:469)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONTokener.nextValue(JSONTokener.java:101)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONObject.<init>(JSONObject.java:168)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at org.json.JSONObject.<init>(JSONObject.java:185)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.oplus.utrace.sdk.UTraceContextV2$Companion.fromJSONString(UTraceContextV2.kt:17)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.oplus.utrace.sdk.UTraceCompat.readFromJsonString(UTraceCompat.kt:10)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at l7.c.i(Unknown Source:10)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.oplus.pantanal.seedling.intent.a$d.handleMessage(Unknown Source:129)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.os.Looper.loopOnce(Looper.java:282)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.os.Looper.loop(Looper.java:387)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at android.app.ActivityThread.main(ActivityThread.java:9500)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at java.lang.reflect.Method.invoke(Native Method)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:600)
+02-28 18:29:31.720  7792  7792 E UTraceContext: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1005)
+02-28 18:29:31.720  7792  7792 D CardWidget_TraceHelper: (main) endIntentTrace traceCtx=,resultCode=2
+02-28 18:29:31.720  2026  2026 I ServiceConnector.Impl: unbindJobThread: connection = ServiceConnector@378(Intent { act=android.service.autofill.AutofillService cmp=com.google.android.gms/.autofill.service.AutofillService }, user: 0)[Unbinding...]service = null mBinding = false
+02-28 18:29:31.720  2026  2026 E ServiceConnector.Impl: wasBound is false, mBinding is false, add an additional call to unbindService
+02-28 18:29:31.720  2026  2026 E ServiceConnector.Impl: Failed to unbind: java.lang.IllegalArgumentException: Service not registered: ServiceConnector@378(Intent { act=android.service.autofill.AutofillService cmp=com.google.android.gms/.autofill.service.AutofillService }, user: 0)[Unbinding...]
+02-28 18:29:31.720  2026  2026 I ServiceConnector.Impl: unbindJobThread: connection = ServiceConnector@344(Intent { act=android.service.autofill.AutofillService cmp=com.android.credentialmanager/.autofill.CredentialAutofillService }, user: 0)[Unbinding...]service = null mBinding = false
+02-28 18:29:31.720  2026  2026 E ServiceConnector.Impl: wasBound is false, mBinding is false, add an additional call to unbindService
+02-28 18:29:31.721  2026  2026 E ServiceConnector.Impl: Failed to unbind: java.lang.IllegalArgumentException: Service not registered: ServiceConnector@344(Intent { act=android.service.autofill.AutofillService cmp=com.android.credentialmanager/.autofill.CredentialAutofillService }, user: 0)[Unbinding...]
+02-28 18:29:31.721 30497 22726 I WeatherS_AutoGetLocationService: onLocationResult, count:0
+02-28 18:29:31.721 30497 22726 W WeatherS_AutoGetLocationService: onLocationResult, cityInfo is null!
+02-28 18:29:31.721 30497 22726 I WeatherS_AbsLocationHelper: getLocalId begin :service lct. 
+02-28 18:29:31.721 30497 22726 I WeatherS_AbsLocationHelper: dealWithLocalCity same location city, onlyUpdateWeather
+02-28 18:29:31.721 30497 22726 I WeatherS_AbsLocationHelper: endWithResult(): result=0null
+02-28 18:29:31.721 30497 22726 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.722 30497 22726 I WeatherS_WeatherProvider: query option: 1,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.723  4434  4434 V InlineSuggestionRenderService: handleDestroySuggestionViews called for 0:1507609955
+02-28 18:29:31.723  2026  2712 D CompatChangeReporter: Compat change id reported: 151861875; UID 1000; state: ENABLED
+02-28 18:29:31.725   646   646 E lowmemorykiller: device memory 368096 free 26630 file 377651
+02-28 18:29:31.728  3978  4043 I Tethering: USB bcast connected:true configured:true rndis:false ncm:false
+02-28 18:29:31.729  7757 30744 I SG::IntentProviderHelper: pendingIntent：null, storeResult:2，action：pantanal.intent.business.app.system.POWER_SAVE,timestamp:1772292571675
+02-28 18:29:31.735 30497 12540 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.738 30497 12540 I WeatherS_WeatherProvider: query option: 1,callingUid: 10214,name: android.uid.systemui:10214
+02-28 18:29:31.744 14367 14367 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.auth.service.START pkg=com.google.android.gms mCallingUid=10116 }
+02-28 18:29:31.744 14367 14367 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.auth.service.START pkg=com.google.android.gms mCallingUid=10116 }
+02-28 18:29:31.744  2026  2615 D WindowManager: NFW_findFocusedWindowIfNeeded:Window{f3a75b0 u0 com.whatsapp/com.whatsapp.home.ui.HomeActivity} mCurrentFocus:Window{f3a75b0 u0 com.whatsapp/com.whatsapp.home.ui.HomeActivity}
+02-28 18:29:31.745 10619 10619 W fb4a.AppComponentFactory: Instantiating Service
+02-28 18:29:31.746 30497 22726 I WeatherS_AbsLocationHelper: endWithResult(): needFullWeatherData=false
+02-28 18:29:31.746 30497 22726 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.748  4130  4583 D CommonApp-278-1000: NoScoreState not handle message 0
+02-28 18:29:31.748  3736  3736 I SystemUi--Common: UsbService-->onCreate_select_type = 0
+02-28 18:29:31.748  4130  4583 D IMApp-278-10333: DefaultState EVENT_SCENARIOS_CHANGE
+02-28 18:29:31.748  4130  4583 D IMApp-278-10333: scene=COMMON pn=com.whatsapp
+02-28 18:29:31.750  3736 10146 D StaticSDK.DecisionDao: (#query_data)engineVersion : 3000012,in version 1.1.40-beta32b3b5c-SNAPSHOT [SystemUIPlugin|com.android.systemui|2.0.26-f348910]
+02-28 18:29:31.751  3736 10146 D UserContextImp: getUserId userId 0
+02-28 18:29:31.754  7757  9115 I SG::DecisionResultProvider: query call: content://com.oplus.pantanal.ums.decision/services?platformVersion=3000012
+02-28 18:29:31.754  7757  9115 I SG::UTraceUtils: [startFromUri] [traceNode]:930005, uri:content://com.oplus.pantanal.ums.decision/services?platformVersion=3000012
+02-28 18:29:31.754  7757  9115 I SG::DecisionResultProvider: entrance info:[16, 8]
+02-28 18:29:31.754  7757  9115 I SG::DecisionResultProvider: callingPackage:com.android.systemui selection:support_entry & ? = 16 or support_entry & ? = 8 or support_entry = 0
+02-28 18:29:31.751 30497 22726 I WeatherS_WeatherProvider: query option: 1,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.754  7757  9115 I SG::DecisionResultProvider: Disabled filter
+02-28 18:29:31.758 30497 22726 I WeatherS_LocalUtils: updateWeatherStart:true;false;false;false
+02-28 18:29:31.758  7757  9115 I SG::DecisionResultProvider: [UMS.Seedling] query decision result, sql: SELECT * FROM system_decision_result WHERE ((support_entry & ? = 16 or support_entry & ? = 8 or support_entry = 0) and available = 1) and expireTime*60*1000+createTime>=1772292571754 ORDER BY score desc
+02-28 18:29:31.759  2026  2704 W ActivityManager: Slow operation: 55ms so far, now at startProcess: done updating battery stats
+02-28 18:29:31.759  2026  2704 W ActivityManager: Slow operation: 55ms so far, now at startProcess: building log message
+02-28 18:29:31.759  2026  2704 I ActivityManager: Start proc 22735:com.oplus.statistics.rom:cc/u0a110 for content provider {com.oplus.statistics.rom/com.oplus.dcc.cloudctl.CloudCtlContentProvider}
+02-28 18:29:31.759  2026  2704 W ActivityManager: Slow operation: 56ms so far, now at startProcess: starting to update pids map
+02-28 18:29:31.759  2026  2704 W ActivityManager: Slow operation: 56ms so far, now at startProcess: done updating pids map
+02-28 18:29:31.763 26560 21964 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+02-28 18:29:31.764  3736  3736 I SystemUi--Common: UsbService-->onCreate_mHasShow = false
+02-28 18:29:31.764  3736  3736 D OplusThreadFactory: buildNewThread usbselectdialog show with priority=-8
+02-28 18:29:31.768  1319  1319 D Zygote  : Forked child process 22744
+02-28 18:29:31.769  7757  9115 I SG::DecisionResultProvider: close entrance:0
+02-28 18:29:31.769  7757  9115 I SG::DecisionResultProvider: [UMS.Seedling] query decision result, sql: SELECT * FROM decision_result WHERE ((support_entry & ? = 16 or support_entry & ? = 8 or support_entry = 0) and available = 1) and expireTime*60*1000+timestamp>=1772292571754
+02-28 18:29:31.772  3736 30800 I KeyguardStyleClockPlugin: WeatherEffectController-->getCityId cityId = 2
+02-28 18:29:31.774 22735 22735 E atistics.rom:cc: Unknown bits set in runtime_flags: 0x40000000
+02-28 18:29:31.774 22735 22735 I atistics.rom:cc: Using CollectorTypeCC GC.
+02-28 18:29:31.776 30497 12540 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.780  3736  3736 I SystemUi--Common: UsbService-->isAdbEnable is:true
+02-28 18:29:31.781  3736  3736 D UsbService: updateAdbNotification_title = USB debugging enabled, message = Disable USB debugging
+02-28 18:29:31.782  4130  4583 D IMApp-278-10333: transport layer data is invalid
+02-28 18:29:31.783 22619 22619 W gearhead:shared: Failed to find entry 'classes.dex': Entry not found
+02-28 18:29:31.784 22735 22735 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+02-28 18:29:31.786  7757  9115 I SG::DecisionResultProvider: merge start, list size:0 systlist size:1
+02-28 18:29:31.788 22735 22735 D OplusActivityThreadExtImpl: java.lang.NoSuchMethodException: dalvik.system.VMRuntime.SupressionGC [int, int]
+02-28 18:29:31.789 22735 22735 W libc    : Access denied finding property "persist.vendor.sys.activitylog"
+02-28 18:29:31.789 22735 22735 I OneTrace: Mark active for pid=22735? true
+02-28 18:29:31.789 22735 22735 D cutils-dev: otrace_set_tracing_enabled? true tag:0
+02-28 18:29:31.788  2026  2678 D AppProfilerExtImpl: Skipped pss collection for CPU busy
+02-28 18:29:31.792 30497 12540 I WeatherS_WeatherProvider: query option: 48,callingUid: 10214,name: android.uid.systemui:10214
+02-28 18:29:31.795 22744 22744 E .DeviceAsWebcam: Unknown bits set in runtime_flags: 0x40000000
+02-28 18:29:31.795 22744 22744 I .DeviceAsWebcam: Using CollectorTypeCC GC.
+02-28 18:29:31.799  3736 30800 I KeyguardStyleClockPlugin: WeatherEffectController-->queryByCityIdOrderByDate: weatherId = 69 curWeather = Partly cloudy; dayT = 29 nightT = 25 currentTemp = 29
+02-28 18:29:31.799  3736 30800 I KeyguardStyleClockPlugin: WeatherEffectController-->getWeatherRes: weatherType = 69
+02-28 18:29:31.806 30497 30497 I WeatherS_UpdateWeatherService: onStartCommand intent: true flags: 0 startId: 1
+02-28 18:29:31.812  3736 30800 I KeyguardStyleClockPlugin: WeatherEffectController-->queryAndShowWeather
+02-28 18:29:31.812  3736 30800 I WeatherS_WeatherServiceManager: unBindUpdateService true
+02-28 18:29:31.815 22619 22619 W gearhead:shared: Failed to find entry 'classes.dex': Entry not found
+02-28 18:29:31.819  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-28 18:29:31.821  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-28 18:29:31.822 22735 22748 D cutils-dev: properties changed in otrace_seq_number_changed!
+02-28 18:29:31.825   646   646 E lowmemorykiller: device memory 367793 free 26051 file 377964
+02-28 18:29:31.828  3736  3908 I SystemUi--Common: UsbService-->on posting USB notification: notificationmanager reference null is  false; notification reference null is false
+02-28 18:29:31.836  3736  3736 I KeyguardStyleClockPlugin: WeatherEffectController-->sendWeatherData mCurrentData = WeatherData(weatherId=69, weatherDescription='Partly cloudy', dayTemperature=29, NightTemperature=25, resId=-66583747, cityId=2)
+02-28 18:29:31.837 30497 30497 I WeatherS_UpdateWeatherService: setUpdateWeather:22;false;true
+02-28 18:29:31.838  1318 22959 E TetherController: property_get sys.radio.data.modem_share_flag return 0, 1!
+02-28 18:29:31.838 30497 30497 I WeatherS_UpdateWeatherService: setUpdateWeather: ,currentUpdateAttendId:2,isUpdateAll:false,isWeatherLight:true,isForceRefresh:false,updateScene:20100,callingPkg:android.uid.systemui:10214
+02-28 18:29:31.838  3736  3736 I SystemUi--Common: UsbService-->ignore show usb dialog in export region
+02-28 18:29:31.839 30497 30497 I WeatherS_UpdateWeatherService: registerBroadcast mHasRegisterBroadcast: false
+02-28 18:29:31.840 30497 13335 I WeatherS_UpdateWeatherService: onStartCommand callUidId: 10190 nameForUid: com.coloros.weather.service
+02-28 18:29:31.841 30497 13335 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.842  7757  9115 W SG::SpecialEntryDecision: filterCloseEntrance close entry: 0
+02-28 18:29:31.845  2026  2142 I system_server: Background young concurrent copying GC freed 22MB AllocSpace bytes, 13(268KB) LOS objects, 0% free, 287MB/287MB, paused 400us,3.897ms total 1.160s
+02-28 18:29:31.846 30497 13335 I WeatherS_WeatherProvider: query option: 1,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.849 30497 13335 E WeatherS_WeatherExpireTimeUtils: hasExpireTimeByCityId:2;10068000039250
+02-28 18:29:31.849 30497 13335 I WeatherS_AttentCityDataHelper: hasWeatherInfo query weather info provider id: 2
+02-28 18:29:31.849 30497 13335 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.850 30497 13335 I WeatherS_WeatherProvider: query option: 4,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.853 30497 13335 I WeatherS_WeatherExpireTimeUtils: has expire time by city id:2, result:true
+02-28 18:29:31.853 30497 13335 I WeatherS_AttentCityDataHelper: hasWeatherInfo query weather info provider id: -10000
+02-28 18:29:31.853 30497 13335 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.854 30497 13335 I WeatherS_WeatherProvider: query option: 4,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.853 22656 22656 V GraphicsEnvironment: Currently set values for:
+02-28 18:29:31.856 30497 13335 I WeatherS_UpdateWeatherService: hasWeatherInfoInDb:true;hasResidentCityWeatherInfoInDb:false
+02-28 18:29:31.856 22656 22656 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+02-28 18:29:31.856 22656 22656 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+02-28 18:29:31.856 22656 22656 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+02-28 18:29:31.856 30497 13335 E WeatherS_WeatherServiceVersionUtils: NameNotFoundException android.uid.systemui:10214 app version code get fail.
+02-28 18:29:31.856 30497 13335 I WeatherS_UpdateWeatherService: dataSource is WeatherLightInfoDataSource
+02-28 18:29:31.856 22656 22656 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+02-28 18:29:31.857 22619 22619 W gearhead:shared: Failed to find entry 'classes.dex': Entry not found
+02-28 18:29:31.858 30497 13335 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.863 22632 22632 I FirebaseApp: Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+02-28 18:29:31.865  7757  9115 I SG::DecisionResultProvider: merge sortableList size:0 nosortableList size:0 systemResult size:1
+02-28 18:29:31.865  7757  9115 I SG::DecisionResultProvider: [Persistent] persistentContainerFilter result: [ResultEntity(sceneId=null, serviceId=268451924, serviceInstanceId=, action=pantanal.intent.business.app.system.CHARGE, cardType=100, supportSize=7, score=6.05, isSceneFocus:0, intentPosition:0, policyName=SYSTEM_POLICY, supportEntry=8, timestamp=1772292570708, createTime=1772292570708, version=1000001, subDomain=common, cannotReduceRecommend=1, intentCategory=-1, forceRebuildSeedling=0, seedlingType=2, useTemplate=0,seedlingUiPolicy=0, sgExtInfo={"remindControl":2,"group_priority":"1","preload":false,"switchType":0}, isSupportMultiInstance=0);]
+02-28 18:29:31.867 30497 13335 I WeatherS_WeatherProvider: query option: 2,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.868 30497 22726 W Weather_Location_LocationController: location condition not met, return!
+02-28 18:29:31.871 22744 22744 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+02-28 18:29:31.872 30497 13335 E WeatherS_PrivacyStatementExport: isAgreed-1
+02-28 18:29:31.873 30497 13335 I WeatherS_WeatherProvider: query option: 46,callingUid: 10190,name: com.coloros.weather.service
+02-28 18:29:31.873  2026  2704 W ActivityManager: Slow operation: 150ms so far, now at startProcess: done updating battery stats
+02-28 18:29:31.873  2026  2704 W ActivityManager: Slow operation: 150ms so far, now at startProcess: building log message
+02-28 18:29:31.873  2026  2704 I ActivityManager: Start proc 22744:com.android.DeviceAsWebcam/1000 for broadcast {com.android.DeviceAsWebcam/com.android.DeviceAsWebcam.DeviceAsWebcamReceiver}
+02-28 18:29:31.873  2026  2704 W ActivityManager: Slow operation: 150ms so far, now at startProcess: starting to update pids map
+02-28 18:29:31.873  2026  2704 W ActivityManager: Slow operation: 150ms so far, now at startProcess: done updating pids map
+02-28 18:29:31.880  2026  4107 D NotificationService--NotificationRecord: isSupportRearLight , isRearLight = false mLedRM = false isMultilLed = false
+02-28 18:29:31.881  2026  2715 D BatteryStatsServiceExtImpl: setThermalStateInternal, now setThermalState process sync external state.
+02-28 18:29:31.881  2026  2715 D BatteryStatsServiceExtImpl: setThermalStateInternal, now setThermalState process sync external state.
+02-28 18:29:31.881  2026  2715 D BatteryStatsServiceExtImpl: setThermalStateInternal, now setThermalState process sync external state.
+02-28 18:29:31.888 22632 22632 I FirebaseInitProvider: FirebaseApp initialization successful
+02-28 18:29:31.889  7757  9115 W SG::EntryDecision: filterSystemCloseEntrance serviceId:268451924,start entry:8, filter entry 8
+02-28 18:29:31.889  7757  9115 I SG::DecisionResultProvider: [Persistent] filterResult: [ResultEntity(sceneId=null, serviceId=268451924, serviceInstanceId=, action=pantanal.intent.business.app.system.CHARGE, cardType=100, supportSize=7, score=6.05, isSceneFocus:0, intentPosition:0, policyName=SYSTEM_POLICY, supportEntry=8, timestamp=1772292570708, createTime=1772292570708, version=1000001, subDomain=common, cannotReduceRecommend=1, intentCategory=-1, forceRebuildSeedling=0, seedlingType=2, useTemplate=0,seedlingUiPolicy=0, sgExtInfo={"remindControl":2,"group_priority":"1","preload":false,"switchType":0}, isSupportMultiInstance=0);]
+02-28 18:29:31.889  7757  9115 I SG::MetisUpdateDataVersionUtil: isSupportMultiInstanceMetis: true
+02-28 18:29:31.889  2026  3215 D ActivityTaskManagerServiceExtImpl: preBindApplication record is null
+02-28 18:29:31.889  2026  3215 D RGBNormalizeServer: OplusRGBNormalize feature enabled ? false
+02-28 18:29:31.889  2026  3215 D ResourcesManagerCache: For package com.oplus.statistics.rom we got cacheList [null] appInfoExt is null ? false hasFeature ? false
+02-28 18:29:31.890  7757  9115 I SG::GsonUtil: doEntryDecision: feedbackDataList size: 0 
+02-28 18:29:31.890  7757  9115 I SG::DecisionResultProvider: doEntryDecision:268451924 -  remove status: false
+02-28 18:29:31.890  7757  9115 I SG::GsonUtil: doEntryDecision: resultToFilter size: 1 
+02-28 18:29:31.890  7757  9115 I SG::DecisionResultProvider: cardConfigDecision car entry do cardConfigDecision!
+02-28 18:29:31.890  7757  9115 I SG::PackageMetaDataUtil: isSystemUISupportMultiInstance: true
+02-28 18:29:31.890  7757  9115 I SG::PackageMetaDataUtil: [isSupportMultiInstanceWithEntry] isSupportMultiInstance:true packageName:com.android.systemui
+02-28 18:29:31.890  7757  9115 I SG::DecisionResultProvider: setLocation: newList= [268451924]
+02-28 18:29:31.890  7757  9115 I SG::DecisionResultProvider: start size:1, filter result:1
+02-28 18:29:31.890  7270 17031 E MIDASApplication: MIDASPullAtomManager: onPullAtom 150017
+02-28 18:29:31.891  2026  4235 D KernelStatsHelper: getKernelStats start!
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{3004}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D KernelStatsHelper: get magic :[-1, -1, -1, 77, 65, 71, 73, 67]
+02-28 18:29:31.892  2026  3531 D KernelStatsHelper: magic matched count:450 data_len:23400
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2676}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-28 18:29:31.892  2026  3531 D KernelStatsHelper: data over! check: true
+02-28 18:29:31.893  7757  9115 I SG::UpkCheckUtil: filterInMaps,keys[],for:[268451924-1000001]
+02-28 18:29:31.893  7757  9115 I SG::DecisionResultProvider: merge result, list size:1 cursor size:1
+02-28 18:29:31.893  3736 10146 I StaticSDK.DecisionDao: (#query_data)query , cursor count: 1,in version 1.1.40-beta32b3b5c-SNAPSHOT [SystemUIPlugin|com.android.systemui|2.0.26-f348910]
+02-28 18:29:31.895  3736 10146 D StaticSDK.DecisionDao: (#query_data)fromCursor start,in version 1.1.40-beta32b3b5c-SNAPSHOT
+02-28 18:29:31.900  3736 10146 V StaticSDK.ServiceInfoUtil: (#query_data)get businessData success!,in version 1.1.40-beta32b3b5c-SNAPSHOT [SystemUIPlugin|com.android.systemui|2.0.26-f348910]
+02-28 18:29:31.902 22735 22735 D OplusActivityManager: get AMS extension: android.os.BinderProxy@b4cb17f

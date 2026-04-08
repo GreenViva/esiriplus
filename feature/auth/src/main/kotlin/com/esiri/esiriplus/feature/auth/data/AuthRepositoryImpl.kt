@@ -36,7 +36,9 @@ import com.esiri.esiriplus.core.network.dto.toDomain
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.model.toDomainResult
 import com.esiri.esiriplus.core.network.storage.FileUploadService
+import com.esiri.esiriplus.core.common.session.SessionBackup
 import com.esiri.esiriplus.feature.auth.biometric.DeviceBindingManager
+import com.esiri.esiriplus.core.network.interceptor.TokenRefresher
 import kotlinx.coroutines.tasks.await
 import java.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
@@ -71,11 +73,14 @@ class AuthRepositoryImpl @Inject constructor(
     private val fileUploadService: FileUploadService,
     private val supabaseClientProvider: SupabaseClientProvider,
     private val deviceBindingManager: DeviceBindingManager,
+    private val tokenRefresher: TokenRefresher,
+    private val sessionBackup: SessionBackup,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AuthRepository, SessionInvalidator {
 
     private val json = Json { ignoreUnknownKeys = true }
     private val scope = CoroutineScope(SupervisorJob() + ioDispatcher)
+    @Volatile private var logoutInProgress = false
 
     override val currentSession: Flow<Session?> =
         sessionDao.getCurrentSession().flatMapLatest { sessionEntity ->
@@ -130,6 +135,17 @@ class AuthRepositoryImpl @Inject constructor(
             userDao.insertUser(session.user.toEntity())
             sessionDao.insertSession(session.toEntity())
         }
+        // Plain-prefs backup — survives DB wipes, Keystore failures.
+        sessionBackup.save(
+            userId = session.user.id,
+            role = session.user.role.name,
+            fullName = session.user.fullName,
+            email = session.user.email,
+            isVerified = session.user.isVerified,
+            refreshToken = response.refreshToken,
+            accessToken = response.accessToken,
+            expiresAtMillis = response.expiresIn * SECONDS_TO_MILLIS + System.currentTimeMillis(),
+        )
         return session
     }
 
@@ -428,28 +444,39 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshSession(): Result<Session> {
+        // Try encrypted storage first, fall back to plain-prefs backup
         val currentRefreshToken = tokenManager.getRefreshTokenSync()
+            ?: sessionBackup.refreshToken
             ?: return Result.Error(IllegalStateException("No refresh token available"))
 
         val accessToken = tokenManager.getAccessTokenSync()
-        val isPatient = accessToken != null &&
-            com.esiri.esiriplus.core.network.interceptor.JwtUtils.isPatientToken(accessToken)
+        val isPatient = (accessToken != null &&
+            com.esiri.esiriplus.core.network.interceptor.JwtUtils.isPatientToken(accessToken)) ||
+            sessionBackup.userRole == "PATIENT"
 
-        val sessionId = if (isPatient && accessToken != null) {
-            extractClaimFromJwt(accessToken, "session_id")
+        return if (isPatient) {
+            refreshPatientSession(currentRefreshToken, accessToken)
         } else {
-            null
+            refreshDoctorSession(currentRefreshToken)
         }
+    }
 
-        val functionName = if (isPatient) "refresh-patient-session" else "refresh-session"
+    /**
+     * Patient refresh: uses the dedicated edge function which also syncs FCM tokens.
+     */
+    private suspend fun refreshPatientSession(
+        currentRefreshToken: String,
+        accessToken: String?,
+    ): Result<Session> {
+        // Extract session_id from JWT, Room, or backup — need it for refresh endpoint.
+        val sessionId = (if (accessToken != null) extractClaimFromJwt(accessToken, "session_id") else null)
+            ?: withContext(ioDispatcher) { sessionDao.getCurrentSession().first()?.userId }
+            ?: sessionBackup.userId
 
-        // Include FCM token for patients so push notifications stay working
-        val fcmToken = if (isPatient) {
-            try {
-                com.google.firebase.messaging.FirebaseMessaging.getInstance()
-                    .token.await()
-            } catch (_: Exception) { null }
-        } else null
+        val fcmToken = try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                .token.await()
+        } catch (_: Exception) { null }
 
         val request = RefreshTokenRequest(
             refreshToken = currentRefreshToken,
@@ -458,27 +485,127 @@ class AuthRepositoryImpl @Inject constructor(
         )
         val body = json.encodeToString(request).let { Json.parseToJsonElement(it).jsonObject }
 
-        return if (isPatient) {
-            when (val apiResult = edgeFunctionClient.invokeAndDecode<PatientSessionResponse>(
-                functionName = functionName,
-                body = body,
-                patientAuth = true,
-            )) {
-                is ApiResult.Success -> {
-                    val session = saveSessionAndTokens(apiResult.data)
-                    Result.Success(session)
-                }
-                else -> apiResult.map { error("unreachable") }.toDomainResult()
+        // Use anonymous=true — the refresh token in the body is the credential.
+        // Using patientAuth=true would send the EXPIRED access token in X-Patient-Token,
+        // which validateAuth() rejects with 401 before the function body runs.
+        return when (val apiResult = edgeFunctionClient.invokeAndDecode<PatientSessionResponse>(
+            functionName = "refresh-patient-session",
+            body = body,
+            anonymous = true,
+        )) {
+            is ApiResult.Success -> {
+                val session = saveSessionAndTokens(apiResult.data)
+                Result.Success(session)
             }
-        } else {
-            handleSessionResponse(
-                edgeFunctionClient.invokeAndDecode<SessionResponse>(
-                    functionName = functionName,
-                    body = body,
-                ),
-            )
+            else -> apiResult.map { error("unreachable") }.toDomainResult()
         }
     }
+
+    /**
+     * Doctor refresh: uses the native Supabase /auth/v1/token endpoint directly
+     * (no edge function needed) and updates the Room session so
+     * ObserveAuthStateUseCase sees the fresh expiresAt.
+     */
+    private suspend fun refreshDoctorSession(currentRefreshToken: String): Result<Session> {
+        return try {
+            val success = withContext(ioDispatcher) {
+                tokenRefresher.refreshToken(currentRefreshToken)
+            }
+            if (!success) {
+                Log.w(TAG, "Doctor token refresh failed (invalid/revoked refresh token)")
+                return Result.Error(IllegalStateException("Token refresh failed"))
+            }
+
+            // TokenRefresher already updated EncryptedSharedPreferences with
+            // new access_token, refresh_token, and expires_at. Now sync Room
+            // so ObserveAuthStateUseCase emits Authenticated instead of SessionExpired.
+            val newAccessToken = tokenManager.getAccessTokenSync()
+                ?: return Result.Error(IllegalStateException("No access token after refresh"))
+            val newRefreshToken = tokenManager.getRefreshTokenSync()
+                ?: return Result.Error(IllegalStateException("No refresh token after refresh"))
+            val newExpiresAtMillis = tokenManager.getExpiresAtMillis()
+            val newExpiresAt = Instant.ofEpochMilli(newExpiresAtMillis)
+
+            // Try to update the existing session entity, OR reconstruct from JWT
+            // if the DB was wiped (migration, downgrade, corruption).
+            val existingSession = withContext(ioDispatcher) {
+                sessionDao.getCurrentSession().first()
+            }
+
+            if (existingSession != null) {
+                // Fast path: update existing session
+                val updatedEntity = existingSession.copy(
+                    accessToken = newAccessToken,
+                    refreshToken = newRefreshToken,
+                    expiresAt = newExpiresAt,
+                )
+                withContext(ioDispatcher) {
+                    sessionDao.insertSession(updatedEntity)
+                }
+
+                val userEntity = withContext(ioDispatcher) {
+                    userDao.getUserById(existingSession.userId).first()
+                }
+                if (userEntity != null) {
+                    val session = updatedEntity.toDomain(userEntity.toDomain())
+                    sessionBackup.save(
+                        userId = session.user.id,
+                        role = session.user.role.name,
+                        fullName = session.user.fullName,
+                        email = session.user.email,
+                        isVerified = session.user.isVerified,
+                        refreshToken = newRefreshToken,
+                        accessToken = newAccessToken,
+                        expiresAtMillis = newExpiresAtMillis,
+                    )
+                    Log.d(TAG, "Doctor session refreshed (existing session updated)")
+                    return Result.Success(session)
+                }
+            }
+
+            // Slow path: DB was wiped — reconstruct from backup + JWT
+            Log.w(TAG, "No session in Room after refresh — reconstructing from backup")
+            val userId = sessionBackup.userId
+                ?: extractClaimFromJwt(newAccessToken, "sub")
+                ?: return Result.Error(IllegalStateException("Cannot determine user ID"))
+
+            val user = User(
+                id = userId,
+                fullName = sessionBackup.userName ?: "",
+                phone = "",
+                email = sessionBackup.userEmail,
+                role = UserRole.DOCTOR,
+                isVerified = sessionBackup.isVerified,
+            )
+            val session = Session(
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken,
+                expiresAt = newExpiresAt,
+                user = user,
+            )
+            withContext(ioDispatcher) {
+                userDao.insertUser(user.toEntity())
+                sessionDao.insertSession(session.toEntity())
+            }
+            // Update the plain-prefs backup with fresh token
+            sessionBackup.save(
+                userId = user.id,
+                role = user.role.name,
+                fullName = user.fullName,
+                email = user.email,
+                isVerified = user.isVerified,
+                refreshToken = newRefreshToken,
+                accessToken = newAccessToken,
+                expiresAtMillis = newExpiresAtMillis,
+            )
+            Log.d(TAG, "Doctor session reconstructed from backup")
+            Result.Success(session)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.e(TAG, "Doctor token refresh exception", e)
+            Result.Error(e)
+        }
+    }
+
 
     private fun extractClaimFromJwt(token: String, claim: String): String? {
         return try {
@@ -494,18 +621,41 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout() {
-        Log.w(TAG, "logout() called!", Exception("AuthRepo logout stack trace"))
-        // Best-effort server-side revocation
-        try {
-            edgeFunctionClient.invoke("logout")
-        } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
-            // Continue with local cleanup even if server call fails
+        if (logoutInProgress) {
+            Log.w(TAG, "logout() already in progress — skipping duplicate call")
+            return
         }
+        logoutInProgress = true
+        Log.d(TAG, "logout() started")
+        try {
+            // Best-effort server-side cleanup (deletes FCM token, marks offline, revokes session).
+            // Catch everything — a 401 here must NOT trigger the authenticator → invalidate()
+            // → logout() loop. The local cleanup below is what actually matters.
+            try {
+                edgeFunctionClient.invoke("logout")
+            } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
+                // Continue with local cleanup even if server call fails
+            }
 
-        tokenManager.clearTokens()
-        withContext(ioDispatcher) {
-            database.clearAllTables()
-            database.reseedReferenceData()
+            // Delete the FCM token from Firebase so this device stops receiving
+            // pushes for the old account entirely. A fresh token is generated
+            // on next login via fetchAndRegisterToken().
+            try {
+                com.google.firebase.messaging.FirebaseMessaging.getInstance().deleteToken().await()
+                Log.d(TAG, "Firebase token deleted on logout")
+            } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
+                Log.w(TAG, "Failed to delete Firebase token (non-critical)")
+            }
+
+            tokenManager.clearTokens()
+            sessionBackup.clear()
+            withContext(ioDispatcher) {
+                database.clearAllTables()
+                database.reseedReferenceData()
+            }
+            Log.d(TAG, "logout() completed")
+        } finally {
+            logoutInProgress = false
         }
     }
 
@@ -623,6 +773,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun invalidate() {
+        if (logoutInProgress) return
         scope.launch {
             logout()
         }
@@ -651,6 +802,17 @@ class AuthRepositoryImpl @Inject constructor(
             userDao.insertUser(session.user.toEntity())
             sessionDao.insertSession(session.toEntity())
         }
+        // Plain-prefs backup — survives DB wipes, Keystore failures, everything.
+        sessionBackup.save(
+            userId = session.user.id,
+            role = session.user.role.name,
+            fullName = session.user.fullName,
+            email = session.user.email,
+            isVerified = session.user.isVerified,
+            refreshToken = response.refreshToken,
+            accessToken = response.accessToken,
+            expiresAtMillis = response.expiresAt * SECONDS_TO_MILLIS,
+        )
         return session
     }
 

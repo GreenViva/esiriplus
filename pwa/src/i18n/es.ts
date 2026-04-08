@@ -1,0 +1,78 @@
+import type { TranslationKeys } from './en';
+
+const es: Record<TranslationKeys, string> = {
+  app_name: 'eSIRI Plus', loading: 'Cargando...', cancel: 'Cancelar', confirm: 'Confirmar',
+  save: 'Guardar', close: 'Cerrar', back: 'Volver', next: 'Siguiente', submit: 'Enviar',
+  search: 'Buscar', retry: 'Reintentar', yes: 'S\u00ed', no: 'No', ok: 'OK', done: 'Listo',
+  error: 'Error', success: '\u00c9xito', no_data: 'Sin datos disponibles',
+
+  welcome_back: 'Bienvenido de nuevo', sign_in: 'Iniciar sesi\u00f3n', sign_out: 'Cerrar sesi\u00f3n',
+  sign_out_confirm: '\u00bfEst\u00e1 seguro de que desea cerrar sesi\u00f3n?',
+  sign_out_msg: 'Necesitar\u00e1 iniciar sesi\u00f3n nuevamente para acceder a su panel.',
+  doctor_login: 'Acceso M\u00e9dico', patient_start: 'Comenzar como Paciente', agent_login: 'Acceso Agente',
+  new_to_esiri: '\u00bfNuevo en eSIRI Plus?', register_doctor: 'Registrarse como M\u00e9dico',
+  contact_us: 'Para ayuda cont\u00e1ctenos',
+
+  start_consultation: 'Iniciar Consulta', connect_doctor_now: 'Conecte con un m\u00e9dico ahora',
+  my_reports: 'Mis Informes', my_profile: 'Mi Perfil', book_appointment: 'Reservar Cita',
+  ongoing_consultations: 'Consultas en Curso', followups_available: '{count} seguimiento(s) disponible(s)',
+  waiting_for_doctor: 'Esperando al m\u00e9dico...', session_in_progress: 'Consulta en progreso',
+  tap_to_resume: 'Toque para reanudar', no_notifications: 'Sin notificaciones', all_caught_up: 'Todo al d\u00eda',
+
+  dashboard: 'Panel', online: 'En l\u00ednea', offline: 'Desconectado',
+  serve_as_gp: 'Servir como M\u00e9dico General',
+  gp_visible: 'Visible en listados GP \u2014 Pagado a tarifas GP',
+  gp_toggle_hint: 'Active para aparecer en listados GP de pacientes',
+  verified: 'Verificado', under_review: 'En revisi\u00f3n', royal_clients: 'Clientes Royal',
+  todays_earnings: 'Ganancias de Hoy', active_consults: 'Consultas Activas',
+  total_patients: 'Total Pacientes', acceptance_rate: 'Tasa de Aceptaci\u00f3n',
+  consultations: 'Consultas', appointments: 'Citas', earnings: 'Ganancias',
+  notifications: 'Notificaciones', availability: 'Disponibilidad',
+
+  consultation: 'Consulta', end_session: 'Finalizar Sesi\u00f3n', extend_session: '+ Extender Sesi\u00f3n',
+  write_report: 'Escribir Informe', voice_call: 'Llamada de Voz', video_call: 'Videollamada',
+  type_message: 'Escriba un mensaje...', no_messages_yet: 'Sin mensajes a\u00fan. Inicie la conversaci\u00f3n.',
+  connection_lost: 'Conexi\u00f3n perdida \u2014 los mensajes pueden retrasarse',
+  session_ended: 'Esta consulta ha terminado',
+  awaiting_extension: 'Tiempo de sesi\u00f3n expirado \u2014 esperando pago del paciente',
+  previous_session: 'Sesi\u00f3n anterior', current_session: 'Sesi\u00f3n actual',
+
+  consultation_report: 'Informe de Consulta', complete_before_new: 'Complete antes de tomar nuevas consultas',
+  diagnosed_problem: 'Problema Diagnosticado', category: 'Categor\u00eda', severity: 'Gravedad',
+  treatment_plan: 'Plan de Tratamiento', further_notes: 'Notas Adicionales',
+  medication_prescription: 'Medicamentos / Prescripci\u00f3n',
+  search_medication: 'Buscar medicamento... (m\u00edn 2 car.)',
+  no_medications_yet: 'Ning\u00fan medicamento prescrito a\u00fan',
+  prescribed_medications: 'Medicamentos Prescritos:',
+  follow_up_recommended: 'Seguimiento recomendado',
+  submit_generate_report: 'Enviar y Generar Informe', report_submitted: 'Informe Enviado Exitosamente',
+  verification_code: 'C\u00f3digo de Verificaci\u00f3n', redirecting: 'Redirigiendo al panel...',
+  configure_dosage: 'Configurar Dosis', form: 'Forma', tablets: 'Tabletas', syrup: 'Jarabe',
+  injection: 'Inyecci\u00f3n', route_admin: 'V\u00eda de Administraci\u00f3n',
+  quantity_per_dose: 'Cantidad por dosis', times_per_day: 'Veces por d\u00eda',
+  duration_days: 'Duraci\u00f3n (d\u00edas)', preview: 'Vista previa', add: 'A\u00f1adir',
+  specify_category: 'Especificar Categor\u00eda',
+
+  greeting_welcome: '\u00a1Hola, bienvenido! \ud83d\udc4b',
+  greeting_here_to_serve: 'El Dr. {name} est\u00e1 aqu\u00ed para atenderle.',
+  greeting_here_to_serve_generic: 'Estamos aqu\u00ed para atenderle.',
+  greeting_how_to_proceed: '\u00bfC\u00f3mo le gustar\u00eda continuar?',
+  greeting_choice_call: 'Llamar', greeting_choice_text: 'Mensaje',
+  greeting_text_auto_message: 'Hola, me gustar\u00eda consultar por mensajes de texto.',
+
+  display_accessibility: 'Pantalla y Accesibilidad', customize_experience: 'Personalice su experiencia',
+  theme: 'TEMA', theme_auto: 'Auto', theme_light: 'Claro', theme_dark: 'Oscuro',
+  text_size: 'TAMA\u00d1O DE TEXTO', high_contrast: 'Alto contraste',
+  high_contrast_desc: 'Texto y bordes m\u00e1s gruesos', reduce_motion: 'Reducir movimiento',
+  reduce_motion_desc: 'Minimizar animaciones', language: 'IDIOMA', sounds: 'SONIDOS',
+  incoming_call: 'Llamada Entrante', consultation_request: 'Solicitud de Consulta',
+  system_default: 'Predeterminado del sistema', reset: 'Restablecer',
+
+  install_app: 'Instalar eSIRI Plus',
+  install_desc: 'A\u00f1ada a su pantalla de inicio para un acceso m\u00e1s r\u00e1pido.',
+  install_ios: 'Toque Compartir, luego "A\u00f1adir a pantalla de inicio".',
+  install_button: 'Instalar App',
+  install_ios_hint: 'Toque Compartir luego "A\u00f1adir a pantalla de inicio"',
+};
+
+export default es;

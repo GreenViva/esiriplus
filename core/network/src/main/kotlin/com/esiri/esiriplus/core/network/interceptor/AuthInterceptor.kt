@@ -20,7 +20,8 @@ class AuthInterceptor @Inject constructor(
         // by EdgeFunctionClient and don't override with a user token.
         val skipAuth = originalRequest.header(HEADER_SKIP_AUTH) != null
         if (skipAuth) {
-            requestBuilder.removeHeader(HEADER_SKIP_AUTH)
+            // Keep X-Skip-Auth on the request so TokenRefreshAuthenticator
+            // can detect patient/anonymous requests and avoid invalidation.
             return chain.proceed(requestBuilder.build())
         }
 

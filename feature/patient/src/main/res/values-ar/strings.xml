@@ -317,6 +317,19 @@
     <string name="consultation_gallery">المعرض</string>
     <string name="consultation_document">مستند</string>
 
+    <!-- ===== Greeting Overlay ===== -->
+    <string name="greeting_welcome">مرحبا، أهلا بك! \uD83D\uDC4B</string>
+    <string name="greeting_here_to_serve">الدكتور %s هنا لخدمتك.</string>
+    <string name="greeting_here_to_serve_generic">نحن هنا لخدمتك.</string>
+    <string name="greeting_how_to_proceed">كيف تود المتابعة؟</string>
+    <string name="greeting_choice_call">اتصل</string>
+    <string name="greeting_choice_text">رسالة</string>
+    <string name="greeting_text_auto_message">مرحبا، أود الاستشارة عبر الرسائل النصية.</string>
+    <string name="greeting_doctor_listening">طبيبك يستمع إليك.</string>
+
+    <!-- ===== Contact Us ===== -->
+    <string name="contact_us_label">للمساعدة تواصل معنا</string>
+
     <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
     <string name="vm_doctor_accepted">قَبِل الطبيب! جارٍ فتح المحادثة\u2026</string>
     <string name="vm_doctor_declined">رفض الطبيب الطلب. يمكنك طلب طبيب آخر.</string>

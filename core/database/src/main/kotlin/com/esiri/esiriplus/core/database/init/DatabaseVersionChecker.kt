@@ -65,11 +65,13 @@ class DatabaseVersionChecker @Inject constructor(
 
         val currentVersion = getCurrentVersion()
         if (currentVersion == null) {
-            // Can't read version (passphrase issue, corrupted file, etc.)
-            // Delete and let Room recreate rather than risking a blocking error.
-            Log.w(TAG, "Cannot read database version — deleting database to avoid startup errors.")
-            deleteDatabase()
-            return true
+            // Can't read version — this often happens when EncryptedSharedPreferences
+            // fails transiently after process kill (especially on Samsung/Xiaomi/OPPO).
+            // Do NOT delete the database. Let Room attempt to open it — Room's own
+            // fallback-to-destructive-migration will handle genuine corruption, while
+            // transient passphrase read failures won't nuke the user's session.
+            Log.w(TAG, "Cannot read database version — skipping pre-check, letting Room handle it.")
+            return false
         }
         if (currentVersion <= EsiriplusDatabase.VERSION) return false
 

@@ -59,6 +59,7 @@ import com.esiri.esiriplus.feature.chat.ui.ConsultationTimerBar
 import com.esiri.esiriplus.feature.chat.ui.GracePeriodBanner
 import com.esiri.esiriplus.feature.chat.ui.PatientExtensionPrompt
 import com.esiri.esiriplus.feature.patient.R
+import com.esiri.esiriplus.feature.patient.viewmodel.GreetingPhase
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientConsultationViewModel
 import java.io.File
 
@@ -257,6 +258,34 @@ fun PatientConsultationScreen(
         },
     )
 
+    // Greeting overlay — shown once when chat first opens
+    val greetingPhase = uiState.greetingPhase
+    var showGreetingCallMenu by remember { mutableStateOf(false) }
+    if (greetingPhase != GreetingPhase.NONE &&
+        (greetingPhase != GreetingPhase.DONE || showGreetingCallMenu)
+    ) {
+        GreetingOverlay(
+            phase = greetingPhase,
+            doctorName = uiState.doctorName,
+            showCallMenu = showGreetingCallMenu,
+            onChooseText = {
+                viewModel.onGreetingChooseText()
+            },
+            onChooseCall = {
+                showGreetingCallMenu = true
+            },
+            onCallTypeSelected = { callType ->
+                showGreetingCallMenu = false
+                viewModel.onGreetingChooseCall()
+                onStartCall(uiState.consultationId, callType)
+            },
+            onDismissCallMenu = {
+                showGreetingCallMenu = false
+                viewModel.onGreetingChooseCall()
+            },
+        )
+    }
+
     // Rating bottom sheet
     if (showRatingSheet) {
         RatingBottomSheet(
@@ -330,6 +359,215 @@ fun PatientConsultationScreen(
         )
     }
 }
+
+// ── Greeting Overlay ────────────────────────────────────────────────────────
+
+@Composable
+private fun GreetingOverlay(
+    phase: GreetingPhase,
+    doctorName: String,
+    showCallMenu: Boolean,
+    onChooseText: () -> Unit,
+    onChooseCall: () -> Unit,
+    onCallTypeSelected: (String) -> Unit,
+    onDismissCallMenu: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.4f)),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+        ) {
+            // Typing indicator
+            val showTyping = phase == GreetingPhase.TYPING
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showTyping,
+                enter = androidx.compose.animation.fadeIn(
+                    androidx.compose.animation.core.tween(200),
+                ),
+                exit = androidx.compose.animation.fadeOut(
+                    androidx.compose.animation.core.tween(150),
+                ),
+            ) {
+                GreetingTypingBubble()
+            }
+
+            // Message 1: Welcome
+            val showWelcome = phase.ordinal >= GreetingPhase.MSG_WELCOME.ordinal && phase != GreetingPhase.TYPING
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showWelcome,
+                enter = androidx.compose.animation.slideInVertically(
+                    androidx.compose.animation.core.tween(300),
+                ) { it } + androidx.compose.animation.fadeIn(
+                    androidx.compose.animation.core.tween(300),
+                ),
+            ) {
+                GreetingBubble(text = stringResource(R.string.greeting_welcome))
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // Message 2: Here to serve
+            val showServe = phase.ordinal >= GreetingPhase.MSG_SERVE.ordinal && phase != GreetingPhase.TYPING
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showServe,
+                enter = androidx.compose.animation.slideInVertically(
+                    androidx.compose.animation.core.tween(300),
+                ) { it } + androidx.compose.animation.fadeIn(
+                    androidx.compose.animation.core.tween(300),
+                ),
+            ) {
+                GreetingBubble(
+                    text = if (doctorName.isNotBlank()) stringResource(R.string.greeting_here_to_serve, doctorName)
+                    else stringResource(R.string.greeting_here_to_serve_generic),
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // Message 3: How to proceed + choice buttons
+            val showChoices = phase == GreetingPhase.MSG_CHOICES
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showChoices,
+                enter = androidx.compose.animation.slideInVertically(
+                    androidx.compose.animation.core.tween(300),
+                ) { it } + androidx.compose.animation.fadeIn(
+                    androidx.compose.animation.core.tween(300),
+                ),
+            ) {
+                Column {
+                    GreetingBubble(text = stringResource(R.string.greeting_how_to_proceed))
+                    Spacer(Modifier.height(14.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                    ) {
+                        // Call button
+                        Box(modifier = Modifier.weight(1f)) {
+                            androidx.compose.material3.Button(
+                                onClick = onChooseCall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = Color.White,
+                                    contentColor = BrandTeal,
+                                ),
+                                elevation = androidx.compose.material3.ButtonDefaults.buttonElevation(
+                                    defaultElevation = 4.dp,
+                                ),
+                            ) {
+                                Icon(
+                                    Icons.Default.Phone,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    stringResource(R.string.greeting_choice_call),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                )
+                            }
+                            // Call type dropdown
+                            DropdownMenu(
+                                expanded = showCallMenu,
+                                onDismissRequest = onDismissCallMenu,
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.consultation_voice_call), color = Color.Black) },
+                                    onClick = { onCallTypeSelected("AUDIO") },
+                                    leadingIcon = { Icon(Icons.Default.Phone, null, tint = BrandTeal) },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.consultation_video_call), color = Color.Black) },
+                                    onClick = { onCallTypeSelected("VIDEO") },
+                                    leadingIcon = { Icon(Icons.Default.Videocam, null, tint = BrandTeal) },
+                                )
+                            }
+                        }
+                        // Text button
+                        androidx.compose.material3.Button(
+                            onClick = onChooseText,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(52.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = BrandTeal,
+                                contentColor = Color.White,
+                            ),
+                            elevation = androidx.compose.material3.ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp,
+                            ),
+                        ) {
+                            Icon(
+                                Icons.Default.Description,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                stringResource(R.string.greeting_choice_text),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GreetingBubble(text: String) {
+    Surface(
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp),
+        color = BrandTeal,
+        shadowElevation = 2.dp,
+    ) {
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+        )
+    }
+}
+
+@Composable
+private fun GreetingTypingBubble() {
+    var dotCount by remember { mutableStateOf(1) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(400)
+            dotCount = (dotCount % 3) + 1
+        }
+    }
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = BrandTeal.copy(alpha = 0.8f),
+        shadowElevation = 1.dp,
+    ) {
+        Text(
+            text = ".".repeat(dotCount).padEnd(3, ' '),
+            color = Color.White,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+        )
+    }
+}
+
+// ── Follow-Up Banner ────────────────────────────────────────────────────────
 
 @Composable
 private fun FollowUpModeBanner(followUpExpiry: Long?) {

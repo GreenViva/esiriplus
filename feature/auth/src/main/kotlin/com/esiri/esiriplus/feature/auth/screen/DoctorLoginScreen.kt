@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -302,7 +303,22 @@ fun DoctorLoginScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Forgot Password link
+                TextButton(
+                    onClick = { viewModel.showForgotPassword() },
+                    modifier = Modifier.align(Alignment.End),
+                ) {
+                    Text(
+                        text = stringResource(R.string.doctor_login_forgot_password),
+                        fontSize = 13.sp,
+                        color = BrandTeal,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Sign In button
                 Button(
@@ -334,6 +350,128 @@ fun DoctorLoginScreen(
                 }
             }
         }
+    }
+
+    // Forgot Password Dialog — 3-step OTP flow
+    if (uiState.showForgotPassword) {
+        val step = uiState.resetStep
+        AlertDialog(
+            onDismissRequest = { if (!uiState.resetSending) viewModel.dismissForgotPassword() },
+            title = {
+                Text(
+                    text = when (step) {
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.EMAIL -> stringResource(R.string.doctor_login_reset_title)
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.OTP -> stringResource(R.string.doctor_login_reset_otp_title)
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.NEW_PASSWORD -> stringResource(R.string.doctor_login_reset_new_password_title)
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE -> stringResource(R.string.doctor_login_reset_done_title)
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = if (step == com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE) BrandTeal else MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            text = {
+                Column {
+                    when (step) {
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.EMAIL -> {
+                            Text(stringResource(R.string.doctor_login_reset_subtitle), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = uiState.resetEmail,
+                                onValueChange = viewModel::onResetEmailChanged,
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text(stringResource(R.string.doctor_login_email_placeholder), fontSize = 14.sp) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandTeal, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
+                            )
+                        }
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.OTP -> {
+                            Text(stringResource(R.string.doctor_login_reset_otp_subtitle, uiState.resetEmail), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = uiState.resetOtp,
+                                onValueChange = { if (it.length <= 6) viewModel.onResetOtpChanged(it) },
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text("000000", fontSize = 14.sp) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandTeal, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
+                            )
+                        }
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.NEW_PASSWORD -> {
+                            Text(stringResource(R.string.doctor_login_reset_new_password_subtitle), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = uiState.resetNewPassword,
+                                onValueChange = viewModel::onResetNewPasswordChanged,
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text(stringResource(R.string.doctor_login_reset_new_password_hint), fontSize = 14.sp) },
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandTeal, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
+                            )
+                            Spacer(Modifier.height(10.dp))
+                            OutlinedTextField(
+                                value = uiState.resetConfirmPassword,
+                                onValueChange = viewModel::onResetConfirmPasswordChanged,
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text(stringResource(R.string.doctor_login_reset_confirm_hint), fontSize = 14.sp) },
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandTeal, unfocusedBorderColor = MaterialTheme.colorScheme.outline),
+                            )
+                        }
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE -> {
+                            Text(stringResource(R.string.doctor_login_reset_done_message), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
+                    uiState.resetError?.let { err ->
+                        Spacer(Modifier.height(8.dp))
+                        Text(err, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                    }
+                }
+            },
+            confirmButton = {
+                when (step) {
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.EMAIL -> Button(
+                        onClick = { viewModel.sendResetOtp() },
+                        enabled = !uiState.resetSending,
+                        colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                    ) {
+                        if (uiState.resetSending) CircularProgressIndicator(Modifier.size(18.dp), Color.White, strokeWidth = 2.dp)
+                        else Text(stringResource(R.string.doctor_login_reset_send))
+                    }
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.OTP -> Button(
+                        onClick = { viewModel.verifyResetOtp() },
+                        enabled = !uiState.resetSending,
+                        colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                    ) {
+                        if (uiState.resetSending) CircularProgressIndicator(Modifier.size(18.dp), Color.White, strokeWidth = 2.dp)
+                        else Text(stringResource(R.string.doctor_login_reset_verify))
+                    }
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.NEW_PASSWORD -> Button(
+                        onClick = { viewModel.setNewPassword() },
+                        enabled = !uiState.resetSending,
+                        colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                    ) {
+                        if (uiState.resetSending) CircularProgressIndicator(Modifier.size(18.dp), Color.White, strokeWidth = 2.dp)
+                        else Text(stringResource(R.string.doctor_login_reset_set_password))
+                    }
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE -> TextButton(onClick = { viewModel.dismissForgotPassword() }) {
+                        Text(stringResource(R.string.doctor_login_reset_ok), color = BrandTeal)
+                    }
+                }
+            },
+            dismissButton = {
+                if (step != com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE) {
+                    TextButton(onClick = { viewModel.dismissForgotPassword() }) {
+                        Text(stringResource(R.string.doctor_login_reset_cancel), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            },
+        )
     }
 }
 

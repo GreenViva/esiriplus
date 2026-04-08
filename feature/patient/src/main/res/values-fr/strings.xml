@@ -317,6 +317,19 @@
     <string name="consultation_gallery">Galerie</string>
     <string name="consultation_document">Document</string>
 
+    <!-- ===== Greeting Overlay ===== -->
+    <string name="greeting_welcome">Bonjour, bienvenue ! \uD83D\uDC4B</string>
+    <string name="greeting_here_to_serve">Dr %s est ici pour vous servir.</string>
+    <string name="greeting_here_to_serve_generic">Nous sommes ici pour vous servir.</string>
+    <string name="greeting_how_to_proceed">Comment souhaitez-vous continuer ?</string>
+    <string name="greeting_choice_call">Appeler</string>
+    <string name="greeting_choice_text">Message</string>
+    <string name="greeting_text_auto_message">Bonjour, je souhaite consulter par messages texte.</string>
+    <string name="greeting_doctor_listening">Votre docteur vous \u00e9coute.</string>
+
+    <!-- ===== Contact Us ===== -->
+    <string name="contact_us_label">Pour de l\'aide, contactez-nous</string>
+
     <!-- ===== ViewModel error/status messages ===== -->
     <string name="vm_doctor_accepted">Le médecin a accepté ! Ouverture du chat\u2026</string>
     <string name="vm_doctor_declined">Le médecin a refusé la demande. Vous pouvez en contacter un autre.</string>

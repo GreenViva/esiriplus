@@ -31,6 +31,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -203,7 +204,60 @@ fun ConsultationReportBottomSheet(
                     )
                 }
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(20.dp))
+
+                // Patient Age & Gender
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Patient Age", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                        Spacer(Modifier.height(4.dp))
+                        OutlinedTextField(
+                            value = uiState.patientAge,
+                            onValueChange = viewModel::updatePatientAge,
+                            placeholder = { Text("e.g. 35", color = Color.Gray, fontSize = 13.sp) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BrandTeal,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            ),
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Patient Gender", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color.Black)
+                        Spacer(Modifier.height(4.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            listOf("Male", "Female").forEach { gender ->
+                                val selected = uiState.patientGender == gender
+                                Surface(
+                                    modifier = Modifier.weight(1f).height(48.dp),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (selected) BrandTeal else MaterialTheme.colorScheme.surface,
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        1.dp,
+                                        if (selected) BrandTeal else MaterialTheme.colorScheme.outline,
+                                    ),
+                                    onClick = { viewModel.updatePatientGender(gender) },
+                                ) {
+                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                        Text(
+                                            text = gender,
+                                            fontSize = 13.sp,
+                                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (selected) Color.White else Color.Black,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
 
                 // Diagnosed Problem (required)
                 RequiredLabel(stringResource(R.string.report_diagnosed_problem))

@@ -395,6 +395,7 @@ fun DoctorDashboardScreen(
                     onNotificationsClick = onNavigateToNotifications,
                     onRefresh = viewModel::refresh,
                     onAcknowledgeWarning = viewModel::acknowledgeWarning,
+                    onToggleServeAsGp = viewModel::toggleServeAsGp,
                 )
                 DoctorNavItem.CONSULTATIONS -> ConsultationsContent(
                     uiState = uiState,
@@ -680,6 +681,7 @@ private fun DashboardContent(
     onNotificationsClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onAcknowledgeWarning: () -> Unit = {},
+    onToggleServeAsGp: () -> Unit = {},
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 
@@ -702,7 +704,11 @@ private fun DashboardContent(
             isOnline = uiState.isOnline,
             isVerified = uiState.isVerified,
             isSuspended = uiState.suspendedUntil != null,
+            isSpecialist = uiState.profileSpecialty.contains("specialist", ignoreCase = true) ||
+                uiState.specialty.contains("specialist", ignoreCase = true),
+            canServeAsGp = uiState.canServeAsGp,
             onToggleOnline = onToggleOnline,
+            onToggleServeAsGp = onToggleServeAsGp,
             onOpenSidebar = onOpenSidebar,
             onNotificationsClick = onNotificationsClick,
         )
@@ -747,15 +753,6 @@ private fun DashboardContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Royal Clients
-        PendingRequestsSection(
-            count = uiState.royalClientsCount,
-            onViewAll = onViewAllRequests,
-            modifier = Modifier.padding(horizontal = 12.dp),
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         // Upcoming Appointments
         AppointmentsSection(
             todayAppointments = uiState.todayAppointments,
@@ -782,7 +779,10 @@ private fun TopBar(
     isOnline: Boolean,
     isVerified: Boolean,
     isSuspended: Boolean = false,
+    isSpecialist: Boolean = false,
+    canServeAsGp: Boolean = false,
     onToggleOnline: () -> Unit,
+    onToggleServeAsGp: () -> Unit = {},
     onOpenSidebar: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
 ) {
@@ -906,6 +906,15 @@ private fun TopBar(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+
+        // Row 3: Serve as GP toggle (specialists only, below online toggle)
+        if (isSpecialist && isVerified && !isSuspended) {
+            Spacer(modifier = Modifier.height(8.dp))
+            ServeAsGpToggle(
+                enabled = canServeAsGp,
+                onToggle = onToggleServeAsGp,
+            )
+        }
     }
 }
 
@@ -1287,13 +1296,18 @@ private fun StatsGrid(uiState: DoctorDashboardUiState, onRoyalClientsClick: () -
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            StatCard(
-                value = uiState.acceptanceRate,
-                label = stringResource(R.string.stats_acceptance_rate),
-                iconColor = BrandTeal,
-                iconBg = Color(0xFFD1FAE5),
-                modifier = Modifier.weight(1f),
-            )
+            run {
+                val rateNum = uiState.acceptanceRate.trimEnd('%').toIntOrNull()
+                val isLow = rateNum != null && rateNum < 75
+                StatCard(
+                    value = uiState.acceptanceRate,
+                    label = stringResource(R.string.stats_acceptance_rate),
+                    iconColor = if (isLow) Color(0xFFDC2626) else BrandTeal,
+                    iconBg = if (isLow) Color(0xFFFEE2E2) else Color(0xFFD1FAE5),
+                    valueColor = if (isLow) Color(0xFFDC2626) else null,
+                    modifier = Modifier.weight(1f),
+                )
+            }
             StatCard(
                 value = "${uiState.todayAppointments.size + uiState.upcomingAppointments.size}",
                 label = stringResource(R.string.stats_appointments),
@@ -1312,6 +1326,7 @@ private fun StatCard(
     iconColor: Color,
     iconBg: Color,
     modifier: Modifier = Modifier,
+    valueColor: Color? = null,
     onClick: (() -> Unit)? = null,
 ) {
     Column(
@@ -1339,7 +1354,7 @@ private fun StatCard(
             text = value,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = valueColor ?: MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
@@ -1347,6 +1362,70 @@ private fun StatCard(
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurface,
             lineHeight = 14.sp,
+        )
+    }
+}
+
+@Composable
+private fun ServeAsGpToggle(
+    enabled: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(
+                1.dp,
+                if (enabled) Color(0xFF2563EB).copy(alpha = 0.4f) else MaterialTheme.colorScheme.outline,
+                RoundedCornerShape(10.dp),
+            )
+            .background(if (enabled) Color(0xFFEFF6FF) else MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(
+                    if (enabled) Color(0xFF2563EB) else Color(0xFF9CA3AF),
+                    CircleShape,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "GP",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Serve as General Practitioner",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = if (enabled) "Visible on GP listings \u2022 Paid at GP rates"
+                       else "Toggle to appear on GP patient listings",
+                fontSize = 11.sp,
+                color = if (enabled) Color(0xFF2563EB) else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(
+            checked = enabled,
+            onCheckedChange = { onToggle() },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = Color(0xFF2563EB),
+                uncheckedThumbColor = Color.White,
+                uncheckedTrackColor = MaterialTheme.colorScheme.outline,
+                uncheckedBorderColor = Color.Transparent,
+            ),
         )
     }
 }

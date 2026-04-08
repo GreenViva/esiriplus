@@ -1,0 +1,102 @@
+--------- beginning of system
+02-27 20:56:13.480 14612 14612 W VRI[MainActivity]: handleResized abandoned!
+--------- beginning of main
+02-27 20:58:17.298 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 20:58:32.247 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 20:58:47.236 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 20:59:02.353 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 20:59:11.925 14612 14612 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+02-27 20:59:11.925 14612 14612 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+02-27 20:59:12.095 14612 14612 D VRI[MainActivity]: onFocusEvent false
+02-27 20:59:13.105 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{661228c V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to false
+02-27 20:59:17.305 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 20:59:19.289 14612 14612 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+02-27 20:59:19.289 14612 14612 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+02-27 20:59:19.339 14612 14612 D VRI[MainActivity]: onFocusEvent true
+02-27 20:59:20.343 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{661228c V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:59:32.365 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 20:59:40.881 14612 14612 D ConsultReqRealtime: Realtime request event: RequestRealtimeEvent(requestId=d24d8b85-d4d3-41aa-8e4f-1f38fbd45b7f, status=expired, consultationId=null)
+02-27 20:59:42.065 14612 14612 D ConsultReqRealtime: Realtime request event: RequestRealtimeEvent(requestId=90dde684-5264-4f14-8488-2db182865c5a, status=pending, consultationId=null)
+02-27 20:59:42.134 14612 14612 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+02-27 20:59:42.134 14612 14612 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+02-27 20:59:42.143 14612 14612 D WindowManager: Add to mViews: com.android.internal.policy.DecorView{353eeab V.E...... R.....I. 0,0-0,0 alpha=1.0 viewInfo = }[MainActivity],pkg= com.esiri.esiriplus
+02-27 20:59:42.145 14612 14650 D skia    : setRusSupported enable 0
+02-27 20:59:42.175 14612 14612 D ViewRootImplExtImpl: onDisplayChanged -1 for VRI android.view.ViewRootImpl@e207ac6
+02-27 20:59:42.178 14612 14612 E OplusBracketLog: [OplusViewMirrorManager] updateHostViewRootIfNeeded, not support android.view.ViewRootImpl@e207ac6
+02-27 20:59:42.279 14612 14612 D BufferQueueConsumer: [](id:391400000003,api:0,p:-1,c:14612) connect: controlledByApp=false
+02-27 20:59:42.282 14612 14612 W libc    : Access denied finding property "vendor.display.enable_optimal_refresh_rate"
+02-27 20:59:42.292 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#3(BLAST Consumer)3](id:391400000003,api:1,p:14612,c:14612) connect: api=1 producerControlledByApp=true
+02-27 20:59:42.317 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:42.342 14612 14650 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:1) acquireNextBufferLocked size=1272x1290 mFrameNumber=1 applyTransaction=true mTimestamp=838848950066198(auto) mPendingTransactions.size=0 graphicBufferId=62758062129169 transform=0
+02-27 20:59:42.344 14612 14650 D VRI[MainActivity]: Received frameCommittedCallback lastAttemptedDrawFrameNum=1 didProduceBuffer=true syncBuffer=false
+02-27 20:59:42.348 14612 14612 D VRI[MainActivity]: draw finished. seqId=0
+02-27 20:59:42.349 14612 14612 D ViewRootImplExtImpl: setMaxDequeuedBufferCount: 2
+02-27 20:59:42.349 14612 14612 D VRI[MainActivity]: onFocusEvent false
+02-27 20:59:42.381 14612 14612 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:59:42.386 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:42.389 14612 14650 D VRI[MainActivity]: Received frameCommittedCallback lastAttemptedDrawFrameNum=2 didProduceBuffer=true syncBuffer=false
+02-27 20:59:42.389 14612 14612 D VRI[MainActivity]: draw finished. seqId=0
+02-27 20:59:42.436 14612 14612 D VRI[MainActivity]: onFocusEvent true
+02-27 20:59:43.143 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:43.335 14612 14612 D ViewRootImplExtImpl: the up motion event handled by client, just return
+02-27 20:59:43.383 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{661228c V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to false
+02-27 20:59:43.439 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{353eeab V.E...... R....... 0,0-1080,1098 aid=1073741837 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:59:43.915 14612 14612 D ViewRootImplExtImpl: the up motion event handled by client, just return
+02-27 20:59:43.943 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: --> POST https://nzzvphhqbcscoetzfzkd.supabase.co/functions/v1/handle-consultation-request
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: Content-Length: 71
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: Content-Type: application/json
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: apikey: ██
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: Authorization: ██
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: {"action":"accept","request_id":"90dde684-5264-4f14-8488-2db182865c5a"}
+02-27 20:59:43.957 14612 15409 I okhttp.OkHttpClient: --> END POST (71-byte body)
+02-27 20:59:44.112 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:45.113 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:45.164 14612 15409 I okhttp.OkHttpClient: <-- 200 https://nzzvphhqbcscoetzfzkd.supabase.co/functions/v1/handle-consultation-request (1206ms)
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: date: Fri, 27 Feb 2026 17:59:46 GMT
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: content-type: application/json
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: server: cloudflare
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: cf-ray: 9d4993e9e914de9f-DAR
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: cf-cache-status: DYNAMIC
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: strict-transport-security: max-age=31536000; includeSubDomains; preload
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: vary: Accept-Encoding, Origin
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: access-control-allow-headers: Authorization, Content-Type, X-Idempotency-Key
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: access-control-allow-methods: POST, GET, OPTIONS
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: access-control-max-age: 86400
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: sb-gateway-version: 1
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: sb-project-ref: nzzvphhqbcscoetzfzkd
+02-27 20:59:45.165 14612 15409 I okhttp.OkHttpClient: sb-request-id: 019ca041-ae3c-75e2-b65b-d67c504ca6cb
+02-27 20:59:45.166 14612 15409 I okhttp.OkHttpClient: x-deno-execution-id: c6efd2be-3b19-4993-91d3-4d5a82f57975
+02-27 20:59:45.166 14612 15409 I okhttp.OkHttpClient: x-sb-edge-region: eu-west-3
+02-27 20:59:45.166 14612 15409 I okhttp.OkHttpClient: x-served-by: supabase-edge-runtime
+02-27 20:59:45.166 14612 15409 I okhttp.OkHttpClient: set-cookie: __cf_bm=VxpVaDrJmRrhIXJR4LndJAPV4NIYC7ulbSULGCjA8V4-1772215186-1.0.1.1-DHLvK4LKpvHDVRoj5tkdYanf96SDJ4g68J.kjdRkOk3nzzd8uf02KSttFB9PV4v74GUcEjhAvpF_Vl7R_sP5lQHIseWKtSNucu1xEB8Qh00; path=/; expires=Fri, 27-Feb-26 18:29:46 GMT; domain=.supabase.co; HttpOnly; Secure; SameSite=None
+02-27 20:59:45.166 14612 15409 I okhttp.OkHttpClient: alt-svc: h3=":443"; ma=86400
+02-27 20:59:45.168 14612 15409 I okhttp.OkHttpClient: {"request_id":"90dde684-5264-4f14-8488-2db182865c5a","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null}
+02-27 20:59:45.168 14612 15409 I okhttp.OkHttpClient: <-- END HTTP (176-byte body)
+02-27 20:59:45.171 14612 14612 D ConsultReqService: Accept raw result: Success(data={"request_id":"90dde684-5264-4f14-8488-2db182865c5a","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null})
+02-27 20:59:45.172 14612 14612 D ConsultReqService: Accept response body: {"request_id":"90dde684-5264-4f14-8488-2db182865c5a","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null}
+02-27 20:59:45.234 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#3(BLAST Consumer)3](id:391400000003,api:1,p:14612,c:14612) disconnect: api 1
+02-27 20:59:45.236 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#3(BLAST Consumer)3](id:391400000003,api:1,p:14612,c:14612) connect: api=1 producerControlledByApp=true
+02-27 20:59:45.246 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x2a1d141,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:59:45.253 14612 14650 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:2) producer disconnected before acquireNextBufferLocked
+02-27 20:59:45.260 14612 14612 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:59:45.260 14612 14612 W VRI[MainActivity]: handleResized abandoned!
+02-27 20:59:46.716 14612 14612 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,window dying
+02-27 20:59:46.716 14612 14612 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,unregisterSystemUIBroadcastReceiver 
+02-27 20:59:46.717 14612 14612 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity, unregisterSystemUIBroadcastReceiver failed java.lang.IllegalArgumentException: Receiver not registered: android.view.OplusScrollToTopManager$2@a8819a6
+02-27 20:59:46.718 14612 14612 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@1e2ffba
+02-27 20:59:46.735 14612 14612 D HWUI    : RenderProxy::destroy: this=0xb400007afa9faf00, mContext=0xb400007ad2a98f00
+02-27 20:59:46.736 14612 14650 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007b6cd74c40, surface=NULL
+02-27 20:59:46.736 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#3(BLAST Consumer)3](id:391400000003,api:1,p:14612,c:14612) disconnect: api 1
+02-27 20:59:46.738 14612 14612 D BLASTBufferQueue: [VRI[MainActivity]#3](f:0,a:1) destructor()
+02-27 20:59:46.738 14612 14612 D BufferQueueConsumer: [VRI[MainActivity]#3(BLAST Consumer)3](id:391400000003,api:0,p:-1,c:14612) disconnect
+02-27 20:59:46.801 14612 14612 D VRI[MainActivity]: onFocusEvent true
+02-27 20:59:47.311 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 20:59:47.808 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{661228c V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 21:00:02.263 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 21:00:17.417 14612 15409 I Supabase-Realtime: Heartbeat received
+02-27 21:00:32.287 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 21:00:47.301 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 21:01:02.308 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 21:01:17.310 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 21:01:32.359 14612 15408 I Supabase-Realtime: Heartbeat received

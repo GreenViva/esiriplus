@@ -413,7 +413,7 @@ private fun MessageBubble(
         RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
     }
 
-    val hasAttachment = !message.attachmentUrl.isNullOrBlank()
+    val hasAttachment = !message.attachmentUrl.isNullOrBlank() && message.messageType != "text"
     val isImage = message.messageType == "image" && hasAttachment
     val documentFallback = stringResource(R.string.chat_document)
 

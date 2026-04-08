@@ -22,10 +22,28 @@ interface DoctorProfileDao {
     @Query("SELECT * FROM doctor_profiles WHERE email = :email LIMIT 1")
     suspend fun getByEmail(email: String): DoctorProfileEntity?
 
-    @Query("SELECT * FROM doctor_profiles WHERE specialty = :specialty AND isBanned = 0")
+    @Query(
+        """
+        SELECT * FROM doctor_profiles
+        WHERE isBanned = 0
+          AND (
+              specialty = :specialty
+              OR (:specialty = 'gp' AND specialty = 'specialist' AND canServeAsGp = 1)
+          )
+        """,
+    )
     fun getBySpecialty(specialty: String): Flow<List<DoctorProfileEntity>>
 
-    @Query("DELETE FROM doctor_profiles WHERE specialty = :specialty AND doctorId NOT IN (:keepIds)")
+    @Query(
+        """
+        DELETE FROM doctor_profiles
+        WHERE doctorId NOT IN (:keepIds)
+          AND (
+              specialty = :specialty
+              OR (:specialty = 'gp' AND specialty = 'specialist' AND canServeAsGp = 1)
+          )
+        """,
+    )
     suspend fun deleteStaleBySpecialty(specialty: String, keepIds: List<String>)
 
     @Query("SELECT * FROM doctor_profiles WHERE isVerified = 1 AND isAvailable = 1")
@@ -45,6 +63,20 @@ interface DoctorProfileDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(profiles: List<DoctorProfileEntity>)
+
+    /**
+     * Atomically replaces cached doctors for a specialty: deletes stale rows and
+     * inserts fresh ones in a single transaction so the Room Flow never emits
+     * an empty intermediate state.
+     */
+    @Transaction
+    suspend fun replaceBySpecialty(specialty: String, freshDoctors: List<DoctorProfileEntity>) {
+        val keepIds = freshDoctors.map { it.doctorId }
+        deleteStaleBySpecialty(specialty, keepIds)
+        if (freshDoctors.isNotEmpty()) {
+            insertAll(freshDoctors)
+        }
+    }
 
     @Delete
     suspend fun delete(profile: DoctorProfileEntity)

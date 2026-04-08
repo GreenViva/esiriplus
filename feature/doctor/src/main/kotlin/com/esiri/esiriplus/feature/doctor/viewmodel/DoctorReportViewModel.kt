@@ -47,6 +47,8 @@ data class DoctorReportUiState(
     val serviceType: String = "",
 
     // Form fields matching wireframes
+    val patientAge: String = "",
+    val patientGender: String = "",
     val diagnosedProblem: String = "",
     val category: String = "",
     val otherCategory: String = "",
@@ -96,6 +98,14 @@ class DoctorReportViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
+    }
+
+    fun updatePatientAge(value: String) {
+        _uiState.update { it.copy(patientAge = value, errorMessage = null) }
+    }
+
+    fun updatePatientGender(value: String) {
+        _uiState.update { it.copy(patientGender = value, errorMessage = null) }
     }
 
     fun updateDiagnosedProblem(value: String) {
@@ -197,6 +207,8 @@ class DoctorReportViewModel @Inject constructor(
         viewModelScope.launch {
             val body = buildJsonObject {
                 put("consultation_id", JsonPrimitive(consultationId))
+                if (state.patientAge.isNotBlank()) put("patient_age", JsonPrimitive(state.patientAge.trim()))
+                if (state.patientGender.isNotBlank()) put("patient_gender", JsonPrimitive(state.patientGender.trim()))
                 put("diagnosed_problem", JsonPrimitive(state.diagnosedProblem.trim()))
                 put("category", JsonPrimitive(effectiveCategory.trim()))
                 put("severity", JsonPrimitive(state.severity))

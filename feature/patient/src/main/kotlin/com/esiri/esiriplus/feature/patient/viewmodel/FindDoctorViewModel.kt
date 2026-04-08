@@ -87,6 +87,7 @@ private data class DoctorRow(
     val services: List<String> = emptyList(),
     @SerialName("country_code") val countryCode: String = "+255",
     val country: String = "",
+    @SerialName("can_serve_as_gp") val canServeAsGp: Boolean = false,
     @SerialName("license_document_url") val licenseDocumentUrl: String? = null,
     @SerialName("certificates_url") val certificatesUrl: String? = null,
     @SerialName("created_at") val createdAt: String = "",
@@ -121,21 +122,28 @@ class FindDoctorViewModel @Inject constructor(
     }
 
     private fun loadDoctors() {
-        // 1. Observe Room (reactive — updates when backend cache is written)
-        viewModelScope.launch {
-            doctorProfileDao.getBySpecialty(doctorSpecialty).collect { doctors ->
-                _uiState.update {
-                    it.copy(doctors = doctors)
-                }
-                applyFilters()
-            }
-        }
-
-        // 2. Fetch fresh data from backend; only clear loading after this completes
-        //    so stale Room availability flags don't mislead the patient.
+        // 1. Fetch fresh data from backend FIRST — this is the source of truth.
+        //    Show results directly in the UI state so it never depends solely on Room.
         viewModelScope.launch {
             fetchDoctorsFromBackend()
             _uiState.update { it.copy(isLoading = false) }
+        }
+
+        // 2. Also observe Room for realtime availability updates (secondary).
+        //    Only adopt Room data if we haven't loaded from the backend yet,
+        //    or if Room has MORE doctors (availability update added one).
+        viewModelScope.launch {
+            doctorProfileDao.getBySpecialty(doctorSpecialty).collect { doctors ->
+                _uiState.update { current ->
+                    // Don't let a Room emission wipe out a good backend result.
+                    if (doctors.isNotEmpty() || current.doctors.isEmpty()) {
+                        current.copy(doctors = doctors)
+                    } else {
+                        current
+                    }
+                }
+                applyFilters()
+            }
         }
     }
 
@@ -173,13 +181,12 @@ class FindDoctorViewModel @Inject constructor(
                 try {
                     val response = json.decodeFromString<ListDoctorsResponse>(result.data)
                     val entities = response.doctors.map { it.toEntity() }
-                    // Replace cached doctors for this specialty so suspended/banned
-                    // doctors that are no longer returned get removed.
-                    val freshIds = entities.map { it.doctorId }
-                    doctorProfileDao.deleteStaleBySpecialty(doctorSpecialty, freshIds)
-                    if (entities.isNotEmpty()) {
-                        doctorProfileDao.insertAll(entities)
-                    }
+                    // Update UI immediately from the backend response — don't
+                    // wait for Room Flow to re-emit.
+                    _uiState.update { it.copy(doctors = entities) }
+                    applyFilters()
+                    // Also persist to Room for offline/realtime updates.
+                    doctorProfileDao.replaceBySpecialty(doctorSpecialty, entities)
                     Log.d(TAG, "Cached ${entities.size} doctors for $doctorSpecialty")
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to parse list-doctors response", e)
@@ -261,6 +268,7 @@ private fun DoctorRow.toEntity(): DoctorProfileEntity {
         certificatesUrl = certificatesUrl,
         createdAt = parseTimestamp(createdAt) ?: now,
         updatedAt = parseTimestamp(updatedAt) ?: now,
+        canServeAsGp = canServeAsGp,
     )
 }
 

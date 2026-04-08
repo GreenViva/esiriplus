@@ -24,6 +24,7 @@ PUBLIC_FUNCTIONS=(
   "recover-by-questions"
   "refresh-patient-session"
   "register-doctor"
+  "reset-password"
   "send-doctor-otp"
   "verify-doctor-otp"
   "verify-report"

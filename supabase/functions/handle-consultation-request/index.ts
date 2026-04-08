@@ -321,6 +321,7 @@ async function handleCreate(
         data: {
           request_id: request.request_id,
           service_type: body.service_type,
+          doctor_id: body.doctor_id,
         },
       },
       headers: {

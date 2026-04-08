@@ -9,6 +9,7 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
+import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.service.ConsultationRequestRealtimeService
 import com.esiri.esiriplus.core.network.service.RequestRealtimeEvent
@@ -65,6 +66,7 @@ class FollowUpRequestViewModel @Inject constructor(
     private val realtimeService: ConsultationRequestRealtimeService,
     private val tokenManager: TokenManager,
     private val supabaseClientProvider: SupabaseClientProvider,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val parentConsultationId: String = checkNotNull(savedStateHandle["parentConsultationId"])
@@ -184,6 +186,9 @@ class FollowUpRequestViewModel @Inject constructor(
 
     private fun sendFollowUpRequest() {
         viewModelScope.launch {
+            if (tokenManager.isTokenExpiringSoon(5)) {
+                try { authRepository.refreshSession() } catch (_: Exception) {}
+            }
             when (val result = consultationRequestRepository.createRequest(
                 doctorId = doctorId,
                 serviceType = serviceType,

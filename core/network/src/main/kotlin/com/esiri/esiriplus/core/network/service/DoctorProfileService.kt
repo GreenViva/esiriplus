@@ -10,7 +10,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import javax.inject.Inject
@@ -66,6 +68,7 @@ data class DoctorProfileRow(
     @SerialName("warning_at") val warningAt: String? = null,
     @SerialName("warning_count") val warningCount: Int = 0,
     @SerialName("warning_acknowledged") val warningAcknowledged: Boolean = true,
+    @SerialName("can_serve_as_gp") val canServeAsGp: Boolean = false,
     @SerialName("is_banned") val isBanned: Boolean = false,
     @SerialName("banned_at") val bannedAt: String? = null,
     @SerialName("ban_reason") val banReason: String? = null,
@@ -132,6 +135,16 @@ class DoctorProfileService @Inject constructor(
         }
     }
 
+    suspend fun updateCanServeAsGp(doctorId: String, enabled: Boolean): ApiResult<Unit> {
+        return safeApiCall {
+            supabaseClientProvider.client.from("doctor_profiles")
+                .update({ set("can_serve_as_gp", enabled) }) {
+                    filter { eq("doctor_id", doctorId) }
+                }
+            Log.d(TAG, "Updated can_serve_as_gp=$enabled for doctor $doctorId")
+        }
+    }
+
     suspend fun acknowledgeWarning(doctorId: String): ApiResult<Unit> {
         return safeApiCall {
             supabaseClientProvider.client.from("doctor_profiles")
@@ -139,6 +152,36 @@ class DoctorProfileService @Inject constructor(
                     filter { eq("doctor_id", doctorId) }
                 }
             Log.d(TAG, "Warning acknowledged for doctor $doctorId")
+        }
+    }
+
+    /**
+     * Fetches the real acceptance rate from consultation_requests.
+     * Formula: accepted / (accepted + rejected + expired).
+     * Returns a formatted string like "50%" or "—" if no data.
+     */
+    suspend fun getAcceptanceRate(doctorId: String): String {
+        return try {
+            val data = supabaseClientProvider.client.from("consultation_requests")
+                .select {
+                    filter { eq("doctor_id", doctorId) }
+                }.data
+            val arr = Json.parseToJsonElement(data).jsonArray
+            var accepted = 0
+            var rejected = 0
+            var expired = 0
+            for (item in arr) {
+                when (item.jsonObject["status"]?.jsonPrimitive?.contentOrNull) {
+                    "accepted" -> accepted++
+                    "rejected" -> rejected++
+                    "expired" -> expired++
+                }
+            }
+            val total = accepted + rejected + expired
+            if (total > 0) "${(accepted * 100 / total)}%" else "\u2014"
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to fetch acceptance rate", e)
+            "\u2014"
         }
     }
 

@@ -3,6 +3,7 @@ package com.esiri.esiriplus.core.network.interceptor
 import android.util.Log
 import com.esiri.esiriplus.core.network.BuildConfig
 import com.esiri.esiriplus.core.network.EdgeFunctionClient.Companion.HEADER_DOCTOR_TOKEN
+import com.esiri.esiriplus.core.network.EdgeFunctionClient.Companion.HEADER_PATIENT_TOKEN
 import com.esiri.esiriplus.core.network.SessionInvalidator
 import com.esiri.esiriplus.core.network.TokenManager
 import dagger.Lazy
@@ -25,6 +26,16 @@ class TokenRefreshAuthenticator @Inject constructor(
         if (currentToken != null && JwtUtils.isPatientToken(currentToken)) {
             return null
         }
+        // Detect patient/anonymous requests by headers. Edge function requests set
+        // X-Skip-Auth=true. If the request has NO X-Doctor-Token, it's either a
+        // patient request or anonymous — never refresh or invalidate for those.
+        // The X-Patient-Token header might be absent if the token was null at send time.
+        val isSkipAuth = response.request.header("X-Skip-Auth") != null
+        val hasDoctorToken = response.request.header(HEADER_DOCTOR_TOKEN) != null
+        if (isSkipAuth && !hasDoctorToken) {
+            Log.d(TAG, "Non-doctor edge function request got 401 — not invalidating")
+            return null
+        }
 
         // Don't retry more than once.
         if (responseCount(response) > 1) {
@@ -33,11 +44,6 @@ class TokenRefreshAuthenticator @Inject constructor(
         }
 
         // Detect whether this was a doctor edge-function request.
-        // Edge function requests use Authorization: Bearer $ANON_KEY and put the
-        // actual doctor JWT in X-Doctor-Token.  The requestToken from Authorization
-        // is therefore the anon key, not the doctor JWT — detect this and handle
-        // the retry by updating X-Doctor-Token instead.
-        val hasDoctorToken = response.request.header(HEADER_DOCTOR_TOKEN) != null
         val requestToken = response.request.header("Authorization")
             ?.removePrefix("Bearer ")
 

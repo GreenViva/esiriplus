@@ -322,6 +322,19 @@
     <string name="consultation_gallery">Gallery</string>
     <string name="consultation_document">Document</string>
 
+    <!-- ===== Greeting Overlay ===== -->
+    <string name="greeting_welcome">Hello, welcome! \uD83D\uDC4B</string>
+    <string name="greeting_here_to_serve">Dr. %s is here to serve you.</string>
+    <string name="greeting_here_to_serve_generic">We are here to serve you.</string>
+    <string name="greeting_how_to_proceed">How would you like to proceed?</string>
+    <string name="greeting_choice_call">Call</string>
+    <string name="greeting_choice_text">Text</string>
+    <string name="greeting_text_auto_message">Hi, I\'d like to consult via text messages.</string>
+    <string name="greeting_doctor_listening">Your Doctor is listening.</string>
+
+    <!-- ===== Contact Us ===== -->
+    <string name="contact_us_label">For help contact us</string>
+
     <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
     <string name="vm_doctor_accepted">Doctor accepted! Opening chat\u2026</string>
     <string name="vm_doctor_declined">Doctor declined the request. You can request another doctor.</string>

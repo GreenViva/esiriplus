@@ -153,7 +153,7 @@ fun ReportDetailScreen(
                 Button(
                     onClick = {
                         scope.launch {
-                            shareReportPdf(context, report)
+                            downloadReportPdf(context, report)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
@@ -257,6 +257,12 @@ private fun ReportContent(report: PatientReport) {
         Spacer(Modifier.height(8.dp))
         if (report.patientSessionId.isNotBlank()) {
             InfoRow(stringResource(R.string.report_detail_patient_id), report.patientSessionId.take(12) + "...")
+        }
+        if (report.patientAge.isNotBlank()) {
+            InfoRow("Age", report.patientAge)
+        }
+        if (report.patientGender.isNotBlank()) {
+            InfoRow("Gender", report.patientGender)
         }
         if (report.consultationDate > 0) {
             InfoRow(stringResource(R.string.report_detail_consultation_date), formatDate(report.consultationDate))
@@ -453,6 +459,44 @@ private fun ProseBlock(text: String) {
             color = Color.Black,
             lineHeight = 20.sp,
         )
+    }
+}
+
+private suspend fun downloadReportPdf(context: Context, report: PatientReport) {
+    withContext(Dispatchers.IO) {
+        try {
+            val pdfFile = ReportPdfGenerator.generate(context, report)
+            val fileName = "eSIRI_Report_${report.verificationCode.ifBlank { report.reportId.take(8) }}.pdf"
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                // Android 10+ — use MediaStore to save to Downloads
+                val contentValues = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/pdf")
+                    put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
+                }
+                val resolver = context.contentResolver
+                val uri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                if (uri != null) {
+                    resolver.openOutputStream(uri)?.use { out ->
+                        pdfFile.inputStream().use { it.copyTo(out) }
+                    }
+                }
+            } else {
+                // Pre-Android 10 — copy to Downloads folder
+                val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+                val destFile = java.io.File(downloadsDir, fileName)
+                pdfFile.copyTo(destFile, overwrite = true)
+            }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Report saved to Downloads", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, context.getString(R.string.report_detail_pdf_error, e.message ?: ""), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
 

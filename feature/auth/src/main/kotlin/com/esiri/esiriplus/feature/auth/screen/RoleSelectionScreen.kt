@@ -3,6 +3,8 @@ package com.esiri.esiriplus.feature.auth.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -36,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -73,16 +78,16 @@ fun RoleSelectionScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // App logo
             Image(
                 painter = painterResource(R.drawable.ic_stethoscope),
                 contentDescription = null,
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(56.dp),
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = stringResource(R.string.role_welcome_title),
@@ -91,14 +96,7 @@ fun RoleSelectionScreen(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.semantics { heading() },
             )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.role_welcome_subtitle),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // FOR PATIENTS section
             Text(
@@ -119,7 +117,7 @@ fun RoleSelectionScreen(
                 subtitle = stringResource(R.string.role_new_platform_subtitle),
                 onClick = onPatientSelected,
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // I have my ID card
             RoleCard(
@@ -137,9 +135,11 @@ fun RoleSelectionScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp),
             )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextButton(onClick = onRecoverPatientId) {
+            TextButton(
+                onClick = onRecoverPatientId,
+                modifier = Modifier.height(32.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+            ) {
                 Text(
                     text = stringResource(R.string.role_forgot_patient_id),
                     fontSize = 13.sp,
@@ -148,7 +148,7 @@ fun RoleSelectionScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Divider with "or"
             Row(
@@ -171,7 +171,7 @@ fun RoleSelectionScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // DOCTOR PORTAL section
             Text(
@@ -183,7 +183,7 @@ fun RoleSelectionScreen(
                     .fillMaxWidth()
                     .semantics { heading() },
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -221,8 +221,12 @@ fun RoleSelectionScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            TextButton(onClick = onDoctorSelected) {
+            Spacer(modifier = Modifier.height(4.dp))
+            TextButton(
+                onClick = onDoctorSelected,
+                modifier = Modifier.height(36.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+            ) {
                 Text(
                     text = stringResource(R.string.role_forgot_password),
                     fontSize = 13.sp,
@@ -231,7 +235,7 @@ fun RoleSelectionScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Divider
             Row(
@@ -254,24 +258,24 @@ fun RoleSelectionScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // eSIRIPlus AGENTS section
             androidx.compose.material3.Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                shadowElevation = 2.dp,
+                shape = RoundedCornerShape(10.dp),
+                shadowElevation = 1.dp,
                 color = Color(0xFFFFF7ED),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.3f)),
                 onClick = onAgentSelected,
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(34.dp)
                             .background(
                                 androidx.compose.ui.graphics.Brush.linearGradient(
                                     listOf(Color(0xFFF59E0B), Color(0xFFEF6C00)),
@@ -284,21 +288,20 @@ fun RoleSelectionScreen(
                             text = "e+",
                             color = Color.White,
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 16.sp,
+                            fontSize = 13.sp,
                         )
                     }
-                    Spacer(modifier = Modifier.width(14.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "eSIRIPlus Agents",
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Earn money by becoming an eSIRIPlus agent",
-                            fontSize = 13.sp,
+                            text = "Earn money by becoming an agent",
+                            fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -312,6 +315,9 @@ fun RoleSelectionScreen(
             }
 
             Spacer(modifier = Modifier.weight(1f))
+
+            // Contact Us
+            ContactUsSection()
 
             // Footer
             Text(
@@ -333,12 +339,12 @@ private fun RoleCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val cardShape = RoundedCornerShape(14.dp)
+    val cardShape = RoundedCornerShape(10.dp)
 
     androidx.compose.material3.Surface(
         modifier = modifier.fillMaxWidth(),
         shape = cardShape,
-        shadowElevation = 2.dp,
+        shadowElevation = 1.dp,
         tonalElevation = 0.dp,
         color = MaterialTheme.colorScheme.surface,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -347,34 +353,33 @@ private fun RoleCard(
         Row(
             modifier = Modifier
                 .semantics(mergeDescendants = true) { role = Role.Button }
-                .padding(16.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(36.dp)
                     .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = painterResource(iconRes),
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(18.dp),
                     tint = BrandTeal,
                 )
             }
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtitle,
-                    fontSize = 13.sp,
+                    fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -382,7 +387,64 @@ private fun RoleCard(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(18.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContactUsSection() {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "For help contact us",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "+255 663 582 994",
+                fontSize = 12.sp,
+                color = BrandTeal,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable {
+                    context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")))
+                },
+            )
+            Spacer(Modifier.width(16.dp))
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "support@esiri.africa",
+                fontSize = 12.sp,
+                color = BrandTeal,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable {
+                    context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:support@esiri.africa")))
+                },
             )
         }
     }

@@ -1,0 +1,187 @@
+--------- beginning of system
+02-27 20:10:08.067 24753 24753 I Quality : ActivityThread: createClassLoader delay 463 /data/app/~~-EE-lRgl8pTdQ7K57ZjvKg==/com.esiri.esiriplus-nyhmQzkKKAs-CyIGmwIXcA==/base.apk 24753
+02-27 20:10:08.072 24753 24753 I Quality : ActivityThread: createOrUpdateClassLoaderLocked delay 471 com.esiri.esiriplus 24753
+02-27 20:10:08.104 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:-1
+02-27 20:10:08.360 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:0
+02-27 20:10:09.225 24753 24753 I Quality : ActivityThread: activityStart delay 889 com.esiri.esiriplus 24753
+02-27 20:10:09.231 24753 24753 D ActivityThread: ComponentInfo{com.esiri.esiriplus/com.esiri.esiriplus.MainActivity} checkFinished=false 2
+02-27 20:10:09.231 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:0
+02-27 20:10:09.234 24753 24753 D OplusInputMethodUtil: init sDebug to false, init sDebugIme to false, init sAlwaysOn to false
+02-27 20:10:09.234 24753 24753 D OplusInputMethodUtil: updateDebugToClass InputMethodManager.DEBUG = false
+02-27 20:10:09.234 24753 24753 D OplusInputMethodUtil: updateDebugToClass ImeFocusController.DEBUG = false
+02-27 20:10:09.234 24753 24753 D OplusInputMethodUtil: updateDebugToClass InsetsController.DEBUG = false
+02-27 20:10:09.234 24753 24753 D OplusInputMethodUtil: updateDebugToClass BaseInputConnection.DEBUG = false
+02-27 20:10:09.282 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:0
+02-27 20:10:11.719 24753 24753 D VRI[MainActivity]: relayoutWindow result, sizeChanged:true, surfaceControlChanged:true, transformHintChanged:false, mSurfaceSize:Point(1080, 2400), mLastSurfaceSize:Point(0, 0), mWidth:-1, mHeight:-1, requestedWidth:1080, requestedHeight:2400, transformHint:0, installOrientation:0, displayRotation:0, isSurfaceValid:true, attr.flag:-2122252032, tmpFrames:ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][0,0]}, relayoutAsync:false, mSyncSeqId:0
+02-27 20:10:11.720 24753 24753 W VRI[MainActivity]: updateBlastSurfaceIfNeeded, surfaceSize:Point(1080, 2400), lastSurfaceSize:Point(0, 0), format:-1, blastBufferQueue:null
+02-27 20:10:11.851 24753 24753 D VRI[MainActivity]: relayoutWindow result, sizeChanged:false, surfaceControlChanged:false, transformHintChanged:false, mSurfaceSize:Point(1080, 2400), mLastSurfaceSize:Point(1080, 2400), mWidth:1080, mHeight:2400, requestedWidth:1080, requestedHeight:2400, transformHint:0, installOrientation:0, displayRotation:0, isSurfaceValid:true, attr.flag:-2122252032, tmpFrames:ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][0,0]}, relayoutAsync:false, mSyncSeqId:0
+02-27 20:10:11.851 24753 24753 W VRI[MainActivity]: updateBlastSurfaceIfNeeded, surfaceSize:Point(1080, 2400), lastSurfaceSize:Point(1080, 2400), format:-1, blastBufferQueue:android.graphics.BLASTBufferQueue@cd35b31
+02-27 20:10:11.862 24753 24753 W VRI[MainActivity]: handleResized, msg:, frameChanged:false, configChanged:false, displayChanged:false, attachedFrameChanged:false, compatScaleChanged:false, pendingDragResizing=false
+02-27 20:10:13.309 24753 24753 D VRI[MainActivity]: relayoutWindow result, sizeChanged:false, surfaceControlChanged:true, transformHintChanged:false, mSurfaceSize:Point(1080, 2400), mLastSurfaceSize:Point(1080, 2400), mWidth:1080, mHeight:2400, requestedWidth:1080, requestedHeight:2400, transformHint:0, installOrientation:0, displayRotation:0, isSurfaceValid:false, attr.flag:-2122252032, tmpFrames:ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][0,0]}, relayoutAsync:false, mSyncSeqId:0
+02-27 20:14:03.639 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:0
+02-27 20:14:03.735 24753 24753 D ActivityThread: ComponentInfo{com.esiri.esiriplus/com.esiri.esiriplus.MainActivity} checkFinished=false 2
+02-27 20:14:03.735 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:0
+02-27 20:14:03.765 24753 24753 D ResourcesManagerExtImpl: applyConfigurationToAppResourcesLocked app.getDisplayId() return callback.displayId:0
+02-27 20:14:03.939 24753 24753 D VRI[MainActivity]: relayoutWindow result, sizeChanged:true, surfaceControlChanged:true, transformHintChanged:false, mSurfaceSize:Point(1080, 2400), mLastSurfaceSize:Point(0, 0), mWidth:-1, mHeight:-1, requestedWidth:1080, requestedHeight:2400, transformHint:0, installOrientation:0, displayRotation:0, isSurfaceValid:true, attr.flag:-2122252032, tmpFrames:ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][0,0]}, relayoutAsync:false, mSyncSeqId:0
+02-27 20:14:03.939 24753 24753 W VRI[MainActivity]: updateBlastSurfaceIfNeeded, surfaceSize:Point(1080, 2400), lastSurfaceSize:Point(0, 0), format:-1, blastBufferQueue:null
+02-27 20:14:04.033 24753 24753 D VRI[MainActivity]: relayoutWindow result, sizeChanged:false, surfaceControlChanged:false, transformHintChanged:false, mSurfaceSize:Point(1080, 2400), mLastSurfaceSize:Point(1080, 2400), mWidth:1080, mHeight:2400, requestedWidth:1080, requestedHeight:2400, transformHint:0, installOrientation:0, displayRotation:0, isSurfaceValid:true, attr.flag:-2122252032, tmpFrames:ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][1080,2400]}, relayoutAsync:true, mSyncSeqId:0
+02-27 20:14:04.033 24753 24753 W VRI[MainActivity]: updateBlastSurfaceIfNeeded, surfaceSize:Point(1080, 2400), lastSurfaceSize:Point(1080, 2400), format:-1, blastBufferQueue:android.graphics.BLASTBufferQueue@34c3d18
+02-27 20:14:04.040 24753 24753 W VRI[MainActivity]: handleResized, msg:, frameChanged:false, configChanged:false, displayChanged:false, attachedFrameChanged:false, compatScaleChanged:false, pendingDragResizing=false
+02-27 20:14:04.267 24753 24753 D VRI[MainActivity]: relayoutWindow result, sizeChanged:false, surfaceControlChanged:false, transformHintChanged:false, mSurfaceSize:Point(1080, 2400), mLastSurfaceSize:Point(1080, 2400), mWidth:1080, mHeight:2400, requestedWidth:1080, requestedHeight:2400, transformHint:0, installOrientation:0, displayRotation:0, isSurfaceValid:true, attr.flag:-2122243840, tmpFrames:ClientWindowFrames{frame=[0,0][1080,2400] display=[0,0][1080,2400] parentFrame=[0,0][1080,2400]}, relayoutAsync:true, mSyncSeqId:0
+02-27 20:14:04.267 24753 24753 W VRI[MainActivity]: updateBlastSurfaceIfNeeded, surfaceSize:Point(1080, 2400), lastSurfaceSize:Point(1080, 2400), format:-1, blastBufferQueue:android.graphics.BLASTBufferQueue@34c3d18
+02-27 20:14:04.671 24753 24753 I Quality : UISlowBinder:174201458
+--------- beginning of main
+02-27 20:14:04.923 24753 24753 D VRI[MainActivity]: onFocusEvent false
+02-27 20:14:04.949 24753 25549 I SQLiteConnection: Database keying operation returned:0
+02-27 20:14:05.280 24753 27690 I okhttp.OkHttpClient: --> GET https://nzzvphhqbcscoetzfzkd.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ&vsn=1.0.0
+02-27 20:14:05.280 24753 27690 I okhttp.OkHttpClient: X-Client-Info: supabase-kt/3.1.1
+02-27 20:14:05.281 24753 27690 I okhttp.OkHttpClient: Accept: application/json
+02-27 20:14:05.281 24753 27690 I okhttp.OkHttpClient: Accept-Charset: UTF-8
+02-27 20:14:05.281 24753 27690 I okhttp.OkHttpClient: User-Agent: ktor-client
+02-27 20:14:05.282 24753 27690 I okhttp.OkHttpClient: Upgrade: websocket
+02-27 20:14:05.282 24753 27690 I okhttp.OkHttpClient: Connection: Upgrade
+02-27 20:14:05.282 24753 27690 I okhttp.OkHttpClient: Sec-WebSocket-Key: 1OQmN2mA0GYLi5bRPTVg+A==
+02-27 20:14:05.283 24753 27690 I okhttp.OkHttpClient: Sec-WebSocket-Version: 13
+02-27 20:14:05.283 24753 27690 I okhttp.OkHttpClient: Sec-WebSocket-Extensions: permessage-deflate
+02-27 20:14:05.284 24753 27690 I okhttp.OkHttpClient: apikey: ██
+02-27 20:14:05.285 24753 27690 I okhttp.OkHttpClient: Authorization: ██
+02-27 20:14:05.285 24753 27690 I okhttp.OkHttpClient: --> END GET
+02-27 20:14:05.372 24753 25549 W esiri.esiriplus: JNI critical lock held for 296.525ms on Thread[49,tid=25549,Runnable,Thread*=0xb400007aeee57c00,peer=0x3f842a0,"arch_disk_io_2"]
+02-27 20:14:06.215 24753 24934 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{1c7efb8 V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to false
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: <-- 101 Switching Protocols https://nzzvphhqbcscoetzfzkd.supabase.co/realtime/v1/websocket?apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56enZwaGhxYmNzY29ldHpmemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjI3OTYsImV4cCI6MjA4Njg5ODc5Nn0.31g9pCxm5AThy9xckctfWMHG7wrcmykIPepA_PMHDkQ&vsn=1.0.0 (1084ms)
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: Date: Fri, 27 Feb 2026 17:14:07 GMT
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: Connection: upgrade
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: Upgrade: websocket
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: Sec-WebSocket-Accept: soA7jDtG7winCQ70hWjBYcALXy8=
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: CF-Ray: 9d49510e88fcde9e-DAR
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: CF-Cache-Status: DYNAMIC
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: Cache-Control: max-age=0, private, must-revalidate
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: sb-gateway-mode: direct
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: sb-gateway-version: 1
+02-27 20:14:06.370 24753 27690 I okhttp.OkHttpClient: sb-project-ref: nzzvphhqbcscoetzfzkd
+02-27 20:14:06.371 24753 27690 I okhttp.OkHttpClient: sb-request-id: 019ca017-e521-7fbf-9b54-ad1b43da2091
+02-27 20:14:06.371 24753 27690 I okhttp.OkHttpClient: Set-Cookie: __cf_bm=zc5CG2E6K3knHi9IzeCJ0w_PXwZbYHWUlbNoEHbTYAw-1772212447-1.0.1.1-EynRmNiKIrgtEBCs2uJL4F3naPdQyeGwv1WGjcYaRx7b5tUJcShv6fd8Q0EDplID4JYGXT4d92Tc6w6vmEfxwUu1uMGlVz73iiggogwBnrY; path=/; expires=Fri, 27-Feb-26 17:44:07 GMT; domain=.supabase.co; HttpOnly; Secure; SameSite=None
+02-27 20:14:06.371 24753 27690 I okhttp.OkHttpClient: Vary: Accept-Encoding
+02-27 20:14:06.371 24753 27690 I okhttp.OkHttpClient: Server: cloudflare
+02-27 20:14:06.371 24753 27690 I okhttp.OkHttpClient: alt-svc: h3=":443"; ma=86400
+02-27 20:14:06.371 24753 27690 I okhttp.OkHttpClient: <-- END HTTP
+02-27 20:14:06.384 24753 24753 I Supabase-Realtime: Connected to realtime websocket!
+02-27 20:14:06.404 24753 24753 D ConsultReqRealtime: Subscribed to doctor-requests-e47c57a7-25c8-4488-9f14-adcc197e66fc
+02-27 20:14:08.949 24753 24753 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+02-27 20:14:08.949 24753 24753 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+02-27 20:14:08.996 24753 24753 D VRI[MainActivity]: onFocusEvent true
+02-27 20:14:10.004 24753 24934 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{1c7efb8 V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:14:10.577 24753 24753 D OplusInputMethodManagerInternal: get inputMethodManager extension: com.android.internal.view.IInputMethodManager$Stub$Proxy@8a8f72d
+02-27 20:14:10.581 24753 24753 D ViewRootImplExtImpl: the up motion event handled by client, just return
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: --> PATCH https://nzzvphhqbcscoetzfzkd.supabase.co/rest/v1/doctor_profiles?doctor_id=eq.e47c57a7-25c8-4488-9f14-adcc197e66fc
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Content-Length: 64
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Prefer: return=minimal
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Content-Profile: public
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: X-Client-Info: supabase-kt/3.1.1
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Accept: application/json
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Accept-Charset: UTF-8
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: User-Agent: ktor-client
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Content-Type: application/json
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: apikey: ██
+02-27 20:14:10.671 24753 27889 I okhttp.OkHttpClient: Authorization: ██
+02-27 20:14:10.672 24753 27889 I okhttp.OkHttpClient: {"is_available":true,"updated_at":"2026-02-27T17:14:10.624214Z"}
+02-27 20:14:10.672 24753 27889 I okhttp.OkHttpClient: --> END PATCH (64-byte body)
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: <-- 204 https://nzzvphhqbcscoetzfzkd.supabase.co/rest/v1/doctor_profiles?doctor_id=eq.e47c57a7-25c8-4488-9f14-adcc197e66fc (1153ms)
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: date: Fri, 27 Feb 2026 17:14:12 GMT
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: server: cloudflare
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: content-range: 0-0/*
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: cf-ray: 9d4951300eaddea2-DAR
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: cf-cache-status: DYNAMIC
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: strict-transport-security: max-age=31536000; includeSubDomains; preload
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: vary: Accept-Encoding
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: x-content-type-options: nosniff
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: preference-applied: return=minimal
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: sb-gateway-version: 1
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: sb-project-ref: nzzvphhqbcscoetzfzkd
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: sb-request-id: 019ca017-fa11-7dcf-b25c-024121ee2144
+02-27 20:14:11.826 24753 27889 I okhttp.OkHttpClient: x-envoy-attempt-count: 1
+02-27 20:14:11.827 24753 27889 I okhttp.OkHttpClient: x-envoy-upstream-service-time: 512
+02-27 20:14:11.827 24753 27889 I okhttp.OkHttpClient: set-cookie: __cf_bm=u.lFKZV3WijbAGahPkrf4O1VeaXP1ThSU6tmV1d3KmQ-1772212452-1.0.1.1-V70QJnhNI9WQwq93L0cN_CROsp1JpUnheGtaHfC.s1eIZWVK1ZvTZipf683syAJ8ezXw2ZH87nwn4JU4gTrq5BfY_kQURJxQ5qR5FTjVKlg; path=/; expires=Fri, 27-Feb-26 17:44:12 GMT; domain=.supabase.co; HttpOnly; Secure; SameSite=None
+02-27 20:14:11.827 24753 27889 I okhttp.OkHttpClient: alt-svc: h3=":443"; ma=86400
+02-27 20:14:11.827 24753 27889 I okhttp.OkHttpClient: <-- END HTTP
+02-27 20:14:11.847 24753 24753 D DoctorProfileSvc: Updated availability for e47c57a7-25c8-4488-9f14-adcc197e66fc to true
+02-27 20:14:21.726 24753 27677 I Supabase-Realtime: Heartbeat received
+02-27 20:14:35.765 24753 24753 D ConsultReqRealtime: Realtime request event: RequestRealtimeEvent(requestId=aad1cdff-cd0f-4355-a2c2-f60aba44bfaf, status=pending, consultationId=null)
+02-27 20:14:35.867 24753 24753 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+02-27 20:14:35.867 24753 24753 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+02-27 20:14:35.875 24753 24753 D WindowManager: Add to mViews: com.android.internal.policy.DecorView{36abe46 V.E...... R.....I. 0,0-0,0 alpha=1.0 viewInfo = }[MainActivity],pkg= com.esiri.esiriplus
+02-27 20:14:35.876 24753 24848 D skia    : setRusSupported enable 0
+02-27 20:14:35.909 24753 24753 D ViewRootImplExtImpl: onDisplayChanged -1 for VRI android.view.ViewRootImpl@d66175d
+02-27 20:14:35.912 24753 24753 E OplusBracketLog: [OplusViewMirrorManager] updateHostViewRootIfNeeded, not support android.view.ViewRootImpl@d66175d
+02-27 20:14:36.054 24753 24753 D BufferQueueConsumer: [](id:60b100000002,api:0,p:-1,c:24753) connect: controlledByApp=false
+02-27 20:14:36.056 24753 24753 W libc    : Access denied finding property "vendor.display.enable_optimal_refresh_rate"
+02-27 20:14:36.064 24753 24848 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:60b100000002,api:1,p:24753,c:24753) connect: api=1 producerControlledByApp=true
+02-27 20:14:36.093 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:36.151 24753 24848 D BLASTBufferQueue: [VRI[MainActivity]#2](f:0,a:1) acquireNextBufferLocked size=1272x1290 mFrameNumber=1 applyTransaction=true mTimestamp=836142760715512(auto) mPendingTransactions.size=0 graphicBufferId=106313325477899 transform=0
+02-27 20:14:36.151 24753 24848 D VRI[MainActivity]: Received frameCommittedCallback lastAttemptedDrawFrameNum=1 didProduceBuffer=true syncBuffer=false
+02-27 20:14:36.153 24753 24753 D VRI[MainActivity]: draw finished. seqId=0
+02-27 20:14:36.153 24753 24753 D ViewRootImplExtImpl: setMaxDequeuedBufferCount: 2
+02-27 20:14:36.154 24753 24753 D VRI[MainActivity]: onFocusEvent false
+02-27 20:14:36.180 24753 24753 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:14:36.182 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:36.185 24753 24848 D VRI[MainActivity]: Received frameCommittedCallback lastAttemptedDrawFrameNum=2 didProduceBuffer=true syncBuffer=false
+02-27 20:14:36.185 24753 24753 D VRI[MainActivity]: draw finished. seqId=0
+02-27 20:14:36.233 24753 24753 D VRI[MainActivity]: onFocusEvent true
+02-27 20:14:36.789 24753 27676 I Supabase-Realtime: Heartbeat received
+02-27 20:14:36.841 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:37.185 24753 24934 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{1c7efb8 V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to false
+02-27 20:14:37.235 24753 24934 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{36abe46 V.E...... R....... 0,0-1080,1098 aid=1073741826 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:14:37.522 24753 24753 D ViewRootImplExtImpl: the up motion event handled by client, just return
+02-27 20:14:37.548 24753 27676 I okhttp.OkHttpClient: --> POST https://nzzvphhqbcscoetzfzkd.supabase.co/functions/v1/handle-consultation-request
+02-27 20:14:37.548 24753 27676 I okhttp.OkHttpClient: Content-Length: 71
+02-27 20:14:37.548 24753 27676 I okhttp.OkHttpClient: Content-Type: application/json
+02-27 20:14:37.549 24753 27676 I okhttp.OkHttpClient: apikey: ██
+02-27 20:14:37.549 24753 27676 I okhttp.OkHttpClient: Authorization: ██
+02-27 20:14:37.549 24753 27676 I okhttp.OkHttpClient: {"action":"accept","request_id":"aad1cdff-cd0f-4355-a2c2-f60aba44bfaf"}
+02-27 20:14:37.549 24753 27676 I okhttp.OkHttpClient: --> END POST (71-byte body)
+02-27 20:14:37.566 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:37.819 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:38.822 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:38.834 24753 27676 I okhttp.OkHttpClient: <-- 200 https://nzzvphhqbcscoetzfzkd.supabase.co/functions/v1/handle-consultation-request (1285ms)
+02-27 20:14:38.834 24753 27676 I okhttp.OkHttpClient: date: Fri, 27 Feb 2026 17:14:39 GMT
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: content-type: application/json
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: server: cloudflare
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: cf-ray: 9d4951d6ca28dea2-DAR
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: cf-cache-status: DYNAMIC
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: strict-transport-security: max-age=31536000; includeSubDomains; preload
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: vary: Accept-Encoding, Origin
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: access-control-allow-headers: Authorization, Content-Type, X-Idempotency-Key
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: access-control-allow-methods: POST, GET, OPTIONS
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: access-control-max-age: 86400
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: sb-gateway-version: 1
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: sb-project-ref: nzzvphhqbcscoetzfzkd
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: sb-request-id: 019ca018-6242-7315-bccc-7e8490e6c49c
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: x-deno-execution-id: 10741eba-b089-4fd7-9545-ebec3510570a
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: x-sb-edge-region: eu-west-3
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: x-served-by: supabase-edge-runtime
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: set-cookie: __cf_bm=o7MrjTBZqcTNgh6BG45VXRJ6Xp0IbjIx2oTRrlyMf_g-1772212479-1.0.1.1-l_lE4UWVSBYWAwKvDsfRUHt2sRcyyQtFRHfD5To_FXOqMwTo4X9_A1.QA665Iyhn6mJnyW.EhjJspAwsVA3UVBFmOl7ayZdcW6bR5d5pXQw; path=/; expires=Fri, 27-Feb-26 17:44:39 GMT; domain=.supabase.co; HttpOnly; Secure; SameSite=None
+02-27 20:14:38.835 24753 27676 I okhttp.OkHttpClient: alt-svc: h3=":443"; ma=86400
+02-27 20:14:38.845 24753 27676 I okhttp.OkHttpClient: {"request_id":"aad1cdff-cd0f-4355-a2c2-f60aba44bfaf","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null}
+02-27 20:14:38.845 24753 27676 I okhttp.OkHttpClient: <-- END HTTP (176-byte body)
+02-27 20:14:38.848 24753 24753 D ConsultReqService: Accept raw result: Success(data={"request_id":"aad1cdff-cd0f-4355-a2c2-f60aba44bfaf","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null})
+02-27 20:14:38.848 24753 24753 D ConsultReqService: Accept response body: {"request_id":"aad1cdff-cd0f-4355-a2c2-f60aba44bfaf","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null}
+02-27 20:14:38.907 24753 24848 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:60b100000002,api:1,p:24753,c:24753) disconnect: api 1
+02-27 20:14:38.907 24753 24848 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:60b100000002,api:1,p:24753,c:24753) connect: api=1 producerControlledByApp=true
+02-27 20:14:38.914 24753 24753 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xaf51143,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:14:38.921 24753 24848 D BLASTBufferQueue: [VRI[MainActivity]#2](f:0,a:2) producer disconnected before acquireNextBufferLocked
+02-27 20:14:38.927 24753 24753 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:14:38.927 24753 24753 W VRI[MainActivity]: handleResized abandoned!
+02-27 20:14:40.399 24753 24753 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,window dying
+02-27 20:14:40.399 24753 24753 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,unregisterSystemUIBroadcastReceiver 
+02-27 20:14:40.400 24753 24753 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity, unregisterSystemUIBroadcastReceiver failed java.lang.IllegalArgumentException: Receiver not registered: android.view.OplusScrollToTopManager$2@a0caafe
+02-27 20:14:40.406 24753 24753 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@5b63df4
+02-27 20:14:40.426 24753 24753 D HWUI    : RenderProxy::destroy: this=0xb400007af217d600, mContext=0xb400007b0df61500
+02-27 20:14:40.426 24753 24848 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007af21102c0, surface=NULL
+02-27 20:14:40.426 24753 24848 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:60b100000002,api:1,p:24753,c:24753) disconnect: api 1
+02-27 20:14:40.426 24753 24753 D BLASTBufferQueue: [VRI[MainActivity]#2](f:0,a:1) destructor()
+02-27 20:14:40.427 24753 24753 D BufferQueueConsumer: [VRI[MainActivity]#2(BLAST Consumer)2](id:60b100000002,api:0,p:-1,c:24753) disconnect
+02-27 20:14:40.466 24753 24753 D VRI[MainActivity]: onFocusEvent true
+02-27 20:14:41.473 24753 24934 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{1c7efb8 V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:14:51.742 24753 27677 I Supabase-Realtime: Heartbeat received
+02-27 20:15:06.791 24753 27677 I Supabase-Realtime: Heartbeat received

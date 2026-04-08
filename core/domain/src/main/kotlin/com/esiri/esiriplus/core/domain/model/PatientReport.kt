@@ -12,6 +12,8 @@ data class PatientReport(
     val isDownloaded: Boolean = false,
     val doctorName: String = "",
     val consultationDate: Long = 0L,
+    val patientAge: String = "",
+    val patientGender: String = "",
     val diagnosedProblem: String = "",
     val category: String = "",
     val severity: String = "",

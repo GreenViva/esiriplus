@@ -25,13 +25,25 @@ Deno.serve(async (req) => {
 
     const supabase = getServiceClient();
 
-    const { data, error } = await supabase
+    const selectFields = "doctor_id, full_name, email, phone, specialty, specialist_field, languages, bio, license_number, years_experience, profile_photo_url, average_rating, total_ratings, is_verified, is_available, services, country_code, country, can_serve_as_gp, created_at, updated_at";
+
+    // When listing GP doctors, also include specialists who have "Serve as GP" enabled.
+    // They appear alongside regular GPs but are paid at GP rates (not specialist rates).
+    let query = supabase
       .from("doctor_profiles")
-      .select("doctor_id, full_name, email, phone, specialty, specialist_field, languages, bio, license_number, years_experience, profile_photo_url, average_rating, total_ratings, is_verified, is_available, services, country_code, country, created_at, updated_at")
-      .eq("specialty", specialty)
+      .select(selectFields)
       .eq("is_verified", true)
       .eq("is_banned", false)
       .or("suspended_until.is.null,suspended_until.lte." + new Date().toISOString());
+
+    if (specialty === "gp") {
+      // GP listing: regular GPs + specialists serving as GP
+      query = query.or("specialty.eq.gp,and(specialty.eq.specialist,can_serve_as_gp.eq.true)");
+    } else {
+      query = query.eq("specialty", specialty);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("list-doctors query error:", error);

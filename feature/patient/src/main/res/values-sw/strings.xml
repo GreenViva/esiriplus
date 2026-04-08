@@ -317,6 +317,19 @@
     <string name="consultation_gallery">Picha</string>
     <string name="consultation_document">Hati</string>
 
+    <!-- ===== Greeting Overlay ===== -->
+    <string name="greeting_welcome">Habari, karibu! \uD83D\uDC4B</string>
+    <string name="greeting_here_to_serve">Dkt. %s yuko hapa kukuhudumia.</string>
+    <string name="greeting_here_to_serve_generic">Tuko hapa kukuhudumia.</string>
+    <string name="greeting_how_to_proceed">Ungependa kuendelea vipi?</string>
+    <string name="greeting_choice_call">Piga simu</string>
+    <string name="greeting_choice_text">Ujumbe</string>
+    <string name="greeting_text_auto_message">Habari, ningependa kushauriana kupitia ujumbe wa maandishi.</string>
+    <string name="greeting_doctor_listening">Daktari wako anasikiliza.</string>
+
+    <!-- ===== Contact Us ===== -->
+    <string name="contact_us_label">Kwa msaada wasiliana nasi</string>
+
     <!-- ===== ViewModel error/status messages ===== -->
     <string name="vm_doctor_accepted">Daktari amekubali! Inafungua mazungumzo\u2026</string>
     <string name="vm_doctor_declined">Daktari amekataa ombi. Unaweza kuomba daktari mwingine.</string>

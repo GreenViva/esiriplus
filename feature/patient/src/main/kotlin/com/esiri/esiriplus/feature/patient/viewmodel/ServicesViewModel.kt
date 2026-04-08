@@ -51,11 +51,29 @@ class ServicesViewModel @Inject constructor(
     }
 
     private fun loadServices() {
+        // Show hardcoded services immediately so the UI is never empty,
+        // then overlay with Room data if available.
+        _uiState.update { it.copy(services = FALLBACK_SERVICES, isLoading = false) }
         viewModelScope.launch {
             serviceTierDao.getActiveServiceTiers().collect { tiers ->
-                _uiState.update { it.copy(services = tiers, isLoading = false) }
+                if (tiers.isNotEmpty()) {
+                    _uiState.update { it.copy(services = tiers) }
+                }
             }
         }
+    }
+
+    companion object {
+        private val FALLBACK_SERVICES = listOf(
+            ServiceTierEntity(id = "tier_nurse", category = "NURSE", displayName = "Nurse", description = "Normal consultations for everyday health concerns", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 1, durationMinutes = 15, features = "Basic health advice,Symptom assessment,Health education"),
+            ServiceTierEntity(id = "tier_clinical_officer", category = "CLINICAL_OFFICER", displayName = "Clinical Officer", description = "Daily medical consultations for common ailments", priceAmount = 7000, currency = "TZS", isActive = true, sortOrder = 2, durationMinutes = 15, features = "Medical diagnosis,Treatment recommendations,Prescription guidance"),
+            ServiceTierEntity(id = "tier_pharmacist", category = "PHARMACIST", displayName = "Pharmacist", description = "Quick medication advice and drug interaction checks", priceAmount = 3000, currency = "TZS", isActive = true, sortOrder = 3, durationMinutes = 5, features = "Medication advice,Drug interaction checks,Dosage guidance"),
+            ServiceTierEntity(id = "tier_gp", category = "GP", displayName = "General Practitioner", description = "Comprehensive care with specialist referrals when needed", priceAmount = 10000, currency = "TZS", isActive = true, sortOrder = 4, durationMinutes = 15, features = "Full medical assessment,Treatment planning,Specialist referrals"),
+            ServiceTierEntity(id = "tier_specialist", category = "SPECIALIST", displayName = "Specialist", description = "Expert consultation in specialized medical fields", priceAmount = 30000, currency = "TZS", isActive = true, sortOrder = 5, durationMinutes = 15, features = "Specialized expertise,Advanced diagnostics,Detailed treatment plans"),
+            ServiceTierEntity(id = "tier_psychologist", category = "PSYCHOLOGIST", displayName = "Psychologist", description = "Professional mental health support and counseling", priceAmount = 50000, currency = "TZS", isActive = true, sortOrder = 6, durationMinutes = 20, features = "Mental health support,Professional counseling,Therapy session"),
+            ServiceTierEntity(id = "tier_herbalist", category = "HERBALIST", displayName = "Herbalist", description = "Traditional and herbal medicine consultation", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 7, durationMinutes = 15, features = "Herbal medicine consultation,Traditional remedy guidance,Natural supplement advice"),
+            ServiceTierEntity(id = "tier_drug_interaction", category = "DRUG_INTERACTION", displayName = "Drug Interaction", description = "Check drug interactions and get safety guidance", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 8, durationMinutes = 5, features = "Drug interaction checks,Safety alerts,Dosage guidance"),
+        )
     }
 
     private fun loadPatientId() {

@@ -816,6 +816,61 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_28_29 = object : Migration(28, 29) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `doctor_profiles` ADD COLUMN `canServeAsGp` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    val MIGRATION_29_30 = object : Migration(29, 30) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Recreate patient_profiles WITHOUT foreign key to users table.
+            // Patient userId is a session_id, not a users.id — the FK was wrong
+            // and caused crashes when inserting patient profiles.
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `patient_profiles_new` (
+                    `id` TEXT NOT NULL,
+                    `userId` TEXT NOT NULL,
+                    `dateOfBirth` INTEGER DEFAULT NULL,
+                    `bloodGroup` TEXT DEFAULT NULL,
+                    `allergies` TEXT DEFAULT NULL,
+                    `emergencyContactName` TEXT DEFAULT NULL,
+                    `emergencyContactPhone` TEXT DEFAULT NULL,
+                    `sex` TEXT DEFAULT NULL,
+                    `ageGroup` TEXT DEFAULT NULL,
+                    `chronicConditions` TEXT DEFAULT NULL,
+                    PRIMARY KEY(`id`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO `patient_profiles_new` (
+                    `id`, `userId`, `dateOfBirth`, `bloodGroup`, `allergies`,
+                    `emergencyContactName`, `emergencyContactPhone`,
+                    `sex`, `ageGroup`, `chronicConditions`
+                )
+                SELECT
+                    `id`, `userId`, `dateOfBirth`, `bloodGroup`, `allergies`,
+                    `emergencyContactName`, `emergencyContactPhone`,
+                    `sex`, `ageGroup`, `chronicConditions`
+                FROM `patient_profiles`
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE `patient_profiles`")
+            db.execSQL("ALTER TABLE `patient_profiles_new` RENAME TO `patient_profiles`")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_patient_profiles_userId` ON `patient_profiles` (`userId`)")
+        }
+    }
+
+    val MIGRATION_30_31 = object : Migration(30, 31) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `patientAge` TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE `patient_reports` ADD COLUMN `patientGender` TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -844,5 +899,8 @@ object DatabaseMigrations {
         MIGRATION_25_26,
         MIGRATION_26_27,
         MIGRATION_27_28,
+        MIGRATION_28_29,
+        MIGRATION_29_30,
+        MIGRATION_30_31,
     )
 }

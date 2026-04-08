@@ -317,6 +317,19 @@
     <string name="consultation_gallery">Galer\u00EDa</string>
     <string name="consultation_document">Documento</string>
 
+    <!-- ===== Greeting Overlay ===== -->
+    <string name="greeting_welcome">\u00a1Hola, bienvenido! \uD83D\uDC4B</string>
+    <string name="greeting_here_to_serve">El Dr. %s est\u00e1 aqu\u00ed para atenderle.</string>
+    <string name="greeting_here_to_serve_generic">Estamos aqu\u00ed para atenderle.</string>
+    <string name="greeting_how_to_proceed">\u00bfC\u00f3mo le gustar\u00eda continuar?</string>
+    <string name="greeting_choice_call">Llamar</string>
+    <string name="greeting_choice_text">Mensaje</string>
+    <string name="greeting_text_auto_message">Hola, me gustar\u00eda consultar por mensajes de texto.</string>
+    <string name="greeting_doctor_listening">Su doctor le est\u00e1 escuchando.</string>
+
+    <!-- ===== Contact Us ===== -->
+    <string name="contact_us_label">Para ayuda cont\u00e1ctenos</string>
+
     <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
     <string name="vm_doctor_accepted">\u00A1El m\u00E9dico acept\u00F3! Abriendo chat\u2026</string>
     <string name="vm_doctor_declined">El m\u00E9dico rechaz\u00F3 la solicitud. Puede solicitar otro m\u00E9dico.</string>

@@ -317,6 +317,19 @@
     <string name="consultation_gallery">गैलरी</string>
     <string name="consultation_document">दस्तावेज़</string>
 
+    <!-- ===== Greeting Overlay ===== -->
+    <string name="greeting_welcome">नमस्ते, स्वागत है! \uD83D\uDC4B</string>
+    <string name="greeting_here_to_serve">डॉ. %s आपकी सेवा के लिए यहाँ हैं।</string>
+    <string name="greeting_here_to_serve_generic">हम आपकी सेवा के लिए यहाँ हैं।</string>
+    <string name="greeting_how_to_proceed">आप कैसे आगे बढ़ना चाहेंगे?</string>
+    <string name="greeting_choice_call">कॉल</string>
+    <string name="greeting_choice_text">संदेश</string>
+    <string name="greeting_text_auto_message">नमस्ते, मैं टेक्स्ट संदेश के माध्यम से परामर्श लेना चाहता/चाहती हूँ।</string>
+    <string name="greeting_doctor_listening">आपके डॉक्टर सुन रहे हैं।</string>
+
+    <!-- ===== Contact Us ===== -->
+    <string name="contact_us_label">सहायता के लिए हमसे संपर्क करें</string>
+
     <!-- ===== ViewModel error/status messages (TODO: inject via Context) ===== -->
     <string name="vm_doctor_accepted">डॉक्टर ने स्वीकार किया! चैट खुल रहा है\u2026</string>
     <string name="vm_doctor_declined">डॉक्टर ने अनुरोध अस्वीकार कर दिया। आप किसी अन्य डॉक्टर से अनुरोध कर सकते हैं।</string>

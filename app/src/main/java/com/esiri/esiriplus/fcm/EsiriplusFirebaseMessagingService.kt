@@ -58,6 +58,9 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
     lateinit var consultationRequestRealtimeService: ConsultationRequestRealtimeService
 
     @Inject
+    lateinit var tokenManager: com.esiri.esiriplus.core.network.TokenManager
+
+    @Inject
     lateinit var userPreferencesManager: com.esiri.esiriplus.core.common.preferences.UserPreferencesManager
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -78,6 +81,28 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         if (type.equals("CONSULTATION_REQUEST", ignoreCase = true)) {
             val requestId = remoteMessage.data["request_id"] ?: notificationId ?: ""
             val serviceType = remoteMessage.data["service_type"]
+            val targetDoctorId = remoteMessage.data["doctor_id"]
+
+            // Guard: if this push is for a doctor who is NOT logged in on this device
+            // (stale FCM token from a previous account), drop it silently.
+            if (targetDoctorId != null) {
+                val currentToken = tokenManager.getAccessTokenSync()
+                val currentUserId = currentToken?.let {
+                    try {
+                        val parts = it.split(".")
+                        if (parts.size >= 2) {
+                            val payload = String(android.util.Base64.decode(parts[1],
+                                android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING))
+                            org.json.JSONObject(payload).optString("sub", null)
+                        } else null
+                    } catch (_: Exception) { null }
+                }
+                if (currentUserId != null && currentUserId != targetDoctorId) {
+                    Log.w(TAG, "CONSULTATION_REQUEST for doctor $targetDoctorId but current user is $currentUserId — dropping stale push")
+                    return
+                }
+            }
+
             Log.d(TAG, "CONSULTATION_REQUEST FCM: requestId=$requestId serviceRunning=${DoctorOnlineService.isRunning}")
             // Emit to ViewModel so the in-app dialog appears (deduplicated by requestId).
             consultationRequestRealtimeService.emitExternalRequest(requestId, serviceType)

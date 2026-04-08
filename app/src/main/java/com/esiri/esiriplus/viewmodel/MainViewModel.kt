@@ -40,6 +40,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var fcmTokenSynced = false
+    private var attemptedTokenRecovery = false
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -79,6 +80,19 @@ class MainViewModel @Inject constructor(
         observeAuthState().collect { state ->
             when (state) {
                 is AuthState.SessionExpired -> handleSessionExpired()
+                is AuthState.Unauthenticated -> {
+                    // Room has no session, but encrypted token storage may still
+                    // have valid tokens (e.g. DB was wiped by migration/downgrade).
+                    // Attempt a silent refresh to reconstruct the session before
+                    // sending the user to the login screen.
+                    if (!attemptedTokenRecovery) {
+                        attemptedTokenRecovery = true
+                        val recovered = handleSessionExpired()
+                        if (!recovered) _authState.value = state
+                    } else {
+                        _authState.value = state
+                    }
+                }
                 is AuthState.Authenticated -> {
                     _authState.value = state
                     syncFcmTokenIfNeeded()
@@ -104,7 +118,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleSessionExpired() {
+    /**
+     * Attempts to refresh the session using stored tokens.
+     * Returns true if the refresh succeeded (Room will re-emit Authenticated).
+     */
+    private suspend fun handleSessionExpired(): Boolean {
         val result = refreshSession()
         if (result is Result.Error) {
             // Emit SessionExpired so NavHost can decide what to do.
@@ -113,6 +131,8 @@ class MainViewModel @Inject constructor(
             // screens (chat, payment). The NavHost will only navigate away
             // if the user is NOT on a protected screen.
             _authState.value = AuthState.SessionExpired
+            return false
         }
+        return true
     }
 }

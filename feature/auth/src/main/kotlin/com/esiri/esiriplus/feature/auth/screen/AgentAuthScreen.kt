@@ -242,6 +242,7 @@ fun AgentAuthScreen(
                         0 -> SignInForm(
                             isLoading = uiState.isLoading,
                             onSignIn = viewModel::signIn,
+                            onForgotPassword = viewModel::showForgotPassword,
                         )
                         1 -> SignUpForm(
                             isLoading = uiState.isLoading || uiState.otpSending,
@@ -255,12 +256,100 @@ fun AgentAuthScreen(
         }
         } // ScrollIndicatorBox
     }
+
+    // Forgot Password Dialog
+    if (uiState.showForgotPassword) {
+        val step = uiState.resetStep
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { if (!uiState.resetSending) viewModel.dismissForgotPassword() },
+            title = {
+                Text(
+                    text = when (step) {
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.EMAIL -> "Reset Password"
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.OTP -> "Enter Verification Code"
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.NEW_PASSWORD -> "Set New Password"
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE -> "Password Reset!"
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = if (step == com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE) BrandTeal else Color.Black,
+                )
+            },
+            text = {
+                Column {
+                    when (step) {
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.EMAIL -> {
+                            Text("Enter your email and we'll send you a verification code.", fontSize = 14.sp, color = Color.Black.copy(alpha = 0.7f))
+                            Spacer(Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = uiState.resetEmail, onValueChange = viewModel::onResetEmailChanged,
+                                modifier = Modifier.fillMaxWidth(), placeholder = { Text("Email") },
+                                singleLine = true, shape = RoundedCornerShape(10.dp), colors = agentTextFieldColors(),
+                            )
+                        }
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.OTP -> {
+                            Text("A 6-digit code has been sent to ${uiState.resetEmail}", fontSize = 14.sp, color = Color.Black.copy(alpha = 0.7f))
+                            Spacer(Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = uiState.resetOtp, onValueChange = { if (it.length <= 6) viewModel.onResetOtpChanged(it) },
+                                modifier = Modifier.fillMaxWidth(), placeholder = { Text("000000") },
+                                singleLine = true, shape = RoundedCornerShape(10.dp), colors = agentTextFieldColors(),
+                            )
+                        }
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.NEW_PASSWORD -> {
+                            Text("Enter your new password below.", fontSize = 14.sp, color = Color.Black.copy(alpha = 0.7f))
+                            Spacer(Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = uiState.resetNewPassword, onValueChange = viewModel::onResetNewPasswordChanged,
+                                modifier = Modifier.fillMaxWidth(), placeholder = { Text("New password") },
+                                singleLine = true, visualTransformation = PasswordVisualTransformation(),
+                                shape = RoundedCornerShape(10.dp), colors = agentTextFieldColors(),
+                            )
+                            Spacer(Modifier.height(10.dp))
+                            OutlinedTextField(
+                                value = uiState.resetConfirmPassword, onValueChange = viewModel::onResetConfirmPasswordChanged,
+                                modifier = Modifier.fillMaxWidth(), placeholder = { Text("Confirm password") },
+                                singleLine = true, visualTransformation = PasswordVisualTransformation(),
+                                shape = RoundedCornerShape(10.dp), colors = agentTextFieldColors(),
+                            )
+                        }
+                        com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE -> {
+                            Text("Your password has been successfully changed. You can now sign in.", fontSize = 14.sp, color = Color.Black)
+                        }
+                    }
+                    uiState.resetError?.let { err ->
+                        Spacer(Modifier.height(8.dp))
+                        Text(err, color = Color(0xFFDC2626), fontSize = 13.sp)
+                    }
+                }
+            },
+            confirmButton = {
+                when (step) {
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.EMAIL -> Button(onClick = viewModel::sendResetOtp, enabled = !uiState.resetSending, colors = ButtonDefaults.buttonColors(containerColor = BrandTeal)) {
+                        if (uiState.resetSending) CircularProgressIndicator(Modifier.size(18.dp), Color.White, strokeWidth = 2.dp) else Text("Send Code")
+                    }
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.OTP -> Button(onClick = viewModel::verifyResetOtp, enabled = !uiState.resetSending, colors = ButtonDefaults.buttonColors(containerColor = BrandTeal)) {
+                        if (uiState.resetSending) CircularProgressIndicator(Modifier.size(18.dp), Color.White, strokeWidth = 2.dp) else Text("Verify Code")
+                    }
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.NEW_PASSWORD -> Button(onClick = viewModel::setNewPassword, enabled = !uiState.resetSending, colors = ButtonDefaults.buttonColors(containerColor = BrandTeal)) {
+                        if (uiState.resetSending) CircularProgressIndicator(Modifier.size(18.dp), Color.White, strokeWidth = 2.dp) else Text("Reset Password")
+                    }
+                    com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE -> androidx.compose.material3.TextButton(onClick = viewModel::dismissForgotPassword) { Text("OK", color = BrandTeal) }
+                }
+            },
+            dismissButton = {
+                if (step != com.esiri.esiriplus.feature.auth.viewmodel.ResetStep.DONE) {
+                    androidx.compose.material3.TextButton(onClick = viewModel::dismissForgotPassword) { Text("Cancel", color = Color.Black.copy(alpha = 0.6f)) }
+                }
+            },
+        )
+    }
 }
 
 @Composable
 private fun SignInForm(
     isLoading: Boolean,
     onSignIn: (email: String, password: String) -> Unit,
+    onForgotPassword: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     var email by rememberSaveable { mutableStateOf("") }
@@ -310,7 +399,15 @@ private fun SignInForm(
         colors = agentTextFieldColors(),
     )
 
-    Spacer(Modifier.height(24.dp))
+    Spacer(Modifier.height(8.dp))
+
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+        androidx.compose.material3.TextButton(onClick = onForgotPassword) {
+            Text("Forgot Password?", fontSize = 13.sp, color = BrandTeal, fontWeight = FontWeight.Medium)
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
 
     Button(
         onClick = { onSignIn(email, password) },

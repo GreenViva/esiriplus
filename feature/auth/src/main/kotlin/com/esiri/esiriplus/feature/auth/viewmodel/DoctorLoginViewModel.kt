@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.extensions.isValidEmail
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.usecase.LoginDoctorUseCase
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
@@ -19,8 +20,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.time.Instant
 import javax.inject.Inject
+
+enum class ResetStep { EMAIL, OTP, NEW_PASSWORD, DONE }
 
 data class DoctorLoginUiState(
     val email: String = "",
@@ -37,6 +42,14 @@ data class DoctorLoginUiState(
     val suspensionReason: String? = null,
     val hasWarning: Boolean = false,
     val warningMessage: String? = null,
+    val showForgotPassword: Boolean = false,
+    val resetStep: ResetStep = ResetStep.EMAIL,
+    val resetEmail: String = "",
+    val resetOtp: String = "",
+    val resetNewPassword: String = "",
+    val resetConfirmPassword: String = "",
+    val resetSending: Boolean = false,
+    val resetError: String? = null,
 ) {
     val isFormValid: Boolean
         get() = email.isValidEmail() && password.length >= 6
@@ -50,6 +63,7 @@ class DoctorLoginViewModel @Inject constructor(
     private val profileService: DoctorProfileService,
     private val supabaseClientProvider: SupabaseClientProvider,
     private val tokenManager: TokenManager,
+    private val edgeFunctionClient: EdgeFunctionClient,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DoctorLoginUiState())
@@ -205,6 +219,108 @@ class DoctorLoginViewModel @Inject constructor(
         pendingDoctorId = null
         _uiState.update {
             DoctorLoginUiState()
+        }
+    }
+
+    fun showForgotPassword() {
+        _uiState.update {
+            it.copy(
+                showForgotPassword = true,
+                resetStep = ResetStep.EMAIL,
+                resetEmail = it.email,
+                resetOtp = "",
+                resetNewPassword = "",
+                resetConfirmPassword = "",
+                resetSending = false,
+                resetError = null,
+            )
+        }
+    }
+
+    fun dismissForgotPassword() {
+        _uiState.update {
+            it.copy(showForgotPassword = false, resetStep = ResetStep.EMAIL, resetError = null)
+        }
+    }
+
+    fun onResetEmailChanged(v: String) { _uiState.update { it.copy(resetEmail = v, resetError = null) } }
+    fun onResetOtpChanged(v: String) { _uiState.update { it.copy(resetOtp = v, resetError = null) } }
+    fun onResetNewPasswordChanged(v: String) { _uiState.update { it.copy(resetNewPassword = v, resetError = null) } }
+    fun onResetConfirmPasswordChanged(v: String) { _uiState.update { it.copy(resetConfirmPassword = v, resetError = null) } }
+
+    /** Step 1: Send OTP to email */
+    fun sendResetOtp() {
+        val email = _uiState.value.resetEmail.trim()
+        if (email.isBlank() || !email.contains("@")) {
+            _uiState.update { it.copy(resetError = "Please enter a valid email address") }
+            return
+        }
+        _uiState.update { it.copy(resetSending = true, resetError = null) }
+        viewModelScope.launch {
+            val body = buildJsonObject { put("action", "send_otp"); put("email", email) }
+            edgeFunctionClient.invoke("reset-password", body, anonymous = true)
+            // Always advance to OTP step (don't reveal if email exists)
+            _uiState.update { it.copy(resetSending = false, resetStep = ResetStep.OTP) }
+        }
+    }
+
+    /** Step 2: Verify OTP */
+    fun verifyResetOtp() {
+        val state = _uiState.value
+        if (state.resetOtp.length != 6) {
+            _uiState.update { it.copy(resetError = "Enter the 6-digit code") }
+            return
+        }
+        _uiState.update { it.copy(resetSending = true, resetError = null) }
+        viewModelScope.launch {
+            val body = buildJsonObject {
+                put("action", "verify_otp")
+                put("email", state.resetEmail.trim())
+                put("otp_code", state.resetOtp.trim())
+            }
+            when (val result = edgeFunctionClient.invoke("reset-password", body, anonymous = true)) {
+                is ApiResult.Success -> {
+                    _uiState.update { it.copy(resetSending = false, resetStep = ResetStep.NEW_PASSWORD) }
+                }
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(resetSending = false, resetError = result.message ?: "Verification failed") }
+                }
+                else -> {
+                    _uiState.update { it.copy(resetSending = false, resetError = "Something went wrong. Try again.") }
+                }
+            }
+        }
+    }
+
+    /** Step 3: Set new password */
+    fun setNewPassword() {
+        val state = _uiState.value
+        if (state.resetNewPassword.length < 6) {
+            _uiState.update { it.copy(resetError = "Password must be at least 6 characters") }
+            return
+        }
+        if (state.resetNewPassword != state.resetConfirmPassword) {
+            _uiState.update { it.copy(resetError = "Passwords do not match") }
+            return
+        }
+        _uiState.update { it.copy(resetSending = true, resetError = null) }
+        viewModelScope.launch {
+            val body = buildJsonObject {
+                put("action", "set_password")
+                put("email", state.resetEmail.trim())
+                put("new_password", state.resetNewPassword)
+            }
+            when (val result = edgeFunctionClient.invoke("reset-password", body, anonymous = true)) {
+                is ApiResult.Success -> {
+                    _uiState.update { it.copy(resetSending = false, resetStep = ResetStep.DONE) }
+                }
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(resetSending = false, resetError = result.message ?: "Failed to reset password") }
+                }
+                else -> {
+                    _uiState.update { it.copy(resetSending = false, resetError = "Something went wrong. Try again.") }
+                }
+            }
         }
     }
 

@@ -39,6 +39,8 @@ data class PatientReportEntity(
     @ColumnInfo(defaultValue = "0") val isDownloaded: Boolean = false,
     @ColumnInfo(defaultValue = "") val doctorName: String = "",
     @ColumnInfo(defaultValue = "0") val consultationDate: Long = 0L,
+    @ColumnInfo(defaultValue = "") val patientAge: String = "",
+    @ColumnInfo(defaultValue = "") val patientGender: String = "",
     @ColumnInfo(defaultValue = "") val diagnosedProblem: String = "",
     @ColumnInfo(defaultValue = "") val category: String = "",
     @ColumnInfo(defaultValue = "") val severity: String = "",

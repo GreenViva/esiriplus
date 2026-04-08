@@ -52,6 +52,22 @@
     <string name="doctor_login_hide_password">Hide password</string>
     <string name="doctor_login_show_password">Show password</string>
     <string name="doctor_login_sign_in_button">Sign In</string>
+    <string name="doctor_login_forgot_password">Forgot Password?</string>
+    <string name="doctor_login_reset_title">Reset Password</string>
+    <string name="doctor_login_reset_subtitle">Enter your email address and we\'ll send you a verification code.</string>
+    <string name="doctor_login_reset_send">Send Code</string>
+    <string name="doctor_login_reset_cancel">Cancel</string>
+    <string name="doctor_login_reset_otp_title">Enter Verification Code</string>
+    <string name="doctor_login_reset_otp_subtitle">A 6-digit code has been sent to %s</string>
+    <string name="doctor_login_reset_verify">Verify Code</string>
+    <string name="doctor_login_reset_new_password_title">Set New Password</string>
+    <string name="doctor_login_reset_new_password_subtitle">Enter your new password below.</string>
+    <string name="doctor_login_reset_new_password_hint">New password</string>
+    <string name="doctor_login_reset_confirm_hint">Confirm password</string>
+    <string name="doctor_login_reset_set_password">Reset Password</string>
+    <string name="doctor_login_reset_done_title">Password Reset!</string>
+    <string name="doctor_login_reset_done_message">Your password has been successfully changed. You can now sign in with your new password.</string>
+    <string name="doctor_login_reset_ok">OK</string>
     <string name="doctor_login_go_back">Go Back</string>
 
     <!-- DeviceMismatchScreen -->

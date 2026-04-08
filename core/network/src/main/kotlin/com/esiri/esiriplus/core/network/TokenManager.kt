@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.network
 
+import com.esiri.esiriplus.core.common.session.SessionBackup
 import com.esiri.esiriplus.core.network.security.EncryptedTokenStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,16 +11,22 @@ import javax.inject.Singleton
 @Singleton
 class TokenManager @Inject constructor(
     private val encryptedTokenStorage: EncryptedTokenStorage,
+    private val sessionBackup: SessionBackup,
 ) {
-    private val _accessToken = MutableStateFlow(encryptedTokenStorage.getAccessToken())
+    private val _accessToken = MutableStateFlow(encryptedTokenStorage.getAccessToken() ?: sessionBackup.accessToken)
     val accessToken: StateFlow<String?> = _accessToken.asStateFlow()
 
-    private val _refreshToken = MutableStateFlow(encryptedTokenStorage.getRefreshToken())
+    private val _refreshToken = MutableStateFlow(encryptedTokenStorage.getRefreshToken() ?: sessionBackup.refreshToken)
     val refreshToken: StateFlow<String?> = _refreshToken.asStateFlow()
 
-    fun getAccessTokenSync(): String? = encryptedTokenStorage.getAccessToken()
+    fun getAccessTokenSync(): String? = encryptedTokenStorage.getAccessToken() ?: sessionBackup.accessToken
 
-    fun getRefreshTokenSync(): String? = encryptedTokenStorage.getRefreshToken()
+    fun getRefreshTokenSync(): String? = encryptedTokenStorage.getRefreshToken() ?: sessionBackup.refreshToken
+
+    fun getExpiresAtMillis(): Long {
+        val encrypted = encryptedTokenStorage.getExpiresAt()
+        return if (encrypted > 0L) encrypted else sessionBackup.expiresAtMillis
+    }
 
     fun isTokenExpiringSoon(thresholdMinutes: Int = 5): Boolean =
         encryptedTokenStorage.isTokenExpiringSoon(thresholdMinutes)

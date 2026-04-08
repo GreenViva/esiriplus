@@ -57,6 +57,8 @@ Deno.serve(async (req: Request) => {
 
     const {
       consultation_id,
+      patient_age,
+      patient_gender,
       diagnosed_problem,
       category,
       severity,
@@ -64,7 +66,7 @@ Deno.serve(async (req: Request) => {
       further_notes,
       follow_up_recommended,
       prescriptions,
-    } = raw as ReportRequest;
+    } = raw as ReportRequest & { patient_age?: string; patient_gender?: string };
 
     const prescriptionsList = Array.isArray(prescriptions) ? prescriptions : [];
 
@@ -126,6 +128,10 @@ Deno.serve(async (req: Request) => {
     // Build the OpenAI prompt
     const prompt = `
 You are a professional medical documentation assistant. Generate a structured telemedicine consultation report based on the doctor's clinical notes and the consultation chat transcript.
+
+PATIENT DEMOGRAPHICS:
+- Age: ${patient_age || "Not specified"}
+- Gender: ${patient_gender || "Not specified"}
 
 DOCTOR'S CLINICAL NOTES:
 - Diagnosed Problem: ${diagnosed_problem}
@@ -210,6 +216,8 @@ Respond ONLY with valid JSON, no markdown, no backticks.
         doctor_id: auth.userId,
         diagnosis: diagnosed_problem,
         diagnosed_problem,
+        patient_age: patient_age ?? null,
+        patient_gender: patient_gender ?? null,
         category,
         severity: severity || "Mild",
         treatment_plan: reportContent.treatment_plan_prose ?? treatment_plan,

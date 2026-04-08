@@ -43,6 +43,15 @@ data class AgentAuthUiState(
     val pendingEmail: String = "",
     val pendingResidence: String = "",
     val pendingPassword: String = "",
+    // Forgot password state
+    val showForgotPassword: Boolean = false,
+    val resetStep: ResetStep = ResetStep.EMAIL,
+    val resetEmail: String = "",
+    val resetOtp: String = "",
+    val resetNewPassword: String = "",
+    val resetConfirmPassword: String = "",
+    val resetSending: Boolean = false,
+    val resetError: String? = null,
 )
 
 @HiltViewModel
@@ -275,6 +284,68 @@ class AgentAuthViewModel @Inject constructor(
         } catch (e: Exception) {
             _uiState.update {
                 it.copy(isLoading = false, errorMessage = "Failed to process login response: ${e.message}")
+            }
+        }
+    }
+
+    // ── Forgot Password (same 3-step OTP flow as doctors) ──────────────────────
+
+    fun showForgotPassword() {
+        _uiState.update {
+            it.copy(showForgotPassword = true, resetStep = ResetStep.EMAIL, resetEmail = "",
+                resetOtp = "", resetNewPassword = "", resetConfirmPassword = "",
+                resetSending = false, resetError = null)
+        }
+    }
+
+    fun dismissForgotPassword() {
+        _uiState.update { it.copy(showForgotPassword = false, resetError = null) }
+    }
+
+    fun onResetEmailChanged(v: String) { _uiState.update { it.copy(resetEmail = v, resetError = null) } }
+    fun onResetOtpChanged(v: String) { _uiState.update { it.copy(resetOtp = v, resetError = null) } }
+    fun onResetNewPasswordChanged(v: String) { _uiState.update { it.copy(resetNewPassword = v, resetError = null) } }
+    fun onResetConfirmPasswordChanged(v: String) { _uiState.update { it.copy(resetConfirmPassword = v, resetError = null) } }
+
+    fun sendResetOtp() {
+        val email = _uiState.value.resetEmail.trim()
+        if (email.isBlank() || !email.contains("@")) {
+            _uiState.update { it.copy(resetError = "Please enter a valid email") }; return
+        }
+        _uiState.update { it.copy(resetSending = true, resetError = null) }
+        viewModelScope.launch {
+            edgeFunctionClient.invoke("reset-password", buildJsonObject { put("action", "send_otp"); put("email", email) }, anonymous = true)
+            _uiState.update { it.copy(resetSending = false, resetStep = ResetStep.OTP) }
+        }
+    }
+
+    fun verifyResetOtp() {
+        val s = _uiState.value
+        if (s.resetOtp.length != 6) { _uiState.update { it.copy(resetError = "Enter the 6-digit code") }; return }
+        _uiState.update { it.copy(resetSending = true, resetError = null) }
+        viewModelScope.launch {
+            when (val r = edgeFunctionClient.invoke("reset-password", buildJsonObject {
+                put("action", "verify_otp"); put("email", s.resetEmail.trim()); put("otp_code", s.resetOtp.trim())
+            }, anonymous = true)) {
+                is ApiResult.Success -> _uiState.update { it.copy(resetSending = false, resetStep = ResetStep.NEW_PASSWORD) }
+                is ApiResult.Error -> _uiState.update { it.copy(resetSending = false, resetError = r.message ?: "Verification failed") }
+                else -> _uiState.update { it.copy(resetSending = false, resetError = "Something went wrong") }
+            }
+        }
+    }
+
+    fun setNewPassword() {
+        val s = _uiState.value
+        if (s.resetNewPassword.length < 6) { _uiState.update { it.copy(resetError = "Password must be at least 6 characters") }; return }
+        if (s.resetNewPassword != s.resetConfirmPassword) { _uiState.update { it.copy(resetError = "Passwords do not match") }; return }
+        _uiState.update { it.copy(resetSending = true, resetError = null) }
+        viewModelScope.launch {
+            when (val r = edgeFunctionClient.invoke("reset-password", buildJsonObject {
+                put("action", "set_password"); put("email", s.resetEmail.trim()); put("new_password", s.resetNewPassword)
+            }, anonymous = true)) {
+                is ApiResult.Success -> _uiState.update { it.copy(resetSending = false, resetStep = ResetStep.DONE) }
+                is ApiResult.Error -> _uiState.update { it.copy(resetSending = false, resetError = r.message ?: "Failed to reset") }
+                else -> _uiState.update { it.copy(resetSending = false, resetError = "Something went wrong") }
             }
         }
     }

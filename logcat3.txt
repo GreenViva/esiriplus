@@ -1,0 +1,1152 @@
+--------- beginning of main
+02-27 20:56:11.833  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onSignalStrengthsChanged
+02-27 20:56:11.834  2026  7705 I OplusBinderProxy: pb uid: 10300 pid: 10619 desc: com.android.internal.telephony.IPhoneStateListener/10
+02-27 20:56:11.843  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:2 isSoftSimCard:false slotId:0
+--------- beginning of system
+02-27 20:56:11.932  2026  3235 V WindowManager: Relayout Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity}: viewVisibility=0, oldvis=0, req=1080x1098, vsysui=, x=0, y=0
+02-27 20:56:11.933 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xa57fa57,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:56:12.068  1605  2096 D VRR [OTI]: handleIdle from 1 to 0
+02-27 20:56:12.068  1605  2096 D VRR [OTI-HW]: isStateReady 0
+02-27 20:56:12.068  1605  2096 D VRR [OTI-HW]: rate range: min {id=2, hwcId=4, resolution=1080x2400, vsyncRate=60.00 Hz, dpi=391.89x390.77, group=0, vrrConfig=N/A} cur {id=1, hwcId=2, resolution=1080x2400, vsyncRate=90.00 Hz, dpi=391.89x390.77, group=0, vrrConfig=N/A} max {id=1, hwcId=2, resolution=1080x2400, vsyncRate=90.00 Hz, dpi=391.89x390.77, group=0, vrrConfig=N/A}
+02-27 20:56:12.068  1605  2096 D VRR [OTI-HW]: keep rate.
+02-27 20:56:12.069  2026  3382 D PowerManagerService: userActivityNoUpdateLocked: groupId=0, eventTime=838638656, event=touch, flags=0x0, uid=1000
+02-27 20:56:12.069  2026  3802 I [UAH_CLIENT]: UahEventAcquire, cmdid:37, pkg:none, identity:OplusUAwareInputHelper
+02-27 20:56:12.070  2026  3802 D UAH-UahAdaptHelper: adaptSetNotification identity = OplusUAwareInputHelpersrc = 1000 , type 0 ,p1 = -1 ,p2 = -1 ,p3 = -1 ,p4 =
+02-27 20:56:12.070  2026  3802 I [UAH_CLIENT]: uahRuleCtl, ruleId:1000, status:0
+02-27 20:56:12.075  2026  3578 D OGG_Detector: D:done mCurrStatus: 0
+02-27 20:56:12.077  2026  3802 D UAH-UahAdaptHelper: adaptSetNotification identity = OplusUAwareInputHelpersrc = 1000 , type 1 ,p1 = -1 ,p2 = -1 ,p3 = -1 ,p4 =
+02-27 20:56:12.077  2026  3802 I [UAH_CLIENT]: uahRuleCtl, ruleId:1000, status:1
+02-27 20:56:12.092 14612 14612 D ViewRootImplExtImpl: the up motion event handled by client, just return
+02-27 20:56:12.097   646   646 E lowmemorykiller: device memory 401479 free 79328 file 311279
+02-27 20:56:12.114 14612 15418 I okhttp.OkHttpClient: --> POST https://nzzvphhqbcscoetzfzkd.supabase.co/functions/v1/handle-consultation-request
+02-27 20:56:12.114 14612 15418 I okhttp.OkHttpClient: Content-Length: 71
+02-27 20:56:12.114 14612 15418 I okhttp.OkHttpClient: Content-Type: application/json
+02-27 20:56:12.114 14612 15418 I okhttp.OkHttpClient: apikey: ██
+02-27 20:56:12.114 14612 15418 I okhttp.OkHttpClient: Authorization: ██
+02-27 20:56:12.115 14612 15418 I okhttp.OkHttpClient: {"action":"accept","request_id":"d24d8b85-d4d3-41aa-8e4f-1f38fbd45b7f"}
+02-27 20:56:12.115 14612 15418 I okhttp.OkHttpClient: --> END POST (71-byte body)
+02-27 20:56:12.130 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xa57fa57,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:56:12.130  2026  3235 V WindowManager: Relayout Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity}: viewVisibility=0, oldvis=0, req=1080x1098, vsysui=, x=0, y=0
+02-27 20:56:12.199   646   646 E lowmemorykiller: device memory 401035 free 78887 file 311464
+02-27 20:56:12.282  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:12.285  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:12.295  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.BATTERY_CHANGED , listeners = [com.android.server.display.OplusFeatureHDREnhanceBrightness$PhoneInfoReceiver@d078a20, com.android.server.display.OplusFeatureEdrEnhanceBrightness$PhoneInfoReceiver@d0bbfd9]
+02-27 20:56:12.296  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.BATTERY_CHANGED
+02-27 20:56:12.296  3736  3736 I SystemUi--Statusbar: BatteryControllerExt-->updateBatteryChangeIntent():broadcast=android.intent.action.BATTERY_CHANGED,level=12,scale=100
+02-27 20:56:12.296  3736  3736 I SystemUi--Statusbar: BatteryRepository-->level: 12 -- isSavingMode: false
+02-27 20:56:12.304  7792  9430 E Battery : ChargeProtectionUtils: mCanlendarTmp.isEmpty()!
+02-27 20:56:12.304 26084 26084 D DeviceStatisticsService: onReceive: action= android.intent.action.BATTERY_CHANGED
+02-27 20:56:12.307 26780 26780 D CustomLogManagerService: onReceive android.intent.action.BATTERY_CHANGED
+02-27 20:56:12.323  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:12.323  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:12.323  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:12.323  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:12.323  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:12.432  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:56:12.675 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{1a62f51 V.E...... R....... 0,0-1080,1098 aid=1073741835 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:56:12.679  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:12.800 14128 14497 I metis_v2_OsenseCallBack: memLevel: 0 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:12.893 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xa57fa57,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:56:12.894  2026  3235 V WindowManager: Relayout Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity}: viewVisibility=0, oldvis=0, req=1080x1098, vsysui=, x=0, y=0
+02-27 20:56:13.269  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:13.269  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:13.269  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:13.381  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:13.381  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: <-- 200 https://nzzvphhqbcscoetzfzkd.supabase.co/functions/v1/handle-consultation-request (1277ms)
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: date: Fri, 27 Feb 2026 17:56:14 GMT
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: content-type: application/json
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: server: cloudflare
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: cf-ray: 9d498ebdde63de9f-DAR
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: cf-cache-status: DYNAMIC
+02-27 20:56:13.393 14612 15418 I okhttp.OkHttpClient: strict-transport-security: max-age=31536000; includeSubDomains; preload
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: vary: Accept-Encoding, Origin
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: access-control-allow-headers: Authorization, Content-Type, X-Idempotency-Key
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: access-control-allow-methods: POST, GET, OPTIONS
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: access-control-max-age: 86400
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: sb-gateway-version: 1
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: sb-project-ref: nzzvphhqbcscoetzfzkd
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: sb-request-id: 019ca03e-72af-7326-b20d-e9258b013712
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: x-deno-execution-id: ab8e1868-0533-4200-b50a-7d2cc8346b0d
+02-27 20:56:13.394 14612 15418 I okhttp.OkHttpClient: x-sb-edge-region: eu-west-3
+02-27 20:56:13.395 14612 15418 I okhttp.OkHttpClient: x-served-by: supabase-edge-runtime
+02-27 20:56:13.395 14612 15418 I okhttp.OkHttpClient: set-cookie: __cf_bm=u5IWqO01ZjY7zGtTtr7qEf8YNACtfk7eHoP.e18Y.VY-1772214974-1.0.1.1-dsyNLKpPYcTZxQ6n8ftga5w88DECZn6ySCnICmWO3Oj.hLcRFBflBD3KT5zSCNBHmJq1kXkue5DQf5c3mQfTkjnBv8nLgBi8kFbULts9oA0; path=/; expires=Fri, 27-Feb-26 18:26:14 GMT; domain=.supabase.co; HttpOnly; Secure; SameSite=None
+02-27 20:56:13.395 14612 15418 I okhttp.OkHttpClient: alt-svc: h3=":443"; ma=86400
+02-27 20:56:13.398 14612 15418 I okhttp.OkHttpClient: {"request_id":"d24d8b85-d4d3-41aa-8e4f-1f38fbd45b7f","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null}
+02-27 20:56:13.398 14612 15418 I okhttp.OkHttpClient: <-- END HTTP (176-byte body)
+02-27 20:56:13.405 14612 14612 D ConsultReqService: Accept raw result: Success(data={"request_id":"d24d8b85-d4d3-41aa-8e4f-1f38fbd45b7f","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null})
+02-27 20:56:13.405 14612 14612 D ConsultReqService: Accept response body: {"request_id":"d24d8b85-d4d3-41aa-8e4f-1f38fbd45b7f","status":"insert_error","debug_error":"Patient already has an open consultation","debug_code":"P0001","debug_details":null}
+02-27 20:56:13.441  2026  3235 V WindowManager: Relayout Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity}: viewVisibility=0, oldvis=0, req=1080x588, vsysui=, x=0, y=0
+02-27 20:56:13.446  2026  3235 D WindowManager: setFrameRateStart invalid typeId return!
+02-27 20:56:13.450  2026  2620 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:13.450  2026  2620 D SurfaceAnimationRunner: onAnimationStart:Surface(name=Surface(name=338c6a4 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x3340c09 - animation-leash of window_animation)/@0xc061991
+02-27 20:56:13.457  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:56:13.458 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:391400000002,api:1,p:14612,c:14612) disconnect: api 1
+02-27 20:56:13.459 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:391400000002,api:1,p:14612,c:14612) connect: api=1 producerControlledByApp=true
+02-27 20:56:13.465 14612 14612 I SurfaceControl:  setExtendedRangeBrightness sc=Surface(name=com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0xa57fa57,currentBufferRatio=1.0,desiredRatio=1.0
+02-27 20:56:13.477 14612 14650 D BLASTBufferQueue: [VRI[MainActivity]#2](f:0,a:2) producer disconnected before acquireNextBufferLocked
+02-27 20:56:13.480 14612 14612 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:13.480 14612 14612 W VRI[MainActivity]: handleResized abandoned!
+02-27 20:56:13.503  1535  4282 D PerformanceService: open /proc/oplus_healthinfo/vmalloc_used failed! err:No such file or directory, Linux version 5.4.254
+02-27 20:56:13.504  4244  4914 W Athena  : VmallocNode: vmallocInfo is empty.
+02-27 20:56:13.504  1535  4282 D PerformanceService: open /proc/oplus_healthinfo/kmalloc_used failed! err:No such file or directory, Linux version 5.4.254
+02-27 20:56:13.680  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:13.844  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:13.850  2026  2620 D callGcDesupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:13.850  2026  2620 D SurfaceAnimationRunner: onAnimationEnd:Surface(name=Surface(name=338c6a4 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x3340c09 - animation-leash of window_animation)/@0xc061991
+02-27 20:56:13.867  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:13.868  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:14.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:14.288   646   646 E lowmemorykiller: device memory 401479 free 78286 file 311721
+02-27 20:56:14.288  2026  3795 I Osense-PsiDetector: 1568,305,1903,7679,76,412,223,1297,1590,478,738,0,8,8219
+02-27 20:56:14.290 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:14.310 26780 23512 D CustomLogManagerService: WorkHandler msg.what :5
+02-27 20:56:14.311 26780 23512 D CustomLogManagerService: user experience toggle off
+02-27 20:56:14.479  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:14.684  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:14.933 14612 14612 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,window dying
+02-27 20:56:14.933 14612 14612 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,unregisterSystemUIBroadcastReceiver 
+02-27 20:56:14.934 14612 14612 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity, unregisterSystemUIBroadcastReceiver failed java.lang.IllegalArgumentException: Receiver not registered: android.view.OplusScrollToTopManager$2@895ad21
+02-27 20:56:14.936 14612 14612 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@ff39138
+02-27 20:56:14.936  2026  3235 D CoreBackPreview: Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity}: Setting back callback null
+02-27 20:56:14.956 14612 14612 D HWUI    : RenderProxy::destroy: this=0xb400007afa9fac00, mContext=0xb400007ae24d76c0
+02-27 20:56:14.956 14612 14650 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007ae249b300, surface=NULL
+02-27 20:56:14.957 14612 14650 D BufferQueueProducer: [VRI[MainActivity]#2(BLAST Consumer)2](id:391400000002,api:1,p:14612,c:14612) disconnect: api 1
+02-27 20:56:14.957 14612 14612 D BLASTBufferQueue: [VRI[MainActivity]#2](f:0,a:1) destructor()
+02-27 20:56:14.958 14612 14612 D BufferQueueConsumer: [VRI[MainActivity]#2(BLAST Consumer)2](id:391400000002,api:0,p:-1,c:14612) disconnect
+02-27 20:56:14.960  2026  7705 I InputDispatcher: channel '338c6a4 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity (server)'~ abortBrokenDispatchCycleLocked - notify=false
+02-27 20:56:14.960  2026  7705 W InputManager-JNI: Input channel object '338c6a4 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity (client)' was disposed without first being removed with the input manager!
+02-27 20:56:14.964  2026  7705 D WindowManager: setFrameRateStart invalid typeId return!
+02-27 20:56:14.965  2026  7705 D WindowManager: NFW_findFocusedWindowIfNeeded:Window{3e73632 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity} mCurrentFocus:Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity EXITING}
+02-27 20:56:14.967  2026  7705 V WindowManager: Changing focus from Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity EXITING} to Window{3e73632 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity},diplayid=0
+02-27 20:56:14.969  2026  7705 D WindowManager: setFrameRateStart invalid typeId return!
+02-27 20:56:14.972  2026  2620 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:14.972  2026  2620 D SurfaceAnimationRunner: onAnimationStart:Surface(name=Surface(name=338c6a4 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x3340c09 - animation-leash of window_animation)/@0x4f8901
+02-27 20:56:14.973  2026  7705 D WindowManager: setFrameRateStart invalid typeId return!
+02-27 20:56:14.975  2026  7705 D Theia.NoFocusWindow: FocusWindowErrorScene cancelCheckFreezeScreen
+02-27 20:56:14.975  2026  7705 D Theia.TransparentWindow: TransparentWindow cancelCheckFreezeScreen
+02-27 20:56:14.976  2026  7705 W TheiaWindowMonitor: [check] focusedWindow is null or enable is false
+02-27 20:56:14.994  2026  2620 D callGcSupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:14.994  2026  2620 D SurfaceAnimationRunner: onAnimationStart:Surface(name=Dim Layer for - Task=8095)/@0x5085fc5
+02-27 20:56:14.996  2026  7705 I InputDispatcher: updateFocusedWindow,  on display 0, reason: NO_WINDOW, result:   FocusedWindows: <none>
+02-27 20:56:14.997  2026  2615 V WindowManager: Unknown focus tokens, dropping reportFocusChanged
+02-27 20:56:15.006  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:126, read content:,376,363,3684,3684,84,500,2200,11,12,1,4,-1,4927,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,365,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:15.006  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-15
+02-27 20:56:15.007  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:15.013  1605  2112 D SurfaceFlinger: updateWinowInfo=1, setFocusedWindow timestamp=838641599567684, windowName=3e73632 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity
+02-27 20:56:15.013  2026  7705 I InputDispatcher: NFW_setFocusedWindow, 3e73632 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity on display 0, same as the previous:0
+02-27 20:56:15.013  2026  7705 I InputDispatcher: updateFocusedWindow, 3e73632 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity on display 0, reason: setFocusedWindow, result:   FocusedWindows:
+02-27 20:56:15.013  2026  7705 I InputDispatcher:     displayId=0, name='3e73632 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity'
+02-27 20:56:15.014 14612 14612 D VRI[MainActivity]: onFocusEvent true
+02-27 20:56:15.018  2026  3400 D InputMethodManagerService: isSecurity: attribute.packageName = com.esiri.esiriplus mCurMethodId = com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME isSecurity = false ( enable = true needShow = false inBlackList = false isExist = true )
+02-27 20:56:15.018  2026  3400 I ImeTracker: com.esiri.esiriplus:266083f4: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+02-27 20:56:15.018  2026  3400 I ImeTracker: com.esiri.esiriplus:266083f4: onCancelled at PHASE_SERVER_SHOULD_HIDE
+02-27 20:56:15.021 19788 19788 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2113 
+02-27 20:56:15.022 19788 19788 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 0, locked = false
+02-27 20:56:15.023 19788 19788 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1384 onStartInput(EditorInfo{EditorInfo{packageName=com.esiri.esiriplus, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=Bundle[{com.oplus.im.WINDOW_MODE=1, com.oplus.im.SCENES=0}], hintText=null, hintLocales=[]}}, false)
+02-27 20:56:15.023 19788 19788 I AndroidIME: LatinIMEBase.updateInputViewCoverNavigation():314 Update input view padding, extendsTouchBelowSpace=false, bottom inset=132
+02-27 20:56:15.024 19788 19788 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+02-27 20:56:15.025  2026  7705 D WindowManager: setFrameRateStart invalid typeId return!
+02-27 20:56:15.025  2026  4235 W PackageConfigPersister: App-specific configuration not found for packageName: com.esiri.esiriplus and userId: 0
+02-27 20:56:15.129  2026  2620 D callGcDesupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:15.129  2026  2620 D SurfaceAnimationRunner: onAnimationEnd:Surface(name=Surface(name=338c6a4 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity)/@0x3340c09 - animation-leash of window_animation)/@0x4f8901
+02-27 20:56:15.130  2026  2618 I OplusScreenSecurityMask: remove WindowsName list: Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity EXITING} list size: 1 isFromSetSecure: false , surfaceShown = false , displayId = 0
+02-27 20:56:15.130  2026  2618 I OplusScreenSecurityMask: don't callback because already callback once
+02-27 20:56:15.130  2026  2618 I WindowManager: Window{338c6a4 u0 com.esiri.esiriplus/com.esiri.esiriplus.MainActivity EXITING} state from HAS_DRAWN to NO_SURFACE; reason: destroySurface
+02-27 20:56:15.151  2026  2620 D callGcDesupression: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object[])' on a null object reference
+02-27 20:56:15.152  2026  2620 D SurfaceAnimationRunner: onAnimationEnd:Surface(name=Dim Layer for - Task=8095)/@0x5085fc5
+02-27 20:56:15.195  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:15.209  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:15.229 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:15.297   646   646 E lowmemorykiller: device memory 407729 free 78574 file 311740
+02-27 20:56:15.332  2026  3795 I Osense-PsiDetector: 1592,307,1900,7679,76,389,223,1294,1590,478,738,0,8,8220
+02-27 20:56:15.333 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:15.497  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:15.497  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:15.497  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:15.503  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:15.578  1605  2096 D VRR [OTI]: handleIdle from 0 to 1
+02-27 20:56:15.578  1605  2096 D VRR [OTI-HW]: isStateReady 0
+02-27 20:56:15.578  1605  2096 D VRR [OTI-HW]: rate range: min {id=2, hwcId=4, resolution=1080x2400, vsyncRate=60.00 Hz, dpi=391.89x390.77, group=0, vrrConfig=N/A} cur {id=1, hwcId=2, resolution=1080x2400, vsyncRate=90.00 Hz, dpi=391.89x390.77, group=0, vrrConfig=N/A} max {id=1, hwcId=2, resolution=1080x2400, vsyncRate=90.00 Hz, dpi=391.89x390.77, group=0, vrrConfig=N/A}
+02-27 20:56:15.578  1605  2096 D VRR [OTI-HW]: keep rate.
+02-27 20:56:15.686  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:15.856  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:15.856  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:15.856  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:15.856  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:15.856  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:15.889  9934  8347 I OplusFeedbackInfo: 0xb4000078a9acaf00 c2.qti.vp9.decoder codec[0xb40000786d867000] 640x360 inputFps=0 outputFps=0 renderFps=0, discardFps=0
+02-27 20:56:16.019 14612 14667 D OplusScrollToTopManager: com.esiri.esiriplus/com.esiri.esiriplus.MainActivity,This com.android.internal.policy.DecorView{661228c V.E...... R....... 0,0-1080,2400 aid=0 alpha=1.0 viewInfo = }[MainActivity] change focus to true
+02-27 20:56:16.265 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:16.369  2026  3795 I Osense-PsiDetector: 1593,307,1898,7679,76,389,223,1292,1590,478,738,0,8,8220
+02-27 20:56:16.369 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:16.528  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:16.690  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:16.873  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:16.892  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:16.899  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:17.058  3736  3736 D OplusPrivacyDotViewController: scheduleUpdate: 
+02-27 20:56:17.060  3736  4019 D OplusPrivacyDotViewController: processNextViewState: 
+02-27 20:56:17.061  3736  4019 D OplusPrivacyDotViewController: resolveState ViewState(systemPrivacyEventIsActive=false, shadeExpanded=false, needShow=true, rtl=false, rotation=0, height=12, x=41, y=56, cornerIndex=1, designatedCorner=android.widget.FrameLayout{e2d8ba8 G.E...... ......I. 0,0-12,12 #7f0a05b9 app:id/icons_container alpha=0.0 viewInfo = }, contentDescription=null, chipAnimationStart=false, preDraw=false) shouldShowDot false
+02-27 20:56:17.061  3736  4019 W SystemUi--Common: OplusSysUiSchedMgr-->schedForPrivacyIconShowing not showing, no need release
+02-27 20:56:17.189 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 20:56:17.305 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:17.401  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:17.404  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:17.408  2026  3795 I Osense-PsiDetector: 1595,309,1896,7679,76,389,223,1290,1590,478,738,0,8,8219
+02-27 20:56:17.409 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:17.415  3736  3736 I SystemUi--Statusbar: BatteryControllerExt-->updateBatteryChangeIntent():broadcast=android.intent.action.BATTERY_CHANGED,level=12,scale=100
+02-27 20:56:17.415  3736  3736 I SystemUi--Statusbar: BatteryRepository-->level: 12 -- isSavingMode: false
+02-27 20:56:17.415  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.BATTERY_CHANGED , listeners = [com.android.server.display.OplusFeatureHDREnhanceBrightness$PhoneInfoReceiver@d078a20, com.android.server.display.OplusFeatureEdrEnhanceBrightness$PhoneInfoReceiver@d0bbfd9]
+02-27 20:56:17.416  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.BATTERY_CHANGED
+02-27 20:56:17.419 26084 26084 D DeviceStatisticsService: onReceive: action= android.intent.action.BATTERY_CHANGED
+02-27 20:56:17.423  7792  9430 E Battery : ChargeProtectionUtils: mCanlendarTmp.isEmpty()!
+02-27 20:56:17.423 26780 26780 D CustomLogManagerService: onReceive android.intent.action.BATTERY_CHANGED
+02-27 20:56:17.440  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:17.440  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:17.440  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:17.440  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:17.440  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:17.552  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:56:17.692  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:17.873  4074  4485 I m.android.phone: Explicit concurrent copying GC freed 2411KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 10220KB/19MB, paused 191us,60us total 74.736ms
+02-27 20:56:18.270  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:18.270  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:18.270  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:18.345 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:18.449  2026  3795 I Osense-PsiDetector: 1597,311,1894,7679,76,389,223,1287,1590,478,738,0,8,8217
+02-27 20:56:18.450 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:18.575  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:18.634  7270 19527 E MIDASApplication: MIDASPullAtomManager: onPullAtom 150122
+02-27 20:56:18.640  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:18.642  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:18.674  2026  7705 W Settings: Setting notification_bubbles has moved from android.provider.Settings.Global to android.provider.Settings.Secure, returning read-only value.
+02-27 20:56:18.675  2026  7705 W Settings: Setting apply_ramping_ringer has moved from android.provider.Settings.Global to android.provider.Settings.System, returning read-only value.
+02-27 20:56:18.680  2026  7705 W SettingsStatsUtil: Can not parse value to float: +network
+02-27 20:56:18.694  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:19.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:19.389 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:19.425 26780 23512 D CustomLogManagerService: WorkHandler msg.what :5
+02-27 20:56:19.428 26780 23512 D CustomLogManagerService: user experience toggle off
+02-27 20:56:19.492  2026  3795 I Osense-PsiDetector: 1598,312,1893,7679,76,389,223,1286,1590,478,738,0,8,8217
+02-27 20:56:19.493 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:19.603  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:19.683  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:19.695  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:19.696  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:19.901  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:19.917  2026  3584 D OplusNetKit: in getLpByInterface name from LP: [wlan0]
+02-27 20:56:19.921  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:19.936  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:19.942  2026  3584 D OplusNetRttKit: getIcmpEchoRtt addr:192.168.1.*** avgRtt: 4
+02-27 20:56:20.008  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,364,3696,3696,-26,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,365,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:20.008  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-20
+02-27 20:56:20.009  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:20.390  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:20.390  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:20.429 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:20.498  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:20.498  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:20.498  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:20.534  2026  3795 I Osense-PsiDetector: 1598,312,1891,7679,76,389,223,1285,1590,478,738,0,8,8217
+02-27 20:56:20.535 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:20.623  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:20.699  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:20.876  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:20.876  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:20.876  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:20.876  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:20.876  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:20.893  2026  3513 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+02-27 20:56:20.893  2026  3513 W Binder  : java.lang.Throwable
+02-27 20:56:20.893  2026  3513 W Binder  : 	at android.os.BinderProxy.transact(BinderProxy.java:633)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at android.content.ContentProviderProxy.insert(ContentProviderNative.java:587)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at android.content.ContentProviderClient.insert(ContentProviderClient.java:347)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at android.content.ContentProviderClient.insert(ContentProviderClient.java:336)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at com.oplus.util.OplusStatisticsImpl.insert(OplusStatisticsImpl.java:307)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at com.oplus.util.OplusStatisticsImpl.sendDataToDCS(OplusStatisticsImpl.java:287)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at com.oplus.util.OplusStatisticsImpl.flushInternal(OplusStatisticsImpl.java:264)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at com.oplus.util.OplusStatisticsImpl.lambda$setDelayFlushJobIfNeed$4(OplusStatisticsImpl.java:211)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at com.oplus.util.OplusStatisticsImpl.$r8$lambda$4UYTp2NCu6Rml69JNqEuK7o54SI(Unknown Source:0)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at com.oplus.util.OplusStatisticsImpl$$ExternalSyntheticLambda5.run(D8$$SyntheticClass:0)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:520)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at java.util.concurrent.FutureTask.run(FutureTask.java:317)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:348)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+02-27 20:56:20.893  2026  3513 W Binder  : 	at java.lang.Thread.run(Thread.java:1564)
+02-27 20:56:20.937   646   646 E lowmemorykiller: device memory 409442 free 79826 file 312187
+02-27 20:56:21.006  2026  2678 D Theia.TransparentWindow: handleMessage CHECK_TRANS_WINDOW_ERROR_MSG
+02-27 20:56:21.039   646   646 E lowmemorykiller: device memory 409329 free 79568 file 312332
+02-27 20:56:21.243   646   646 E lowmemorykiller: device memory 409349 free 79574 file 312345
+02-27 20:56:21.256  4074  4074 D OplusTelephonyController: onSignalStrengthChanged: SignalStrength=SignalStrength:{mCdma=CellSignalStrengthCdma: cdmaDbm=2147483647 cdmaEcio=2147483647 evdoDbm=2147483647 evdoEcio=2147483647 evdoSnr=2147483647 level=0,mGsm=CellSignalStrengthGsm: rssi=2147483647 ber=2147483647 mTa=2147483647 mLevel=0,mWcdma=CellSignalStrengthWcdma: ss=2147483647 ber=2147483647 rscp=2147483647 ecno=2147483647 level=0,mTdscdma=CellSignalStrengthTdscdma: rssi=2147483647 ber=2147483647 rscp=2147483647 level=0,mLte=CellSignalStrengthLte: rssi=-65 rsrp=-97 rsrq=-16 rssnr=6 cqiTableIndex=2147483647 cqi=2147483647 ta=2147483647 level=4 parametersUseForLevel=0,mNr=CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = 2147483647 ssRsrq = 2147483647 ssSinr = 2147483647 level = 0 parametersUseForLevel = 0 timingAdvance = 2147483647 },primary=CellSignalStrengthLte}
+02-27 20:56:21.257  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onSignalStrengthsChanged
+02-27 20:56:21.271  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:2 isSoftSimCard:false slotId:0
+02-27 20:56:21.473 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:21.577  2026  3795 I Osense-PsiDetector: 1599,310,1892,7679,76,389,223,1286,1592,479,740,0,8,8217
+02-27 20:56:21.577 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:21.647  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:21.701  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:21.923  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:21.940  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:21.949  3978 25348 D IpClient/wlan0: interfaceLinkStateChanged: ifindex 27 up
+02-27 20:56:22.104   714 15866 I keystore2: system/security/keystore2/watchdog/src/lib.rs:319 - Watchdog thread idle -> terminating. Have a great day.
+02-27 20:56:22.514 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:22.618  2026  3795 I Osense-PsiDetector: 1599,310,1891,7679,76,389,223,1285,1592,479,740,0,8,8216
+02-27 20:56:22.619 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:22.675  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:22.705  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:22.934  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:22.955  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:22.961  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:23.207  1483  1483 I android.hardware.thermal@2.0-service.qti: Sensor Name:skintemp: 39.114. prev severity:0. cur severity:3 New severity:3
+02-27 20:56:23.218  1483  1483 I android.hardware.thermal@2.0-service.qti: Sensor Name:skintemp: 39.114. prev severity:0. cur severity:3 New severity:3
+02-27 20:56:23.228  1483  1483 I android.hardware.thermal@2.0-service.qti: Sensor Name:skintemp: 39.114. prev severity:0. cur severity:3 New severity:3
+02-27 20:56:23.237  1483  1483 I android.hardware.thermal@2.0-service.qti: Sensor Name:skintemp: 39.114. prev severity:0. cur severity:3 New severity:3
+02-27 20:56:23.240  5236  5396 I midasd  : OplusObrainService::notifyEventInt eventId:21 iParam:0
+02-27 20:56:23.245  7270 19527 I OplusObrain: OplusObrainClientInvoke.nativeGetTelephonyInfo
+02-27 20:56:23.248  7270 19527 I OplusObrain: OplusObrainClientInvoke.nativeGetTrafficTypeInfoForNetworkType networkType 0
+02-27 20:56:23.249  2026  4235 D KernelStatsHelper: getKernelStats start!
+02-27 20:56:23.253  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{3004}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.253  2026  3531 D KernelStatsHelper: get magic :[-1, -1, -1, 77, 65, 71, 73, 67]
+02-27 20:56:23.254  2026  3531 D KernelStatsHelper: magic matched count:441 data_len:22932
+02-27 20:56:23.254  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.254  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.255  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.255  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.255  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.256  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2988}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.256  2026  3531 D OplusNetlinkSocket: handleNetlinkRecvKernelMessage:nlmsghdr:StructNlMsgHdr{ nlmsg_len{2208}, nlmsg_type{33()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{132779467} }
+02-27 20:56:23.256  2026  3531 D KernelStatsHelper: data over! check: true
+02-27 20:56:23.257  5236 13430 E midasd  : Read file /sys/class/power_supply/usb/current_now failed.(No data available)
+02-27 20:56:23.270  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:23.270  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:23.270  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:23.284  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:23.284  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:23.379  2026  2142 I system_server: Background young concurrent copying GC freed 22MB AllocSpace bytes, 4(92KB) LOS objects, 10% free, 198MB/222MB, paused 8.677ms,206us total 120.705ms
+02-27 20:56:23.384  2026  2143 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+02-27 20:56:23.550 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:23.653  2026  3795 I Osense-PsiDetector: 1619,331,1889,7679,76,389,223,1263,1592,479,740,0,8,8216
+02-27 20:56:23.653 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:23.695  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:23.707  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:24.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:24.159  4074  4074 D OplusTelephonyController: onSignalStrengthChanged: SignalStrength=SignalStrength:{mCdma=CellSignalStrengthCdma: cdmaDbm=2147483647 cdmaEcio=2147483647 evdoDbm=2147483647 evdoEcio=2147483647 evdoSnr=2147483647 level=0,mGsm=CellSignalStrengthGsm: rssi=2147483647 ber=2147483647 mTa=2147483647 mLevel=0,mWcdma=CellSignalStrengthWcdma: ss=2147483647 ber=2147483647 rscp=2147483647 ecno=2147483647 level=0,mTdscdma=CellSignalStrengthTdscdma: rssi=2147483647 ber=2147483647 rscp=2147483647 level=0,mLte=CellSignalStrengthLte: rssi=-67 rsrp=-98 rsrq=-15 rssnr=5 cqiTableIndex=2147483647 cqi=2147483647 ta=2147483647 level=4 parametersUseForLevel=0,mNr=CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = 2147483647 ssRsrq = 2147483647 ssSinr = 2147483647 level = 0 parametersUseForLevel = 0 timingAdvance = 2147483647 },primary=CellSignalStrengthLte}
+02-27 20:56:24.160  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onSignalStrengthsChanged
+02-27 20:56:24.171  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:2 isSoftSimCard:false slotId:0
+02-27 20:56:24.308 20407 20562 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+02-27 20:56:24.331 20407 15856 W SystemServiceRegistry: No service published for: wifirtt
+02-27 20:56:24.338  2217  2217 W wificond: Failed to get NL80211_ATTR_MAX_NUM_AKM_SUITES
+02-27 20:56:24.340  2217  2217 W wificond: Failed to get NL80211_ATTR_MAX_NUM_AKM_SUITES
+02-27 20:56:24.344  2217  2217 W wificond: Failed to get NL80211_ATTR_MAX_NUM_AKM_SUITES
+02-27 20:56:24.344  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onCellInfoChanged
+02-27 20:56:24.347  4074  4074 W Settings: Setting airplane_mode_on has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+02-27 20:56:24.350  1317  1363 I statsd  : An anomaly (103940000001) (39)0x2018001->10116[I] (39)0x20000->1[I]  has occurred! Informing subscribers.
+02-27 20:56:24.441   646   646 E lowmemorykiller: device memory 414758 free 84912 file 312386
+02-27 20:56:24.589 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:24.692  2026  3795 I Osense-PsiDetector: 1620,332,1888,7679,76,389,223,1262,1592,479,740,0,8,8216
+02-27 20:56:24.693 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:24.709  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:24.719  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:25.009  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,364,3696,3696,-43,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,365,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:25.010  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-25
+02-27 20:56:25.011  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:25.194  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:25.210  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:25.500  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:25.500  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:25.500  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:25.624 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:25.711  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:25.729  2026  3795 I Osense-PsiDetector: 1620,332,1887,7679,76,389,223,1261,1592,479,740,0,8,8216
+02-27 20:56:25.730 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:25.743  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:25.896  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:25.896  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:25.896  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:25.896  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:25.896  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:25.956  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:25.972  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:25.983  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:26.126  2026  4235 D WifiNl80211Manager: Scan result ready event
+02-27 20:56:26.127  2026  4235 D WifiNative: Scan result ready event
+02-27 20:56:26.136 20407 20428 I WifiScanner: onFullResults
+02-27 20:56:26.136 20407 20824 I WifiScanner: onFullResults
+02-27 20:56:26.145  1317  1363 I statsd  : An anomaly (103940000001) (39)0x2018001->10116[I] (39)0x20000->0[I]  has occurred! Informing subscribers.
+02-27 20:56:26.148  4248  5302 D SubsysEventListenerManager: onScanResultsAvailable
+02-27 20:56:26.149 20407 23188 I WifiScanner: onFullResults
+02-27 20:56:26.152  4248  4248 D SubsysBroadcastManager: onReceive action:android.net.wifi.SCAN_RESULTS
+02-27 20:56:26.161  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:26.166  2026  3448 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+02-27 20:56:26.170  2026  3554 D OplusWifiResidenceRecognition: onScanResultsAvailable
+02-27 20:56:26.170  2026  3554 D WiFiHardWareMonitor ScanresultsCollector: rssiFailCheckAndNotify  diff = 2270989 now=1772214986170 latestSendTime=1772212715181 statisticsInterval=7200000
+02-27 20:56:26.171  4130  4511 D WifiScanResultEvent: None scanResults or savedConfigList.
+02-27 20:56:26.176  2026  3554 E NW_ReflectUtils: failed to get throughput : java.lang.NoSuchMethodError: No interface method getDeviceWiphyCapabilities()Landroid/net/wifi/nl80211/DeviceWiphyCapabilities; in class Lcom/android/server/wifi/ClientModeManager; or its super classes (declaration of 'com.android.server.wifi.ClientModeManager' appears in /apex/com.android.wifi/javalib/service-wifi.jar)
+02-27 20:56:26.180  3736  3960 I WifiPickerTracker: wifi connected status realConnectedWifiEntry not null: true
+02-27 20:56:26.189  2026  3554 D OplusP2pCallerMonitor: Scan trigger by cn.xender
+02-27 20:56:26.209   646   646 E lowmemorykiller: device memory 417408 free 84943 file 312447
+02-27 20:56:26.311   646   646 E lowmemorykiller: device memory 417464 free 84957 file 312505
+02-27 20:56:26.402  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:26.412  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:26.668 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:26.713  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:26.716   646   646 E lowmemorykiller: device memory 417505 free 84941 file 312562
+02-27 20:56:26.767  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:26.773  2026  3795 I Osense-PsiDetector: 1630,331,1886,7679,76,389,213,1262,1593,479,741,0,8,8211
+02-27 20:56:26.773 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:27.285   646   646 E lowmemorykiller: device memory 417583 free 84973 file 312608
+02-27 20:56:27.398  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:27.398  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:27.710 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:27.715  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:27.792  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:27.814  2026  3795 I Osense-PsiDetector: 1631,332,1885,7679,76,389,213,1262,1593,479,741,0,8,8209
+02-27 20:56:27.814 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:28.271  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:28.271  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:28.271  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:28.303   646   646 E lowmemorykiller: device memory 417901 free 84965 file 312934
+02-27 20:56:28.407  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:28.409  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:28.642  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:28.653  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:28.718  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:28.751 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:28.815  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:28.853  2026  3795 I Osense-PsiDetector: 1632,332,1884,7679,76,389,213,1261,1594,479,742,0,8,8205
+02-27 20:56:28.854 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:28.983  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:29.001  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:29.009  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:29.124  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:29.721  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:29.789 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:29.839  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:29.895  2026  3795 I Osense-PsiDetector: 1632,332,1883,7679,76,389,214,1260,1594,479,742,0,8,8205
+02-27 20:56:29.896 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:30.011  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,364,3696,3696,-64,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,365,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:30.011  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-30
+02-27 20:56:30.012  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:30.383  2059  2127 I theia_kevent: TheiaKeventThread recv type=3, tag=CriticalLog, event_id=Theia, payload:event_id: 1283. loginfo: 2. pid: 7520. extrainfo: init process block for more than 30s, block_count is 1, len=105
+02-27 20:56:30.383  2059  2127 D theia_kevent: TheiaKeventThread hook recv
+02-27 20:56:30.383  2059  2127 I oplus_theia: TheiaRecvKeventFunc called
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia handleKernelSendTheiaEvent
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia handleKernelSendEvent got message:event_id: 1283. loginfo: 2. pid: 7520. extrainfo: init process block for more than 30s, block_count is 1
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia kernelSendTheiaEvent key-value ret = 2
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia handleKernelSendEvent got data, key:event_id: value:1283
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia kernelSendTheiaEvent key-value ret = 2
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia handleKernelSendEvent got data, key:loginfo: value:2
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia kernelSendTheiaEvent key-value ret = 2
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia handleKernelSendEvent got data, key:pid: value:7520
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia kernelSendTheiaEvent key-value ret = 2
+02-27 20:56:30.384  2059  2127 I oplus_theia: oplus_theia handleKernelSendEvent got data, key:extrainfo: value:init
+02-27 20:56:30.384  2059  2127 I TheiaBinder: [generateTheiaTimestamp]: generateTheiaTimestamp start.
+02-27 20:56:30.384  2059  2127 I TheiaBinder: [generateTheiaTimestamp]: 2026-02-27 20:56:30 384.
+02-27 20:56:30.384  2059  2127 I TheiaBinder: buildNewTheiaEvent eventId: 0x503 is Disable! value: 0
+02-27 20:56:30.384  2059  2127 D theia_kevent: TheiaKeventThread hook ret=1
+02-27 20:56:30.384  2059  2127 I theia_kevent: TheiaKeventThread recvKevent
+02-27 20:56:30.501  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:30.501  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:30.501  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:30.724  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:30.826 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:30.863  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:30.919  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:30.919  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:30.919  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:30.919  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:30.919  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:30.930  2026  3795 I Osense-PsiDetector: 1632,332,1882,7679,76,389,214,1259,1594,479,742,0,8,8205
+02-27 20:56:30.932 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:31.112  7957  6863 I PTC.DISC.AndroidMultiLanServer: Watcher sysNif=[wlan0], userNif=[wlan0 state=(LISTEN JOIN(05A86A|11648)), ], clientNif=[wlan0 state=(LISTEN), ], tcpServer state=LISTEN, ipv4=**68.1.3
+02-27 20:56:31.196  4074  4074 D OplusTelephonyController: onSignalStrengthChanged: SignalStrength=SignalStrength:{mCdma=CellSignalStrengthCdma: cdmaDbm=2147483647 cdmaEcio=2147483647 evdoDbm=2147483647 evdoEcio=2147483647 evdoSnr=2147483647 level=0,mGsm=CellSignalStrengthGsm: rssi=2147483647 ber=2147483647 mTa=2147483647 mLevel=0,mWcdma=CellSignalStrengthWcdma: ss=2147483647 ber=2147483647 rscp=2147483647 ecno=2147483647 level=0,mTdscdma=CellSignalStrengthTdscdma: rssi=2147483647 ber=2147483647 rscp=2147483647 level=0,mLte=CellSignalStrengthLte: rssi=-65 rsrp=-97 rsrq=-15 rssnr=7 cqiTableIndex=2147483647 cqi=2147483647 ta=2147483647 level=4 parametersUseForLevel=0,mNr=CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = 2147483647 ssRsrq = 2147483647 ssSinr = 2147483647 level = 0 parametersUseForLevel = 0 timingAdvance = 2147483647 },primary=CellSignalStrengthLte}
+02-27 20:56:31.197  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onSignalStrengthsChanged
+02-27 20:56:31.212  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:2 isSoftSimCard:false slotId:0
+02-27 20:56:31.727  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:31.869 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:31.888  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:31.973  2026  3795 I Osense-PsiDetector: 1632,332,1881,7679,76,389,214,1258,1594,479,742,0,8,8205
+02-27 20:56:31.973 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:32.004  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:32.020  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:32.029  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:32.236 14612 15418 I Supabase-Realtime: Heartbeat received
+02-27 20:56:32.729  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:32.909 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:32.912  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:56:32.935  2026  3361 V AlarmManager: sending alarm Alarm{ab1bfab type 3 origWhen 1204201257 whenElapsed 1204201257 com.oplus.qualityprotect} uid 1000 whenElapsed 1204201257 windowLength 0 maxWhenElapsed 1204201257 repeatInterval 0 action com.oplus.qualityprotect.alarm_trigger component ComponentInfo{com.oplus.qualityprotect/com.oplus.qualityprotect.QualityAlarmReceiver} flags 0x9 procName com.oplus.midas
+02-27 20:56:32.979  7270  7270 D QualityAlarmReceiver: Alarm received, alarmType: 0
+02-27 20:56:32.979  7270  7270 I QualityAlarmReceiver: Try to start QualityProtectService
+02-27 20:56:32.988  7270  7270 I QualityAlarmReceiver: Try to start initOBrainAndOTraceCoreService, enableOBrain: true
+02-27 20:56:32.993  7270  7270 D QualityAlarmReceiver: Start obrain service with component:ComponentInfo{com.oplus.obrain/com.oplus.obrain.MIDASService}
+02-27 20:56:32.998  7270  7270 D QualityAlarmReceiver: Start onetrace daemon with component:ComponentInfo{com.oplus.onetrace/com.oplus.onetrace.daemon.OTraceDaemonService}
+02-27 20:56:32.998  7270  7270 D QualityAlarmReceiver: scheduleAliveAlarm, ALARM_PERODIC_MS: 3600000
+02-27 20:56:33.003  7270  7270 I QualityProtectService: onStartCommand to be called
+02-27 20:56:33.003  7270  7270 I MIDASApplication: MIDASService onStartCommand; iServiceRunning:true
+02-27 20:56:33.010   646   646 E lowmemorykiller: device memory 418323 free 85199 file 313312
+02-27 20:56:33.011  2026  3795 I Osense-PsiDetector: 1634,332,1880,7679,76,389,214,1258,1596,479,744,0,8,8205
+02-27 20:56:33.011 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:33.259   646   646 E lowmemorykiller: device memory 418350 free 85211 file 313327
+02-27 20:56:33.272  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:33.272  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:33.272  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:33.732  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:33.760  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:33.769  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:33.935  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:33.954 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:33.976  2026  4191 I OplusHansManager : unfreeze uid: 10300 com.facebook.katana pids: [10619, 13629] reason: Packet scene: LcdOn
+02-27 20:56:33.978  2026  4174 I OplusHansManager : uid=10300, pkg=com.facebook.katana F exit(), F stay=88, reason=Packet
+02-27 20:56:33.980  2026  4192 I OplusHansManager : up_BC uid=10300 pkg=com.facebook.katana
+02-27 20:56:33.980  2026  4192 I OplusCameraManagerGlobal: reportAppFreeze E
+02-27 20:56:33.981  2026  4192 I OplusBinderProxy: un_pb uid: 10300 pid: 10619 rst: true , Desc: com.android.internal.telephony.IPhoneStateListener/10
+02-27 20:56:33.981  2026  4192 I OplusBinderProxy: un_pb uid: 10300 pid: 10619 rst: true , Desc: com.android.internal.telephony.IPhoneStateListener/10
+02-27 20:56:33.981  2026  4192 I OplusBinderProxy: proxyBinder uid: 10300 pkg: com.facebook.katana proxy: false calling: OFreezer
+02-27 20:56:34.004  7270 19413 D QualityProtectService: handleMessage: 2
+02-27 20:56:34.004  7270 19413 I QualityProtectService: mStartReason: null
+02-27 20:56:34.041 10619 10619 I Choreographer: Skipped 8006 frames!  The application may be doing too much work on its main thread.
+02-27 20:56:34.054   646   646 E lowmemorykiller: device memory 417263 free 82061 file 315390
+02-27 20:56:34.055 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:34.055  2026  3795 I Osense-PsiDetector: 1629,320,1882,7679,76,389,214,1263,1604,480,751,0,8,8206
+02-27 20:56:34.123  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:34.155   646   646 E lowmemorykiller: device memory 415332 free 76137 file 319383
+02-27 20:56:34.256   646   646 E lowmemorykiller: device memory 412529 free 73113 file 319604
+02-27 20:56:34.278  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:34.279  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:34.287  3736  3736 I SystemUi--Statusbar: BatteryControllerExt-->updateBatteryChangeIntent():broadcast=android.intent.action.BATTERY_CHANGED,level=12,scale=100
+02-27 20:56:34.287  3736  3736 I SystemUi--Statusbar: BatteryRepository-->level: 12 -- isSavingMode: false
+02-27 20:56:34.287  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.BATTERY_CHANGED , listeners = [com.android.server.display.OplusFeatureHDREnhanceBrightness$PhoneInfoReceiver@d078a20, com.android.server.display.OplusFeatureEdrEnhanceBrightness$PhoneInfoReceiver@d0bbfd9]
+02-27 20:56:34.288  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.BATTERY_CHANGED
+02-27 20:56:34.288 26084 26084 D DeviceStatisticsService: onReceive: action= android.intent.action.BATTERY_CHANGED
+02-27 20:56:34.290  7792  9430 E Battery : ChargeProtectionUtils: mCanlendarTmp.isEmpty()!
+02-27 20:56:34.292 26780 26780 D CustomLogManagerService: onReceive android.intent.action.BATTERY_CHANGED
+02-27 20:56:34.312  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:34.312  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:34.312  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:34.312  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:34.312  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:34.356   646   646 E lowmemorykiller: device memory 410366 free 70538 file 320016
+02-27 20:56:34.403  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:34.403  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:34.734  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:34.959   646   646 E lowmemorykiller: device memory 380491 free 61143 file 320016
+02-27 20:56:34.962  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:34.981 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:35.013  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,364,3692,3692,-65,500,2200,11,12,1,4,-1,4927,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,365,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:35.013  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-35
+02-27 20:56:35.014  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:35.025  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:35.036  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:35.040  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:35.063   646   646 E lowmemorykiller: device memory 381022 free 73048 file 315377
+02-27 20:56:35.083   646   646 E lowmemorykiller: device memory 380792 free 75883 file 314250
+02-27 20:56:35.083  2026  3795 I Osense-PsiDetector: 1487,296,1925,7679,75,389,214,1340,1601,479,748,0,8,8205
+02-27 20:56:35.084 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:35.163   646   646 E lowmemorykiller: device memory 396410 free 105570 file 308192
+02-27 20:56:35.194  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:35.210  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:35.264   646   646 E lowmemorykiller: device memory 395734 free 110499 file 303101
+02-27 20:56:35.365   646   646 E lowmemorykiller: device memory 416256 free 112923 file 300623
+02-27 20:56:35.502  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:35.502  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:35.502  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:35.743  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:35.940  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:35.940  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:35.940  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:35.940  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:35.940  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:35.983  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:36.022 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:36.125  2026  3795 I Osense-PsiDetector: 1625,441,1928,7679,75,389,214,1270,1548,464,709,0,8,8205
+02-27 20:56:36.125 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:36.295 26780 23512 D CustomLogManagerService: WorkHandler msg.what :5
+02-27 20:56:36.295 26780 23512 D CustomLogManagerService: user experience toggle off
+02-27 20:56:36.317  4074  4074 D OplusTelephonyController: onSignalStrengthChanged: SignalStrength=SignalStrength:{mCdma=CellSignalStrengthCdma: cdmaDbm=2147483647 cdmaEcio=2147483647 evdoDbm=2147483647 evdoEcio=2147483647 evdoSnr=2147483647 level=0,mGsm=CellSignalStrengthGsm: rssi=2147483647 ber=2147483647 mTa=2147483647 mLevel=0,mWcdma=CellSignalStrengthWcdma: ss=2147483647 ber=2147483647 rscp=2147483647 ecno=2147483647 level=0,mTdscdma=CellSignalStrengthTdscdma: rssi=2147483647 ber=2147483647 rscp=2147483647 level=0,mLte=CellSignalStrengthLte: rssi=-65 rsrp=-98 rsrq=-14 rssnr=9 cqiTableIndex=2147483647 cqi=2147483647 ta=2147483647 level=4 parametersUseForLevel=0,mNr=CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = 2147483647 ssRsrq = 2147483647 ssSinr = 2147483647 level = 0 parametersUseForLevel = 0 timingAdvance = 2147483647 },primary=CellSignalStrengthLte}
+02-27 20:56:36.319  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onSignalStrengthsChanged
+02-27 20:56:36.332  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:2 isSoftSimCard:false slotId:0
+02-27 20:56:36.745  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:36.903  9934 18623 I OplusFeedbackInfo: 0xb4000078a2baaa00 c2.qti.vp9.decoder codec[0xb400007ab3678000] 720x1280 inputFps=0 outputFps=0 renderFps=0, discardFps=0
+02-27 20:56:37.008  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:37.061 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:37.161  2026  3795 I Osense-PsiDetector: 1625,441,1927,7679,75,389,214,1270,1549,464,709,0,8,8205
+02-27 20:56:37.162 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:37.748  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:38.032  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:38.059  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:38.063  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:38.073  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:38.080  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:38.083  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:38.097 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:38.153   646   646 E lowmemorykiller: device memory 416472 free 113108 file 300719
+02-27 20:56:38.201  2026  3795 I Osense-PsiDetector: 1626,441,1926,7679,75,389,214,1270,1549,464,709,0,8,8204
+02-27 20:56:38.201 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:38.272  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:38.272  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:38.272  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:38.720  2026  4174 I OplusHansManager : uid=10350, pkg=com.happymod.apk cannot transition from R to M, importance=fg-service
+02-27 20:56:38.723  2026  4174 I OplusHansManager : uid=10412, pkg=cn.xender cannot transition from R to M, importance=fg-service
+02-27 20:56:38.751  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:38.882  4074  4074 D OplusTelephonyController: onSignalStrengthChanged: SignalStrength=SignalStrength:{mCdma=CellSignalStrengthCdma: cdmaDbm=2147483647 cdmaEcio=2147483647 evdoDbm=2147483647 evdoEcio=2147483647 evdoSnr=2147483647 level=0,mGsm=CellSignalStrengthGsm: rssi=2147483647 ber=2147483647 mTa=2147483647 mLevel=0,mWcdma=CellSignalStrengthWcdma: ss=2147483647 ber=2147483647 rscp=2147483647 ecno=2147483647 level=0,mTdscdma=CellSignalStrengthTdscdma: rssi=2147483647 ber=2147483647 rscp=2147483647 level=0,mLte=CellSignalStrengthLte: rssi=-69 rsrp=-97 rsrq=-11 rssnr=9 cqiTableIndex=2147483647 cqi=2147483647 ta=2147483647 level=4 parametersUseForLevel=0,mNr=CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = 2147483647 ssRsrq = 2147483647 ssSinr = 2147483647 level = 0 parametersUseForLevel = 0 timingAdvance = 2147483647 },primary=CellSignalStrengthLte}
+02-27 20:56:38.882  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[0]: onSignalStrengthsChanged
+02-27 20:56:38.892  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:2 isSoftSimCard:false slotId:0
+02-27 20:56:38.907   646   646 E lowmemorykiller: device memory 416580 free 113157 file 300776
+02-27 20:56:39.008   646   646 E lowmemorykiller: device memory 415344 free 111574 file 301123
+02-27 20:56:39.059  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:39.123  3736  3747 I ndroid.systemui: Background young concurrent copying GC freed 19MB AllocSpace bytes, 68(2496KB) LOS objects, 32% free, 45MB/67MB, paused 920us,96us total 230.820ms
+02-27 20:56:39.124  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:39.125  3736  3946 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007af515a1c0, surface=NULL
+02-27 20:56:39.127  3736  3946 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007a60850e80, surface=NULL
+02-27 20:56:39.132 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:39.144  3736  3946 D HWUI    : SkiaOpenGLPipeline::setSurface: this=0xb400007a9cd843c0, surface=NULL
+02-27 20:56:39.168  1605  1876 I SurfaceFlinger: [SF client] REMOVE (0xb4000079a7343380) for (3736:com.android.systemui)
+02-27 20:56:39.171  1605  1876 I SurfaceFlinger: [SF client] REMOVE (0xb400007997b0d300) for (3736:com.android.systemui)
+02-27 20:56:39.176  3736  3749 W System  : A resource failed to call release. 
+02-27 20:56:39.176  3736  3749 W System  : A resource failed to call release. 
+02-27 20:56:39.178  1605  1876 I SurfaceFlinger: [SF client] REMOVE (0xb400007997b95a80) for (3736:com.android.systemui)
+02-27 20:56:39.180  3736  3749 W System  : A resource failed to call release. 
+02-27 20:56:39.180  3736  3749 W System  : A resource failed to call release. 
+02-27 20:56:39.180  3736  3749 W System  : A resource failed to call release. 
+02-27 20:56:39.210   646   646 E lowmemorykiller: device memory 417077 free 113210 file 301205
+02-27 20:56:39.236  2026  3795 I Osense-PsiDetector: 1629,442,1963,7679,75,389,214,1272,1551,464,711,0,8,8204
+02-27 20:56:39.236 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:39.433  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:39.436  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:39.460  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.BATTERY_CHANGED , listeners = [com.android.server.display.OplusFeatureHDREnhanceBrightness$PhoneInfoReceiver@d078a20, com.android.server.display.OplusFeatureEdrEnhanceBrightness$PhoneInfoReceiver@d0bbfd9]
+02-27 20:56:39.461  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.BATTERY_CHANGED
+02-27 20:56:39.464  3736  3736 I SystemUi--Statusbar: BatteryControllerExt-->updateBatteryChangeIntent():broadcast=android.intent.action.BATTERY_CHANGED,level=12,scale=100
+02-27 20:56:39.464  3736  3736 I SystemUi--Statusbar: BatteryRepository-->level: 12 -- isSavingMode: false
+02-27 20:56:39.469 26084 26084 D DeviceStatisticsService: onReceive: action= android.intent.action.BATTERY_CHANGED
+02-27 20:56:39.475  7792  9430 E Battery : ChargeProtectionUtils: mCanlendarTmp.isEmpty()!
+02-27 20:56:39.476 26780 26780 D CustomLogManagerService: onReceive android.intent.action.BATTERY_CHANGED
+02-27 20:56:39.496  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:39.496  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:39.496  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:39.496  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:39.496  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:39.754  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:40.016  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,363,3688,3688,-57,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:40.017  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-40
+02-27 20:56:40.018  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:40.079  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:40.165 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:40.270  2026  3795 I Osense-PsiDetector: 1629,442,1962,7679,75,389,214,1273,1551,464,711,0,8,8204
+02-27 20:56:40.271 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:40.503  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:40.503  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:40.503  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:40.758  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:40.960  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:40.960  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:40.960  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:40.960  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:40.960  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:41.093  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:41.107  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:41.113  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:41.124  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:41.205 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:41.281   646   646 E lowmemorykiller: device memory 417335 free 113484 file 301189
+02-27 20:56:41.309  2026  3795 I Osense-PsiDetector: 1630,443,1962,7679,75,389,214,1273,1551,464,711,0,8,8203
+02-27 20:56:41.311 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:41.407  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:41.408  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:41.478 26780 23512 D CustomLogManagerService: WorkHandler msg.what :5
+02-27 20:56:41.479 26780 23512 D CustomLogManagerService: user experience toggle off
+02-27 20:56:41.760  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:41.919  3978 25348 D IpClient/wlan0: interfaceLinkStateChanged: ifindex 27 up
+02-27 20:56:42.127  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:42.237 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:42.341 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:42.343  2026  3795 I Osense-PsiDetector: 1630,443,1961,7679,75,389,214,1272,1551,464,711,0,8,8203
+02-27 20:56:42.762  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:43.049   646   646 E lowmemorykiller: device memory 417790 free 113659 file 301469
+02-27 20:56:43.150   646   646 E lowmemorykiller: device memory 417813 free 113659 file 301492
+02-27 20:56:43.151  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:43.152  9934 13082 D Camera2PresenceSrc: System onCameraAccessPrioritiesChanged.
+02-27 20:56:43.152  9934 13080 I OplusCameraManagerGlobal: setClientInfo, packageName: cn.xender, uid: 10412, pid: 9934
+02-27 20:56:43.154  9934 13080 D Camera2PresenceSrc: [FetchData] Refreshed camera list: CameraIdentifier{cameraIds=0}, CameraIdentifier{cameraIds=1}
+02-27 20:56:43.156  1318 24659 E TetherController: property_get sys.radio.data.modem_share_flag return 0, 1!
+02-27 20:56:43.273  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:43.273  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:43.273  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:43.277 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:43.359  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:43.374  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:43.380  2026  3795 I Osense-PsiDetector: 1631,444,1960,7679,75,389,214,1273,1552,464,712,0,8,8200
+02-27 20:56:43.380 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:43.765  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:43.983  2026  4174 I OplusHansManager : uid=10300, pkg=com.facebook.katana F enter(), M stay=10
+02-27 20:56:44.013  2026  4174 I OplusHansManager : freeze uid: 10300 com.facebook.katana pids: [10619, 13629] IsolatedUid: [99175] scene: LcdOn
+02-27 20:56:44.014  2026  4192 I OplusHansManager : p_BC uid=10300 pkg=com.facebook.katana
+02-27 20:56:44.014  2026  4192 I OplusCameraManagerGlobal: reportAppFreeze E
+02-27 20:56:44.015 10532 10537 D IHansComunication: HANS sendMessageToKernel: threadId = 526745844848, netLinkSetup = 1, type = PKG, targetUid = 10300, pkgCmd = ADD_ONE_UID
+02-27 20:56:44.015  2026  4192 I OplusBinderProxy: proxyBinder uid: 10300 pkg: com.facebook.katana proxy: true calling: OFreezer
+02-27 20:56:44.121  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:44.126  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:44.137  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:44.141  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:44.175  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:44.317 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:44.421  2026  3795 I Osense-PsiDetector: 1633,445,1959,7679,75,389,214,1271,1551,464,712,0,8,8199
+02-27 20:56:44.422 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:44.768  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:45.017 10532 10537 D IHansComunication: HANS sendMessageToKernel: threadId = 526745844848, netLinkSetup = 1, type = FROZEN_TRANS, targetUid = 10300, pkgCmd = PKG_CMD_MAX
+02-27 20:56:45.020  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,363,3688,3688,-65,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:45.020  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-45
+02-27 20:56:45.021  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:45.195  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:45.199  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:45.210  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:45.296  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:45.297  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:45.307  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.BATTERY_CHANGED , listeners = [com.android.server.display.OplusFeatureHDREnhanceBrightness$PhoneInfoReceiver@d078a20, com.android.server.display.OplusFeatureEdrEnhanceBrightness$PhoneInfoReceiver@d0bbfd9]
+02-27 20:56:45.307  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.BATTERY_CHANGED
+02-27 20:56:45.308  3736  3736 I SystemUi--Statusbar: BatteryControllerExt-->updateBatteryChangeIntent():broadcast=android.intent.action.BATTERY_CHANGED,level=12,scale=100
+02-27 20:56:45.308  3736  3736 I SystemUi--Statusbar: BatteryRepository-->level: 12 -- isSavingMode: false
+02-27 20:56:45.309 26084 26084 D DeviceStatisticsService: onReceive: action= android.intent.action.BATTERY_CHANGED
+02-27 20:56:45.313  7792  9430 E Battery : ChargeProtectionUtils: mCanlendarTmp.isEmpty()!
+02-27 20:56:45.314 26780 26780 D CustomLogManagerService: onReceive android.intent.action.BATTERY_CHANGED
+02-27 20:56:45.330   646   646 E lowmemorykiller: device memory 417856 free 113849 file 301420
+02-27 20:56:45.332  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:45.332  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:45.332  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:45.332  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:45.332  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:45.356 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:45.431   646   646 E lowmemorykiller: device memory 413125 free 109061 file 301477
+02-27 20:56:45.441  9645  9690 I gle.android.gms: Explicit concurrent copying GC freed 3248KB AllocSpace bytes, 0(0B) LOS objects, 24% free, 8184KB/10MB, paused 145us,29us total 167.537ms
+02-27 20:56:45.461  2026  3795 I Osense-PsiDetector: 1619,431,1978,7679,75,389,214,1287,1552,465,712,0,8,8200
+02-27 20:56:45.461 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:45.504  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:45.504  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:45.504  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:45.777  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:45.909  9934  8347 I OplusFeedbackInfo: 0xb4000078a9acaf00 c2.qti.vp9.decoder codec[0xb40000786d867000] 640x360 inputFps=0 outputFps=0 renderFps=0, discardFps=0
+02-27 20:56:45.980  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:45.980  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:45.980  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:45.980  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:45.980  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:46.223  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:46.244   646   646 E lowmemorykiller: device memory 414872 free 110755 file 301530
+02-27 20:56:46.397 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:46.497  2026  3795 I Osense-PsiDetector: 1620,432,1978,7679,75,389,214,1288,1552,465,712,0,8,8200
+02-27 20:56:46.497 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:46.597   646   646 E lowmemorykiller: device memory 413809 free 109691 file 301531
+02-27 20:56:46.776  5229  5303 E horae   : 0: back:36368,frame:35260,front:37384, 30 6, +(1157), 1 ,39322,36500,38645,38541, target_temp:37384, algo:0
+02-27 20:56:46.780  7270 29953 D ShellSubscriberWorkerThread: the first 8 bytes empty, and RestData length > 8 
+02-27 20:56:46.780  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:47.145  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:47.160  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:47.168  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:47.198 14612 15418 I Supabase-Realtime: Heartbeat received
+02-27 20:56:47.251  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:56:47.266  2026  4107 I OplusBinderProxy: pb uid: 10300 pid: 10619 desc: com.android.internal.telephony.IPhoneStateListener/10
+02-27 20:56:47.268  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:47.278  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:47.316 26780 23512 D CustomLogManagerService: WorkHandler msg.what :5
+02-27 20:56:47.319 26780 23512 D CustomLogManagerService: user experience toggle off
+02-27 20:56:47.434 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:47.537 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:47.538  2026  3795 I Osense-PsiDetector: 1616,428,1982,7679,75,389,214,1293,1551,465,712,0,8,8200
+02-27 20:56:47.783  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:48.271  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:48.274  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:48.274  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:48.274  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:48.416  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:48.416  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:48.469 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:48.573  2026  3795 I Osense-PsiDetector: 1618,430,1980,7679,75,389,214,1291,1551,465,712,0,8,8200
+02-27 20:56:48.573 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:48.633  7270 19649 E MIDASApplication: MIDASPullAtomManager: onPullAtom 150122
+02-27 20:56:48.683  2026  4109 W Settings: Setting notification_bubbles has moved from android.provider.Settings.Global to android.provider.Settings.Secure, returning read-only value.
+02-27 20:56:48.683  2026  4109 W Settings: Setting apply_ramping_ringer has moved from android.provider.Settings.Global to android.provider.Settings.System, returning read-only value.
+02-27 20:56:48.690  2026  4109 W SettingsStatsUtil: Can not parse value to float: +network
+02-27 20:56:48.785  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:49.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:49.295  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:49.506 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:49.608  2026  3795 I Osense-PsiDetector: 1618,430,1978,7679,75,389,214,1290,1551,465,712,0,8,8200
+02-27 20:56:49.610 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:49.789  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:50.021  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,364,3697,3697,-49,500,2200,11,12,1,4,-1,4927,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,365,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:50.022  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-50
+02-27 20:56:50.023  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:50.172  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:50.184  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:50.190  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:50.320  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:50.439  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:50.442  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:50.505  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:50.505  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:50.505  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:50.545 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:50.650  2026  3795 I Osense-PsiDetector: 1619,431,1976,7679,75,389,214,1289,1551,465,712,0,8,8200
+02-27 20:56:50.651 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:50.792  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:51.005  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:51.005  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:51.005  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:51.005  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:51.005  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:51.343  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:51.581 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:51.686  2026  3795 I Osense-PsiDetector: 1620,432,1974,7679,75,389,214,1287,1550,465,712,0,8,8201
+02-27 20:56:51.687 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:51.783  7270 29953 D ShellSubscriberWorkerThread: the first 8 bytes empty, and RestData length > 8 
+02-27 20:56:51.795  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:52.170   646   646 E lowmemorykiller: device memory 415387 free 110635 file 302165
+02-27 20:56:52.368  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:52.429  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:52.444  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:52.617 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:52.717  2026  3795 I Osense-PsiDetector: 1623,432,1973,7679,75,389,214,1286,1553,466,713,0,8,8201
+02-27 20:56:52.718 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:52.797  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:53.207  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:53.231  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:53.232  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:53.274  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:53.274  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:53.274  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:53.391  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:53.651 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:53.754  2026  3795 I Osense-PsiDetector: 1624,434,1970,7679,75,389,214,1284,1552,466,713,0,8,8201
+02-27 20:56:53.755 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:53.800  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:54.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:54.416  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:54.689 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:54.789  2026  3795 I Osense-PsiDetector: 1626,435,1968,7679,75,389,214,1282,1552,466,713,0,8,8201
+02-27 20:56:54.790 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:54.803  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:55.023  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,363,3697,3697,-71,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:56:55.024  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-56-55
+02-27 20:56:55.024  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:56:55.198  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:55.210  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:56:55.421  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:56:55.422  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:56:55.439  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:55.505  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:56:55.505  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:56:55.505  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:56:55.726 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:55.806  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:55.829  2026  3795 I Osense-PsiDetector: 1627,437,1967,7679,75,389,214,1281,1552,466,713,0,8,8200
+02-27 20:56:55.829 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:55.933  2026  3795 I Osense-PsiDetector: 1627,437,1966,7679,75,389,214,1280,1552,466,713,0,8,8200
+02-27 20:56:55.935  2026  3784 I Osense-BaseDecisionMaker: notifySceneToAthenaPolicy: SCENE_RES_MEM_PSI_NORMAL, bundle: Bundle[{memLevel=3}]
+02-27 20:56:56.029  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:56:56.029  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:56:56.029  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:56:56.029  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:56:56.029  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:56:56.239  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:56.260  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:56.261  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:56.312  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:56:56.313  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:56:56.463  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:56.769 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:56.809  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:56.871   646   646 E lowmemorykiller: device memory 417400 free 112247 file 302566
+02-27 20:56:56.873  2026  3795 I Osense-PsiDetector: 1629,437,1965,7679,75,389,214,1280,1554,467,714,0,8,8200
+02-27 20:56:56.875 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:56.912  9645  9645 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.onboardingconsent.api.ConsentManagerApiService.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService mCallingUid=10116 }
+02-27 20:56:56.912  9645  9645 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.onboardingconsent.api.ConsentManagerApiService.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService mCallingUid=10116 }
+02-27 20:56:56.913   646   646 E lowmemorykiller: device memory 417498 free 111205 file 303706
+02-27 20:56:56.917  1318 24659 E TetherController: property_get sys.radio.data.modem_share_flag return 0, 1!
+02-27 20:56:56.924  9645 13187 W ConsentManagerApiServic: Consent Manager API is not enabled. [CONTEXT service_id=460 ]
+02-27 20:56:56.954  2026  4109 I LocationManagerService: incoming location from: network
+02-27 20:56:56.955  2026  4109 I LocationManagerService: incoming location from: network
+02-27 20:56:57.013   646   646 E lowmemorykiller: device memory 417231 free 107746 file 306898
+02-27 20:56:57.217   646   646 E lowmemorykiller: device memory 417469 free 107754 file 307128
+02-27 20:56:57.488  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:57.810 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:57.812  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:57.894 20407 20407 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService mCallingUid=10116 }
+02-27 20:56:57.911   646   646 E lowmemorykiller: device memory 417436 free 107683 file 307166
+02-27 20:56:57.912  2026  3795 I Osense-PsiDetector: 1630,420,1964,7679,75,389,214,1280,1572,471,728,0,8,8204
+02-27 20:56:57.912 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:58.013   646   646 E lowmemorykiller: device memory 417392 free 107620 file 307185
+02-27 20:56:58.275  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:56:58.275  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:56:58.275  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:56:58.512  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:58.814  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:58.847 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:58.949  2026  3795 I Osense-PsiDetector: 1630,420,1963,7679,75,389,214,1280,1572,471,728,0,8,8204
+02-27 20:56:58.949 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:59.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:56:59.265  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:56:59.280  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:56:59.291  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:56:59.358  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:56:59.365  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:56:59.535  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:56:59.795  3736  8308 I PluginSeedling--Origin: OSenseManager-->isMEMHighPressure oldState:false newState: false isMEMHighPressure:false
+02-27 20:56:59.816  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:56:59.843   646   646 E lowmemorykiller: device memory 417509 free 107695 file 307227
+02-27 20:56:59.885 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:56:59.989  2026  3795 I Osense-PsiDetector: 1630,420,1960,7679,75,389,214,1277,1572,471,728,0,8,8204
+02-27 20:56:59.989 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:00.001  2026  3361 V AlarmManager: sending alarm Alarm{15f8a96 type 3 origWhen 1204228323 whenElapsed 1204228323 android} uid 1000 whenElapsed 1204228323 windowLength 0 maxWhenElapsed 1204228323 repeatInterval 0 action null component null tag TIME_TICK flags 0x9 procName system_server
+02-27 20:57:00.003  3736  3736 I SystemUi--SystemUi--: Clock-->smallTime: 20:57
+02-27 20:57:00.005  3736  3736 I SystemUi--SystemUi--: Clock-->smallTime: 20:57
+02-27 20:57:00.008  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.TIME_TICK
+02-27 20:57:00.025  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,375,364,3697,3697,-70,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:57:00.025  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-57-00
+02-27 20:57:00.027  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:57:00.028  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.TIME_TICK , listeners = [com.android.server.display.ambience.events.event.TimeEvent$TimeChangeReceiver@6fe82a1]
+02-27 20:57:00.030  7792  8952 D PhoneScreenOnTime: affairType:231
+02-27 20:57:00.041  7792  8952 D PhoneUsageTime: affairType:231
+02-27 20:57:00.506  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:57:00.506  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:57:00.506  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:57:00.559  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:00.818  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:00.929 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:01.033  2026  3795 I Osense-PsiDetector: 1632,421,1959,7679,75,389,213,1276,1572,471,728,0,8,8204
+02-27 20:57:01.034 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:01.051  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:57:01.051  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:57:01.051  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:57:01.051  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:57:01.051  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:57:01.121  7957  6863 I PTC.DISC.AndroidMultiLanServer: Watcher sysNif=[wlan0], userNif=[wlan0 state=(LISTEN JOIN(05A86A|11648)), ], clientNif=[wlan0 state=(LISTEN), ], tcpServer state=LISTEN, ipv4=**68.1.3
+02-27 20:57:01.584  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:01.782  7270 29953 D ShellSubscriberWorkerThread: the first 8 bytes empty, and RestData length > 8 
+02-27 20:57:01.821  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:01.892  3978 25348 D IpClient/wlan0: interfaceLinkStateChanged: ifindex 27 up
+02-27 20:57:01.930  9645  9645 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.onboardingconsent.api.ConsentManagerApiService.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService mCallingUid=10116 }
+02-27 20:57:01.943  1318 24659 E TetherController: property_get sys.radio.data.modem_share_flag return 0, 1!
+02-27 20:57:01.970 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:02.074  2026  3795 I Osense-PsiDetector: 1635,424,1957,7679,75,389,213,1273,1572,471,728,0,8,8203
+02-27 20:57:02.075 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:02.189 14612 15418 I Supabase-Realtime: Heartbeat received
+02-27 20:57:02.293  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:02.313  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:02.317  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:02.428  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:57:02.428  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:57:02.454  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:57:02.456  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:57:02.609  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:57:02.825  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:03.005 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:03.109  2026  3795 I Osense-PsiDetector: 1635,424,1956,7679,75,389,213,1272,1572,471,728,0,8,8203
+02-27 20:57:03.111 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:03.276  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:57:03.276  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:57:03.276  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:57:03.631  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:03.828  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:03.925  2026  4109 D CompatChangeReporter: Compat change id reported: 311208629; UID 10116; state: ENABLED
+02-27 20:57:04.046 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:04.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:57:04.150  2026  3795 I Osense-PsiDetector: 1636,425,1956,7679,75,389,213,1272,1572,471,728,0,8,8202
+02-27 20:57:04.151 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:04.480  4248  4248 D SubsysEventListenerManager-SubsysTelephonyCallback[1]: onSignalStrengthsChanged
+02-27 20:57:04.493  3736  3959 I SystemUi--Statusbar: MobileConnectionRepositoryImpl-->subId:3 isSoftSimCard:false slotId:1
+02-27 20:57:04.555   646   646 E lowmemorykiller: device memory 418973 free 108738 file 307545
+02-27 20:57:04.655  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:04.831  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:05.028  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,374,363,3697,3697,-57,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:57:05.028  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-57-05
+02-27 20:57:05.029  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:57:05.086 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:05.189  2026  3795 I Osense-PsiDetector: 1636,424,1955,7679,75,389,213,1272,1573,471,729,0,8,8202
+02-27 20:57:05.190 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:05.198  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:57:05.211  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:57:05.323  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:05.343  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:05.348  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:05.507  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:57:05.507  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:57:05.507  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:57:05.680  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:05.834  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:06.072  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:57:06.072  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:57:06.072  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:57:06.072  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:57:06.072  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:57:06.121 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:06.221  2026  3795 I Osense-PsiDetector: 1638,426,1954,7679,75,389,213,1271,1573,471,729,0,8,8202
+02-27 20:57:06.221 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:06.703  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:06.837  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:06.924  9934 18623 I OplusFeedbackInfo: 0xb4000078a2baaa00 c2.qti.vp9.decoder codec[0xb400007ab3678000] 720x1280 inputFps=0 outputFps=0 renderFps=0, discardFps=0
+02-27 20:57:07.158 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:07.261 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:07.261  2026  3795 I Osense-PsiDetector: 1638,426,1954,7679,75,389,213,1271,1573,471,729,0,8,8200
+02-27 20:57:07.727  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:07.840  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:08.197 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:08.277  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:57:08.277  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:57:08.277  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:57:08.303 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:08.302  2026  3795 I Osense-PsiDetector: 1639,427,1953,7679,75,389,213,1270,1573,471,729,0,8,8199
+02-27 20:57:08.350  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:57:08.353  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:57:08.363  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:08.381  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:08.391  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:08.756  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:08.843  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:09.126  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:57:09.233 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:09.337  2026  3795 I Osense-PsiDetector: 1640,428,1953,7679,75,389,213,1269,1573,471,729,0,8,8199
+02-27 20:57:09.337 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:09.436  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:57:09.436  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:57:09.775  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:09.846  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:10.030  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,374,363,3697,3697,-56,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:57:10.031  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-57-10
+02-27 20:57:10.031  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:57:10.265 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:10.369  2026  3795 I Osense-PsiDetector: 1640,428,1952,7679,75,389,213,1269,1573,471,729,0,8,8199
+02-27 20:57:10.369 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:10.508  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:57:10.508  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:57:10.508  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:57:10.800  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:10.849  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:11.097  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:57:11.097  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:57:11.097  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:57:11.097  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:57:11.097  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:57:11.306 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:11.389  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:11.406  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:11.409  2026  3795 I Osense-PsiDetector: 1640,428,1952,7679,75,389,213,1269,1573,471,729,0,8,8197
+02-27 20:57:11.409 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:11.414  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:11.767  7270 29953 D ShellSubscriberWorkerThread: the first 8 bytes empty, and RestData length > 8 
+02-27 20:57:11.824  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:11.851  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:12.350 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:12.448  2026  3795 I Osense-PsiDetector: 1641,429,1951,7679,75,389,213,1268,1573,471,729,0,8,8197
+02-27 20:57:12.449 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:12.848  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:12.853  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:12.918 20407 20407 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService mCallingUid=10116 }
+02-27 20:57:13.278  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:57:13.278  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:57:13.278  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:57:13.385 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:13.489 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:13.489  2026  3795 I Osense-PsiDetector: 1641,429,1951,7679,75,389,213,1268,1573,471,729,0,8,8197
+02-27 20:57:13.855  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:13.872  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:14.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:57:14.418  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:14.422 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:14.440  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:14.445  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:14.493  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:57:14.495  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:57:14.524  2026  3795 I Osense-PsiDetector: 1641,430,1950,7679,75,389,213,1268,1573,471,729,0,8,8197
+02-27 20:57:14.525 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:14.858  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:14.895  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:15.032  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,374,363,3697,3697,-70,500,2200,11,12,1,4,-1,4931,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:57:15.033  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-57-15
+02-27 20:57:15.033  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:57:15.199  7647 31827 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:57:15.212  7647 31760 D gaia-GaiaConnectChecker: start connect check++
+02-27 20:57:15.462 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:15.509  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:57:15.509  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:57:15.509  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
+02-27 20:57:15.564  2026  3795 I Osense-PsiDetector: 1641,429,1950,7679,75,389,213,1268,1573,471,729,0,8,8197
+02-27 20:57:15.565 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:15.860  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:15.920  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:15.932  9934  8347 I OplusFeedbackInfo: 0xb4000078a9acaf00 c2.qti.vp9.decoder codec[0xb40000786d867000] 640x360 inputFps=0 outputFps=0 renderFps=0, discardFps=0
+02-27 20:57:16.116  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:57:16.116  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:57:16.116  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:57:16.116  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:57:16.116  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:57:16.445  4130  4583 D CommonApp-271-10497: DefaultState EVENT_SCENARIOS_CHANGE
+02-27 20:57:16.445  4130  4583 D CommonApp-271-10497: scene=COMMON pn=com.esiri.esiriplus
+02-27 20:57:16.497 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:16.601  2026  3795 I Osense-PsiDetector: 1641,429,1949,7679,75,389,213,1267,1573,471,729,0,8,8197
+02-27 20:57:16.602 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:16.863  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:16.944  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:57:17.076  3736  3736 D OplusPrivacyDotViewController: scheduleUpdate: 
+02-27 20:57:17.077  3736  4019 D OplusPrivacyDotViewController: processNextViewState: 
+02-27 20:57:17.077  3736  4019 D OplusPrivacyDotViewController: resolveState ViewState(systemPrivacyEventIsActive=false, shadeExpanded=false, needShow=true, rtl=false, rotation=0, height=12, x=42, y=56, cornerIndex=1, designatedCorner=android.widget.FrameLayout{e2d8ba8 G.E...... ......I. 0,0-12,12 #7f0a05b9 app:id/icons_container alpha=0.0 viewInfo = }, contentDescription=null, chipAnimationStart=false, preDraw=false) shouldShowDot false
+02-27 20:57:17.077  3736  4019 W SystemUi--Common: OplusSysUiSchedMgr-->schedForPrivacyIconShowing not showing, no need release
+02-27 20:57:17.135  1605  1605 I OplusPerfCount: The num of client composition of  in last 75360 ms is: 152
+02-27 20:57:17.136  1605  1605 I OplusPerfCount: The num of blur fliter in last 75360 ms is: 203
+02-27 20:57:17.137  1605  1605 I OplusPerfCount: The layer number in last 75360ms is: 6 layer, 52 time, 7 layer, 3 time, 8 layer, 207 time, 9 layer, 1 time, 10 layer, 48 time, 
+02-27 20:57:17.199 14612 15408 I Supabase-Realtime: Heartbeat received
+02-27 20:57:17.449  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:17.470  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:17.473  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:17.537 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:17.636  2026  3795 I Osense-PsiDetector: 1642,430,1948,7679,75,389,213,1267,1573,471,729,0,8,8197
+02-27 20:57:17.637 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:17.865  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:17.969  4130  4583 D CommonApp-271-10497: commonScoreStrategy scenarios low package
+02-27 20:57:18.016   646   646 E lowmemorykiller: device memory 420446 free 110107 file 307645
+02-27 20:57:18.279  1510 18624 I QC2Comp : [vp9D_3677] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.000/s)| Stream: 25.00fps 328.6Kbps
+02-27 20:57:18.279  1510 18624 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3534 - 23 bufs 51.750 MB]
+02-27 20:57:18.279  1510 18624 I QC2Comp : Total Mem-usage: 66.926 MB
+02-27 20:57:18.573 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:18.633  7270 19649 E MIDASApplication: MIDASPullAtomManager: onPullAtom 150122
+02-27 20:57:18.639  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:57:18.641  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:57:18.671  2026  7705 W Settings: Setting notification_bubbles has moved from android.provider.Settings.Global to android.provider.Settings.Secure, returning read-only value.
+02-27 20:57:18.671  2026  7705 W Settings: Setting apply_ramping_ringer has moved from android.provider.Settings.Global to android.provider.Settings.System, returning read-only value.
+02-27 20:57:18.675  2026  3795 I Osense-PsiDetector: 1643,430,1948,7679,75,389,213,1266,1573,471,729,0,8,8196
+02-27 20:57:18.676 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:18.679  2026  7705 W SettingsStatsUtil: Can not parse value to float: +network
+02-27 20:57:18.757  2026 10204 D UsageStatsService: User[0] type=0 b=1772214720579 e=1772215038756 cb=1772189493018 ce=1772214903252 disk=0 all=1
+02-27 20:57:18.868  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:18.991  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:19.125  1535  4282 E PerformanceService: storage_feature: open /sys/devices/platform/soc/112b0000.ufshci//virtualtlcbuff fail
+02-27 20:57:19.613 14128 14497 I metis_v2_OsenseCallBack: memLevel: 1 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:19.717  2026  3795 I Osense-PsiDetector: 1643,431,1948,7679,75,389,213,1266,1573,471,729,0,8,8196
+02-27 20:57:19.718 14128 14497 I metis_v2_OsenseCallBack: memLevel: 2 [Metis|com.oplus.metis|1.4.54-aa2067f]
+02-27 20:57:19.871  1540  1753 D BatteryChargeControl: bcc get no support from charging protocol
+02-27 20:57:19.930  2026  3584 D OplusNetKit: in getLpByInterface name from LP: [wlan0]
+02-27 20:57:19.968  2026  3584 D OplusNetRttKit: getIcmpEchoRtt addr:192.168.1.*** avgRtt: 9
+02-27 20:57:20.015  4130  4583 D CommonApp-271-10497: transport layer data is invalid
+02-27 20:57:20.034  1540  1717 D vendor.oplus.hardware.charger-V6-service: ret_value:127, read content:,374,363,3697,3697,-32,500,2200,11,12,1,4,-1,4927,11,1,0,1,1,0,0,4425,0,2,0,2,0,0,0,366,0,1,1,0,0,61,61,61,0,0,0,0,0,0,0,0,0,0
+02-27 20:57:20.035  1540  1717 D vendor.oplus.hardware.charger-V6-service: gmtime: 2026-02-27-20-57-20
+02-27 20:57:20.036  1540  1717 D vendor.oplus.hardware.charger-V6-service: usb_online:1, ac_online:0, wireless_online:-2147483648
+02-27 20:57:20.378  1540  1540 D vendor.oplus.hardware.charger-V6-service: get_ui_charge_icon_type 0 0 0 0 0
+02-27 20:57:20.380  1540  1540 D vendor.oplus.hardware.charger-V6-service: oplus_chg_get_cpa_power 2500 charge_online 1 retention_topic 0
+02-27 20:57:20.395  3736  3736 I SystemUi--Statusbar: BatteryControllerExt-->updateBatteryChangeIntent():broadcast=android.intent.action.BATTERY_CHANGED,level=12,scale=100
+02-27 20:57:20.395  3736  3736 I SystemUi--Statusbar: BatteryRepository-->level: 12 -- isSavingMode: false
+02-27 20:57:20.401  2026  2844 D OplusDisplayBrightnessBroadcastReceiver: onReceive action = android.intent.action.BATTERY_CHANGED , listeners = [com.android.server.display.OplusFeatureHDREnhanceBrightness$PhoneInfoReceiver@d078a20, com.android.server.display.OplusFeatureEdrEnhanceBrightness$PhoneInfoReceiver@d0bbfd9]
+02-27 20:57:20.402  4248  4248 D SubsysBroadcastManager: onReceive action:android.intent.action.BATTERY_CHANGED
+02-27 20:57:20.406 26084 26084 D DeviceStatisticsService: onReceive: action= android.intent.action.BATTERY_CHANGED
+02-27 20:57:20.415 26780 26780 D CustomLogManagerService: onReceive android.intent.action.BATTERY_CHANGED
+02-27 20:57:20.417  7792  9430 E Battery : ChargeProtectionUtils: mCanlendarTmp.isEmpty()!
+02-27 20:57:20.432  1540  1540 D vendor.oplus.hardware.charger-V6-service: getChargerControl:sub_current=100
+02-27 20:57:20.432  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_voltage=3800
+02-27 20:57:20.432  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_soc=-1
+02-27 20:57:20.432  1540  1540 D vendor.oplus.hardware.charger-V6-service: sub_temperature=250
+02-27 20:57:20.432  1540  1540 D vendor.oplus.hardware.charger-V6-service: main_soc=11
+02-27 20:57:20.480  2026  3448 D WifiStaIfaceHidlImpl: getCachedScanData is not implemented by HIDL
+02-27 20:57:20.503  4248  4248 D VendorWifiService: onEvent event:9,action:1
+02-27 20:57:20.505  2026  3554 D OplusWifiPower_TriggerCenter: mComponentCallback: wifistat
+02-27 20:57:20.510  1510  8349 I QC2Comp : [vp9D_3966] Stats: Pending(3) i/p-done(0) Works: Q: 26/Done 25|Work-Rate: Q(0.0/s Avg=0.0/s) Done(0.000/s Avg=0.001/s)| Stream: 30.30fps 174.6Kbps
+02-27 20:57:20.510  1510  8349 I QC2Comp : Mem-usage:  [In-1D - 5 bufs 14.941 MB] [1D-0 - 15 bufs 0.234 MB] [2D-3823 - 23 bufs 17.250 MB]
+02-27 20:57:20.510  1510  8349 I QC2Comp : Total Mem-usage: 32.426 MB
