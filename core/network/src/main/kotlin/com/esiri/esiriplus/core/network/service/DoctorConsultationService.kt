@@ -30,6 +30,10 @@ data class ConsultationRow(
     @SerialName("created_at") val createdAt: String,
     @SerialName("updated_at") val updatedAt: String,
     @SerialName("parent_consultation_id") val parentConsultationId: String? = null,
+    @SerialName("follow_up_count") val followUpCount: Int = 0,
+    @SerialName("follow_up_max") val followUpMax: Int = 1,
+    @SerialName("follow_up_expiry") val followUpExpiry: String? = null,
+    @SerialName("is_reopened") val isReopened: Boolean = false,
 )
 
 @Singleton

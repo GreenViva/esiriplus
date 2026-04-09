@@ -86,23 +86,22 @@ class EdgeFunctionClient @Inject constructor(
                     }
                 }
                 else -> {
-                    val token =
-                        tokenManager.getAccessTokenSync() ?: BuildConfig.SUPABASE_ANON_KEY
-                    // Always bypass the Supabase gateway JWT check by sending the
-                    // anon key in Authorization. The edge function's validateAuth()
-                    // reads the actual JWT from a custom header for function-level auth.
-                    // This avoids the gateway rejecting doctor Supabase JWTs as
-                    // "Invalid JWT".
+                    val token = tokenManager.getAccessTokenSync()
                     requestBuilder.header(
                         "Authorization",
                         "Bearer ${BuildConfig.SUPABASE_ANON_KEY}",
                     )
                     requestBuilder.header(HEADER_SKIP_AUTH, "true")
-                    if (JwtUtils.isPatientToken(token)) {
-                        requestBuilder.header(HEADER_PATIENT_TOKEN, token)
-                    } else {
-                        requestBuilder.header(HEADER_DOCTOR_TOKEN, token)
+                    if (token != null) {
+                        if (JwtUtils.isPatientToken(token)) {
+                            requestBuilder.header(HEADER_PATIENT_TOKEN, token)
+                        } else {
+                            requestBuilder.header(HEADER_DOCTOR_TOKEN, token)
+                        }
                     }
+                    // If token is null, no X-Patient-Token or X-Doctor-Token is set.
+                    // The edge function will get 401, but the authenticator won't
+                    // trigger invalidation because isSkipAuth && !isRealDoctorToken.
                 }
             }
 

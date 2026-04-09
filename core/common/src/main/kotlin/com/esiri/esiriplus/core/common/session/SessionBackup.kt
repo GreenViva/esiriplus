@@ -74,7 +74,16 @@ class SessionBackup @Inject constructor(
                 if (accessToken != null) putString(KEY_ACCESS_TOKEN_B64, encode(accessToken))
                 if (expiresAtMillis > 0) putLong(KEY_EXPIRES_AT, expiresAtMillis)
             }
-            .apply()
+            .commit()
+    }
+
+    /** Update only the tokens without touching user info. Called by TokenManager on every save. */
+    fun saveTokensOnly(accessToken: String, refreshToken: String, expiresAtMillis: Long) {
+        prefs.edit()
+            .putString(KEY_ACCESS_TOKEN_B64, encode(accessToken))
+            .putString(KEY_REFRESH_TOKEN_B64, encode(refreshToken))
+            .putLong(KEY_EXPIRES_AT, expiresAtMillis)
+            .commit()
     }
 
     fun clear() {

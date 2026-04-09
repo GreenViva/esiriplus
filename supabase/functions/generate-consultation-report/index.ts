@@ -80,7 +80,7 @@ Deno.serve(async (req: Request) => {
     // Fetch consultation details (must belong to this doctor)
     const { data: consultation, error: consultErr } = await supabase
       .from("consultations")
-      .select("consultation_id, service_type, chief_complaint, status, session_start_time, session_end_time, patient_session_id")
+      .select("consultation_id, service_type, chief_complaint, status, session_start_time, session_end_time, patient_session_id, follow_up_count")
       .eq("consultation_id", consultation_id)
       .eq("doctor_id", auth.userId)
       .single();
@@ -97,18 +97,29 @@ Deno.serve(async (req: Request) => {
       .eq("doctor_id", auth.userId)
       .single();
 
-    // Check if report already exists
-    const { data: existingReport, error: existingErr } = await supabase
+    // Check if report already exists — for reopened consultations (follow-ups),
+    // delete the old report so a fresh one can be generated for this session.
+    const { data: existingReport } = await supabase
       .from("consultation_reports")
       .select("report_id")
       .eq("consultation_id", consultation_id)
       .maybeSingle();
 
     if (existingReport) {
-      return successResponse({
-        message: "Report already exists",
-        report_id: existingReport.report_id,
-      }, 200, origin);
+      // Check if consultation was reopened (follow_up_count > 0)
+      if (consultation.follow_up_count > 0) {
+        // Delete old report so the new one replaces it
+        await supabase
+          .from("consultation_reports")
+          .delete()
+          .eq("report_id", existingReport.report_id);
+        console.log(`[generate-report] Deleted old report ${existingReport.report_id} for reopened consultation ${consultation_id}`);
+      } else {
+        return successResponse({
+          message: "Report already exists",
+          report_id: existingReport.report_id,
+        }, 200, origin);
+      }
     }
 
     // Fetch chat messages for context

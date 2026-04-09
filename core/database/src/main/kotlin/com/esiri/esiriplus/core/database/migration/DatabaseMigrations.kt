@@ -871,6 +871,15 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_31_32 = object : Migration(31, 32) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `followUpCount` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `followUpMax` INTEGER NOT NULL DEFAULT 1")
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `isReopened` INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE `consultations` ADD COLUMN `lastReopenedAt` INTEGER DEFAULT NULL")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -902,5 +911,6 @@ object DatabaseMigrations {
         MIGRATION_28_29,
         MIGRATION_29_30,
         MIGRATION_30_31,
+        MIGRATION_31_32,
     )
 }

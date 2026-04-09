@@ -88,7 +88,17 @@ class AuthRepositoryImpl @Inject constructor(
                 flowOf(null)
             } else {
                 userDao.getUserById(sessionEntity.userId).map { userEntity ->
-                    userEntity?.let { sessionEntity.toDomain(it.toDomain()) }
+                    userEntity?.let {
+                        val session = sessionEntity.toDomain(it.toDomain())
+                        // Ensure TokenManager has the token — EncryptedSharedPreferences
+                        // on Samsung loses data, so restore from Room if needed.
+                        tokenManager.restoreFromSession(
+                            session.accessToken,
+                            session.refreshToken,
+                            session.expiresAt.toEpochMilli(),
+                        )
+                        session
+                    }
                 }
             }
         }.flowOn(ioDispatcher)

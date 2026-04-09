@@ -36,6 +36,11 @@ data class ConsultationEntity(
     val followUpExpiry: Long? = null,
     @ColumnInfo(defaultValue = "0") val isPremium: Boolean = false,
     val parentConsultationId: String? = null,
+    // ── Follow-up reopen model (DB v32) ──────────────────────────────────────
+    @ColumnInfo(defaultValue = "0") val followUpCount: Int = 0,
+    @ColumnInfo(defaultValue = "1") val followUpMax: Int = 1,
+    @ColumnInfo(defaultValue = "0") val isReopened: Boolean = false,
+    val lastReopenedAt: Long? = null,
 ) {
     companion object {
         const val DEFAULT_SESSION_DURATION = 15

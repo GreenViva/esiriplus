@@ -114,14 +114,16 @@ interface ConsultationDao {
 
     /**
      * Ongoing consultations for the patient dashboard:
-     * - Any consultation that is currently active/in-progress, OR
-     * - Completed consultations still within the follow-up window (Royal: unlimited, Economy: 1).
+     * - Active/in-progress, OR
+     * - Completed within follow-up window with remaining follow-ups
+     *   (followUpMax=-1 = unlimited, followUpCount < followUpMax = has remaining)
      */
     @Query(
         "SELECT * FROM consultations " +
             "WHERE patientSessionId = :patientSessionId " +
             "AND (LOWER(status) IN ('active', 'in_progress', 'awaiting_extension', 'grace_period') " +
-            "OR (LOWER(status) = 'completed' AND followUpExpiry > :currentTimeMillis)) " +
+            "OR (LOWER(status) = 'completed' AND followUpExpiry > :currentTimeMillis " +
+            "AND (followUpMax = -1 OR followUpCount < followUpMax))) " +
             "ORDER BY updatedAt DESC",
     )
     fun getOngoingConsultationsForPatient(
@@ -131,14 +133,15 @@ interface ConsultationDao {
 
     /**
      * Ongoing consultations for the doctor dashboard:
-     * - Any consultation that is currently active/in-progress, OR
-     * - Completed consultations still within the follow-up window.
+     * - Active/in-progress, OR
+     * - Completed within follow-up window with remaining follow-ups
      */
     @Query(
         "SELECT * FROM consultations " +
             "WHERE doctorId = :doctorId " +
             "AND (LOWER(status) IN ('active', 'in_progress', 'awaiting_extension', 'grace_period') " +
-            "OR (LOWER(status) = 'completed' AND followUpExpiry > :currentTimeMillis)) " +
+            "OR (LOWER(status) = 'completed' AND followUpExpiry > :currentTimeMillis " +
+            "AND (followUpMax = -1 OR followUpCount < followUpMax))) " +
             "ORDER BY updatedAt DESC",
     )
     fun getOngoingConsultationsForDoctor(

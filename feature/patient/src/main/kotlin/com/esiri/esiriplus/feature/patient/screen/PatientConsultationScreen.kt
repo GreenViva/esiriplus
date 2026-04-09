@@ -101,17 +101,20 @@ fun PatientConsultationScreen(
 
     val isFollowUpMode = uiState.isFollowUpMode
 
-    // Block back navigation during active consultation (not in follow-up mode)
-    val isActive = sessionState.phase != ConsultationPhase.COMPLETED
-    BackHandler(enabled = isActive && !isFollowUpMode) {
+    // Block back navigation during active consultation.
+    // Allow back when completed (patient can navigate to dashboard).
+    val isCompleted = sessionState.phase == ConsultationPhase.COMPLETED
+    BackHandler(enabled = !isCompleted && !isFollowUpMode) {
         // Swallow back press — patient must wait for doctor to end consultation
     }
 
-    // Handle consultation phase transitions (skip when in follow-up mode)
+    // Handle consultation phase transitions
     LaunchedEffect(sessionState.phase) {
-        if (isFollowUpMode) return@LaunchedEffect
         when (sessionState.phase) {
-            ConsultationPhase.COMPLETED -> { showRatingSheet = true }
+            ConsultationPhase.COMPLETED -> {
+                // Try to show rating, but back button is also enabled as escape
+                showRatingSheet = true
+            }
             ConsultationPhase.GRACE_PERIOD -> {
                 if (sessionState.consultationId.isNotBlank()) {
                     onNavigateToExtensionPayment(
@@ -183,7 +186,7 @@ fun PatientConsultationScreen(
         onSendMessage = viewModel::sendMessage,
         onTypingChanged = viewModel::onTypingChanged,
         onBack = {
-            if (!isActive) onBack()
+            if (isCompleted) onBack()
         },
         modifier = modifier,
         error = uiState.error,

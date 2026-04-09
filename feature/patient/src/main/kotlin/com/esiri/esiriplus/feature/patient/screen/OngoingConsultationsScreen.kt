@@ -185,7 +185,8 @@ fun OngoingConsultationsScreen(
                             val now = System.currentTimeMillis()
                             val isFollowUpEligible =
                                 consultation.status.lowercase() == "completed" &&
-                                (consultation.followUpExpiry ?: 0L) > now
+                                (consultation.followUpExpiry ?: 0L) > now &&
+                                (consultation.followUpMax == -1 || consultation.followUpCount < consultation.followUpMax)
 
                             OngoingConsultationCard(
                                 consultation = consultation,
@@ -326,7 +327,7 @@ private fun OngoingConsultationCard(
                     Spacer(Modifier.height(2.dp))
                     // Status
                     Text(
-                        text = statusLabel(consultation.status, isFollowUp, isRoyal),
+                        text = statusLabel(consultation.status, isFollowUp, isRoyal, consultation.followUpCount, consultation.followUpMax),
                         color = when {
                             isFollowUp && isRoyal -> RoyalPurple
                             isFollowUp -> Color(0xFF0D6EFD)
@@ -369,9 +370,20 @@ private fun OngoingConsultationCard(
     }
 }
 
-private fun statusLabel(status: String, isFollowUp: Boolean, isRoyal: Boolean = false): String {
+private fun statusLabel(
+    status: String,
+    isFollowUp: Boolean,
+    isRoyal: Boolean = false,
+    followUpCount: Int = 0,
+    followUpMax: Int = 1,
+): String {
     if (isFollowUp && isRoyal) return "Follow-up window open (unlimited)"
-    if (isFollowUp) return "Follow-up window open (1 free)"
+    if (isFollowUp && followUpMax > 0) {
+        val remaining = followUpMax - followUpCount
+        return if (remaining > 0) "Follow-up available ($remaining remaining)"
+        else "Follow-up used"
+    }
+    if (isFollowUp) return "Follow-up window open"
     return when (status.lowercase()) {
         "active" -> "In consultation"
         "in_progress" -> "In consultation"

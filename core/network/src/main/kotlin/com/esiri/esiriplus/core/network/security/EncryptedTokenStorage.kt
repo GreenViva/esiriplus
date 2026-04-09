@@ -53,7 +53,7 @@ class EncryptedTokenStorage @Inject constructor(
             .putString(KEY_ACCESS_TOKEN, accessToken)
             .putString(KEY_REFRESH_TOKEN, refreshToken)
             .putLong(KEY_EXPIRES_AT, expiresAtMillis)
-            .apply()
+            .commit() // Synchronous — EncryptedSharedPreferences.apply() loses data on Samsung
     }
 
     fun clearTokens() {

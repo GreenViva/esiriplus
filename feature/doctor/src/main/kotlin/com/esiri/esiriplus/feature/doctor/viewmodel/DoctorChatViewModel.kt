@@ -162,7 +162,7 @@ class DoctorChatViewModel @Inject constructor(
                 // Always request parent history — the server returns nothing extra
                 // if this consultation has no parent, so it's a safe no-op.
                 Log.d(TAG, "initChat: fetching remote messages")
-                fetchRemoteMessages(fullSync = true, includeParent = true)
+                fetchRemoteMessages(fullSync = true)
 
                 // Subscribe to realtime
                 Log.d(TAG, "initChat: subscribing to realtime")

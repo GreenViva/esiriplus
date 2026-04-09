@@ -39,7 +39,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.ModalBottomSheet
+// import androidx.compose.material3.ModalBottomSheet  // replaced with Surface
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -92,8 +92,6 @@ fun ConsultationReportBottomSheet(
     viewModel: DoctorReportViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     LaunchedEffect(uiState.submitSuccess) {
         if (uiState.submitSuccess) {
             delay(1500)
@@ -104,11 +102,10 @@ fun ConsultationReportBottomSheet(
     // Block back navigation until report is done
     BackHandler(enabled = !uiState.submitSuccess) { /* no-op: must complete report */ }
 
-    ModalBottomSheet(
-        onDismissRequest = { /* block dismiss by swipe/tap outside until submitted */ },
-        sheetState = sheetState,
-        containerColor = Color.White,
-        modifier = modifier,
+    // Full-screen surface — cannot be dismissed by dragging, swiping, or tapping outside.
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = Color.White,
     ) {
         // Dosage configuration dialog
         val pendingMed = uiState.pendingMedication

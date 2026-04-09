@@ -67,6 +67,7 @@ class FollowUpRequestViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val supabaseClientProvider: SupabaseClientProvider,
     private val authRepository: AuthRepository,
+    private val consultationDao: com.esiri.esiriplus.core.database.dao.ConsultationDao,
 ) : ViewModel() {
 
     private val parentConsultationId: String = checkNotNull(savedStateHandle["parentConsultationId"])
@@ -153,7 +154,14 @@ class FollowUpRequestViewModel @Inject constructor(
                 }
                 val consultationId = event.consultationId
                 if (consultationId != null) {
-                    _acceptedEvent.tryEmit(FollowUpAcceptedEvent(consultationId))
+                    // Update Room BEFORE navigating so the chat screen
+                    // sees status=ACTIVE instead of stale "completed".
+                    viewModelScope.launch {
+                        try {
+                            consultationDao.updateStatus(consultationId, "ACTIVE")
+                        } catch (_: Exception) { /* best effort */ }
+                        _acceptedEvent.tryEmit(FollowUpAcceptedEvent(consultationId))
+                    }
                 } else {
                     Log.e(TAG, "ACCEPTED but consultationId is NULL")
                 }

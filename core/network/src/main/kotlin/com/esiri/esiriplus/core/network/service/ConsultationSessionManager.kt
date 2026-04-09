@@ -289,7 +289,7 @@ class ConsultationSessionManager @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to update status to completed in Room", e)
                 }
-                persistFollowUpExpiryIfRoyal(event.consultationId)
+                persistFollowUpExpiry(event.consultationId)
             }
         }
     }
@@ -310,7 +310,7 @@ class ConsultationSessionManager @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to update status to completed in Room", e)
                 }
-                persistFollowUpExpiryIfRoyal(cid)
+                persistFollowUpExpiry(cid)
             }
         }
         return result
@@ -433,7 +433,7 @@ class ConsultationSessionManager @Inject constructor(
                 serviceType = data.serviceType,
             )
             if (data.status.lowercase() == "completed") {
-                persistFollowUpExpiryIfRoyal(consultationId)
+                persistFollowUpExpiry(consultationId)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to persist timer state to Room", e)
@@ -441,31 +441,18 @@ class ConsultationSessionManager @Inject constructor(
     }
 
     /**
-     * Stamps the 14-day follow-up expiry in Room for completed Royal consultations.
+     * Stamps the 14-day follow-up expiry in Room for completed consultations (both tiers).
      * Safe to call multiple times — no-op if expiry is already set.
-     * Uses appScope so it survives ViewModel teardown (patient navigating away on rating).
      */
-    private suspend fun persistFollowUpExpiryIfRoyal(consultationId: String) {
+    private suspend fun persistFollowUpExpiry(consultationId: String) {
         try {
             val consultation = consultationDao.getById(consultationId)
-            Log.d(TAG, "persistFollowUpExpiryIfRoyal: id=$consultationId, found=${consultation != null}, " +
-                "tier=${consultation?.serviceTier}, status=${consultation?.status}, followUpExpiry=${consultation?.followUpExpiry}")
             if (consultation == null || consultation.followUpExpiry != null) return
 
-            // Always set follow-up expiry for completed consultations.
-            // Room's serviceTier may still be "ECONOMY" (default) if the first sync
-            // hasn't run yet.  The Ongoing Consultations DAO query already filters
-            // by UPPER(serviceTier) = 'ROYAL', so economy consultations won't appear.
-            // The sync will update serviceTier shortly after, and the expiry will be
-            // ready for the DAO query to find.
-            val expiry = PricingEngine.calculateFollowUpExpiry(
-                System.currentTimeMillis(),
-                ConsultationTier.ROYAL,
-            )
-            Log.d(TAG, "persistFollowUpExpiryIfRoyal: setting expiry=$expiry for $consultationId (tier=${consultation.serviceTier})")
-            if (expiry != null) {
-                consultationDao.setFollowUpExpiry(consultationId, expiry)
-            }
+            // Both Economy and Royal get a 14-day follow-up window in the reopen model.
+            val expiry = System.currentTimeMillis() + 14L * 24 * 60 * 60 * 1000
+            Log.d(TAG, "persistFollowUpExpiry: setting 14-day expiry for $consultationId (tier=${consultation.serviceTier})")
+            consultationDao.setFollowUpExpiry(consultationId, expiry)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to persist follow-up expiry for $consultationId", e)
         }

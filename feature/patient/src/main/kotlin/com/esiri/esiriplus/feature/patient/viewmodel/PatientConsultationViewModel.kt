@@ -140,16 +140,11 @@ class PatientConsultationViewModel @Inject constructor(
             // Start session manager only for non-follow-up consultations.
             // Follow-up mode (Royal, completed, within 14-day window) has no timer — starting the
             // session manager would re-sync phase = COMPLETED and race against isFollowUpMode.
+            // Always start the session manager — it syncs with the server to
+            // determine the correct phase. This handles reopened consultations
+            // where Room's cache is stale (still shows completed/not-reopened).
             viewModelScope.launch(safeHandler) {
-                val existing = consultationDao.getById(consultationId)
-                val now = System.currentTimeMillis()
-                val isFollowUp = existing != null &&
-                    existing.serviceTier.uppercase() == "ROYAL" &&
-                    existing.status.lowercase() == "completed" &&
-                    (existing.followUpExpiry ?: 0L) > now
-                if (!isFollowUp) {
-                    consultationSessionManager.start(consultationId, viewModelScope)
-                }
+                consultationSessionManager.start(consultationId, viewModelScope)
             }
             initChat()
         }
@@ -209,6 +204,8 @@ class PatientConsultationViewModel @Inject constructor(
                 } else {
                     val doctorName = doctorProfileDao.getById(existing.doctorId)?.fullName ?: ""
                     val now = System.currentTimeMillis()
+                    // Check follow-up mode — will be corrected by session manager sync
+                    // if the consultation was actually reopened (server status = active).
                     val isFollowUp = existing.serviceTier.uppercase() == "ROYAL" &&
                         existing.status.lowercase() == "completed" &&
                         (existing.followUpExpiry ?: 0L) > now
@@ -260,7 +257,7 @@ class PatientConsultationViewModel @Inject constructor(
                 // Always request parent history — the server returns nothing extra
                 // if this consultation has no parent, so it's a safe no-op.
                 Log.d(TAG, "initChat: fetching remote messages")
-                fetchRemoteMessages(fullSync = true, includeParent = true)
+                fetchRemoteMessages(fullSync = true)
 
                 // Subscribe to realtime
                 Log.d(TAG, "initChat: subscribing to realtime")
@@ -313,10 +310,29 @@ class PatientConsultationViewModel @Inject constructor(
                 syncUnsyncedMessages()
                 Log.d(TAG, "initChat DONE — all subscriptions active")
 
-                // Start the auto-greeting sequence for new consultations (no existing messages).
-                // Skip for follow-ups — the greeting already happened in the original session.
-                if (!_uiState.value.isFollowUpMode && _uiState.value.messages.isEmpty()) {
-                    startGreetingSequence()
+                // Correct isFollowUpMode if session manager sync reveals the
+                // consultation is actually active (reopened), not passive follow-up.
+                launch {
+                    consultationSessionManager.state.collect { state ->
+                        if (state.phase == com.esiri.esiriplus.core.domain.model.ConsultationPhase.ACTIVE &&
+                            _uiState.value.isFollowUpMode
+                        ) {
+                            Log.d(TAG, "Session manager sync corrected: consultation is ACTIVE, disabling follow-up mode")
+                            _uiState.update { it.copy(isFollowUpMode = false) }
+                        }
+                    }
+                }
+
+                // Start the auto-greeting sequence:
+                // - New consultations (no messages) → always show
+                // - Reopened follow-ups (isReopened) → show again for the new session
+                // - Passive follow-up mode (Royal, completed, browsing) → skip
+                val currentConsultation = consultationDao.getById(consultationId)
+                val isReopenedSession = currentConsultation?.isReopened == true
+                if (_uiState.value.messages.isEmpty() || isReopenedSession) {
+                    if (!_uiState.value.isFollowUpMode || isReopenedSession) {
+                        startGreetingSequence()
+                    }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "initChat CRASHED", e)

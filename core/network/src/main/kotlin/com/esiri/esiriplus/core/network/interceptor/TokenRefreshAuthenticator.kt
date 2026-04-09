@@ -31,8 +31,10 @@ class TokenRefreshAuthenticator @Inject constructor(
         // patient request or anonymous — never refresh or invalidate for those.
         // The X-Patient-Token header might be absent if the token was null at send time.
         val isSkipAuth = response.request.header("X-Skip-Auth") != null
-        val hasDoctorToken = response.request.header(HEADER_DOCTOR_TOKEN) != null
-        if (isSkipAuth && !hasDoctorToken) {
+        val doctorTokenHeader = response.request.header(HEADER_DOCTOR_TOKEN)
+        val isRealDoctorToken = doctorTokenHeader != null &&
+            doctorTokenHeader != BuildConfig.SUPABASE_ANON_KEY
+        if (isSkipAuth && !isRealDoctorToken) {
             Log.d(TAG, "Non-doctor edge function request got 401 — not invalidating")
             return null
         }
@@ -50,7 +52,7 @@ class TokenRefreshAuthenticator @Inject constructor(
         synchronized(this) {
             val latestToken = tokenManager.getAccessTokenSync()
 
-            if (hasDoctorToken) {
+            if (isRealDoctorToken) {
                 // Doctor edge-function path: Authorization carries anon key (not doctor JWT).
                 // Check if the stored doctor token has already been refreshed by another thread.
                 val doctorTokenOnRequest = response.request.header(HEADER_DOCTOR_TOKEN)

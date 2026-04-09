@@ -131,79 +131,47 @@ async function handleCreate(
   const isFollowUp = body.is_follow_up === true && !!body.parent_consultation_id;
   const isSubstituteFollowUp = body.is_substitute_follow_up === true && isFollowUp;
 
-  // Validate follow-up request against parent consultation
+  // Validate follow-up request — reopen model (no child consultations)
   if (isFollowUp) {
-    const { data: parentConsultation } = await supabase
+    const { data: consultation } = await supabase
       .from("consultations")
-      .select("consultation_id, doctor_id, patient_session_id, status, service_tier, follow_up_expiry")
+      .select("consultation_id, doctor_id, patient_session_id, status, service_tier, follow_up_expiry, follow_up_count, follow_up_max, is_reopened")
       .eq("consultation_id", body.parent_consultation_id!)
       .single();
 
-    if (!parentConsultation) {
-      throw new ValidationError("Parent consultation not found");
+    if (!consultation) {
+      throw new ValidationError("Consultation not found");
     }
-    if (parentConsultation.patient_session_id !== auth.sessionId) {
+    if (consultation.patient_session_id !== auth.sessionId) {
       throw new ValidationError("Not authorized for this consultation");
     }
-    if (parentConsultation.status !== "completed") {
-      throw new ValidationError("Parent consultation is not completed");
+    if (consultation.status !== "completed") {
+      throw new ValidationError("Consultation is not completed");
     }
-    if (parentConsultation.follow_up_expiry && new Date(parentConsultation.follow_up_expiry) < new Date()) {
+    if (consultation.is_reopened) {
+      throw new ValidationError("Consultation is already reopened");
+    }
+    if (consultation.follow_up_expiry && new Date(consultation.follow_up_expiry) < new Date()) {
       throw new ValidationError("Follow-up window has expired");
     }
+    // Check follow-up limit (-1 = unlimited for Royal)
+    if (consultation.follow_up_max > 0 && consultation.follow_up_count >= consultation.follow_up_max) {
+      throw new ValidationError(
+        `Follow-up limit reached (${consultation.follow_up_count} of ${consultation.follow_up_max}).`
+      );
+    }
     // Substitute follow-ups can use a different doctor
-    if (!isSubstituteFollowUp && body.doctor_id !== parentConsultation.doctor_id) {
+    if (!isSubstituteFollowUp && body.doctor_id !== consultation.doctor_id) {
       throw new ValidationError("Follow-up must be with the same doctor");
     }
-    // For substitute, validate original_doctor_id matches parent's doctor
     if (isSubstituteFollowUp) {
-      if (!body.original_doctor_id || body.original_doctor_id !== parentConsultation.doctor_id) {
-        throw new ValidationError("original_doctor_id must match the parent consultation's doctor");
+      if (!body.original_doctor_id || body.original_doctor_id !== consultation.doctor_id) {
+        throw new ValidationError("original_doctor_id must match the consultation's doctor");
       }
     }
 
-    // Economy patients: limited to 1 follow-up per original consultation.
-    // Walk up the parent chain to find the root consultation, then count ALL
-    // follow-ups in the tree. This prevents chaining (Original → FU1 → FU2).
-    const parentTier = (parentConsultation.service_tier ?? "ECONOMY").toUpperCase();
-
-    // Force follow-up to inherit parent's tier (server-side enforcement)
-    body.service_tier = parentTier;
-
-    if (parentTier !== "ROYAL") {
-      // Find the root (original) consultation by walking up the chain
-      let rootId = body.parent_consultation_id!;
-      let depth = 0;
-      while (depth < 10) {
-        const { data: ancestor } = await supabase
-          .from("consultations")
-          .select("consultation_id, parent_consultation_id")
-          .eq("consultation_id", rootId)
-          .single();
-        if (!ancestor?.parent_consultation_id) break;
-        rootId = ancestor.parent_consultation_id;
-        depth++;
-      }
-
-      // Economy: block if the patient is already in a follow-up chain (depth > 0 means
-      // they're requesting a follow-up of a follow-up), OR if the root already has a follow-up
-      if (depth > 0) {
-        throw new ValidationError(
-          "Economy consultations are limited to 1 follow-up. Follow-ups of follow-ups are not allowed."
-        );
-      }
-
-      const { count: existingFollowUps } = await supabase
-        .from("consultations")
-        .select("consultation_id", { count: "exact", head: true })
-        .eq("parent_consultation_id", rootId);
-
-      if ((existingFollowUps ?? 0) >= 1) {
-        throw new ValidationError(
-          "Economy consultations are limited to 1 follow-up. You have already used your follow-up."
-        );
-      }
-    }
+    // Force follow-up to inherit consultation's tier
+    body.service_tier = (consultation.service_tier ?? "ECONOMY").toUpperCase();
   }
 
   // Prevent duplicate active requests from same patient
@@ -399,105 +367,113 @@ async function handleAccept(
     throw new ValidationError("Request has expired");
   }
 
-  // DB trigger enforces one open consultation per patient (P0001).
-  // Use atomic RPC that closes stale consultations + inserts new one in a single transaction.
   const patientSessionId = request.patient_session_id;
+  const isFollowUpAccept = request.is_follow_up === true && !!request.parent_consultation_id;
 
-  // Follow-up consultations are free.
-  // Royal tier pays 10× the base fee; Economy pays 1×.
-  const baseFee = SERVICE_FEES[request.service_type] ?? 5000;
-  const tierMultiplier = (request.service_tier ?? "ECONOMY").toUpperCase() === "ROYAL" ? 10 : 1;
-  const consultationFee = request.is_follow_up ? 0 : baseFee * tierMultiplier;
-
-  // Try the atomic RPC first (close stale + insert in one transaction)
   let consultation: { consultation_id: string; status: string; created_at: string } | null = null;
   let consultationError: { message: string; code?: string; details?: string } | null = null;
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc(
-    "create_consultation_with_cleanup",
-    {
-      p_patient_session_id: patientSessionId,
+  if (isFollowUpAccept) {
+    // ── REOPEN existing consultation (no new row) ──────────────────────
+    const { error: reopenError } = await supabase.rpc("reopen_consultation", {
+      p_consultation_id: request.parent_consultation_id,
       p_doctor_id: auth.userId,
       p_service_type: request.service_type,
-      p_consultation_type: request.consultation_type ?? "chat",
-      p_chief_complaint: request.chief_complaint ?? "",
-      p_consultation_fee: consultationFee,
-      p_request_expires_at: request.expires_at,
-      p_request_id: body.request_id,
-      p_service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
-      p_parent_consultation_id: request.parent_consultation_id ?? null,
-      p_agent_id: request.agent_id ?? null,
-      p_is_substitute_follow_up: request.is_substitute_follow_up ?? false,
-      p_original_doctor_id: request.original_doctor_id ?? null,
-    }
-  ).maybeSingle();
+    });
 
-  if (rpcError) {
-    console.warn("create_consultation_with_cleanup RPC error:", JSON.stringify(rpcError));
-
-    // Fallback: RPC might not be deployed yet — try close + insert separately
-    const { error: closeRpcError } = await supabase.rpc(
-      "close_stale_consultations",
-      { p_patient_session_id: patientSessionId }
-    ).maybeSingle();
-
-    if (closeRpcError) {
-      console.warn("close_stale_consultations RPC error:", JSON.stringify(closeRpcError));
-    }
-
-    const now = new Date().toISOString();
-    const durationMinutes = SERVICE_DURATIONS[request.service_type] ?? 15;
-    const scheduledEnd = new Date(Date.now() + durationMinutes * 60_000).toISOString();
-    const insertPayload = {
-      patient_session_id: patientSessionId,
-      doctor_id: auth.userId,
-      service_type: request.service_type,
-      service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
-      consultation_type: request.consultation_type ?? "chat",
-      chief_complaint: request.chief_complaint ?? "",
-      parent_consultation_id: request.parent_consultation_id ?? null,
-      agent_id: request.agent_id ?? null,
-      is_substitute_follow_up: request.is_substitute_follow_up ?? false,
-      original_doctor_id: request.original_doctor_id ?? null,
-      status: "active",
-      consultation_fee: consultationFee,
-      request_expires_at: request.expires_at,
-      request_id: body.request_id,
-      session_start_time: now,
-      scheduled_end_at: scheduledEnd,
-      original_duration_minutes: durationMinutes,
-      extension_count: 0,
-      created_at: now,
-      updated_at: now,
-    };
-
-    const { data: insertData, error: insertError } = await supabase
-      .from("consultations")
-      .insert(insertPayload)
-      .select("consultation_id, status, created_at")
-      .single();
-
-    if (insertError) {
-      consultation = null;
-      consultationError = {
-        message: insertError.message,
-        code: (insertError as Record<string, unknown>).code as string | undefined,
-        details: (insertError as Record<string, unknown>).details as string | undefined,
-      };
+    if (reopenError) {
+      console.error("reopen_consultation RPC error:", JSON.stringify(reopenError));
+      consultationError = { message: reopenError.message };
     } else {
-      consultation = insertData;
+      // Return the SAME consultation_id — it's been reopened, not created
+      consultation = {
+        consultation_id: request.parent_consultation_id!,
+        status: "active",
+        created_at: new Date().toISOString(),
+      };
+      console.log("reopen_consultation succeeded for:", request.parent_consultation_id);
     }
   } else {
-    // RPC succeeded — extract the returned consultation row
-    consultation = rpcData;
-    console.log("create_consultation_with_cleanup succeeded:", JSON.stringify(consultation));
+    // ── CREATE new consultation (original request) ─────────────────────
+    const baseFee = SERVICE_FEES[request.service_type] ?? 5000;
+    const tierMultiplier = (request.service_tier ?? "ECONOMY").toUpperCase() === "ROYAL" ? 10 : 1;
+    const consultationFee = baseFee * tierMultiplier;
+
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "create_consultation_with_cleanup",
+      {
+        p_patient_session_id: patientSessionId,
+        p_doctor_id: auth.userId,
+        p_service_type: request.service_type,
+        p_consultation_type: request.consultation_type ?? "chat",
+        p_chief_complaint: request.chief_complaint ?? "",
+        p_consultation_fee: consultationFee,
+        p_request_expires_at: request.expires_at,
+        p_request_id: body.request_id,
+        p_service_tier: (request.service_tier ?? "ECONOMY").toUpperCase(),
+        p_parent_consultation_id: null,
+        p_agent_id: request.agent_id ?? null,
+        p_is_substitute_follow_up: false,
+        p_original_doctor_id: null,
+      }
+    ).maybeSingle();
+
+    if (rpcError) {
+      console.warn("create_consultation_with_cleanup RPC error:", JSON.stringify(rpcError));
+
+      const { error: closeRpcError } = await supabase.rpc(
+        "close_stale_consultations",
+        { p_patient_session_id: patientSessionId }
+      ).maybeSingle();
+      if (closeRpcError) console.warn("close_stale RPC error:", JSON.stringify(closeRpcError));
+
+      const now = new Date().toISOString();
+      const durationMinutes = SERVICE_DURATIONS[request.service_type] ?? 15;
+      const scheduledEnd = new Date(Date.now() + durationMinutes * 60_000).toISOString();
+      const tier = (request.service_tier ?? "ECONOMY").toUpperCase();
+      const { data: insertData, error: insertError } = await supabase
+        .from("consultations")
+        .insert({
+          patient_session_id: patientSessionId,
+          doctor_id: auth.userId,
+          service_type: request.service_type,
+          service_tier: tier,
+          consultation_type: request.consultation_type ?? "chat",
+          chief_complaint: request.chief_complaint ?? "",
+          agent_id: request.agent_id ?? null,
+          status: "active",
+          consultation_fee: baseFee * tierMultiplier,
+          request_expires_at: request.expires_at,
+          request_id: body.request_id,
+          session_start_time: now,
+          scheduled_end_at: scheduledEnd,
+          original_duration_minutes: durationMinutes,
+          extension_count: 0,
+          follow_up_max: tier === "ROYAL" ? -1 : 1,
+          created_at: now,
+          updated_at: now,
+        })
+        .select("consultation_id, status, created_at")
+        .single();
+
+      if (insertError) {
+        consultationError = {
+          message: insertError.message,
+          code: (insertError as Record<string, unknown>).code as string | undefined,
+          details: (insertError as Record<string, unknown>).details as string | undefined,
+        };
+      } else {
+        consultation = insertData;
+      }
+    } else {
+      consultation = rpcData;
+      console.log("create_consultation_with_cleanup succeeded:", JSON.stringify(consultation));
+    }
   }
 
   if (consultationError || !consultation) {
-    const errMsg = consultationError?.message ?? "Unknown error creating consultation";
-    console.error("Consultation creation failed:", JSON.stringify(consultationError));
-    // Use errorResponse-style format so client ApiErrorMapper.tryParseJsonError()
-    // can extract the "error" field and show a meaningful message to the doctor.
+    const errMsg = consultationError?.message ?? "Unknown error";
+    console.error("Consultation creation/reopen failed:", JSON.stringify(consultationError));
     return new Response(
       JSON.stringify({
         error: errMsg,
@@ -505,15 +481,10 @@ async function handleAccept(
         request_id: body.request_id,
         status: "insert_error",
         debug_error: errMsg,
-        debug_code: consultationError?.code,
-        debug_details: consultationError?.details,
       }),
       {
         status: 409,
-        headers: {
-          ...corsHeaders(origin),
-          "Content-Type": "application/json",
-        },
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
       },
     );
   }
