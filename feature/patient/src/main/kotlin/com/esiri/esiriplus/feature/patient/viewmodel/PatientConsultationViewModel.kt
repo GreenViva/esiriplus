@@ -320,6 +320,16 @@ class PatientConsultationViewModel @Inject constructor(
                             Log.d(TAG, "Session manager sync corrected: consultation is ACTIVE, disabling follow-up mode")
                             _uiState.update { it.copy(isFollowUpMode = false) }
                         }
+                        // Backfill doctorId from Room once session manager has synced
+                        // (new consultations start with doctorId="" in uiState).
+                        if (_uiState.value.doctorId.isBlank() && !state.isLoading) {
+                            val entity = consultationDao.getById(consultationId)
+                            if (entity != null && entity.doctorId.isNotBlank()) {
+                                val name = doctorProfileDao.getById(entity.doctorId)?.fullName ?: ""
+                                _uiState.update { it.copy(doctorId = entity.doctorId, doctorName = name) }
+                                Log.d(TAG, "Backfilled doctorId=${entity.doctorId} from Room after sync")
+                            }
+                        }
                     }
                 }
 

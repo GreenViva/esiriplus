@@ -44,6 +44,7 @@ class ConsultationRequestService @Inject constructor(
         isSubstituteFollowUp: Boolean = false,
         originalDoctorId: String? = null,
         region: String? = null,
+        appointmentId: String? = null,
     ): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
             put("action", "create")
@@ -68,6 +69,7 @@ class ConsultationRequestService @Inject constructor(
                 if (!originalDoctorId.isNullOrBlank()) put("original_doctor_id", originalDoctorId)
             }
             if (!region.isNullOrBlank()) put("region", region)
+            if (!appointmentId.isNullOrBlank()) put("appointment_id", appointmentId)
         }
         return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body, patientAuth = true))
     }

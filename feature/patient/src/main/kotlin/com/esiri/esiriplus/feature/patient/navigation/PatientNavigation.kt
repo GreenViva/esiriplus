@@ -45,6 +45,7 @@ import kotlinx.serialization.Serializable
     val servicePriceAmount: Int,
     val serviceDurationMinutes: Int,
     val serviceTier: String = "ECONOMY",
+    val appointmentId: String? = null,
 )
 @Serializable data class BookAppointmentRoute(
     val doctorId: String,
@@ -243,6 +244,21 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         composable<PatientAppointmentsRoute> {
             PatientAppointmentsScreen(
                 onBack = { navController.popBackStack() },
+                onConsultationAccepted = { consultationId ->
+                    navController.navigate(PatientConsultationRoute(consultationId)) {
+                        popUpTo<PatientHomeRoute> { inclusive = false }
+                    }
+                },
+                onFindAnotherDoctor = { serviceType, appointmentId ->
+                    navController.navigate(
+                        FindDoctorRoute(
+                            serviceCategory = serviceType,
+                            servicePriceAmount = 0,
+                            serviceDurationMinutes = 15,
+                            appointmentId = appointmentId,
+                        ),
+                    )
+                },
             )
         }
 

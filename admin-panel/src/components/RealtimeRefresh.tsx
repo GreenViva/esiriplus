@@ -51,9 +51,10 @@ export default function RealtimeRefresh({ tables, channelName, onUpdate }: Props
 
     channel.subscribe((status, err) => {
       if (status === "CHANNEL_ERROR") {
-        console.error(`[Realtime] ${channelName}: channel error`, err);
+        console.warn(`[Realtime] ${channelName}: channel error — ensure Realtime is enabled for tables:`, tables, err);
       } else if (status === "TIMED_OUT") {
-        console.warn(`[Realtime] ${channelName}: subscription timed out`);
+        console.warn(`[Realtime] ${channelName}: subscription timed out, retrying…`);
+        supabase.removeChannel(channel);
       }
     });
 

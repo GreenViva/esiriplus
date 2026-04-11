@@ -140,9 +140,14 @@ You can request deletion of your data by contacting us through the in-app suppor
             heading = "10. CONTACT US",
             body = """Have questions about your privacy?
 
+eSIRI Plus:
 • In-app: Help & Support → Privacy
-• Email: privacy@esiri.health
-• Phone: +255 XXX XXX XXX""",
+• Email: support@esiri.africa
+• Phone: +255 663 582 994
+
+Medical Council of Tanganyika (MCT):
+• Email: info@mct.go.tz
+• Phone: +255 699 995 800""",
         ),
     )
 
@@ -308,10 +313,17 @@ These Terms are governed by the laws of the United Republic of Tanzania.""",
         ),
         LegalSection(
             heading = "11. CONTACT US",
-            body = """• In-app: Help & Support
-• Email: support@esiri.health
-• Phone: +255 XXX XXX XXX
-• Address: Dar es Salaam, Tanzania""",
+            body = """eSIRI Plus:
+• In-app: Help & Support
+• Email: support@esiri.africa
+• Phone: +255 663 582 994
+• Address: Dar es Salaam, Tanzania
+
+Medical Council of Tanganyika (MCT):
+• PSSSF Building, Kambarage Tower, 10th Floor (near BOT Building)
+• P.O. Box 2690, Dodoma, Tanzania
+• Email: info@mct.go.tz
+• Phone: +255 699 995 800""",
         ),
     )
 
@@ -495,8 +507,8 @@ Your consultation on eSIRI Plus:
 
 Questions about this consent?
 • In-app: Help & Support → Consent & Legal
-• Email: consent@esiri.health
-• Medical Council of Tanganyika: +255 22 XXX XXXX""",
+• Email: support@esiri.africa
+• Phone: +255 663 582 994""",
         ),
     )
 }

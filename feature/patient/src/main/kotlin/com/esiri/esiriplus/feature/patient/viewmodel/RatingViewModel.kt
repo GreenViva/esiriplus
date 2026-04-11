@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.domain.model.DoctorRating
+import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
+import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +34,8 @@ data class RatingUiState(
 class RatingViewModel @Inject constructor(
     private val application: Application,
     private val ratingRepository: DoctorRatingRepository,
+    private val tokenManager: TokenManager,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RatingUiState())
@@ -98,8 +102,31 @@ class RatingViewModel @Inject constructor(
                     Log.w(TAG, "Local rating save failed (FK constraint?), proceeding with server sync", e)
                 }
 
+                // Proactive token refresh — patient JWTs can't be auto-refreshed
+                val currentToken = tokenManager.getAccessTokenSync()
+                if (currentToken == null || tokenManager.isTokenExpiringSoon(2)) {
+                    try {
+                        authRepository.refreshSession()
+                        Log.d(TAG, "Patient token refreshed before rating submit")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Proactive token refresh failed before rating", e)
+                    }
+                }
+
                 // Always sync to server — this is the source of truth
-                val synced = ratingRepository.submitRatingToServer(rating)
+                var synced = ratingRepository.submitRatingToServer(rating)
+
+                // Retry once with a fresh token if the first attempt failed
+                if (!synced) {
+                    Log.w(TAG, "Rating server sync failed — refreshing token and retrying")
+                    try {
+                        authRepository.refreshSession()
+                        synced = ratingRepository.submitRatingToServer(rating)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Retry after refresh also failed", e)
+                    }
+                }
+
                 if (synced && savedLocally) {
                     ratingRepository.markSynced(rating.ratingId)
                 }

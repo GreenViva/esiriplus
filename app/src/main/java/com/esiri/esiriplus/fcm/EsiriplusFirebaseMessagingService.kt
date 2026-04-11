@@ -171,6 +171,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             title = getGenericTitle(ctx, type),
             body = ctx.getString(R.string.notification_tap_to_view),
             notificationId = notificationId,
+            type = type,
         )
 
         // Fetch full content from Supabase and update Room
@@ -184,6 +185,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
                         title = stored.title,
                         body = stored.body,
                         notificationId = notificationId,
+                        type = type,
                     )
                 }
             } catch (e: Exception) {
@@ -260,7 +262,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_REQUEST)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
             .setContentTitle(ctx.getString(R.string.notification_new_consultation))
             .setContentText(ctx.getString(R.string.notification_patient_waiting))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -320,7 +322,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val builder = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_CALL)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
             .setContentTitle(ctx.getString(R.string.call_incoming_title, callLabel))
             .setContentText(ctx.getString(R.string.call_incoming_body, callerLabel))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -347,10 +349,11 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun showNotification(title: String, body: String, notificationId: String) {
+    private fun showNotification(title: String, body: String, notificationId: String, type: String? = null) {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("notification_id", notificationId)
+            if (type != null) putExtra("notification_type", type)
         }
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -360,7 +363,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)

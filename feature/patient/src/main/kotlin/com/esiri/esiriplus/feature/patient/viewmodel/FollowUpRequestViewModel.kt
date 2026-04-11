@@ -194,20 +194,59 @@ class FollowUpRequestViewModel @Inject constructor(
 
     private fun sendFollowUpRequest() {
         viewModelScope.launch {
-            if (tokenManager.isTokenExpiringSoon(5)) {
-                try { authRepository.refreshSession() } catch (_: Exception) {}
+            val currentToken = tokenManager.getAccessTokenSync()
+            if (currentToken == null || tokenManager.isTokenExpiringSoon(5)) {
+                val refreshResult = try {
+                    authRepository.refreshSession()
+                } catch (e: Exception) {
+                    com.esiri.esiriplus.core.common.result.Result.Error(e)
+                }
+                if (refreshResult is com.esiri.esiriplus.core.common.result.Result.Success) {
+                    Log.d(TAG, "Patient token refreshed proactively before follow-up request")
+                } else {
+                    val tokenAfterRefresh = tokenManager.getAccessTokenSync()
+                    if (tokenAfterRefresh == null || tokenManager.isTokenExpiringSoon(0)) {
+                        Log.e(TAG, "No valid token after refresh — aborting follow-up request")
+                        _uiState.update {
+                            it.copy(
+                                status = FollowUpStatus.ERROR,
+                                errorMessage = "Your session has expired. Please log in again.",
+                            )
+                        }
+                        return@launch
+                    }
+                }
             }
-            when (val result = consultationRequestRepository.createRequest(
-                doctorId = doctorId,
-                serviceType = serviceType,
-                serviceTier = serviceTier,
-                consultationType = "chat",
-                chiefComplaint = "Follow-up consultation",
-                isFollowUp = true,
-                parentConsultationId = parentConsultationId,
-            )) {
+
+            val result = doCreateFollowUpRequest()
+
+            // On 401, try ONE refresh-and-retry before giving up
+            val finalResult = if (
+                result is Result.Error &&
+                result.errorCode == com.esiri.esiriplus.core.common.error.ErrorCode.UNAUTHORIZED
+            ) {
+                Log.w(TAG, "Follow-up request got 401 — attempting refresh and retry")
+                val refreshResult = try {
+                    authRepository.refreshSession()
+                } catch (e: Exception) {
+                    com.esiri.esiriplus.core.common.result.Result.Error(e)
+                }
+                if (refreshResult is com.esiri.esiriplus.core.common.result.Result.Success) {
+                    doCreateFollowUpRequest()
+                } else {
+                    Result.Error(
+                        result.exception,
+                        "Your session has expired. Please log in again.",
+                        result.errorCode,
+                    )
+                }
+            } else {
+                result
+            }
+
+            when (finalResult) {
                 is Result.Success -> {
-                    val request = result.data
+                    val request = finalResult.data
                     _uiState.update {
                         it.copy(
                             activeRequestId = request.requestId,
@@ -218,9 +257,8 @@ class FollowUpRequestViewModel @Inject constructor(
                     startCountdown(request.requestId)
                 }
                 is Result.Error -> {
-                    val msg = result.message ?: result.exception.message ?: ""
-                    Log.e(TAG, "Failed to create follow-up request: $msg", result.exception)
-                    // Doctor unavailable/in-session → show choice dialog (same as EXPIRED)
+                    val msg = finalResult.message ?: finalResult.exception.message ?: ""
+                    Log.e(TAG, "Failed to create follow-up request: $msg", finalResult.exception)
                     val isDoctorUnavailable = msg.contains("not currently available", ignoreCase = true)
                         || msg.contains("in a session", ignoreCase = true)
                         || msg.contains("doctor_in_session", ignoreCase = true)
@@ -234,6 +272,18 @@ class FollowUpRequestViewModel @Inject constructor(
                 is Result.Loading -> {}
             }
         }
+    }
+
+    private suspend fun doCreateFollowUpRequest(): Result<com.esiri.esiriplus.core.domain.model.ConsultationRequest> {
+        return consultationRequestRepository.createRequest(
+            doctorId = doctorId,
+            serviceType = serviceType,
+            serviceTier = serviceTier,
+            consultationType = "chat",
+            chiefComplaint = "Follow-up consultation",
+            isFollowUp = true,
+            parentConsultationId = parentConsultationId,
+        )
     }
 
     // ── Countdown & polling ──────────────────────────────────────────────────────

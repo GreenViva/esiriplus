@@ -135,7 +135,7 @@ class IncomingCallService : Service() {
         val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
 
         return NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_INCOMING_CALL)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
             .setContentTitle(ctx.getString(R.string.call_incoming_title, callLabel))
             .setContentText(ctx.getString(R.string.call_incoming_body, callerLabel))
             .setPriority(NotificationCompat.PRIORITY_MAX)

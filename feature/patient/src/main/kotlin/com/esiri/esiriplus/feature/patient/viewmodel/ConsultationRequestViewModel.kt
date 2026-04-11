@@ -95,6 +95,10 @@ class ConsultationRequestViewModel @Inject constructor(
     private val originalDoctorId: String? =
         savedStateHandle.get<String>("originalDoctorId")
 
+    /** Appointment context — when starting a consultation from an appointment */
+    private val appointmentId: String? =
+        savedStateHandle.get<String>("appointmentId")
+
     private val _uiState = MutableStateFlow(ConsultationRequestUiState())
     val uiState: StateFlow<ConsultationRequestUiState> = _uiState.asStateFlow()
 
@@ -346,31 +350,59 @@ class ConsultationRequestViewModel @Inject constructor(
                 if (refreshResult is com.esiri.esiriplus.core.common.result.Result.Success) {
                     Log.d("ConsultRequestVM", "Patient token refreshed proactively before request")
                 } else {
-                    Log.w("ConsultRequestVM", "Proactive patient token refresh FAILED — request will likely 401")
+                    Log.w("ConsultRequestVM", "Proactive patient token refresh FAILED")
+                    // Re-check token after failed refresh — abort if still missing/expired
+                    val tokenAfterRefresh = tokenManager.getAccessTokenSync()
+                    if (tokenAfterRefresh == null || tokenManager.isTokenExpiringSoon(0)) {
+                        Log.e("ConsultRequestVM", "No valid token after refresh — aborting request")
+                        _uiState.update {
+                            it.copy(
+                                isSending = false,
+                                activeRequestDoctorId = null,
+                                errorMessage = "Your session has expired. Please log in again.",
+                            )
+                        }
+                        return@launch
+                    }
                 }
             }
 
-            when (val result = consultationRequestRepository.createRequest(
-                doctorId = doctorId,
-                serviceType = serviceType,
-                serviceTier = serviceTier,
-                consultationType = consultationType,
-                chiefComplaint = chiefComplaint,
-                symptoms = symptoms,
-                patientAgeGroup = state.patientAgeGroup,
-                patientSex = state.patientSex,
-                patientBloodGroup = state.patientBloodGroup,
-                patientAllergies = state.patientAllergies,
-                patientChronicConditions = state.patientChronicConditions,
-                agentId = agentId,
-                isFollowUp = if (isSubstituteFollowUp) true else false,
-                parentConsultationId = if (isSubstituteFollowUp) parentConsultationId else null,
-                isSubstituteFollowUp = isSubstituteFollowUp,
-                originalDoctorId = if (isSubstituteFollowUp) originalDoctorId else null,
-                region = state.region,
-            )) {
+            val result = doCreateRequest(
+                doctorId, serviceType, serviceTier, consultationType,
+                chiefComplaint, symptoms, state,
+            )
+
+            // On 401, try ONE refresh-and-retry before giving up
+            val finalResult = if (
+                result is Result.Error &&
+                result.errorCode == com.esiri.esiriplus.core.common.error.ErrorCode.UNAUTHORIZED
+            ) {
+                Log.w("ConsultRequestVM", "Request got 401 — attempting refresh and retry")
+                val refreshResult = try {
+                    authRepository.refreshSession()
+                } catch (e: Exception) {
+                    com.esiri.esiriplus.core.common.result.Result.Error(e)
+                }
+                if (refreshResult is com.esiri.esiriplus.core.common.result.Result.Success) {
+                    doCreateRequest(
+                        doctorId, serviceType, serviceTier, consultationType,
+                        chiefComplaint, symptoms, state,
+                    )
+                } else {
+                    // Refresh failed — return a clearer error
+                    Result.Error(
+                        result.exception,
+                        "Your session has expired. Please log in again.",
+                        result.errorCode,
+                    )
+                }
+            } else {
+                result
+            }
+
+            when (finalResult) {
                 is Result.Success -> {
-                    val request = result.data
+                    val request = finalResult.data
                     _uiState.update {
                         it.copy(
                             activeRequestId = request.requestId,
@@ -384,12 +416,12 @@ class ConsultationRequestViewModel @Inject constructor(
                     startCountdown(request.requestId)
                 }
                 is Result.Error -> {
-                    Log.e(TAG, "Failed to create request", result.exception)
+                    Log.e(TAG, "Failed to create request", finalResult.exception)
                     _uiState.update {
                         it.copy(
                             isSending = false,
                             activeRequestDoctorId = null,
-                            errorMessage = result.message ?: result.exception.message
+                            errorMessage = finalResult.message ?: finalResult.exception.message
                                 ?: "Failed to send request",
                         )
                     }
@@ -397,6 +429,37 @@ class ConsultationRequestViewModel @Inject constructor(
                 is Result.Loading -> {} // Not emitted by repository
             }
         }
+    }
+
+    private suspend fun doCreateRequest(
+        doctorId: String,
+        serviceType: String,
+        serviceTier: String,
+        consultationType: String,
+        chiefComplaint: String,
+        symptoms: String?,
+        state: ConsultationRequestUiState,
+    ): Result<com.esiri.esiriplus.core.domain.model.ConsultationRequest> {
+        return consultationRequestRepository.createRequest(
+            doctorId = doctorId,
+            serviceType = serviceType,
+            serviceTier = serviceTier,
+            consultationType = consultationType,
+            chiefComplaint = chiefComplaint,
+            symptoms = symptoms,
+            patientAgeGroup = state.patientAgeGroup,
+            patientSex = state.patientSex,
+            patientBloodGroup = state.patientBloodGroup,
+            patientAllergies = state.patientAllergies,
+            patientChronicConditions = state.patientChronicConditions,
+            agentId = agentId,
+            isFollowUp = if (isSubstituteFollowUp) true else false,
+            parentConsultationId = if (isSubstituteFollowUp) parentConsultationId else null,
+            isSubstituteFollowUp = isSubstituteFollowUp,
+            originalDoctorId = if (isSubstituteFollowUp) originalDoctorId else null,
+            region = state.region,
+            appointmentId = appointmentId,
+        )
     }
 
     private fun startCountdown(requestId: String) {

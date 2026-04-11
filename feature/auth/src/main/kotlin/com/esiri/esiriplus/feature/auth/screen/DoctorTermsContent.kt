@@ -175,13 +175,14 @@ What Patients Do NOT See:
         ),
         LegalSection(
             heading = "10. CONTACT US",
-            body = """For Privacy Questions:
-• Email: provider-privacy@esiri.health
-• Phone: +255 XXX XXX XXX
+            body = """eSIRI Plus:
+• Email: support@esiri.africa
+• Phone: +255 663 582 994
 • In-app: Provider Portal → Help & Privacy
 
-For Credential Verification:
-• Email: verification@esiri.health""",
+Medical Council of Tanganyika (MCT):
+• Email: info@mct.go.tz
+• Phone: +255 699 995 800""",
         ),
     )
 
@@ -347,7 +348,7 @@ Indemnification: You agree to indemnify and hold eSIRI Plus harmless from any cl
 3. You get 48 hours to respond
 4. Determination made
 
-Appeal within 14 days to provider-appeals@esiri.health.""",
+Appeal within 14 days to support@esiri.africa.""",
         ),
         LegalSection(
             heading = "11. TERMINATION",
@@ -378,9 +379,15 @@ Dispute resolution process:
         ),
         LegalSection(
             heading = "14. CONTACT US",
-            body = """• Provider Support: provider-support@esiri.health
-• Verification: verification@esiri.health
-• Billing/Earnings: provider-billing@esiri.health""",
+            body = """eSIRI Plus:
+• Email: support@esiri.africa
+• Phone: +255 663 582 994
+
+Medical Council of Tanganyika (MCT):
+• PSSSF Building, Kambarage Tower, 10th Floor (near BOT Building)
+• P.O. Box 2690, Dodoma, Tanzania
+• Email: info@mct.go.tz
+• Phone: +255 699 995 800""",
         ),
     )
 
@@ -519,9 +526,14 @@ Recommended:
         ),
         LegalSection(
             heading = "11. CONTACT",
-            body = """• Medical Practice Questions: clinical-affairs@esiri.health
-• Ethical Dilemmas: ethics@esiri.health
-• Technical Issues: In-app: Provider Portal → Report Issue""",
+            body = """eSIRI Plus:
+• Email: support@esiri.africa
+• Phone: +255 663 582 994
+• Technical Issues: In-app: Provider Portal → Report Issue
+
+Medical Council of Tanganyika (MCT):
+• Email: info@mct.go.tz
+• Phone: +255 699 995 800""",
         ),
     )
 
@@ -602,9 +614,16 @@ Digital Signature: Confirmed by completing registration""",
         LegalSection(
             heading = "CONTACT",
             body = """Questions about this consent?
-• Email: provider-legal@esiri.health
-• Phone: +255 XXX XXX XXX
-• Medical Council of Tanganyika: +255 22 XXX XXXX""",
+
+eSIRI Plus:
+• Email: support@esiri.africa
+• Phone: +255 663 582 994
+
+Medical Council of Tanganyika (MCT):
+• PSSSF Building, Kambarage Tower, 10th Floor (near BOT Building)
+• P.O. Box 2690, Dodoma, Tanzania
+• Email: info@mct.go.tz
+• Phone: +255 699 995 800""",
         ),
     )
 }

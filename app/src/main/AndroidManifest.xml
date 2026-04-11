@@ -78,6 +78,14 @@
             android:name=".fcm.CallDeclineBroadcastReceiver"
             android:exported="false" />
 
+        <!-- Default FCM notification icon + color (used when app is in background) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stethoscope_notif" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/brand_teal" />
+
         <!-- Per-app language support for API < 33 (AppCompat auto-stores locale) -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

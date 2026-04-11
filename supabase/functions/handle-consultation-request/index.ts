@@ -66,6 +66,7 @@ interface CreateRequest {
   is_substitute_follow_up?: boolean;
   original_doctor_id?: string;
   region?: string;
+  appointment_id?: string;
 }
 
 interface RespondRequest {
@@ -174,6 +175,41 @@ async function handleCreate(
     body.service_tier = (consultation.service_tier ?? "ECONOMY").toUpperCase();
   }
 
+  // ── Appointment link validation ──────────────────────────────────────────
+  if (body.appointment_id) {
+    const { data: appt } = await supabase
+      .from("appointments")
+      .select("appointment_id, patient_session_id, consultation_id, status")
+      .eq("appointment_id", body.appointment_id)
+      .single();
+
+    if (!appt) {
+      throw new ValidationError("Appointment not found");
+    }
+    if (appt.patient_session_id !== auth.sessionId) {
+      throw new ValidationError("Not authorized for this appointment");
+    }
+    if (appt.consultation_id) {
+      throw new ValidationError("This appointment already has a consultation");
+    }
+    if (!["booked", "confirmed", "missed"].includes(appt.status)) {
+      throw new ValidationError(`Appointment cannot be started — current status: ${appt.status}`);
+    }
+    // Check for an existing pending request for this appointment
+    const { data: pendingReq } = await supabase
+      .from("consultation_requests")
+      .select("request_id")
+      .eq("appointment_id", body.appointment_id)
+      .eq("status", "pending")
+      .gt("expires_at", new Date().toISOString())
+      .limit(1)
+      .maybeSingle();
+
+    if (pendingReq) {
+      throw new ValidationError("A request for this appointment is already pending");
+    }
+  }
+
   // Prevent duplicate active requests from same patient
   const { data: existing } = await supabase
     .from("consultation_requests")
@@ -250,6 +286,7 @@ async function handleCreate(
       agent_id: body.agent_id ?? null,
       is_substitute_follow_up: isSubstituteFollowUp,
       original_doctor_id: isSubstituteFollowUp ? body.original_doctor_id : null,
+      appointment_id: body.appointment_id ?? null,
       status: "pending",
       created_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
@@ -502,6 +539,24 @@ async function handleAccept(
     .eq("status", "pending"); // Optimistic lock
 
   if (updateError) throw updateError;
+
+  // Link appointment to consultation (if this request came from an appointment)
+  if (request.appointment_id) {
+    try {
+      await supabase
+        .from("appointments")
+        .update({
+          consultation_id: consultation.consultation_id,
+          status: "in_progress",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("appointment_id", request.appointment_id)
+        .is("consultation_id", null); // Guard: one appointment = one consultation
+    } catch (e) {
+      console.error("Failed to link appointment:", e);
+      // Non-fatal — consultation still proceeds
+    }
+  }
 
   // Notify patient via push
   try {
