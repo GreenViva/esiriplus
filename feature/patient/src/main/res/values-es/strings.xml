@@ -397,4 +397,28 @@
     <string name="pdf_electronically_signed">Firmado electr\u00F3nicamente</string>
     <string name="pdf_generated_by">Generado por la Plataforma de Salud ESIRII</string>
 
+    <!-- ===== Appointment / Consultation Start ===== -->
+    <string name="appt_start_consultation">Iniciar consulta</string>
+    <string name="appt_requesting_doctor">Solicitando médico\u2026</string>
+    <string name="appt_waiting_for_doctor">Esperando al médico\u2026 %ds</string>
+    <string name="appt_doctor_unavailable_title">Médico no disponible</string>
+    <string name="appt_doctor_unavailable_body">El médico no está disponible actualmente o está en otra sesión. ¿Desea buscar otro médico para esta cita?</string>
+    <string name="appt_find_another_doctor">Buscar otro médico</string>
+    <string name="appt_cancel_title">Cancelar cita</string>
+    <string name="appt_cancel_body">¿Está seguro de que desea cancelar su cita? Puede consultar a otro médico, pero no habrá reembolso por esta cancelación.</string>
+    <string name="appt_cancel_confirm">Sí, cancelar</string>
+    <string name="appt_keep">Mantener cita</string>
+    <string name="appt_failed_start">Error al iniciar la consulta</string>
+    <string name="appt_scheduled_consultation">Cita programada</string>
+    <string name="vm_session_expired_login">Su sesión ha expirado. Por favor inicie sesión nuevamente.</string>
+
+    <!-- ===== Medication Schedule ===== -->
+    <string name="med_schedule_title">Calendario de medicamentos</string>
+    <string name="med_schedule_subtitle">Una enfermera le llamará en los horarios programados</string>
+    <string name="med_schedule_empty_title">Sin calendarios de medicamentos activos</string>
+    <string name="med_schedule_empty_body">Su médico puede configurar recordatorios de medicamentos asistidos por enfermera durante las consultas Royal.</string>
+    <string name="med_schedule_active">Activo</string>
+    <string name="med_schedule_ended">Finalizado</string>
+    <string name="med_schedule_date_range">%1$s al %2$s (%3$d días)</string>
+
 </resources>

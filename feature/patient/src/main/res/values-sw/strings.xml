@@ -397,4 +397,26 @@
     <string name="pdf_electronically_signed">Imesainiwa kielektroniki</string>
     <string name="pdf_generated_by">Imetolewa na Jukwaa la ESIRII Health</string>
 
+    <!-- ===== Appointment Consultation Flow (v1.2) ===== -->
+    <string name="appt_start_consultation">Anza Mashauriano</string>
+    <string name="appt_requesting_doctor">Kuomba Daktari\u2026</string>
+    <string name="appt_waiting_for_doctor">Kusubiri daktari\u2026 %ds</string>
+    <string name="appt_doctor_unavailable_title">Daktari Hapatikani</string>
+    <string name="appt_doctor_unavailable_body">Daktari hapatikani kwa sasa au yuko katika kipindi kingine. Ungependa kutafuta daktari mwingine?</string>
+    <string name="appt_find_another_doctor">Tafuta Daktari Mwingine</string>
+    <string name="appt_cancel_title">Ghairi Miadi</string>
+    <string name="appt_cancel_body">Una uhakika unataka kughairi miadi yako? Unaweza kushauriana na daktari mwingine, lakini hakutakuwa na marejesho kwa kughairi huku.</string>
+    <string name="appt_cancel_confirm">Ndio, Ghairi</string>
+    <string name="appt_keep">Endelea na Miadi</string>
+    <string name="appt_failed_start">Imeshindwa kuanza mashauriano</string>
+    <string name="appt_scheduled_consultation">Miadi iliyopangwa</string>
+    <string name="vm_session_expired_login">Kipindi chako kimeisha. Tafadhali ingia tena.</string>
+    <string name="med_schedule_title">Ratiba ya Dawa</string>
+    <string name="med_schedule_subtitle">Nesi atakupiga simu kwa nyakati zilizopangwa</string>
+    <string name="med_schedule_empty_title">Hakuna Ratiba za Dawa Zinazoendelea</string>
+    <string name="med_schedule_empty_body">Daktari wako anaweza kuweka vikumbusho vya dawa kwa mashauriano ya Royal.</string>
+    <string name="med_schedule_active">Inaendelea</string>
+    <string name="med_schedule_ended">Imeisha</string>
+    <string name="med_schedule_date_range">%1$s hadi %2$s (siku %3$d)</string>
+
 </resources>

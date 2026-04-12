@@ -42,9 +42,20 @@ data class Prescription(
     }
 }
 
+/** Nurse-assisted medication reminder schedule (Royal tier only). */
+data class MedicationTimetable(
+    val medicationName: String,
+    val dosage: String = "",
+    val form: String = "Tablets",
+    val timesPerDay: Int = 1,
+    val scheduledTimes: List<String> = emptyList(), // ["08:00", "14:00", "20:00"]
+    val durationDays: Int = 1,
+)
+
 data class DoctorReportUiState(
     val consultationId: String = "",
     val serviceType: String = "",
+    val isRoyalTier: Boolean = false,
 
     // Form fields matching wireframes
     val patientAge: String = "",
@@ -59,6 +70,11 @@ data class DoctorReportUiState(
     val prescriptions: List<Prescription> = emptyList(),
     val medicationSearchQuery: String = "",
     val pendingMedication: String? = null, // medication awaiting dosage config
+
+    // Medication timetables (Royal only)
+    val medicationTimetables: List<MedicationTimetable> = emptyList(),
+    val showTimetableDialog: Boolean = false,
+    val timetableForPrescription: Prescription? = null,
 
     // UI state
     val isSubmitting: Boolean = false,
@@ -91,6 +107,7 @@ class DoctorReportViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         serviceType = consultation.serviceType,
+                        isRoyalTier = consultation.serviceTier.uppercase() == "ROYAL",
                         isLoading = false,
                     )
                 }
@@ -175,8 +192,49 @@ class DoctorReportViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 prescriptions = it.prescriptions.filter { p -> p.medication != medication },
+                medicationTimetables = it.medicationTimetables.filter { t -> t.medicationName != medication },
                 errorMessage = null,
             )
+        }
+    }
+
+    // ── Medication Timetable (Royal only) ────────────────────────────────
+
+    fun openTimetableDialog(prescription: Prescription) {
+        _uiState.update {
+            it.copy(showTimetableDialog = true, timetableForPrescription = prescription)
+        }
+    }
+
+    fun closeTimetableDialog() {
+        _uiState.update {
+            it.copy(showTimetableDialog = false, timetableForPrescription = null)
+        }
+    }
+
+    fun confirmTimetable(timesPerDay: Int, scheduledTimes: List<String>, durationDays: Int) {
+        val prescription = _uiState.value.timetableForPrescription ?: return
+        val timetable = MedicationTimetable(
+            medicationName = prescription.medication,
+            dosage = prescription.displayText(),
+            form = prescription.form,
+            timesPerDay = timesPerDay,
+            scheduledTimes = scheduledTimes,
+            durationDays = durationDays,
+        )
+        _uiState.update {
+            it.copy(
+                medicationTimetables = it.medicationTimetables
+                    .filter { t -> t.medicationName != prescription.medication } + timetable,
+                showTimetableDialog = false,
+                timetableForPrescription = null,
+            )
+        }
+    }
+
+    fun removeTimetable(medicationName: String) {
+        _uiState.update {
+            it.copy(medicationTimetables = it.medicationTimetables.filter { t -> t.medicationName != medicationName })
         }
     }
 
@@ -225,6 +283,19 @@ class DoctorReportViewModel @Inject constructor(
                         }
                     }
                 }))
+                // Medication timetables — Royal tier only, nurse-assisted reminders
+                if (state.isRoyalTier && state.medicationTimetables.isNotEmpty()) {
+                    put("medication_timetables", JsonArray(state.medicationTimetables.map { t ->
+                        buildJsonObject {
+                            put("medication_name", JsonPrimitive(t.medicationName))
+                            put("dosage", JsonPrimitive(t.dosage))
+                            put("form", JsonPrimitive(t.form))
+                            put("times_per_day", JsonPrimitive(t.timesPerDay))
+                            put("scheduled_times", JsonArray(t.scheduledTimes.map { JsonPrimitive(it) }))
+                            put("duration_days", JsonPrimitive(t.durationDays))
+                        }
+                    }))
+                }
             }
 
             when (val result = edgeFunctionClient.invoke("generate-consultation-report", body)) {

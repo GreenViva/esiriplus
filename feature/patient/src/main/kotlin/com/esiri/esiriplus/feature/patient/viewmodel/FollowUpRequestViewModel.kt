@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
 import com.esiri.esiriplus.core.domain.repository.ConsultationRequestRepository
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.TokenManager
@@ -61,6 +62,7 @@ data class FollowUpAcceptedEvent(val consultationId: String)
 
 @HiltViewModel
 class FollowUpRequestViewModel @Inject constructor(
+    private val application: android.app.Application,
     savedStateHandle: SavedStateHandle,
     private val consultationRequestRepository: ConsultationRequestRepository,
     private val realtimeService: ConsultationRequestRealtimeService,
@@ -210,7 +212,7 @@ class FollowUpRequestViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 status = FollowUpStatus.ERROR,
-                                errorMessage = "Your session has expired. Please log in again.",
+                                errorMessage = application.getString(R.string.vm_session_expired_login),
                             )
                         }
                         return@launch
@@ -236,7 +238,7 @@ class FollowUpRequestViewModel @Inject constructor(
                 } else {
                     Result.Error(
                         result.exception,
-                        "Your session has expired. Please log in again.",
+                        application.getString(R.string.vm_session_expired_login),
                         result.errorCode,
                     )
                 }

@@ -120,6 +120,19 @@ fun ConsultationReportBottomSheet(
             )
         }
 
+        // Medication timetable dialog (Royal only)
+        if (uiState.showTimetableDialog && uiState.timetableForPrescription != null) {
+            val rx = uiState.timetableForPrescription!!
+            MedicationTimetableDialog(
+                medicationName = rx.medication,
+                defaultDays = rx.days,
+                onConfirm = { timesPerDay, scheduledTimes, durationDays ->
+                    viewModel.confirmTimetable(timesPerDay, scheduledTimes, durationDays)
+                },
+                onDismiss = { viewModel.closeTimetableDialog() },
+            )
+        }
+
         if (uiState.submitSuccess) {
             // Success state
             Box(
@@ -475,6 +488,34 @@ fun ConsultationReportBottomSheet(
                                             fontSize = 12.sp,
                                             color = SubtitleGrey,
                                         )
+                                        // Timetable badge or button (Royal only)
+                                        if (uiState.isRoyalTier) {
+                                            val hasTimetable = uiState.medicationTimetables.any { it.medicationName == rx.medication }
+                                            Spacer(Modifier.height(6.dp))
+                                            if (hasTimetable) {
+                                                val tt = uiState.medicationTimetables.first { it.medicationName == rx.medication }
+                                                Surface(
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    color = Color(0xFF10B981).copy(alpha = 0.12f),
+                                                ) {
+                                                    Text(
+                                                        text = stringResource(R.string.med_nurse_reminder_badge, tt.scheduledTimes.joinToString(", "), tt.durationDays),
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Medium,
+                                                        color = Color(0xFF10B981),
+                                                    )
+                                                }
+                                            } else {
+                                                Text(
+                                                    text = stringResource(R.string.med_set_nurse_reminder),
+                                                    fontSize = 12.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = BrandTeal,
+                                                    modifier = Modifier.clickable { viewModel.openTimetableDialog(rx) },
+                                                )
+                                            }
+                                        }
                                     }
                                     Icon(
                                         imageVector = Icons.Default.Close,

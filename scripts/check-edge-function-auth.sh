@@ -18,6 +18,7 @@ PUBLIC_FUNCTIONS=(
   "log-performance-metrics"
   "login-agent"
   "login-doctor"
+  "medication-reminder-cron"
   "mpesa-callback"
   "register-agent"
   "recover-by-id"

@@ -397,4 +397,28 @@
     <string name="pdf_electronically_signed">موقّع إلكترونيًا</string>
     <string name="pdf_generated_by">تم الإنشاء بواسطة منصة ESIRII Health</string>
 
+    <!-- ===== Appointment / Consultation Start ===== -->
+    <string name="appt_start_consultation">بدء الاستشارة</string>
+    <string name="appt_requesting_doctor">جارٍ طلب الطبيب\u2026</string>
+    <string name="appt_waiting_for_doctor">في انتظار الطبيب\u2026 %ds</string>
+    <string name="appt_doctor_unavailable_title">الطبيب غير متاح</string>
+    <string name="appt_doctor_unavailable_body">الطبيب غير متاح حاليًا أو في جلسة أخرى. هل ترغب في البحث عن طبيب آخر لهذا الموعد؟</string>
+    <string name="appt_find_another_doctor">البحث عن طبيب آخر</string>
+    <string name="appt_cancel_title">إلغاء الموعد</string>
+    <string name="appt_cancel_body">هل أنت متأكد أنك تريد إلغاء موعدك؟ يمكنك استشارة طبيب آخر، ولكن لن يتم استرداد المبلغ لهذا الإلغاء.</string>
+    <string name="appt_cancel_confirm">نعم، إلغاء</string>
+    <string name="appt_keep">الاحتفاظ بالموعد</string>
+    <string name="appt_failed_start">فشل بدء الاستشارة</string>
+    <string name="appt_scheduled_consultation">موعد محجوز</string>
+    <string name="vm_session_expired_login">انتهت صلاحية جلستك. يُرجى تسجيل الدخول مرة أخرى.</string>
+
+    <!-- ===== Medication Schedule ===== -->
+    <string name="med_schedule_title">جدول الأدوية</string>
+    <string name="med_schedule_subtitle">ستتصل بك ممرضة في الأوقات المحددة</string>
+    <string name="med_schedule_empty_title">لا توجد جداول أدوية نشطة</string>
+    <string name="med_schedule_empty_body">يمكن لطبيبك إعداد تذكيرات أدوية بمساعدة ممرضة أثناء الاستشارات الملكية.</string>
+    <string name="med_schedule_active">نشط</string>
+    <string name="med_schedule_ended">انتهى</string>
+    <string name="med_schedule_date_range">%1$s إلى %2$s (%3$d أيام)</string>
+
 </resources>

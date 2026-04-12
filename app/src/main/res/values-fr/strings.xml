@@ -109,4 +109,8 @@
 
     <!-- Offline -->
     <string name="offline_banner">Pas de connexion Internet</string>
+
+    <!-- Medication Reminder -->
+    <string name="notification_medication_reminder_call">Appel de rappel de m\u00E9dicament</string>
+    <string name="notification_medication_reminder">Rappel de m\u00E9dicament</string>
 </resources>

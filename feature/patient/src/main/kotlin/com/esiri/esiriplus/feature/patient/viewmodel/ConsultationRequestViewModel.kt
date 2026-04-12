@@ -79,7 +79,7 @@ class ConsultationRequestViewModel @Inject constructor(
     private val patientProfileDao: PatientProfileDao,
     private val patientSessionDao: PatientSessionDao,
     private val authRepository: AuthRepository,
-    application: android.app.Application,
+    private val application: android.app.Application,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -359,7 +359,7 @@ class ConsultationRequestViewModel @Inject constructor(
                             it.copy(
                                 isSending = false,
                                 activeRequestDoctorId = null,
-                                errorMessage = "Your session has expired. Please log in again.",
+                                errorMessage = application.getString(R.string.vm_session_expired_login),
                             )
                         }
                         return@launch
@@ -392,7 +392,7 @@ class ConsultationRequestViewModel @Inject constructor(
                     // Refresh failed — return a clearer error
                     Result.Error(
                         result.exception,
-                        "Your session has expired. Please log in again.",
+                        application.getString(R.string.vm_session_expired_login),
                         result.errorCode,
                     )
                 }

@@ -20,6 +20,15 @@ interface PrescriptionItem {
   route?: string; // "IM", "IV", or "SC" — only for injections
 }
 
+interface MedicationTimetableItem {
+  medication_name: string;
+  dosage?: string;
+  form?: string;
+  times_per_day: number;
+  scheduled_times: string[]; // ["08:00", "14:00", "20:00"]
+  duration_days: number;
+}
+
 interface ReportRequest {
   consultation_id: string;
   diagnosed_problem: string;
@@ -29,6 +38,7 @@ interface ReportRequest {
   further_notes?: string;
   follow_up_recommended: boolean;
   prescriptions?: PrescriptionItem[];
+  medication_timetables?: MedicationTimetableItem[];
 }
 
 Deno.serve(async (req: Request) => {
@@ -80,7 +90,7 @@ Deno.serve(async (req: Request) => {
     // Fetch consultation details (must belong to this doctor)
     const { data: consultation, error: consultErr } = await supabase
       .from("consultations")
-      .select("consultation_id, service_type, chief_complaint, status, session_start_time, session_end_time, patient_session_id, follow_up_count")
+      .select("consultation_id, service_type, service_tier, chief_complaint, status, session_start_time, session_end_time, patient_session_id, follow_up_count")
       .eq("consultation_id", consultation_id)
       .eq("doctor_id", auth.userId)
       .single();
@@ -262,6 +272,37 @@ Respond ONLY with valid JSON, no markdown, no backticks.
       .from("consultations")
       .update({ report_submitted: true })
       .eq("consultation_id", consultation_id);
+
+    // ── Medication timetables (ROYAL only) ───────────────────────────────
+    // Doctor can set nurse-assisted medication reminder schedules for
+    // Royal-tier patients. Each timetable entry triggers a cron job that
+    // auto-assigns a nurse to call the patient at the scheduled times.
+    const tier = (consultation.service_tier ?? "ECONOMY").toUpperCase();
+    if (tier === "ROYAL" && Array.isArray(raw.medication_timetables) && raw.medication_timetables.length > 0) {
+      const today = new Date().toISOString().split("T")[0];
+      for (const tt of raw.medication_timetables as MedicationTimetableItem[]) {
+        if (!tt.medication_name || !tt.scheduled_times?.length || !tt.duration_days) continue;
+        const endDate = new Date(Date.now() + (tt.duration_days - 1) * 86400000).toISOString().split("T")[0];
+        try {
+          await supabase.from("medication_timetables").insert({
+            consultation_id,
+            patient_session_id: consultation.patient_session_id,
+            doctor_id: auth.userId,
+            medication_name: tt.medication_name,
+            dosage: tt.dosage ?? null,
+            form: tt.form ?? "Tablets",
+            times_per_day: tt.times_per_day,
+            scheduled_times: tt.scheduled_times,
+            duration_days: tt.duration_days,
+            start_date: today,
+            end_date: endDate,
+          });
+          console.log(`[generate-report] Created medication timetable: ${tt.medication_name} ${tt.times_per_day}x/day for ${tt.duration_days} days`);
+        } catch (e) {
+          console.error(`[generate-report] Failed to create timetable for ${tt.medication_name}:`, e);
+        }
+      }
+    }
 
     // Send push notification to patient
     const serviceKey = Deno.env.get("INTERNAL_SERVICE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

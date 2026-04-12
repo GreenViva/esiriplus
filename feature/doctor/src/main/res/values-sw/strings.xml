@@ -316,4 +316,18 @@
     <string name="vm_failed_accept">Kumeshindwa kukubali. Jaribu tena.</string>
     <string name="vm_failed_reject">Kumeshindwa kukataa.</string>
 
+    <!-- ═══ Dialogi ya Ratiba ya Dawa ═══ -->
+    <string name="med_timetable_title">Ratiba ya Kukumbushwa Dawa</string>
+    <string name="med_timetable_times_per_day">Mara kwa siku</string>
+    <string name="med_timetable_reminder_times">Nyakati za kukumbushwa (EAT)</string>
+    <string name="med_timetable_time_label">Saa %d</string>
+    <string name="med_timetable_time_hint">HH:MM</string>
+    <string name="med_timetable_duration">Muda (siku)</string>
+    <string name="med_timetable_nurse_note">Muuguzi atampiga simu mgonjwa kwa kila wakati uliopangwa kumkumbusha kutumia dawa hii.</string>
+    <string name="med_timetable_confirm">Weka Ratiba</string>
+    <string name="med_timetable_cancel">Ghairi</string>
+    <string name="med_set_nurse_reminder">+ Weka Ukumbusho wa Muuguzi</string>
+    <string name="med_nurse_reminder_badge">Ukumbusho wa muuguzi: %1$s kwa siku %2$d</string>
+    <string name="med_set_medication_reminder">Weka Ukumbusho wa Dawa</string>
+
 </resources>

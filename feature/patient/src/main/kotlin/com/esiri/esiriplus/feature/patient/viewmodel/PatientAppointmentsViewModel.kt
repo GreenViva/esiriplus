@@ -193,7 +193,7 @@ class PatientAppointmentsViewModel @Inject constructor(
                 doctorId = appointment.doctorId,
                 serviceType = appointment.serviceType,
                 consultationType = appointment.consultationType,
-                chiefComplaint = appointment.chiefComplaint.ifBlank { "Scheduled appointment" },
+                chiefComplaint = appointment.chiefComplaint.ifBlank { application.getString(R.string.appt_scheduled_consultation) },
                 appointmentId = appointment.appointmentId,
             )
 
@@ -226,7 +226,7 @@ class PatientAppointmentsViewModel @Inject constructor(
                             it.copy(showDoctorUnavailableDialog = true, unavailableAppointment = appointment)
                         }
                     } else {
-                        _uiState.update { it.copy(errorMessage = msg.ifBlank { "Failed to start consultation" }) }
+                        _uiState.update { it.copy(errorMessage = msg.ifBlank { application.getString(R.string.appt_failed_start) }) }
                     }
                 }
                 is Result.Loading -> {}

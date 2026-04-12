@@ -23,6 +23,7 @@ import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorProfileRepository
 import com.esiri.esiriplus.core.domain.repository.FcmTokenRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
+import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.SupabaseClientProvider
 import com.esiri.esiriplus.core.network.TokenManager
 import com.esiri.esiriplus.core.network.model.ApiResult
@@ -158,6 +159,7 @@ class DoctorDashboardViewModel @Inject constructor(
     private val requestRealtimeService: ConsultationRequestRealtimeService,
     private val fileUploadService: FileUploadService,
     private val supabaseClientProvider: SupabaseClientProvider,
+    private val edgeFunctionClient: EdgeFunctionClient,
     private val fcmTokenRepository: FcmTokenRepository,
     private val logoutUseCase: LogoutUseCase,
     private val tokenManager: TokenManager,
@@ -1147,6 +1149,37 @@ class DoctorDashboardViewModel @Inject constructor(
             if (doctorId.isBlank()) return@launch
             _uiState.update { it.copy(warningAcknowledged = true) }
             profileService.acknowledgeWarning(doctorId)
+        }
+    }
+
+    // ── Medication Timetable ───────────────────────────────────────────────
+
+    fun createMedicationTimetable(
+        consultationId: String,
+        patientSessionId: String,
+        medicationName: String,
+        timesPerDay: Int,
+        scheduledTimes: List<String>,
+        durationDays: Int,
+    ) {
+        viewModelScope.launch {
+            val body = kotlinx.serialization.json.buildJsonObject {
+                put("action", kotlinx.serialization.json.JsonPrimitive("create_timetable"))
+                put("consultation_id", kotlinx.serialization.json.JsonPrimitive(consultationId))
+                put("patient_session_id", kotlinx.serialization.json.JsonPrimitive(patientSessionId))
+                put("medication_name", kotlinx.serialization.json.JsonPrimitive(medicationName))
+                put("times_per_day", kotlinx.serialization.json.JsonPrimitive(timesPerDay))
+                put("scheduled_times", kotlinx.serialization.json.JsonArray(scheduledTimes.map { kotlinx.serialization.json.JsonPrimitive(it) }))
+                put("duration_days", kotlinx.serialization.json.JsonPrimitive(durationDays))
+            }
+            when (val result = edgeFunctionClient.invoke("medication-reminder-callback", body)) {
+                is ApiResult.Success -> {
+                    Log.d(TAG, "Medication timetable created for consultation $consultationId")
+                }
+                else -> {
+                    Log.w(TAG, "Failed to create medication timetable: $result")
+                }
+            }
         }
     }
 

@@ -107,4 +107,8 @@
 
     <!-- Offline -->
     <string name="offline_banner">Hakuna muunganisho wa mtandao</string>
+
+    <!-- Medication Reminder -->
+    <string name="notification_medication_reminder_call">Simu ya Ukumbusho wa Dawa</string>
+    <string name="notification_medication_reminder">Ukumbusho wa Dawa</string>
 </resources>

@@ -10,6 +10,7 @@ import com.esiri.esiriplus.feature.patient.screen.BookAppointmentScreen
 import com.esiri.esiriplus.feature.patient.screen.ConsultationHistoryScreen
 import com.esiri.esiriplus.feature.patient.screen.FollowUpWaitingScreen
 import com.esiri.esiriplus.feature.patient.screen.OngoingConsultationsScreen
+import com.esiri.esiriplus.feature.patient.screen.MedicationScheduleScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientAppointmentsScreen
 import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientConsultationScreen
@@ -55,6 +56,7 @@ import kotlinx.serialization.Serializable
     val serviceTier: String = "ECONOMY",
 )
 @Serializable object PatientAppointmentsRoute
+@Serializable object MedicationScheduleRoute
 @Serializable data class ExtensionPaymentRoute(
     val consultationId: String,
     val amount: Int,
@@ -259,6 +261,12 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                         ),
                     )
                 },
+            )
+        }
+
+        composable<MedicationScheduleRoute> {
+            MedicationScheduleScreen(
+                onBack = { navController.popBackStack() },
             )
         }
 

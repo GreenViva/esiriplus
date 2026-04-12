@@ -330,4 +330,18 @@
     <string name="vm_failed_accept">Failed to accept. Try again.</string>
     <string name="vm_failed_reject">Failed to reject.</string>
 
+    <!-- ═══ Medication Timetable Dialog ═══ -->
+    <string name="med_timetable_title">Medication Reminder Schedule</string>
+    <string name="med_timetable_times_per_day">Times per day</string>
+    <string name="med_timetable_reminder_times">Reminder times (EAT)</string>
+    <string name="med_timetable_time_label">Time %d</string>
+    <string name="med_timetable_time_hint">HH:MM</string>
+    <string name="med_timetable_duration">Duration (days)</string>
+    <string name="med_timetable_nurse_note">A nurse will voice-call the patient at each scheduled time to remind them to take this medication.</string>
+    <string name="med_timetable_confirm">Set Schedule</string>
+    <string name="med_timetable_cancel">Cancel</string>
+    <string name="med_set_nurse_reminder">+ Set Nurse Reminder</string>
+    <string name="med_nurse_reminder_badge">Nurse reminder: %1$s for %2$dd</string>
+    <string name="med_set_medication_reminder">Set Medication Reminder</string>
+
 </resources>

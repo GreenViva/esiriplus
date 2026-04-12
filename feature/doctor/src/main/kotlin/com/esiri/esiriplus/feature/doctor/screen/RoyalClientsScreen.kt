@@ -53,10 +53,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material.icons.filled.Notifications
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.feature.doctor.R
 import com.esiri.esiriplus.feature.doctor.viewmodel.DoctorDashboardViewModel
+import com.esiri.esiriplus.feature.doctor.viewmodel.MedicationTimetable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -86,6 +89,8 @@ fun RoyalClientsScreen(
     var nicknameVersion by remember { mutableStateOf(0) }
     // Track rename dialog
     var renamingConsultationId by remember { mutableStateOf<String?>(null) }
+    // Track medication timetable dialog
+    var timetableConsultation by remember { mutableStateOf<ConsultationEntity?>(null) }
 
     Surface(modifier = modifier.fillMaxSize(), color = Color.White) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -191,6 +196,10 @@ fun RoyalClientsScreen(
                 selectedConsultation = null
                 onOpenConsultation(selected.consultationId)
             },
+            onSetMedicationReminder = {
+                selectedConsultation = null
+                timetableConsultation = selected
+            },
             onRename = { renamingConsultationId = selected.consultationId },
             onDismiss = { selectedConsultation = null },
         )
@@ -212,6 +221,27 @@ fun RoyalClientsScreen(
             onDismiss = { renamingConsultationId = null },
         )
     }
+
+    // Medication timetable dialog
+    val ttConsultation = timetableConsultation
+    if (ttConsultation != null) {
+        MedicationTimetableDialog(
+            medicationName = "Medication for ${nicknameStore.get(ttConsultation.consultationId) ?: "Royal Patient"}",
+            defaultDays = 7,
+            onConfirm = { timesPerDay, scheduledTimes, durationDays ->
+                viewModel.createMedicationTimetable(
+                    consultationId = ttConsultation.consultationId,
+                    patientSessionId = ttConsultation.patientSessionId,
+                    medicationName = "Prescribed medication",
+                    timesPerDay = timesPerDay,
+                    scheduledTimes = scheduledTimes,
+                    durationDays = durationDays,
+                )
+                timetableConsultation = null
+            },
+            onDismiss = { timetableConsultation = null },
+        )
+    }
 }
 
 // ── Call Option Bottom Sheet ─────────────────────────────────────────────────────
@@ -224,6 +254,7 @@ private fun RoyalCallOptionSheet(
     onVoiceCall: () -> Unit,
     onVideoCall: () -> Unit,
     onViewChat: () -> Unit,
+    onSetMedicationReminder: () -> Unit = {},
     onRename: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -441,6 +472,36 @@ private fun RoyalCallOptionSheet(
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = "View Chat History",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // Medication Reminder button
+            Surface(
+                onClick = onSetMedicationReminder,
+                shape = RoundedCornerShape(16.dp),
+                color = RoyalGold.copy(alpha = 0.1f),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Medication Reminder",
+                        tint = RoyalGold,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.med_set_medication_reminder),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.Black,

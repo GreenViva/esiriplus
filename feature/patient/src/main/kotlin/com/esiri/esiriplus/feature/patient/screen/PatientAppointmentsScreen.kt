@@ -249,10 +249,10 @@ fun PatientAppointmentsScreen(
             val appt = uiState.unavailableAppointment!!
             AlertDialog(
                 onDismissRequest = { viewModel.dismissDoctorUnavailableDialog() },
-                title = { Text("Doctor Unavailable", color = Color.Black, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.appt_doctor_unavailable_title), color = Color.Black, fontWeight = FontWeight.Bold) },
                 text = {
                     Text(
-                        "The doctor is currently unavailable or in another session. Would you like to find another doctor for this appointment?",
+                        stringResource(R.string.appt_doctor_unavailable_body),
                         color = Color.Black,
                     )
                 },
@@ -261,12 +261,12 @@ fun PatientAppointmentsScreen(
                         onClick = { viewModel.findAnotherDoctor() },
                         colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                     ) {
-                        Text("Find Another Doctor", color = Color.White)
+                        Text(stringResource(R.string.appt_find_another_doctor), color = Color.White)
                     }
                 },
                 dismissButton = {
                     OutlinedButton(onClick = { viewModel.dismissDoctorUnavailableDialog() }) {
-                        Text("Cancel", color = Color.Black)
+                        Text(stringResource(R.string.appointments_cancel), color = Color.Black)
                     }
                 },
             )
@@ -276,10 +276,10 @@ fun PatientAppointmentsScreen(
         if (cancelConfirmAppointmentId != null) {
             AlertDialog(
                 onDismissRequest = { cancelConfirmAppointmentId = null },
-                title = { Text("Cancel Appointment", color = Color.Black, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.appt_cancel_title), color = Color.Black, fontWeight = FontWeight.Bold) },
                 text = {
                     Text(
-                        "Are you sure you want to cancel your appointment? You can consult another doctor, but there will be no refund for this cancellation.",
+                        stringResource(R.string.appt_cancel_body),
                         color = Color.Black,
                     )
                 },
@@ -292,12 +292,12 @@ fun PatientAppointmentsScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = ErrorRed),
                     ) {
-                        Text("Yes, Cancel", color = Color.White)
+                        Text(stringResource(R.string.appt_cancel_confirm), color = Color.White)
                     }
                 },
                 dismissButton = {
                     OutlinedButton(onClick = { cancelConfirmAppointmentId = null }) {
-                        Text("Keep Appointment", color = Color.Black)
+                        Text(stringResource(R.string.appt_keep), color = Color.Black)
                     }
                 },
             )
@@ -426,7 +426,7 @@ private fun AppointmentCard(
                         )
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            text = "Waiting for doctor... ${secondsRemaining}s",
+                            text = stringResource(R.string.appt_waiting_for_doctor, secondsRemaining),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = BrandTeal,
@@ -459,7 +459,7 @@ private fun AppointmentCard(
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        text = if (isStarting) "Requesting Doctor..." else "Start Consultation",
+                        text = if (isStarting) stringResource(R.string.appt_requesting_doctor) else stringResource(R.string.appt_start_consultation),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White,

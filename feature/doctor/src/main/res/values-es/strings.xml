@@ -316,4 +316,18 @@
     <string name="vm_failed_accept">No se pudo aceptar. Intente de nuevo.</string>
     <string name="vm_failed_reject">No se pudo rechazar.</string>
 
+    <!-- ═══ Diálogo de horario de medicamentos ═══ -->
+    <string name="med_timetable_title">Horario de recordatorio de medicamentos</string>
+    <string name="med_timetable_times_per_day">Veces al día</string>
+    <string name="med_timetable_reminder_times">Horarios de recordatorio (EAT)</string>
+    <string name="med_timetable_time_label">Hora %d</string>
+    <string name="med_timetable_time_hint">HH:MM</string>
+    <string name="med_timetable_duration">Duración (días)</string>
+    <string name="med_timetable_nurse_note">Una enfermera llamará al paciente por teléfono en cada horario programado para recordarle tomar este medicamento.</string>
+    <string name="med_timetable_confirm">Establecer horario</string>
+    <string name="med_timetable_cancel">Cancelar</string>
+    <string name="med_set_nurse_reminder">+ Establecer recordatorio de enfermera</string>
+    <string name="med_nurse_reminder_badge">Recordatorio de enfermera: %1$s por %2$d d</string>
+    <string name="med_set_medication_reminder">Establecer recordatorio de medicamento</string>
+
 </resources>

@@ -397,4 +397,28 @@
     <string name="pdf_electronically_signed">इलेक्ट्रॉनिक रूप से हस्ताक्षरित</string>
     <string name="pdf_generated_by">ESIRII Health प्लेटफ़ॉर्म द्वारा निर्मित</string>
 
+    <!-- ===== Appointment / Consultation Start ===== -->
+    <string name="appt_start_consultation">परामर्श शुरू करें</string>
+    <string name="appt_requesting_doctor">डॉक्टर से अनुरोध किया जा रहा है\u2026</string>
+    <string name="appt_waiting_for_doctor">डॉक्टर की प्रतीक्षा\u2026 %ds</string>
+    <string name="appt_doctor_unavailable_title">डॉक्टर अनुपलब्ध</string>
+    <string name="appt_doctor_unavailable_body">डॉक्टर वर्तमान में अनुपलब्ध हैं या किसी अन्य सत्र में हैं। क्या आप इस अपॉइंटमेंट के लिए कोई अन्य डॉक्टर खोजना चाहेंगे?</string>
+    <string name="appt_find_another_doctor">अन्य डॉक्टर खोजें</string>
+    <string name="appt_cancel_title">अपॉइंटमेंट रद्द करें</string>
+    <string name="appt_cancel_body">क्या आप वाकई अपना अपॉइंटमेंट रद्द करना चाहते हैं? आप किसी अन्य डॉक्टर से परामर्श कर सकते हैं, लेकिन इस रद्दीकरण के लिए कोई रिफ़ंड नहीं होगा।</string>
+    <string name="appt_cancel_confirm">हाँ, रद्द करें</string>
+    <string name="appt_keep">अपॉइंटमेंट रखें</string>
+    <string name="appt_failed_start">परामर्श शुरू करने में विफल</string>
+    <string name="appt_scheduled_consultation">निर्धारित अपॉइंटमेंट</string>
+    <string name="vm_session_expired_login">आपका सत्र समाप्त हो गया है। कृपया फिर से लॉग इन करें।</string>
+
+    <!-- ===== Medication Schedule ===== -->
+    <string name="med_schedule_title">दवा अनुसूची</string>
+    <string name="med_schedule_subtitle">एक नर्स निर्धारित समय पर आपको कॉल करेगी</string>
+    <string name="med_schedule_empty_title">कोई सक्रिय दवा अनुसूची नहीं</string>
+    <string name="med_schedule_empty_body">आपके डॉक्टर Royal परामर्श के दौरान नर्स-सहायता प्राप्त दवा रिमाइंडर सेट कर सकते हैं।</string>
+    <string name="med_schedule_active">सक्रिय</string>
+    <string name="med_schedule_ended">समाप्त</string>
+    <string name="med_schedule_date_range">%1$s से %2$s (%3$d दिन)</string>
+
 </resources>

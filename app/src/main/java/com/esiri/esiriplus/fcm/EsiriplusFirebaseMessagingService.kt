@@ -114,6 +114,38 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
+        // Medication reminder call — nurse receives call assignment for patient medication reminder
+        if (type.equals("MEDICATION_REMINDER_CALL", ignoreCase = true)) {
+            val eventId = remoteMessage.data["event_id"] ?: ""
+            val roomId = remoteMessage.data["room_id"] ?: ""
+            val medicationName = remoteMessage.data["medication_name"] ?: ""
+            Log.d(TAG, "Medication reminder call: event=$eventId room=$roomId med=$medicationName")
+
+            // Reuse IncomingCallService — nurse sees it as an incoming call
+            try {
+                IncomingCallService.start(
+                    context = applicationContext,
+                    consultationId = eventId, // event_id used as routing key
+                    callType = "AUDIO",
+                    callerRole = "medication_reminder",
+                    roomId = roomId,
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to start IncomingCallService for med reminder", e)
+                showIncomingCallNotification(eventId, "AUDIO", "medication_reminder", roomId)
+            }
+
+            incomingCallStateHolder.showIncomingCall(
+                IncomingCall(
+                    consultationId = eventId,
+                    roomId = roomId,
+                    callType = "AUDIO",
+                    callerRole = "medication_reminder",
+                ),
+            )
+            return
+        }
+
         // Incoming video/voice call — start foreground service + show full-screen notification
         if (type.equals("VIDEO_CALL_INCOMING", ignoreCase = true)) {
             val consultationId = remoteMessage.data["consultation_id"] ?: ""
@@ -395,6 +427,8 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         "DOCTOR_UNSUSPENDED" -> ctx.getString(R.string.notification_account_reinstated)
         "DOCTOR_BANNED" -> ctx.getString(R.string.notification_account_banned)
         "DOCTOR_UNBANNED" -> ctx.getString(R.string.notification_account_reinstated)
+        "MEDICATION_REMINDER_CALL" -> ctx.getString(R.string.notification_medication_reminder_call)
+        "MEDICATION_REMINDER_PATIENT" -> ctx.getString(R.string.notification_medication_reminder)
         else -> ctx.getString(R.string.notification_default_title)
     }
 

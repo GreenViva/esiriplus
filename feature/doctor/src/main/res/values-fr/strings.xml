@@ -316,4 +316,18 @@
     <string name="vm_failed_accept">Impossible d\'accepter. R\u00e9essayez.</string>
     <string name="vm_failed_reject">Impossible de refuser.</string>
 
+    <!-- ═══ Dialogue du calendrier de médicaments ═══ -->
+    <string name="med_timetable_title">Rappel de prise de m\u00e9dicaments</string>
+    <string name="med_timetable_times_per_day">Prises par jour</string>
+    <string name="med_timetable_reminder_times">Heures de rappel (EAT)</string>
+    <string name="med_timetable_time_label">Heure %d</string>
+    <string name="med_timetable_time_hint">HH:MM</string>
+    <string name="med_timetable_duration">Dur\u00e9e (jours)</string>
+    <string name="med_timetable_nurse_note">Une infirmi\u00e8re appellera le patient par t\u00e9l\u00e9phone \u00e0 chaque heure programm\u00e9e pour lui rappeler de prendre ce m\u00e9dicament.</string>
+    <string name="med_timetable_confirm">D\u00e9finir le calendrier</string>
+    <string name="med_timetable_cancel">Annuler</string>
+    <string name="med_set_nurse_reminder">+ D\u00e9finir un rappel infirmier</string>
+    <string name="med_nurse_reminder_badge">Rappel infirmier : %1$s pendant %2$d j</string>
+    <string name="med_set_medication_reminder">D\u00e9finir un rappel de m\u00e9dicament</string>
+
 </resources>

@@ -397,4 +397,28 @@
     <string name="pdf_electronically_signed">Signé électroniquement</string>
     <string name="pdf_generated_by">Généré par la plateforme ESIRII Health</string>
 
+    <!-- ===== Appointment / Consultation Start ===== -->
+    <string name="appt_start_consultation">Démarrer la consultation</string>
+    <string name="appt_requesting_doctor">Demande du médecin\u2026</string>
+    <string name="appt_waiting_for_doctor">En attente du médecin\u2026 %ds</string>
+    <string name="appt_doctor_unavailable_title">Médecin indisponible</string>
+    <string name="appt_doctor_unavailable_body">Le médecin est actuellement indisponible ou en consultation. Souhaitez-vous trouver un autre médecin pour ce rendez-vous ?</string>
+    <string name="appt_find_another_doctor">Trouver un autre médecin</string>
+    <string name="appt_cancel_title">Annuler le rendez-vous</string>
+    <string name="appt_cancel_body">Êtes-vous sûr de vouloir annuler votre rendez-vous ? Vous pouvez consulter un autre médecin, mais aucun remboursement ne sera effectué pour cette annulation.</string>
+    <string name="appt_cancel_confirm">Oui, annuler</string>
+    <string name="appt_keep">Garder le rendez-vous</string>
+    <string name="appt_failed_start">Échec du démarrage de la consultation</string>
+    <string name="appt_scheduled_consultation">Rendez-vous programmé</string>
+    <string name="vm_session_expired_login">Votre session a expiré. Veuillez vous reconnecter.</string>
+
+    <!-- ===== Medication Schedule ===== -->
+    <string name="med_schedule_title">Calendrier des médicaments</string>
+    <string name="med_schedule_subtitle">Une infirmière vous appellera aux heures prévues</string>
+    <string name="med_schedule_empty_title">Aucun calendrier de médicaments actif</string>
+    <string name="med_schedule_empty_body">Votre médecin peut configurer des rappels de médicaments assistés par une infirmière lors des consultations Royal.</string>
+    <string name="med_schedule_active">Actif</string>
+    <string name="med_schedule_ended">Terminé</string>
+    <string name="med_schedule_date_range">%1$s au %2$s (%3$d jours)</string>
+
 </resources>

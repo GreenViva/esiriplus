@@ -316,4 +316,18 @@
     <string name="vm_failed_accept">स्वीकार करने में विफल। फिर से प्रयास करें।</string>
     <string name="vm_failed_reject">अस्वीकार करने में विफल।</string>
 
+    <!-- ═══ दवा समय-सारणी संवाद ═══ -->
+    <string name="med_timetable_title">दवा रिमाइंडर शेड्यूल</string>
+    <string name="med_timetable_times_per_day">प्रति दिन बार</string>
+    <string name="med_timetable_reminder_times">रिमाइंडर समय (EAT)</string>
+    <string name="med_timetable_time_label">समय %d</string>
+    <string name="med_timetable_time_hint">HH:MM</string>
+    <string name="med_timetable_duration">अवधि (दिन)</string>
+    <string name="med_timetable_nurse_note">एक नर्स मरीज़ को हर निर्धारित समय पर वॉइस कॉल करेगी ताकि उन्हें यह दवा लेने की याद दिलाई जा सके।</string>
+    <string name="med_timetable_confirm">शेड्यूल सेट करें</string>
+    <string name="med_timetable_cancel">रद्द करें</string>
+    <string name="med_set_nurse_reminder">+ नर्स रिमाइंडर सेट करें</string>
+    <string name="med_nurse_reminder_badge">नर्स रिमाइंडर: %1$s %2$d दिन के लिए</string>
+    <string name="med_set_medication_reminder">दवा रिमाइंडर सेट करें</string>
+
 </resources>

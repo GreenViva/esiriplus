@@ -109,4 +109,8 @@
     <string name="cd_back">Back</string>
     <string name="cd_incoming_call">Incoming call</string>
     <string name="cd_notifications">Notifications</string>
+
+    <!-- Medication Reminder -->
+    <string name="notification_medication_reminder_call">Medication Reminder Call</string>
+    <string name="notification_medication_reminder">Medication Reminder</string>
 </resources>
