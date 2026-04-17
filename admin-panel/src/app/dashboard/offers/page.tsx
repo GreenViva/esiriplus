@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { formatDate } from "@/lib/utils";
@@ -24,6 +24,7 @@ interface LocationOffer {
   is_active: boolean;
   created_at: string;
   terminated_at: string | null;
+  deleted_at: string | null;
 }
 
 function formatLocationPath(o: LocationOffer): string {
@@ -53,24 +54,32 @@ function formatTimeRemaining(expiresAt: string): string {
 }
 
 export default function OffersPage() {
-  const [offers, setOffers] = useState<LocationOffer[]>([]);
+  const [allOffers, setAllOffers] = useState<LocationOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [terminateOffer, setTerminateOffer] = useState<LocationOffer | null>(null);
   const [terminating, setTerminating] = useState(false);
+  const [deleteOffer, setDeleteOffer] = useState<LocationOffer | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [binOpen, setBinOpen] = useState(false);
+  const [hardDeleteOffer, setHardDeleteOffer] = useState<LocationOffer | null>(null);
+  const [hardDeleting, setHardDeleting] = useState(false);
 
   const load = useCallback(async () => {
     const supabase = createClient();
-    const { data: offersData } = await supabase
+    const { data } = await supabase
       .from("location_offers")
       .select("*")
       .order("created_at", { ascending: false });
-    setOffers((offersData as LocationOffer[]) ?? []);
+    setAllOffers((data as LocationOffer[]) ?? []);
     setLoading(false);
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const offers = useMemo(() => allOffers.filter((o) => !o.deleted_at), [allOffers]);
+  const deletedOffers = useMemo(() => allOffers.filter((o) => o.deleted_at), [allOffers]);
 
   async function handleTerminate() {
     if (!terminateOffer) return;
@@ -94,6 +103,44 @@ export default function OffersPage() {
     await load();
   }
 
+  // Soft-delete: move to recycle bin
+  async function handleSoftDelete() {
+    if (!deleteOffer) return;
+    setDeleting(true);
+    const supabase = createClient();
+    await supabase
+      .from("location_offers")
+      .update({ deleted_at: new Date().toISOString(), is_active: false })
+      .eq("offer_id", deleteOffer.offer_id);
+    setDeleting(false);
+    setDeleteOffer(null);
+    await load();
+  }
+
+  // Restore: clear deleted_at (keeps is_active=false — admin must reactivate explicitly)
+  async function handleRestore(offer: LocationOffer) {
+    const supabase = createClient();
+    await supabase
+      .from("location_offers")
+      .update({ deleted_at: null })
+      .eq("offer_id", offer.offer_id);
+    await load();
+  }
+
+  // Permanent delete: cascades redemption rows. Only from bin, with confirmation.
+  async function handleHardDelete() {
+    if (!hardDeleteOffer) return;
+    setHardDeleting(true);
+    const supabase = createClient();
+    await supabase
+      .from("location_offers")
+      .delete()
+      .eq("offer_id", hardDeleteOffer.offer_id);
+    setHardDeleting(false);
+    setHardDeleteOffer(null);
+    await load();
+  }
+
   function describeDiscount(o: LocationOffer): string {
     if (o.discount_type === "free")    return "Free";
     if (o.discount_type === "percent") return `${o.discount_value}% off`;
@@ -109,7 +156,7 @@ export default function OffersPage() {
   }
 
   return (
-    <div>
+    <div className="relative min-h-[calc(100vh-100px)]">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -221,14 +268,14 @@ export default function OffersPage() {
                     </td>
                     <td className="px-5 py-4 text-gray-500 text-xs">{formatDate(o.created_at)}</td>
                     <td className="px-5 py-4">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         {(() => {
                           const st = offerStatus(o);
                           if (st === "active") {
                             return (
                               <button
                                 onClick={() => setTerminateOffer(o)}
-                                className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium"
+                                className="text-xs px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 font-medium"
                               >
                                 Terminate
                               </button>
@@ -244,9 +291,18 @@ export default function OffersPage() {
                               </button>
                             );
                           }
-                          // expired — no action
-                          return <span className="text-xs text-gray-400">—</span>;
+                          return null;
                         })()}
+                        <button
+                          onClick={() => setDeleteOffer(o)}
+                          className="text-xs px-2 py-1.5 rounded-lg text-red-600 hover:bg-red-50 font-medium inline-flex items-center gap-1"
+                          title="Move to recycle bin"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -264,6 +320,24 @@ export default function OffersPage() {
         </div>
       </div>
 
+      {/* Floating recycle bin button */}
+      <button
+        onClick={() => setBinOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-white border border-gray-200 rounded-full shadow-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-brand-teal transition-colors"
+        title="View deleted offers"
+      >
+        <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
+        Recycle Bin
+        {deletedOffers.length > 0 && (
+          <span className="inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-red-500 text-white text-[10px] font-bold px-1">
+            {deletedOffers.length}
+          </span>
+        )}
+      </button>
+
+      {/* Terminate modal */}
       <Modal open={!!terminateOffer} onClose={() => setTerminateOffer(null)} title="Terminate Offer">
         <p className="text-sm text-gray-600">
           Terminate &ldquo;{terminateOffer?.title}&rdquo;? Patients in
@@ -286,6 +360,144 @@ export default function OffersPage() {
           </button>
         </div>
       </Modal>
+
+      {/* Soft-delete (move to bin) modal */}
+      <Modal open={!!deleteOffer} onClose={() => setDeleteOffer(null)} title="Delete Offer">
+        <p className="text-sm text-gray-600">
+          Move &ldquo;{deleteOffer?.title}&rdquo; to the recycle bin? It will be hidden from this list
+          and stop matching new bookings. You can restore it anytime from the recycle bin.
+        </p>
+        <div className="flex justify-end gap-3 mt-5">
+          <button
+            onClick={() => setDeleteOffer(null)}
+            className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSoftDelete}
+            disabled={deleting}
+            className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+          >
+            {deleting ? "Deleting..." : "Move to Bin"}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Recycle bin modal */}
+      <RecycleBinModal
+        open={binOpen}
+        onClose={() => setBinOpen(false)}
+        offers={deletedOffers}
+        onRestore={handleRestore}
+        onHardDeleteRequest={(o) => setHardDeleteOffer(o)}
+      />
+
+      {/* Hard-delete confirmation */}
+      <Modal open={!!hardDeleteOffer} onClose={() => setHardDeleteOffer(null)} title="Delete Permanently">
+        <p className="text-sm text-gray-600">
+          Permanently delete &ldquo;{hardDeleteOffer?.title}&rdquo;? This cannot be undone. Associated
+          redemption history for this offer will also be removed.
+        </p>
+        <div className="flex justify-end gap-3 mt-5">
+          <button
+            onClick={() => setHardDeleteOffer(null)}
+            className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleHardDelete}
+            disabled={hardDeleting}
+            className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+          >
+            {hardDeleting ? "Deleting..." : "Delete Forever"}
+          </button>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+// ── Recycle Bin modal ───────────────────────────────────────────────────────
+
+function RecycleBinModal({
+  open,
+  onClose,
+  offers,
+  onRestore,
+  onHardDeleteRequest,
+}: {
+  open: boolean;
+  onClose: () => void;
+  offers: LocationOffer[];
+  onRestore: (o: LocationOffer) => void;
+  onHardDeleteRequest: (o: LocationOffer) => void;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Recycle Bin</h2>
+              <p className="text-xs text-gray-400">
+                {offers.length === 0 ? "Empty" : `${offers.length} deleted offer${offers.length === 1 ? "" : "s"}`}
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg">
+            <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6">
+          {offers.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 text-sm">
+              The recycle bin is empty. Deleted offers appear here and can be restored anytime.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {offers.map((o) => (
+                <div key={o.offer_id} className="border border-gray-100 rounded-xl p-4 flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900 truncate">{o.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{formatLocationPath(o)}</p>
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      Deleted {o.deleted_at ? formatDate(o.deleted_at) : ""}
+                      {" · "}
+                      {o.redemption_count} redemption{o.redemption_count === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => onRestore(o)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20 font-medium"
+                    >
+                      Restore
+                    </button>
+                    <button
+                      onClick={() => onHardDeleteRequest(o)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium"
+                    >
+                      Delete Forever
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
