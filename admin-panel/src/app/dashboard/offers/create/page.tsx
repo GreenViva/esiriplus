@@ -20,6 +20,9 @@ export default function CreateOfferPage() {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [limitRedemptions, setLimitRedemptions] = useState(false);
   const [maxRedemptions, setMaxRedemptions] = useState<number>(100);
+  const [hasExpiry, setHasExpiry] = useState(false);
+  const [durationValue, setDurationValue] = useState<number>(24);
+  const [durationUnit, setDurationUnit] = useState<"hours" | "days">("hours");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +54,17 @@ export default function CreateOfferPage() {
       setError("Redemption limit must be a positive whole number.");
       return;
     }
+    if (hasExpiry && (!Number.isFinite(durationValue) || durationValue < 1)) {
+      setError("Duration must be a positive number.");
+      return;
+    }
+
+    // Compute absolute expiry timestamp
+    let expiresAt: string | null = null;
+    if (hasExpiry) {
+      const msPerUnit = durationUnit === "hours" ? 3_600_000 : 86_400_000;
+      expiresAt = new Date(Date.now() + durationValue * msPerUnit).toISOString();
+    }
 
     setSubmitting(true);
     const supabase = createClient();
@@ -67,6 +81,7 @@ export default function CreateOfferPage() {
       discount_type: discountType,
       discount_value: discountType === "free" ? 0 : discountValue,
       max_redemptions: limitRedemptions ? Math.round(maxRedemptions) : null,
+      expires_at: expiresAt,
       is_active: true,
       created_by: user?.id ?? null,
     });
@@ -234,6 +249,53 @@ export default function CreateOfferPage() {
             </div>
           ) : (
             <p className="mt-2 text-xs text-gray-400">Unlimited — every qualifying patient gets the discount.</p>
+          )}
+        </div>
+
+        {/* Duration / expiry */}
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hasExpiry}
+              onChange={(e) => setHasExpiry(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
+            />
+            <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              Set an expiration time
+            </span>
+          </label>
+          {hasExpiry ? (
+            <div className="mt-3 space-y-1">
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={durationValue}
+                  onChange={(e) => setDurationValue(Number(e.target.value))}
+                  min={1}
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-brand-teal focus:outline-none"
+                />
+                <select
+                  value={durationUnit}
+                  onChange={(e) => setDurationUnit(e.target.value as "hours" | "days")}
+                  className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-brand-teal focus:outline-none"
+                >
+                  <option value="hours">Hours</option>
+                  <option value="days">Days</option>
+                </select>
+              </div>
+              <p className="text-xs text-gray-500">
+                Offer will auto-expire on{" "}
+                <b>
+                  {new Date(
+                    Date.now() + durationValue * (durationUnit === "hours" ? 3_600_000 : 86_400_000),
+                  ).toLocaleString()}
+                </b>
+                .
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-gray-400">No expiry — runs until you terminate manually (or the cap is hit).</p>
           )}
         </div>
 

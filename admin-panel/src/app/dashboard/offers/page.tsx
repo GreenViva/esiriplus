@@ -20,6 +20,7 @@ interface LocationOffer {
   discount_value: number;
   max_redemptions: number | null;
   redemption_count: number;
+  expires_at: string | null;
   is_active: boolean;
   created_at: string;
   terminated_at: string | null;
@@ -27,6 +28,28 @@ interface LocationOffer {
 
 function formatLocationPath(o: LocationOffer): string {
   return [o.region, o.district, o.ward, o.street].filter(Boolean).join(" → ");
+}
+
+type OfferStatus = "active" | "expired" | "terminated";
+function offerStatus(o: LocationOffer): OfferStatus {
+  if (!o.is_active) return "terminated";
+  if (o.expires_at && new Date(o.expires_at).getTime() <= Date.now()) return "expired";
+  return "active";
+}
+
+function formatTimeRemaining(expiresAt: string): string {
+  const diffMs = new Date(expiresAt).getTime() - Date.now();
+  if (diffMs <= 0) {
+    const pastMs = Math.abs(diffMs);
+    const hours = Math.floor(pastMs / 3_600_000);
+    return hours < 24 ? `expired ${hours}h ago` : `expired ${Math.floor(hours / 24)}d ago`;
+  }
+  const hours = Math.floor(diffMs / 3_600_000);
+  if (hours < 1) return `< 1h left`;
+  if (hours < 24) return `${hours}h left`;
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  return remHours === 0 ? `${days}d left` : `${days}d ${remHours}h left`;
 }
 
 export default function OffersPage() {
@@ -169,30 +192,61 @@ export default function OffersPage() {
                       )}
                     </td>
                     <td className="px-5 py-4">
-                      {o.is_active ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">Active</span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Terminated</span>
-                      )}
+                      {(() => {
+                        const st = offerStatus(o);
+                        if (st === "active") {
+                          return (
+                            <div>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">Active</span>
+                              {o.expires_at && (
+                                <div className="text-[10px] text-gray-500 mt-0.5">{formatTimeRemaining(o.expires_at)}</div>
+                              )}
+                            </div>
+                          );
+                        }
+                        if (st === "expired") {
+                          return (
+                            <div>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700">Expired</span>
+                              {o.expires_at && (
+                                <div className="text-[10px] text-gray-500 mt-0.5">{formatTimeRemaining(o.expires_at)}</div>
+                              )}
+                            </div>
+                          );
+                        }
+                        return (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Terminated</span>
+                        );
+                      })()}
                     </td>
                     <td className="px-5 py-4 text-gray-500 text-xs">{formatDate(o.created_at)}</td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
-                        {o.is_active ? (
-                          <button
-                            onClick={() => setTerminateOffer(o)}
-                            className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium"
-                          >
-                            Terminate
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => toggleActive(o)}
-                            className="text-xs px-3 py-1.5 rounded-lg bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20 font-medium"
-                          >
-                            Reactivate
-                          </button>
-                        )}
+                        {(() => {
+                          const st = offerStatus(o);
+                          if (st === "active") {
+                            return (
+                              <button
+                                onClick={() => setTerminateOffer(o)}
+                                className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium"
+                              >
+                                Terminate
+                              </button>
+                            );
+                          }
+                          if (st === "terminated") {
+                            return (
+                              <button
+                                onClick={() => toggleActive(o)}
+                                className="text-xs px-3 py-1.5 rounded-lg bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20 font-medium"
+                              >
+                                Reactivate
+                              </button>
+                            );
+                          }
+                          // expired — no action
+                          return <span className="text-xs text-gray-400">—</span>;
+                        })()}
                       </div>
                     </td>
                   </tr>
