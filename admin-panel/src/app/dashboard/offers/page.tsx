@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { formatDate } from "@/lib/utils";
+import { getAllAuthUsers } from "@/lib/adminApi";
 import Modal from "@/components/ui/Modal";
 
 interface LocationOffer {
@@ -24,7 +25,11 @@ interface LocationOffer {
   is_active: boolean;
   created_at: string;
   terminated_at: string | null;
+  terminated_by: string | null;
   deleted_at: string | null;
+  deleted_by: string | null;
+  restored_at: string | null;
+  restored_by: string | null;
 }
 
 function formatLocationPath(o: LocationOffer): string {
@@ -55,6 +60,7 @@ function formatTimeRemaining(expiresAt: string): string {
 
 export default function OffersPage() {
   const [allOffers, setAllOffers] = useState<LocationOffer[]>([]);
+  const [emailByUserId, setEmailByUserId] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [terminateOffer, setTerminateOffer] = useState<LocationOffer | null>(null);
   const [terminating, setTerminating] = useState(false);
@@ -63,16 +69,29 @@ export default function OffersPage() {
   const [binOpen, setBinOpen] = useState(false);
   const [hardDeleteOffer, setHardDeleteOffer] = useState<LocationOffer | null>(null);
   const [hardDeleting, setHardDeleting] = useState(false);
+  const [emptyBinConfirm, setEmptyBinConfirm] = useState(false);
+  const [emptyingBin, setEmptyingBin] = useState(false);
 
   const load = useCallback(async () => {
     const supabase = createClient();
-    const { data } = await supabase
-      .from("location_offers")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const [{ data }, authRes] = await Promise.all([
+      supabase.from("location_offers").select("*").order("created_at", { ascending: false }),
+      getAllAuthUsers().catch(() => ({ data: { users: [] } })),
+    ]);
     setAllOffers((data as LocationOffer[]) ?? []);
+    const users = authRes?.data?.users ?? [];
+    const emailMap: Record<string, string> = {};
+    for (const u of users) {
+      if (u?.id && u?.email) emailMap[u.id] = u.email;
+    }
+    setEmailByUserId(emailMap);
     setLoading(false);
   }, []);
+
+  function nameFor(userId: string | null | undefined): string {
+    if (!userId) return "unknown";
+    return emailByUserId[userId] ?? `${userId.slice(0, 8)}…`;
+  }
 
   useEffect(() => {
     load();
@@ -81,13 +100,20 @@ export default function OffersPage() {
   const offers = useMemo(() => allOffers.filter((o) => !o.deleted_at), [allOffers]);
   const deletedOffers = useMemo(() => allOffers.filter((o) => o.deleted_at), [allOffers]);
 
+  async function currentUserId(): Promise<string | null> {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id ?? null;
+  }
+
   async function handleTerminate() {
     if (!terminateOffer) return;
     setTerminating(true);
     const supabase = createClient();
+    const uid = await currentUserId();
     await supabase
       .from("location_offers")
-      .update({ is_active: false })
+      .update({ is_active: false, terminated_by: uid })
       .eq("offer_id", terminateOffer.offer_id);
     setTerminating(false);
     setTerminateOffer(null);
@@ -96,10 +122,16 @@ export default function OffersPage() {
 
   async function toggleActive(offer: LocationOffer) {
     const supabase = createClient();
-    await supabase
-      .from("location_offers")
-      .update({ is_active: !offer.is_active })
-      .eq("offer_id", offer.offer_id);
+    const uid = await currentUserId();
+    const payload: Record<string, unknown> = { is_active: !offer.is_active };
+    if (offer.is_active) {
+      payload.terminated_by = uid;
+    } else {
+      // Reactivating — clear terminated trail
+      payload.terminated_at = null;
+      payload.terminated_by = null;
+    }
+    await supabase.from("location_offers").update(payload).eq("offer_id", offer.offer_id);
     await load();
   }
 
@@ -108,21 +140,33 @@ export default function OffersPage() {
     if (!deleteOffer) return;
     setDeleting(true);
     const supabase = createClient();
+    const uid = await currentUserId();
     await supabase
       .from("location_offers")
-      .update({ deleted_at: new Date().toISOString(), is_active: false })
+      .update({
+        deleted_at: new Date().toISOString(),
+        deleted_by: uid,
+        is_active: false,
+      })
       .eq("offer_id", deleteOffer.offer_id);
     setDeleting(false);
     setDeleteOffer(null);
     await load();
   }
 
-  // Restore: clear deleted_at (keeps is_active=false — admin must reactivate explicitly)
+  // Restore: clear deleted_at, record restore audit. is_active stays false —
+  // admin must Reactivate explicitly if they want it matching again.
   async function handleRestore(offer: LocationOffer) {
     const supabase = createClient();
+    const uid = await currentUserId();
     await supabase
       .from("location_offers")
-      .update({ deleted_at: null })
+      .update({
+        deleted_at: null,
+        deleted_by: null,
+        restored_at: new Date().toISOString(),
+        restored_by: uid,
+      })
       .eq("offer_id", offer.offer_id);
     await load();
   }
@@ -138,6 +182,19 @@ export default function OffersPage() {
       .eq("offer_id", hardDeleteOffer.offer_id);
     setHardDeleting(false);
     setHardDeleteOffer(null);
+    await load();
+  }
+
+  // Bulk purge: hard-delete every soft-deleted row at once
+  async function handleEmptyBin() {
+    setEmptyingBin(true);
+    const supabase = createClient();
+    await supabase
+      .from("location_offers")
+      .delete()
+      .not("deleted_at", "is", null);
+    setEmptyingBin(false);
+    setEmptyBinConfirm(false);
     await load();
   }
 
@@ -389,9 +446,34 @@ export default function OffersPage() {
         open={binOpen}
         onClose={() => setBinOpen(false)}
         offers={deletedOffers}
+        nameFor={nameFor}
         onRestore={handleRestore}
         onHardDeleteRequest={(o) => setHardDeleteOffer(o)}
+        onEmptyBinRequest={() => setEmptyBinConfirm(true)}
       />
+
+      {/* Empty bin confirmation */}
+      <Modal open={emptyBinConfirm} onClose={() => setEmptyBinConfirm(false)} title="Empty Recycle Bin">
+        <p className="text-sm text-gray-600">
+          Permanently delete all <b>{deletedOffers.length}</b> offer{deletedOffers.length === 1 ? "" : "s"} in
+          the bin? This cannot be undone. Associated redemption history for every offer will also be removed.
+        </p>
+        <div className="flex justify-end gap-3 mt-5">
+          <button
+            onClick={() => setEmptyBinConfirm(false)}
+            className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleEmptyBin}
+            disabled={emptyingBin || deletedOffers.length === 0}
+            className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+          >
+            {emptyingBin ? "Emptying..." : "Empty Bin"}
+          </button>
+        </div>
+      </Modal>
 
       {/* Hard-delete confirmation */}
       <Modal open={!!hardDeleteOffer} onClose={() => setHardDeleteOffer(null)} title="Delete Permanently">
@@ -425,14 +507,18 @@ function RecycleBinModal({
   open,
   onClose,
   offers,
+  nameFor,
   onRestore,
   onHardDeleteRequest,
+  onEmptyBinRequest,
 }: {
   open: boolean;
   onClose: () => void;
   offers: LocationOffer[];
+  nameFor: (userId: string | null | undefined) => string;
   onRestore: (o: LocationOffer) => void;
   onHardDeleteRequest: (o: LocationOffer) => void;
+  onEmptyBinRequest: () => void;
 }) {
   if (!open) return null;
   return (
@@ -449,15 +535,27 @@ function RecycleBinModal({
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Recycle Bin</h2>
               <p className="text-xs text-gray-400">
-                {offers.length === 0 ? "Empty" : `${offers.length} deleted offer${offers.length === 1 ? "" : "s"}`}
+                {offers.length === 0
+                  ? "Empty"
+                  : `${offers.length} deleted offer${offers.length === 1 ? "" : "s"} · auto-purged after 90 days`}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg">
-            <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            {offers.length > 0 && (
+              <button
+                onClick={onEmptyBinRequest}
+                className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium"
+              >
+                Empty Bin
+              </button>
+            )}
+            <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg">
+              <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
@@ -473,7 +571,8 @@ function RecycleBinModal({
                     <p className="font-medium text-gray-900 truncate">{o.title}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{formatLocationPath(o)}</p>
                     <p className="text-[11px] text-gray-400 mt-1">
-                      Deleted {o.deleted_at ? formatDate(o.deleted_at) : ""}
+                      Deleted by <span className="text-gray-600">{nameFor(o.deleted_by)}</span>
+                      {o.deleted_at ? ` on ${formatDate(o.deleted_at)}` : ""}
                       {" · "}
                       {o.redemption_count} redemption{o.redemption_count === 1 ? "" : "s"}
                     </p>
