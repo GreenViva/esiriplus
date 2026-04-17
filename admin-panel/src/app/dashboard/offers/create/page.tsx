@@ -18,6 +18,8 @@ export default function CreateOfferPage() {
   const [tiers, setTiers] = useState<string[]>([]);
   const [discountType, setDiscountType] = useState<"free" | "percent" | "fixed">("free");
   const [discountValue, setDiscountValue] = useState<number>(0);
+  const [limitRedemptions, setLimitRedemptions] = useState(false);
+  const [maxRedemptions, setMaxRedemptions] = useState<number>(100);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +47,10 @@ export default function CreateOfferPage() {
       setError("Fixed discount must be greater than 0.");
       return;
     }
+    if (limitRedemptions && (!Number.isFinite(maxRedemptions) || maxRedemptions < 1)) {
+      setError("Redemption limit must be a positive whole number.");
+      return;
+    }
 
     setSubmitting(true);
     const supabase = createClient();
@@ -60,6 +66,7 @@ export default function CreateOfferPage() {
       tiers,
       discount_type: discountType,
       discount_value: discountType === "free" ? 0 : discountValue,
+      max_redemptions: limitRedemptions ? Math.round(maxRedemptions) : null,
       is_active: true,
       created_by: user?.id ?? null,
     });
@@ -194,6 +201,39 @@ export default function CreateOfferPage() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-brand-teal focus:outline-none"
               />
             </div>
+          )}
+        </div>
+
+        {/* Redemption cap */}
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={limitRedemptions}
+              onChange={(e) => setLimitRedemptions(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-brand-teal focus:ring-brand-teal"
+            />
+            <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              Limit number of patients who can redeem
+            </span>
+          </label>
+          {limitRedemptions ? (
+            <div className="mt-3 space-y-1">
+              <input
+                type="number"
+                value={maxRedemptions}
+                onChange={(e) => setMaxRedemptions(Number(e.target.value))}
+                min={1}
+                placeholder="e.g. 100"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-brand-teal focus:outline-none"
+              />
+              <p className="text-xs text-gray-500">
+                The offer will self-terminate once <b>{maxRedemptions || 0}</b> patient
+                {maxRedemptions === 1 ? "" : "s"} from this location have redeemed it.
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-gray-400">Unlimited — every qualifying patient gets the discount.</p>
           )}
         </div>
 

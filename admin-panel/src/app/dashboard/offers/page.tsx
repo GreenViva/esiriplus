@@ -18,6 +18,8 @@ interface LocationOffer {
   tiers: string[];
   discount_type: "free" | "percent" | "fixed";
   discount_value: number;
+  max_redemptions: number | null;
+  redemption_count: number;
   is_active: boolean;
   created_at: string;
   terminated_at: string | null;
@@ -27,35 +29,19 @@ function formatLocationPath(o: LocationOffer): string {
   return [o.region, o.district, o.ward, o.street].filter(Boolean).join(" → ");
 }
 
-interface RedemptionCount {
-  offer_id: string;
-  count: number;
-}
-
 export default function OffersPage() {
   const [offers, setOffers] = useState<LocationOffer[]>([]);
-  const [redemptions, setRedemptions] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [terminateOffer, setTerminateOffer] = useState<LocationOffer | null>(null);
   const [terminating, setTerminating] = useState(false);
 
   const load = useCallback(async () => {
     const supabase = createClient();
-    const [{ data: offersData }, { data: redemptionsData }] = await Promise.all([
-      supabase
-        .from("location_offers")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("location_offer_redemptions")
-        .select("offer_id"),
-    ]);
+    const { data: offersData } = await supabase
+      .from("location_offers")
+      .select("*")
+      .order("created_at", { ascending: false });
     setOffers((offersData as LocationOffer[]) ?? []);
-    const counts: Record<string, number> = {};
-    for (const r of (redemptionsData as { offer_id: string }[]) ?? []) {
-      counts[r.offer_id] = (counts[r.offer_id] ?? 0) + 1;
-    }
-    setRedemptions(counts);
     setLoading(false);
   }, []);
 
@@ -164,7 +150,24 @@ export default function OffersPage() {
                         {describeDiscount(o)}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-gray-700">{redemptions[o.offer_id] ?? 0}</td>
+                    <td className="px-5 py-4 text-gray-700 text-xs">
+                      {o.max_redemptions != null ? (
+                        <div className="min-w-[80px]">
+                          <div className="flex justify-between mb-0.5">
+                            <span className="font-semibold">{o.redemption_count}</span>
+                            <span className="text-gray-400">/ {o.max_redemptions}</span>
+                          </div>
+                          <div className="h-1 bg-gray-100 rounded overflow-hidden">
+                            <div
+                              className="h-full bg-brand-teal"
+                              style={{ width: `${Math.min(100, (o.redemption_count / o.max_redemptions) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <span>{o.redemption_count} <span className="text-gray-400">/ ∞</span></span>
+                      )}
+                    </td>
                     <td className="px-5 py-4">
                       {o.is_active ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">Active</span>
