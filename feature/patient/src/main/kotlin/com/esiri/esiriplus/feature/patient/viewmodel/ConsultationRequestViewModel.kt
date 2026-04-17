@@ -99,6 +99,12 @@ class ConsultationRequestViewModel @Inject constructor(
     private val appointmentId: String? =
         savedStateHandle.get<String>("appointmentId")
 
+    /** Location context — populated by ServiceLocationScreen. Used for location-based offer matching. */
+    private val serviceDistrict: String? =
+        savedStateHandle.get<String>("serviceDistrict")?.takeIf { it.isNotBlank() }
+    private val serviceWard: String? =
+        savedStateHandle.get<String>("serviceWard")?.takeIf { it.isNotBlank() }
+
     private val _uiState = MutableStateFlow(ConsultationRequestUiState())
     val uiState: StateFlow<ConsultationRequestUiState> = _uiState.asStateFlow()
 
@@ -458,6 +464,8 @@ class ConsultationRequestViewModel @Inject constructor(
             isSubstituteFollowUp = isSubstituteFollowUp,
             originalDoctorId = if (isSubstituteFollowUp) originalDoctorId else null,
             region = state.region,
+            serviceDistrict = serviceDistrict,
+            serviceWard = serviceWard,
             appointmentId = appointmentId,
         )
     }

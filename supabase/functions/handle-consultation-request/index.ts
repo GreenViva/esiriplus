@@ -66,6 +66,10 @@ interface CreateRequest {
   is_substitute_follow_up?: boolean;
   original_doctor_id?: string;
   region?: string;
+  service_region?: string;
+  service_district?: string;
+  service_ward?: string;
+  service_street?: string;
   appointment_id?: string;
 }
 
@@ -273,6 +277,10 @@ async function handleCreate(
       doctor_id: body.doctor_id,
       service_type: body.service_type,
       service_tier: (body.service_tier ?? "ECONOMY").toUpperCase(),
+      service_region: (body.service_region ?? "TANZANIA").toUpperCase(),
+      service_district: body.service_district?.trim() || null,
+      service_ward: body.service_ward?.trim() || null,
+      service_street: body.service_street?.trim() || null,
       consultation_type: body.consultation_type ?? "chat",
       chief_complaint: body.chief_complaint ?? "",
       symptoms: body.symptoms ?? null,
@@ -524,6 +532,72 @@ async function handleAccept(
         headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
       },
     );
+  }
+
+  // Apply location offer if one matches. Runs after consultation is created so
+  // that the consultation row is the source of truth for the final fee.
+  // Non-fatal — if offer lookup fails, the consultation is already created at
+  // full price and the patient just doesn't get the discount.
+  if (!isFollowUpAccept &&
+      (request.service_district || request.service_ward || request.service_street ||
+       (request.service_region && request.service_region !== "TANZANIA"))) {
+    try {
+      const tierUpper = (request.service_tier ?? "ECONOMY").toUpperCase();
+      const tierMult = tierUpper === "ROYAL" ? 10 : 1;
+      const tierAdjusted = (SERVICE_FEES[request.service_type] ?? 5000) * tierMult;
+
+      const { data: offer } = await supabase.rpc("match_location_offer", {
+        p_patient_session_id: patientSessionId,
+        p_district: request.service_district ?? null,
+        p_ward: request.service_ward ?? null,
+        p_service_type: request.service_type,
+        p_tier: tierUpper,
+        p_region: request.service_region ?? null,
+        p_street: request.service_street ?? null,
+      });
+
+      if (offer && offer.offer_id) {
+        let discountedFee = tierAdjusted;
+        if (offer.discount_type === "free") {
+          discountedFee = 0;
+        } else if (offer.discount_type === "percent") {
+          const pct = Math.max(0, Math.min(100, Number(offer.discount_value) || 0));
+          discountedFee = Math.max(0, Math.round(tierAdjusted * (100 - pct) / 100));
+        } else if (offer.discount_type === "fixed") {
+          discountedFee = Math.max(0, tierAdjusted - (Number(offer.discount_value) || 0));
+        }
+
+        // Record redemption first (unique constraint prevents double-redeem on race)
+        const { error: redeemErr } = await supabase
+          .from("location_offer_redemptions")
+          .insert({
+            offer_id: offer.offer_id,
+            patient_session_id: patientSessionId,
+            consultation_id: consultation.consultation_id,
+            original_price: tierAdjusted,
+            discounted_price: discountedFee,
+          });
+
+        if (!redeemErr && discountedFee !== tierAdjusted) {
+          await supabase
+            .from("consultations")
+            .update({
+              consultation_fee: discountedFee,
+              service_region: request.service_region ?? "TANZANIA",
+              service_district: request.service_district ?? null,
+              service_ward: request.service_ward ?? null,
+              service_street: request.service_street ?? null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("consultation_id", consultation.consultation_id);
+          console.log(`[offer] Applied ${offer.discount_type} offer ${offer.offer_id}: ${tierAdjusted} -> ${discountedFee}`);
+        } else if (redeemErr) {
+          console.warn("[offer] Redemption insert failed (patient may have already redeemed):", redeemErr.message);
+        }
+      }
+    } catch (e) {
+      console.warn("[offer] Location offer lookup failed (non-fatal):", e);
+    }
   }
 
   // Single atomic update: mark accepted + link consultation_id

@@ -44,6 +44,8 @@ class ConsultationRequestService @Inject constructor(
         isSubstituteFollowUp: Boolean = false,
         originalDoctorId: String? = null,
         region: String? = null,
+        serviceDistrict: String? = null,
+        serviceWard: String? = null,
         appointmentId: String? = null,
     ): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
@@ -53,6 +55,8 @@ class ConsultationRequestService @Inject constructor(
             put("service_tier", serviceTier.uppercase())
             put("consultation_type", consultationType)
             put("chief_complaint", chiefComplaint)
+            if (!serviceDistrict.isNullOrBlank()) put("service_district", serviceDistrict)
+            if (!serviceWard.isNullOrBlank()) put("service_ward", serviceWard)
             if (!symptoms.isNullOrBlank()) put("symptoms", symptoms)
             if (!patientAgeGroup.isNullOrBlank()) put("patient_age_group", patientAgeGroup)
             if (!patientSex.isNullOrBlank()) put("patient_sex", patientSex)

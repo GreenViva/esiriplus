@@ -1,13 +1,18 @@
 package com.esiri.esiriplus.feature.patient.screen
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.location.Geocoder
+import android.location.Location
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +20,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +35,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
@@ -54,6 +63,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.esiri.esiriplus.feature.patient.R
+import com.esiri.esiriplus.feature.patient.model.TZ_DISTRICTS
+import com.esiri.esiriplus.feature.patient.model.TzDistrict
+import androidx.compose.runtime.rememberCoroutineScope
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
@@ -67,7 +85,7 @@ private val locationPermissions = arrayOf(
 
 @Composable
 fun ServiceLocationScreen(
-    onSelectInsideTanzania: () -> Unit,
+    onSelectInsideTanzania: (district: String?, ward: String?) -> Unit,
     onSelectOutsideTanzania: () -> Unit,
     onBack: () -> Unit,
     tier: String = "ECONOMY",
@@ -88,6 +106,30 @@ fun ServiceLocationScreen(
     var hasRequestedOnce by rememberSaveable { mutableStateOf(false) }
     var permanentlyDenied by rememberSaveable { mutableStateOf(false) }
     var showInternationalDialog by remember { mutableStateOf(false) }
+    var showDistrictPicker by remember { mutableStateOf(false) }
+    var selectedDistrict by rememberSaveable { mutableStateOf<String?>(null) }
+    var isDetecting by remember { mutableStateOf(false) }
+    var detectionFailedReason by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    fun detectDistrictAndProceed() {
+        if (isDetecting) return
+        isDetecting = true
+        detectionFailedReason = null
+        scope.launch {
+            val matched = detectDistrictFromGps(context)
+            isDetecting = false
+            if (matched != null) {
+                selectedDistrict = matched
+                onSelectInsideTanzania(matched, null)
+            } else {
+                // Couldn't resolve — fall back to manual picker
+                detectionFailedReason = "We couldn't detect your district. Please select it."
+                showDistrictPicker = true
+            }
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -126,8 +168,9 @@ fun ServiceLocationScreen(
             if (locationGranted) {
                 // ── Granted: show the normal Inside/Outside Tanzania UI ──
                 LocationSelectionContent(
-                    onSelectInsideTanzania = onSelectInsideTanzania,
+                    onSelectInsideTanzania = { detectDistrictAndProceed() },
                     onSelectOutsideTanzania = { showInternationalDialog = true },
+                    isDetecting = isDetecting,
                 )
             } else {
                 // ── Not granted: permission prompt ──
@@ -165,6 +208,92 @@ fun ServiceLocationScreen(
             },
         )
     }
+
+    if (showDistrictPicker) {
+        DistrictPickerDialog(
+            districts = TZ_DISTRICTS,
+            headerMessage = detectionFailedReason,
+            onDismiss = { showDistrictPicker = false },
+            onSelect = { district ->
+                selectedDistrict = district.district
+                showDistrictPicker = false
+                // For v1 we pass the district only; ward stays null. The edge
+                // function can still match ward-scoped offers if the patient's
+                // chosen ward aligns later (future enhancement).
+                onSelectInsideTanzania(district.district, null)
+            },
+            onSkip = {
+                showDistrictPicker = false
+                onSelectInsideTanzania(null, null)
+            },
+        )
+    }
+}
+
+@Composable
+private fun DistrictPickerDialog(
+    districts: List<TzDistrict>,
+    onDismiss: () -> Unit,
+    onSelect: (TzDistrict) -> Unit,
+    onSkip: () -> Unit,
+    headerMessage: String? = null,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Where are you right now?",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = headerMessage
+                        ?: "We use this to find nearby doctors and apply any offers in your area.",
+                    color = Color.Black,
+                    fontSize = 13.sp,
+                )
+                Spacer(Modifier.height(12.dp))
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 320.dp),
+                ) {
+                    items(districts) { d ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSelect(d) }
+                                .padding(vertical = 12.dp),
+                        ) {
+                            Text(
+                                text = d.district,
+                                color = Color.Black,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp,
+                            )
+                            Text(
+                                text = d.region,
+                                color = Color.Black,
+                                fontSize = 12.sp,
+                            )
+                        }
+                        HorizontalDivider(color = CardBorder)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onSkip) {
+                Text("Skip", color = BrandTeal)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.location_ok), color = Color.Gray)
+            }
+        },
+    )
 }
 
 @Composable
@@ -246,6 +375,7 @@ private fun LocationPermissionPrompt(
 private fun LocationSelectionContent(
     onSelectInsideTanzania: () -> Unit,
     onSelectOutsideTanzania: () -> Unit,
+    isDetecting: Boolean = false,
 ) {
     Spacer(Modifier.height(32.dp))
 
@@ -286,7 +416,7 @@ private fun LocationSelectionContent(
 
     // Inside Tanzania card
     Card(
-        onClick = onSelectInsideTanzania,
+        onClick = { if (!isDetecting) onSelectInsideTanzania() },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = BrandTeal),
@@ -306,16 +436,25 @@ private fun LocationSelectionContent(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = stringResource(R.string.location_local_doctors),
+                    text = if (isDetecting) "Detecting your district..."
+                           else stringResource(R.string.location_local_doctors),
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.8f),
                 )
             }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = stringResource(R.string.location_content_desc_select),
-                tint = Color.White,
-            )
+            if (isDetecting) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    color = Color.White,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(20.dp),
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(R.string.location_content_desc_select),
+                    tint = Color.White,
+                )
+            }
         }
     }
 
@@ -354,6 +493,57 @@ private fun LocationSelectionContent(
                 contentDescription = stringResource(R.string.location_content_desc_select),
                 tint = Color.Gray,
             )
+        }
+    }
+}
+
+/**
+ * Fetch the device's current coordinates, reverse-geocode them to a district name,
+ * and match against [TZ_DISTRICTS]. Returns the canonical district name on match,
+ * or null on timeout / no match / failure — caller should fall back to manual picker.
+ */
+@Suppress("MissingPermission")
+private suspend fun detectDistrictFromGps(context: Context): String? {
+    // 1. Get coordinates via Play Services
+    val location: Location = try {
+        val client = LocationServices.getFusedLocationProviderClient(context)
+        kotlinx.coroutines.withTimeoutOrNull(8_000) {
+            kotlinx.coroutines.suspendCancellableCoroutine<Location?> { cont ->
+                client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                    .addOnSuccessListener { loc -> if (cont.isActive) cont.resumeWith(Result.success(loc)) }
+                    .addOnFailureListener { if (cont.isActive) cont.resumeWith(Result.success(null)) }
+            }
+        }
+    } catch (e: Exception) {
+        Log.w("ServiceLocation", "FusedLocation failed", e)
+        null
+    } ?: return null
+
+    // 2. Reverse-geocode off the main thread
+    return withContext(Dispatchers.IO) {
+        try {
+            @Suppress("DEPRECATION")
+            val addresses = Geocoder(context, Locale.getDefault())
+                .getFromLocation(location.latitude, location.longitude, 1)
+            val addr = addresses?.firstOrNull() ?: return@withContext null
+
+            // Build candidate district names from the address fields. Tanzanian
+            // addresses from Google's geocoder typically surface district as
+            // `locality` (e.g. "Ubungo") or `subAdminArea`.
+            val candidates = listOfNotNull(
+                addr.subAdminArea,
+                addr.locality,
+            ).map { it.trim() }
+
+            // Match case-insensitively against our known list.
+            candidates.firstNotNullOfOrNull { candidate ->
+                TZ_DISTRICTS.firstOrNull { it.district.equals(candidate, ignoreCase = true) }?.district
+            }.also {
+                Log.d("ServiceLocation", "Geocoded candidates=$candidates matched=$it")
+            }
+        } catch (e: Exception) {
+            Log.w("ServiceLocation", "Geocoder failed", e)
+            null
         }
     }
 }

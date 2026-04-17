@@ -23,6 +23,8 @@ interface ConsultationRequestRepository {
         isSubstituteFollowUp: Boolean = false,
         originalDoctorId: String? = null,
         region: String? = null,
+        serviceDistrict: String? = null,
+        serviceWard: String? = null,
         appointmentId: String? = null,
     ): Result<ConsultationRequest>
 

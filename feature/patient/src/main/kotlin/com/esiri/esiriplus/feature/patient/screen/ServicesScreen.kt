@@ -63,7 +63,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.text.style.TextDecoration
 import com.esiri.esiriplus.core.database.entity.ServiceTierEntity
+import com.esiri.esiriplus.core.domain.model.LocationOffer
 import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.ServicesViewModel
@@ -73,6 +75,8 @@ import java.util.Locale
 private val BrandTeal = Color(0xFF2A9D8F)
 private val MintLight = Color(0xFFE0F2F1)
 private val PopularOrange = Color(0xFFEA580C)
+private val OfferGreen = Color(0xFF059669)
+private val OfferGreenDark = Color(0xFF047857)
 
 // Icon background colors per category
 private val iconColors = mapOf(
@@ -115,8 +119,12 @@ fun ServicesScreen(
 
     // Find the selected service for the dialog subtitle
     val selectedService = uiState.services.find { it.id == uiState.selectedServiceId }
-    // Effective (tier-adjusted) price for the currently selected service
-    val selectedEffectivePrice = selectedService?.let { uiState.effectivePrice(it.priceAmount) } ?: 0
+    // Effective price AFTER any matching location offer (strikethrough shown separately)
+    val selectedEffectivePrice = selectedService?.let {
+        uiState.effectivePrice(it.priceAmount, it.category)
+    } ?: 0
+    val selectedOriginalPrice = selectedService?.let { uiState.tierAdjustedPrice(it.priceAmount) } ?: 0
+    val selectedOffer = selectedService?.let { uiState.offerFor(it.category) }
 
     // Payment verification simulation states
     var showVerifyingDialog by remember { mutableStateOf(false) }
@@ -191,6 +199,14 @@ fun ServicesScreen(
                 }
             }
 
+            // ── Location offer banner ────────────────────────────────────────
+            if (uiState.hasOffers) {
+                LocationOfferBanner(
+                    offers = uiState.applicableOffers,
+                    district = uiState.serviceDistrict,
+                )
+            }
+
             HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
             PullToRefreshBox(
@@ -218,9 +234,12 @@ fun ServicesScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         items(uiState.services, key = { it.id }) { service ->
+                            val offer = uiState.offerFor(service.category)
                             ServiceCard(
                                 service = service,
-                                displayPrice = uiState.effectivePrice(service.priceAmount),
+                                displayPrice = uiState.effectivePrice(service.priceAmount, service.category),
+                                originalPrice = uiState.tierAdjustedPrice(service.priceAmount),
+                                offer = offer,
                                 isSelected = uiState.selectedServiceId == service.id,
                                 onSelect = { viewModel.selectService(service.id) },
                             )
@@ -352,11 +371,18 @@ private fun ServiceCard(
     displayPrice: Int,
     isSelected: Boolean,
     onSelect: () -> Unit,
+    originalPrice: Int = displayPrice,
+    offer: LocationOffer? = null,
 ) {
     val isPopular = service.category == "GP"
     val isComingSoon = service.category in comingSoonCategories
-    val borderColor = if (isSelected) BrandTeal else MaterialTheme.colorScheme.outline
+    val borderColor = when {
+        isSelected -> BrandTeal
+        offer != null -> OfferGreen
+        else -> MaterialTheme.colorScheme.outline
+    }
     val contentAlpha = if (isComingSoon) 0.5f else 1f
+    val hasDiscount = offer != null && displayPrice != originalPrice
 
     Box(
         modifier = Modifier
@@ -371,12 +397,33 @@ private fun ServiceCard(
             .then(if (!isComingSoon) Modifier.clickable { onSelect() } else Modifier),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Popular / Coming Soon badges
-            if (isPopular || isComingSoon) {
+            // Popular / Coming Soon / Offer badges
+            if (isPopular || isComingSoon || offer != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    if (offer != null) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = OfferGreen,
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(text = "🎉", fontSize = 11.sp)
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    text = offer.shortLabel(),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                )
+                            }
+                        }
+                    }
                     if (isPopular) {
                         Surface(
                             shape = RoundedCornerShape(10.dp),
@@ -453,11 +500,19 @@ private fun ServiceCard(
 
                 // Price + duration
                 Column(horizontalAlignment = Alignment.End) {
+                    if (hasDiscount) {
+                        Text(
+                            text = "TSh ${numberFormat.format(originalPrice)}",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha),
+                            textDecoration = TextDecoration.LineThrough,
+                        )
+                    }
                     Text(
-                        text = "TSh ${numberFormat.format(displayPrice)}",
+                        text = if (displayPrice == 0) "FREE" else "TSh ${numberFormat.format(displayPrice)}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
-                        color = BrandTeal.copy(alpha = contentAlpha),
+                        color = if (hasDiscount) OfferGreenDark else BrandTeal.copy(alpha = contentAlpha),
                     )
                     Text(
                         text = stringResource(R.string.services_min_format, service.durationMinutes),
@@ -492,6 +547,53 @@ private fun ServiceCard(
                         FeatureTag(feature.trim(), alpha = contentAlpha)
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Green banner shown at the top of the services list when the patient has one
+ * or more location-based offers available. Summarises the best offer and, if
+ * multiple offers apply, shows a "+N more" count.
+ */
+@Composable
+private fun LocationOfferBanner(
+    offers: List<LocationOffer>,
+    district: String?,
+) {
+    if (offers.isEmpty()) return
+    val headline = offers.first()
+    val extra = offers.size - 1
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.horizontalGradient(listOf(OfferGreenDark, OfferGreen)),
+            )
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "🎉", fontSize = 20.sp)
+            Spacer(Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = headline.title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+                val subtitle = buildString {
+                    append(headline.shortLabel())
+                    if (!district.isNullOrBlank()) append(" · for ").append(district)
+                    if (extra > 0) append(" · +$extra more offer${if (extra == 1) "" else "s"}")
+                }
+                Text(
+                    text = subtitle,
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.9f),
+                )
             }
         }
     }

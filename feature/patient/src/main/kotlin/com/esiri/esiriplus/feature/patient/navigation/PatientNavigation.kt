@@ -32,7 +32,11 @@ import kotlinx.serialization.Serializable
 @Serializable object PatientHomeRoute
 @Serializable object TierSelectionRoute
 @Serializable data class ServiceLocationRoute(val tier: String = "ECONOMY")
-@Serializable data class ServicesRoute(val tier: String = "ECONOMY")
+@Serializable data class ServicesRoute(
+    val tier: String = "ECONOMY",
+    val serviceDistrict: String? = null,
+    val serviceWard: String? = null,
+)
 @Serializable data class PatientConsultationRoute(val consultationId: String)
 @Serializable data class PatientPaymentRoute(
     val consultationId: String,
@@ -47,6 +51,8 @@ import kotlinx.serialization.Serializable
     val serviceDurationMinutes: Int,
     val serviceTier: String = "ECONOMY",
     val appointmentId: String? = null,
+    val serviceDistrict: String? = null,
+    val serviceWard: String? = null,
 )
 @Serializable data class BookAppointmentRoute(
     val doctorId: String,
@@ -54,6 +60,8 @@ import kotlinx.serialization.Serializable
     val servicePriceAmount: Int,
     val serviceDurationMinutes: Int,
     val serviceTier: String = "ECONOMY",
+    val serviceDistrict: String? = null,
+    val serviceWard: String? = null,
 )
 @Serializable object PatientAppointmentsRoute
 @Serializable object MedicationScheduleRoute
@@ -124,8 +132,14 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
             val route = backStackEntry.toRoute<ServiceLocationRoute>()
             ServiceLocationScreen(
                 tier = route.tier,
-                onSelectInsideTanzania = {
-                    navController.navigate(ServicesRoute(tier = route.tier))
+                onSelectInsideTanzania = { district, ward ->
+                    navController.navigate(
+                        ServicesRoute(
+                            tier = route.tier,
+                            serviceDistrict = district,
+                            serviceWard = ward,
+                        ),
+                    )
                 },
                 onSelectOutsideTanzania = {
                     // Coming soon — ServiceLocationScreen handles dialog internally
@@ -135,7 +149,8 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
         }
 
         // ── Services (receives tier, applies PricingEngine) ───────────────────
-        composable<ServicesRoute> {
+        composable<ServicesRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<ServicesRoute>()
             // tier is injected into ServicesViewModel via SavedStateHandle automatically
             ServicesScreen(
                 onServiceSelected = { category, price, duration, tier ->
@@ -145,6 +160,8 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                             servicePriceAmount = price,
                             serviceDurationMinutes = duration,
                             serviceTier = tier,
+                            serviceDistrict = route.serviceDistrict,
+                            serviceWard = route.serviceWard,
                         ),
                     )
                 },
@@ -168,6 +185,8 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                             servicePriceAmount = route.servicePriceAmount,
                             serviceDurationMinutes = route.serviceDurationMinutes,
                             serviceTier = route.serviceTier,
+                            serviceDistrict = route.serviceDistrict,
+                            serviceWard = route.serviceWard,
                         ),
                     )
                 },

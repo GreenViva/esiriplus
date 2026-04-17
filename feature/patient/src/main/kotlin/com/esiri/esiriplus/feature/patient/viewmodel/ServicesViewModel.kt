@@ -1,13 +1,17 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.database.dao.ServiceTierDao
 import com.esiri.esiriplus.core.database.entity.ServiceTierEntity
 import com.esiri.esiriplus.core.domain.model.ConsultationTier
+import com.esiri.esiriplus.core.domain.model.LocationOffer
 import com.esiri.esiriplus.core.domain.pricing.PricingEngine
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
+import com.esiri.esiriplus.core.domain.repository.LocationOfferRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,23 +28,64 @@ data class ServicesUiState(
     val isRefreshing: Boolean = false,
     val patientId: String = "",
     val tier: ConsultationTier = ConsultationTier.ECONOMY,
+    /** Patient's chosen district (from ServiceLocationScreen). Null = no location-based offers. */
+    val serviceDistrict: String? = null,
+    val serviceWard: String? = null,
+    /** Offers currently available to this patient for their district + tier. */
+    val applicableOffers: List<LocationOffer> = emptyList(),
 ) {
-    /** Effective price for [basePrice] after applying the tier multiplier. */
-    fun effectivePrice(basePrice: Int): Int = PricingEngine.calculatePrice(basePrice, tier)
+    /** Price after tier multiplier only — used as the "original" strikethrough price. */
+    fun tierAdjustedPrice(basePrice: Int): Int = PricingEngine.calculatePrice(basePrice, tier)
+
+    /**
+     * The final price a patient pays. Applies tier multiplier then the best
+     * matching offer (if any). Existing call sites that pass no [serviceCategory]
+     * continue to get tier-only pricing — that keeps unrelated flows unaffected.
+     */
+    fun effectivePrice(basePrice: Int, serviceCategory: String? = null): Int {
+        val adjusted = tierAdjustedPrice(basePrice)
+        if (serviceCategory == null) return adjusted
+        val offer = offerFor(serviceCategory) ?: return adjusted
+        return offer.applyTo(adjusted)
+    }
+
+    /**
+     * Returns the best offer that applies to [serviceCategory], or null if none.
+     * Prefers offers with more specific scope (ward > district, fewer service types = broader).
+     */
+    fun offerFor(serviceCategory: String): LocationOffer? {
+        val eligible = applicableOffers.filter { it.appliesTo(serviceCategory) }
+        if (eligible.isEmpty()) return null
+        return eligible.minByOrNull { offer ->
+            val wardScore = if (offer.ward != null) 0 else 1
+            val typeScore = if (offer.serviceTypes.isNotEmpty()) 0 else 1
+            wardScore * 10 + typeScore
+        }
+    }
+
+    /** True when at least one offer is currently available — drives the banner. */
+    val hasOffers: Boolean get() = applicableOffers.isNotEmpty()
 }
 
 @HiltViewModel
 class ServicesViewModel @Inject constructor(
     private val serviceTierDao: ServiceTierDao,
     private val authRepository: AuthRepository,
+    private val locationOfferRepository: LocationOfferRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
+    private val tierString: String = savedStateHandle.get<String>("tier") ?: "ECONOMY"
+    private val district: String? =
+        savedStateHandle.get<String>("serviceDistrict")?.takeIf { it.isNotBlank() }
+    private val ward: String? =
+        savedStateHandle.get<String>("serviceWard")?.takeIf { it.isNotBlank() }
+
     private val _uiState = MutableStateFlow(
         ServicesUiState(
-            tier = ConsultationTier.fromString(
-                savedStateHandle.get<String>("tier") ?: "ECONOMY",
-            ),
+            tier = ConsultationTier.fromString(tierString),
+            serviceDistrict = district,
+            serviceWard = ward,
         ),
     )
     val uiState: StateFlow<ServicesUiState> = _uiState.asStateFlow()
@@ -48,6 +93,7 @@ class ServicesViewModel @Inject constructor(
     init {
         loadServices()
         loadPatientId()
+        loadOffers()
     }
 
     private fun loadServices() {
@@ -63,7 +109,30 @@ class ServicesViewModel @Inject constructor(
         }
     }
 
+    private fun loadOffers() {
+        if (district.isNullOrBlank()) return
+        viewModelScope.launch {
+            when (val result = locationOfferRepository.fetchApplicableOffers(
+                district = district,
+                ward = ward,
+                tier = tierString,
+            )) {
+                is Result.Success -> {
+                    _uiState.update { it.copy(applicableOffers = result.data) }
+                    Log.d(TAG, "Loaded ${result.data.size} offer(s) for $district")
+                }
+                is Result.Error -> {
+                    Log.w(TAG, "Failed to load offers: ${result.message}")
+                    // No-op — UI already has empty list
+                }
+                is Result.Loading -> { /* not emitted */ }
+            }
+        }
+    }
+
     companion object {
+        private const val TAG = "ServicesVM"
+
         private val FALLBACK_SERVICES = listOf(
             ServiceTierEntity(id = "tier_nurse", category = "NURSE", displayName = "Nurse", description = "Normal consultations for everyday health concerns", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 1, durationMinutes = 15, features = "Basic health advice,Symptom assessment,Health education"),
             ServiceTierEntity(id = "tier_clinical_officer", category = "CLINICAL_OFFICER", displayName = "Clinical Officer", description = "Daily medical consultations for common ailments", priceAmount = 7000, currency = "TZS", isActive = true, sortOrder = 2, durationMinutes = 15, features = "Medical diagnosis,Treatment recommendations,Prescription guidance"),
@@ -96,5 +165,6 @@ class ServicesViewModel @Inject constructor(
                 _uiState.update { it.copy(services = tiers, isRefreshing = false) }
             }
         }
+        loadOffers()
     }
 }
