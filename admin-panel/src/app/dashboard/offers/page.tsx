@@ -58,6 +58,16 @@ function formatTimeRemaining(expiresAt: string): string {
   return remHours === 0 ? `${days}d left` : `${days}d ${remHours}h left`;
 }
 
+interface Redemption {
+  redemption_id: string;
+  offer_id: string;
+  patient_session_id: string;
+  consultation_id: string | null;
+  original_price: number;
+  discounted_price: number;
+  redeemed_at: string;
+}
+
 export default function OffersPage() {
   const [allOffers, setAllOffers] = useState<LocationOffer[]>([]);
   const [emailByUserId, setEmailByUserId] = useState<Record<string, string>>({});
@@ -71,6 +81,9 @@ export default function OffersPage() {
   const [hardDeleting, setHardDeleting] = useState(false);
   const [emptyBinConfirm, setEmptyBinConfirm] = useState(false);
   const [emptyingBin, setEmptyingBin] = useState(false);
+  const [reportOffer, setReportOffer] = useState<LocationOffer | null>(null);
+  const [reportRows, setReportRows] = useState<Redemption[]>([]);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const load = useCallback(async () => {
     const supabase = createClient();
@@ -196,6 +209,20 @@ export default function OffersPage() {
     setEmptyingBin(false);
     setEmptyBinConfirm(false);
     await load();
+  }
+
+  async function openReport(offer: LocationOffer) {
+    setReportOffer(offer);
+    setReportLoading(true);
+    setReportRows([]);
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("location_offer_redemptions")
+      .select("*")
+      .eq("offer_id", offer.offer_id)
+      .order("redeemed_at", { ascending: false });
+    setReportRows((data as Redemption[]) ?? []);
+    setReportLoading(false);
   }
 
   function describeDiscount(o: LocationOffer): string {
@@ -326,6 +353,16 @@ export default function OffersPage() {
                     <td className="px-5 py-4 text-gray-500 text-xs">{formatDate(o.created_at)}</td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2 items-center">
+                        <button
+                          onClick={() => openReport(o)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-medium inline-flex items-center gap-1"
+                          title="View redemption report"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                          </svg>
+                          Report
+                        </button>
                         {(() => {
                           const st = offerStatus(o);
                           if (st === "active") {
@@ -450,6 +487,14 @@ export default function OffersPage() {
         onRestore={handleRestore}
         onHardDeleteRequest={(o) => setHardDeleteOffer(o)}
         onEmptyBinRequest={() => setEmptyBinConfirm(true)}
+      />
+
+      {/* Offer report modal */}
+      <OfferReportModal
+        offer={reportOffer}
+        rows={reportRows}
+        loading={reportLoading}
+        onClose={() => setReportOffer(null)}
       />
 
       {/* Empty bin confirmation */}
@@ -597,6 +642,151 @@ function RecycleBinModal({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Offer Report modal ──────────────────────────────────────────────────────
+
+function formatTZS(n: number): string {
+  return `TSh ${Math.round(n).toLocaleString("en-US")}`;
+}
+
+function OfferReportModal({
+  offer,
+  rows,
+  loading,
+  onClose,
+}: {
+  offer: LocationOffer | null;
+  rows: Redemption[];
+  loading: boolean;
+  onClose: () => void;
+}) {
+  if (!offer) return null;
+
+  const patientCount = rows.length;
+  const revenueGenerated = rows.reduce((acc, r) => acc + (r.discounted_price ?? 0), 0);
+  const originalTotal = rows.reduce((acc, r) => acc + (r.original_price ?? 0), 0);
+  const discountGiven = Math.max(0, originalTotal - revenueGenerated);
+  const avgDiscountPct = originalTotal > 0 ? Math.round((discountGiven / originalTotal) * 100) : 0;
+  const avgPerPatient = patientCount > 0 ? revenueGenerated / patientCount : 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+              <svg className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">{offer.title}</h2>
+              <p className="text-xs text-gray-500 mt-0.5">{formatLocationPath(offer)}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg">
+            <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-teal border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              {/* Summary cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                <SummaryCard label="Patients served" value={patientCount.toString()} accent="indigo" />
+                <SummaryCard label="Revenue generated" value={formatTZS(revenueGenerated)} accent="emerald" />
+                <SummaryCard label="Total discount given" value={formatTZS(discountGiven)} accent="amber" />
+                <SummaryCard label="Average discount" value={`${avgDiscountPct}%`} accent="rose" />
+              </div>
+
+              {patientCount === 0 ? (
+                <div className="text-center py-12 text-gray-400 text-sm">
+                  No patient has redeemed this offer yet.
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Average payment per patient: <b className="text-gray-700">{formatTZS(avgPerPatient)}</b>.
+                    Full breakdown below.
+                  </p>
+                  <div className="border border-gray-100 rounded-xl overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left px-4 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Patient</th>
+                          <th className="text-right px-4 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Original</th>
+                          <th className="text-right px-4 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Paid</th>
+                          <th className="text-right px-4 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Saved</th>
+                          <th className="text-right px-4 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Redeemed</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {rows.map((r) => {
+                          const saved = Math.max(0, (r.original_price ?? 0) - (r.discounted_price ?? 0));
+                          return (
+                            <tr key={r.redemption_id}>
+                              <td className="px-4 py-2.5 text-gray-700 font-mono text-[11px]">
+                                {r.patient_session_id.slice(0, 8)}…
+                              </td>
+                              <td className="px-4 py-2.5 text-right text-gray-500">{formatTZS(r.original_price)}</td>
+                              <td className="px-4 py-2.5 text-right text-emerald-700 font-medium">{formatTZS(r.discounted_price)}</td>
+                              <td className="px-4 py-2.5 text-right text-amber-700">{formatTZS(saved)}</td>
+                              <td className="px-4 py-2.5 text-right text-gray-500 text-[11px]">
+                                {new Date(r.redeemed_at).toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent: "indigo" | "emerald" | "amber" | "rose";
+}) {
+  const tone = {
+    indigo: "bg-indigo-50 text-indigo-700",
+    emerald: "bg-emerald-50 text-emerald-700",
+    amber: "bg-amber-50 text-amber-700",
+    rose: "bg-rose-50 text-rose-700",
+  }[accent];
+  return (
+    <div className="rounded-xl border border-gray-100 p-4">
+      <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{label}</p>
+      <p className={`mt-1 inline-flex items-center rounded-lg px-2 py-0.5 text-lg font-bold ${tone}`}>{value}</p>
     </div>
   );
 }
