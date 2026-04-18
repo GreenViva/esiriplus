@@ -257,20 +257,34 @@ fun ServicesScreen(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    val isFreeOffer = selectedService != null && selectedEffectivePrice == 0 && selectedOffer != null
                     Button(
-                        onClick = { showPaymentDialog = true },
+                        onClick = {
+                            if (isFreeOffer && selectedService != null) {
+                                // Skip the payment flow entirely — company covers the free offer
+                                onServiceSelected(
+                                    selectedService.category,
+                                    0,
+                                    selectedService.durationMinutes,
+                                    uiState.tier.name,
+                                )
+                            } else {
+                                showPaymentDialog = true
+                            }
+                        },
                         enabled = uiState.selectedServiceId != null,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
                         shape = RoundedCornerShape(26.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = BrandTeal,
+                            containerColor = if (isFreeOffer) OfferGreenDark else BrandTeal,
                             disabledContainerColor = BrandTeal.copy(alpha = 0.5f),
                         ),
                     ) {
                         Text(
-                            text = stringResource(R.string.services_pay_to_continue),
+                            text = if (isFreeOffer) "Start Consultation — FREE"
+                                   else stringResource(R.string.services_pay_to_continue),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
@@ -278,9 +292,11 @@ fun ServicesScreen(
                     }
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = stringResource(R.string.services_payment_required),
+                        text = if (isFreeOffer) "No payment required — this consultation is on us 🎉"
+                               else stringResource(R.string.services_payment_required),
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = if (isFreeOffer) OfferGreenDark else MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
                     )
                 }
             }

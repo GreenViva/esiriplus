@@ -186,8 +186,15 @@ Deno.serve(async (req: Request) => {
       ? Number((body as Record<string, unknown>).duration)
       : (serviceTier?.duration_minutes ?? 15);
 
-    // Check for an active location offer the patient qualifies for
-    let consultationFee = tierAdjustedPrice;
+    // Check for an active location offer the patient qualifies for.
+    //
+    // consultation_fee is the DOCTOR's earning basis — it always stays at the
+    // full tier-adjusted price regardless of any offer. The company absorbs
+    // the subsidy via location_offer_redemptions (original_price vs
+    // discounted_price). The PATIENT pays `patientAmountDue`; if that's 0 the
+    // client skips the payment flow.
+    const consultationFee = tierAdjustedPrice;
+    let patientAmountDue = tierAdjustedPrice;
     let matchedOffer: { offer_id: string } | null = null;
     if (district) {
       const { data: offer, error: offerErr } = await supabase.rpc("match_location_offer", {
@@ -202,12 +209,12 @@ Deno.serve(async (req: Request) => {
       } else if (offer && offer.offer_id) {
         matchedOffer = offer;
         if (offer.discount_type === "free") {
-          consultationFee = 0;
+          patientAmountDue = 0;
         } else if (offer.discount_type === "percent") {
           const pct = Math.max(0, Math.min(100, Number(offer.discount_value) || 0));
-          consultationFee = Math.max(0, Math.round(tierAdjustedPrice * (100 - pct) / 100));
+          patientAmountDue = Math.max(0, Math.round(tierAdjustedPrice * (100 - pct) / 100));
         } else if (offer.discount_type === "fixed") {
-          consultationFee = Math.max(0, tierAdjustedPrice - (Number(offer.discount_value) || 0));
+          patientAmountDue = Math.max(0, tierAdjustedPrice - (Number(offer.discount_value) || 0));
         }
       }
     }
@@ -247,11 +254,12 @@ Deno.serve(async (req: Request) => {
       throw new Error(`DB insert failed: ${error.message} | code: ${error.code} | details: ${error.details}`);
     }
 
-    // Record the offer redemption. Unique(offer_id, patient_session_id) protects
-    // against double-redemption — on race, we revert this booking's fee to full
-    // price so the patient doesn't get a discount without a recorded redemption.
+    // Record the offer redemption. UNIQUE(offer_id, patient_session_id) protects
+    // against double-redemption — on race, revert patientAmountDue to the full
+    // price so the patient isn't silently given a discount without a recorded
+    // redemption. consultation_fee never changes (doctor's earning basis).
     let appliedOfferId: string | null = null;
-    if (matchedOffer && consultationFee !== tierAdjustedPrice) {
+    if (matchedOffer && patientAmountDue !== tierAdjustedPrice) {
       const { error: redeemErr } = await supabase
         .from("location_offer_redemptions")
         .insert({
@@ -259,16 +267,12 @@ Deno.serve(async (req: Request) => {
           patient_session_id: auth.sessionId,
           consultation_id: consultation.consultation_id,
           original_price: tierAdjustedPrice,
-          discounted_price: consultationFee,
+          discounted_price: patientAmountDue,
         });
 
       if (redeemErr) {
-        console.warn("[create-consultation] offer redemption failed, reverting to full price:", redeemErr.message);
-        await supabase
-          .from("consultations")
-          .update({ consultation_fee: tierAdjustedPrice, updated_at: new Date().toISOString() })
-          .eq("consultation_id", consultation.consultation_id);
-        consultationFee = tierAdjustedPrice;
+        console.warn("[create-consultation] offer redemption failed, reverting patient fee to full price:", redeemErr.message);
+        patientAmountDue = tierAdjustedPrice;
       } else {
         appliedOfferId = matchedOffer.offer_id;
       }
@@ -336,7 +340,8 @@ Deno.serve(async (req: Request) => {
       consultation_id: consultation.consultation_id,
       status: consultation.status,
       created_at: consultation.created_at,
-      consultation_fee: consultationFee,
+      consultation_fee: consultationFee,          // doctor's earning basis
+      patient_amount_due: patientAmountDue,        // what the patient actually pays (may be 0)
       original_price: tierAdjustedPrice,
       ...(appliedOfferId && { applied_offer_id: appliedOfferId }),
       ...(availableSlots !== undefined && { available_slots: availableSlots }),

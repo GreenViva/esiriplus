@@ -579,10 +579,14 @@ async function handleAccept(
           });
 
         if (!redeemErr && discountedFee !== tierAdjusted) {
+          // IMPORTANT: consultation_fee is the DOCTOR's earning basis — leave it
+          // at the full tier-adjusted price so doctors are paid the same
+          // regardless of the offer. The company (via location_offer_redemptions)
+          // absorbs the (tierAdjusted - discountedFee) subsidy. Patient's actual
+          // payment amount is recorded on the redemption row (discounted_price).
           await supabase
             .from("consultations")
             .update({
-              consultation_fee: discountedFee,
               service_region: request.service_region ?? "TANZANIA",
               service_district: request.service_district ?? null,
               service_ward: request.service_ward ?? null,
@@ -590,7 +594,7 @@ async function handleAccept(
               updated_at: new Date().toISOString(),
             })
             .eq("consultation_id", consultation.consultation_id);
-          console.log(`[offer] Applied ${offer.discount_type} offer ${offer.offer_id}: ${tierAdjusted} -> ${discountedFee}`);
+          console.log(`[offer] Applied ${offer.discount_type} offer ${offer.offer_id}: patient pays ${discountedFee}, doctor earns from ${tierAdjusted}`);
         } else if (redeemErr) {
           console.warn("[offer] Redemption insert failed (patient may have already redeemed):", redeemErr.message);
         }
