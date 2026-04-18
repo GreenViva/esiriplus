@@ -33,6 +33,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
         region: String?,
         serviceDistrict: String?,
         serviceWard: String?,
+        serviceStreet: String?,
         appointmentId: String?,
     ): Result<ConsultationRequest> {
         return service.createRequest(
@@ -55,6 +56,7 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
             region = region,
             serviceDistrict = serviceDistrict,
             serviceWard = serviceWard,
+            serviceStreet = serviceStreet,
             appointmentId = appointmentId,
         ).map { it.toDomain() }
             .toDomainResult()

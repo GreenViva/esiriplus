@@ -11,8 +11,12 @@ data class LocationOffer(
     val offerId: String,
     val title: String,
     val description: String?,
-    val district: String,
+    /** Any of region/district/ward/street may be null when the offer targets
+     *  a broader scope (e.g. whole-region offers have district/ward/street null). */
+    val region: String?,
+    val district: String?,
     val ward: String?,
+    val street: String?,
     /** Empty = applies to all service types. */
     val serviceTypes: List<String>,
     /** Empty = applies to all tiers. */

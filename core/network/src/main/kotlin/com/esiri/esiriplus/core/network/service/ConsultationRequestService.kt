@@ -46,6 +46,7 @@ class ConsultationRequestService @Inject constructor(
         region: String? = null,
         serviceDistrict: String? = null,
         serviceWard: String? = null,
+        serviceStreet: String? = null,
         appointmentId: String? = null,
     ): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
@@ -57,6 +58,7 @@ class ConsultationRequestService @Inject constructor(
             put("chief_complaint", chiefComplaint)
             if (!serviceDistrict.isNullOrBlank()) put("service_district", serviceDistrict)
             if (!serviceWard.isNullOrBlank()) put("service_ward", serviceWard)
+            if (!serviceStreet.isNullOrBlank()) put("service_street", serviceStreet)
             if (!symptoms.isNullOrBlank()) put("symptoms", symptoms)
             if (!patientAgeGroup.isNullOrBlank()) put("patient_age_group", patientAgeGroup)
             if (!patientSex.isNullOrBlank()) put("patient_sex", patientSex)

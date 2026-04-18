@@ -99,11 +99,8 @@ class ConsultationRequestViewModel @Inject constructor(
     private val appointmentId: String? =
         savedStateHandle.get<String>("appointmentId")
 
-    /** Location context — populated by ServiceLocationScreen. Used for location-based offer matching. */
-    private val serviceDistrict: String? =
-        savedStateHandle.get<String>("serviceDistrict")?.takeIf { it.isNotBlank() }
-    private val serviceWard: String? =
-        savedStateHandle.get<String>("serviceWard")?.takeIf { it.isNotBlank() }
+    // Location is GPS-resolved at app start by LocationResolver and lives on
+    // the patient session — read at request-build time via patientSessionDao.
 
     private val _uiState = MutableStateFlow(ConsultationRequestUiState())
     val uiState: StateFlow<ConsultationRequestUiState> = _uiState.asStateFlow()
@@ -446,6 +443,10 @@ class ConsultationRequestViewModel @Inject constructor(
         symptoms: String?,
         state: ConsultationRequestUiState,
     ): Result<com.esiri.esiriplus.core.domain.model.ConsultationRequest> {
+        // Read GPS-resolved hierarchy off the session at request time so we
+        // get whatever LocationResolver / backfill last persisted (no nav
+        // args, no manual picker).
+        val session = patientSessionDao.getSession().first()
         return consultationRequestRepository.createRequest(
             doctorId = doctorId,
             serviceType = serviceType,
@@ -463,9 +464,10 @@ class ConsultationRequestViewModel @Inject constructor(
             parentConsultationId = if (isSubstituteFollowUp) parentConsultationId else null,
             isSubstituteFollowUp = isSubstituteFollowUp,
             originalDoctorId = if (isSubstituteFollowUp) originalDoctorId else null,
-            region = state.region,
-            serviceDistrict = serviceDistrict,
-            serviceWard = serviceWard,
+            region = session?.region?.takeIf { it.isNotBlank() },
+            serviceDistrict = session?.serviceDistrict?.takeIf { it.isNotBlank() },
+            serviceWard = session?.serviceWard?.takeIf { it.isNotBlank() },
+            serviceStreet = session?.serviceStreet?.takeIf { it.isNotBlank() },
             appointmentId = appointmentId,
         )
     }

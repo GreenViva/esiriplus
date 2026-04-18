@@ -23,8 +23,10 @@ private data class OfferDto(
     @SerialName("offer_id") val offerId: String,
     val title: String,
     val description: String? = null,
-    val district: String,
+    val region: String? = null,
+    val district: String? = null,
     val ward: String? = null,
+    val street: String? = null,
     @SerialName("service_types") val serviceTypes: List<String> = emptyList(),
     val tiers: List<String> = emptyList(),
     @SerialName("discount_type") val discountType: String,
@@ -37,17 +39,23 @@ class LocationOfferRepositoryImpl @Inject constructor(
 ) : LocationOfferRepository {
 
     override suspend fun fetchApplicableOffers(
+        region: String?,
         district: String?,
         ward: String?,
+        street: String?,
         tier: String,
     ): Result<List<LocationOffer>> {
-        if (district.isNullOrBlank()) {
+        if (region.isNullOrBlank() && district.isNullOrBlank() &&
+            ward.isNullOrBlank() && street.isNullOrBlank()
+        ) {
             return Result.Success(emptyList())
         }
 
         val body = buildJsonObject {
-            put("service_district", district)
-            if (!ward.isNullOrBlank()) put("service_ward", ward)
+            if (!region.isNullOrBlank())   put("service_region", region)
+            if (!district.isNullOrBlank()) put("service_district", district)
+            if (!ward.isNullOrBlank())     put("service_ward", ward)
+            if (!street.isNullOrBlank())   put("service_street", street)
             put("service_tier", tier.uppercase())
         }
 
@@ -85,8 +93,10 @@ class LocationOfferRepositoryImpl @Inject constructor(
             offerId = offerId,
             title = title,
             description = description,
+            region = region,
             district = district,
             ward = ward,
+            street = street,
             serviceTypes = serviceTypes,
             tiers = tiers,
             discountType = type,

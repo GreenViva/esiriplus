@@ -1,17 +1,21 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.Manifest
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.PatientSessionDao
-import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
 import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
+import com.esiri.esiriplus.core.database.entity.ConsultationEntity
+import com.esiri.esiriplus.core.network.service.LocationResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -48,6 +52,7 @@ class PatientHomeViewModel @Inject constructor(
     private val patientSessionDao: PatientSessionDao,
     private val doctorRatingRepository: DoctorRatingRepository,
     private val patientReportRepository: PatientReportRepository,
+    private val locationResolver: LocationResolver,
 ) : ViewModel() {
 
     private val prefs = application.getSharedPreferences("patient_prefs", Context.MODE_PRIVATE)
@@ -61,6 +66,68 @@ class PatientHomeViewModel @Inject constructor(
         checkPendingRatings()
         syncUnsyncedRatings()
         checkUnreadReports()
+        backfillLocationIfMissing()
+    }
+
+    /**
+     * One-shot backfill for legacy sessions that finished setup before the
+     * full hierarchy was captured. If the session has no district yet AND
+     * location permission is already granted, silently re-resolve via
+     * LocationResolver. Failure is non-fatal — offers just won't surface.
+     * The user is never prompted; if permission isn't granted yet, the
+     * permission gate will handle that on its next entry.
+     */
+    private fun backfillLocationIfMissing() {
+        viewModelScope.launch {
+            // Seed patient_sessions row if it's missing — existing patients
+            // who logged in before AuthRepositoryImpl started inserting the
+            // row won't have one, and LocationResolver bails when it can't
+            // find a session.
+            seedPatientSessionRowIfMissing()
+
+            val session = patientSessionDao.getSession().first() ?: return@launch
+            if (!session.serviceDistrict.isNullOrBlank()) return@launch
+            val granted = ContextCompat.checkSelfPermission(
+                application,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) return@launch
+            try {
+                locationResolver.resolveAndPersist()
+            } catch (e: Exception) {
+                Log.w(TAG, "Location backfill failed (non-fatal)", e)
+            }
+        }
+    }
+
+    private suspend fun seedPatientSessionRowIfMissing() {
+        if (patientSessionDao.getSession().first() != null) return
+        val authSession = authRepository.currentSession.first() ?: return
+        val now = System.currentTimeMillis()
+        patientSessionDao.insert(
+            com.esiri.esiriplus.core.database.entity.PatientSessionEntity(
+                sessionId = authSession.user.id,
+                sessionTokenHash = authSession.accessToken.hashCode().toString(),
+                createdAt = now,
+                updatedAt = now,
+            ),
+        )
+        Log.d(TAG, "Seeded missing patient_sessions row for ${authSession.user.id}")
+    }
+
+    /**
+     * Called by the location permission gate the moment the patient grants
+     * access. Fires LocationResolver immediately so the session has a
+     * resolved tuple by the time the patient navigates anywhere.
+     */
+    fun onLocationGranted() {
+        viewModelScope.launch {
+            try {
+                locationResolver.resolveAndPersist()
+            } catch (e: Exception) {
+                Log.w(TAG, "Location resolve after grant failed", e)
+            }
+        }
     }
 
     private val ongoingConsultations = patientSessionDao.getSession().flatMapLatest { session ->

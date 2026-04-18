@@ -70,6 +70,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
+    // Location services (used by LocationResolver)
+    implementation(libs.play.services.location)
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

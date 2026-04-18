@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
-import android.location.Geocoder
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -18,6 +17,7 @@ import com.esiri.esiriplus.core.database.dao.PatientProfileDao
 import com.esiri.esiriplus.core.database.entity.PatientProfileEntity
 import com.esiri.esiriplus.core.domain.usecase.CreatePatientSessionUseCase
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
+import com.esiri.esiriplus.core.network.service.LocationResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 data class PatientSetupUiState(
@@ -61,6 +60,7 @@ class PatientSetupViewModel @Inject constructor(
     private val createPatientSession: CreatePatientSessionUseCase,
     private val patientProfileDao: PatientProfileDao,
     private val edgeFunctionClient: EdgeFunctionClient,
+    private val locationResolver: LocationResolver,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PatientSetupUiState())
@@ -126,34 +126,23 @@ class PatientSetupViewModel @Inject constructor(
     }
 
     /**
-     * Auto-detect region from GPS coordinates using reverse geocoding.
-     * Resolves to street-level: e.g. "Sinza, Kinondoni, Dar es Salaam"
+     * Resolve the patient's full GPS hierarchy (region/district/ward/street)
+     * via [LocationResolver], which canonicalises against tz_locations and
+     * persists the tuple on both server and Room. Caller must already have
+     * the location permission granted. UI display string is the canonical
+     * region name (the rest is matched server-side for offers/pricing).
      */
-    fun detectRegionFromLocation(context: Context, latitude: Double, longitude: Double) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                @Suppress("DEPRECATION")
-                val addresses = Geocoder(context, Locale.getDefault())
-                    .getFromLocation(latitude, longitude, 1)
-                val addr = addresses?.firstOrNull() ?: return@launch
-
-                // Build street-level location: subLocality (ward/neighborhood), then locality (district), then adminArea (region)
-                // e.g. "Sinza, Kinondoni, Dar es Salaam" or "Manzese, Ubungo, Dar es Salaam"
-                val parts = listOfNotNull(
-                    addr.subLocality,       // Sinza, Manzese, Mabibo
-                    addr.locality,          // Kinondoni, Ubungo, Ilala
-                    addr.subAdminArea,      // District (if different from locality)
-                    addr.adminArea,         // Dar es Salaam, Arusha, Mwanza
-                ).distinct()
-
-                val region = if (parts.isNotEmpty()) parts.joinToString(", ") else null
-
-                if (!region.isNullOrBlank()) {
-                    _uiState.update { it.copy(region = region) }
-                    Log.d(TAG, "Auto-detected region: $region")
+    fun resolveCurrentLocation() {
+        viewModelScope.launch {
+            when (val res = locationResolver.resolveAndPersist()) {
+                is Result.Success -> {
+                    res.data.region?.let { region ->
+                        _uiState.update { it.copy(region = region) }
+                    }
+                    Log.d(TAG, "Resolved location: ${res.data}")
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to geocode location", e)
+                is Result.Error -> Log.w(TAG, "Location resolve failed: ${res.message}")
+                is Result.Loading -> Unit
             }
         }
     }
@@ -176,8 +165,9 @@ class PatientSetupViewModel @Inject constructor(
      */
     private suspend fun syncDemographicsToBackend(state: PatientSetupUiState) {
         try {
+            // Location is persisted by LocationResolver via resolve-patient-location.
+            // This call is for medical demographics only.
             val body = buildJsonObject {
-                if (state.region.isNotBlank()) put("region", state.region)
                 if (state.sex.isNotBlank()) put("sex", state.sex)
                 if (state.ageGroup.isNotBlank()) put("age", state.ageGroup)
                 if (state.bloodType.isNotBlank()) put("blood_type", state.bloodType)

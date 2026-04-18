@@ -25,6 +25,7 @@ interface ConsultationRequestRepository {
         region: String? = null,
         serviceDistrict: String? = null,
         serviceWard: String? = null,
+        serviceStreet: String? = null,
         appointmentId: String? = null,
     ): Result<ConsultationRequest>
 

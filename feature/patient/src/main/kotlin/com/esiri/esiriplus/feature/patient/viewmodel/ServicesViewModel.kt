@@ -7,11 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.database.dao.ServiceTierDao
 import com.esiri.esiriplus.core.database.entity.ServiceTierEntity
+import androidx.navigation.toRoute
 import com.esiri.esiriplus.core.domain.model.ConsultationTier
 import com.esiri.esiriplus.core.domain.model.LocationOffer
 import com.esiri.esiriplus.core.domain.pricing.PricingEngine
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.LocationOfferRepository
+import com.esiri.esiriplus.core.domain.repository.PatientSessionRepository
+import com.esiri.esiriplus.feature.patient.navigation.ServicesRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,10 +31,12 @@ data class ServicesUiState(
     val isRefreshing: Boolean = false,
     val patientId: String = "",
     val tier: ConsultationTier = ConsultationTier.ECONOMY,
-    /** Patient's chosen district (from ServiceLocationScreen). Null = no location-based offers. */
+    /** Patient's GPS-resolved location (sourced from session, not nav args). */
+    val serviceRegion: String? = null,
     val serviceDistrict: String? = null,
     val serviceWard: String? = null,
-    /** Offers currently available to this patient for their district + tier. */
+    val serviceStreet: String? = null,
+    /** Offers currently available to this patient for their location + tier. */
     val applicableOffers: List<LocationOffer> = emptyList(),
 ) {
     /** Price after tier multiplier only — used as the "original" strikethrough price. */
@@ -72,28 +77,52 @@ class ServicesViewModel @Inject constructor(
     private val serviceTierDao: ServiceTierDao,
     private val authRepository: AuthRepository,
     private val locationOfferRepository: LocationOfferRepository,
+    private val patientSessionRepository: PatientSessionRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val tierString: String = savedStateHandle.get<String>("tier") ?: "ECONOMY"
-    private val district: String? =
-        savedStateHandle.get<String>("serviceDistrict")?.takeIf { it.isNotBlank() }
-    private val ward: String? =
-        savedStateHandle.get<String>("serviceWard")?.takeIf { it.isNotBlank() }
+    private val route: ServicesRoute =
+        runCatching { savedStateHandle.toRoute<ServicesRoute>() }.getOrNull()
+            ?: ServicesRoute()
+    private val tierString: String = route.tier.ifBlank { "ECONOMY" }
 
     private val _uiState = MutableStateFlow(
-        ServicesUiState(
-            tier = ConsultationTier.fromString(tierString),
-            serviceDistrict = district,
-            serviceWard = ward,
-        ),
+        ServicesUiState(tier = ConsultationTier.fromString(tierString)),
     )
     val uiState: StateFlow<ServicesUiState> = _uiState.asStateFlow()
 
     init {
         loadServices()
         loadPatientId()
-        loadOffers()
+        loadLocationAndOffers()
+    }
+
+    /**
+     * Re-fetch offers using the latest session state. Call from the screen on
+     * resume so a redeemed offer disappears the moment the patient returns
+     * to this screen after the consultation flow.
+     */
+    fun refreshOffers() {
+        viewModelScope.launch {
+            val session = patientSessionRepository.getSession().first() ?: return@launch
+            val region   = session.region?.takeIf { it.isNotBlank() }
+            val district = session.serviceDistrict?.takeIf { it.isNotBlank() }
+            val ward     = session.serviceWard?.takeIf { it.isNotBlank() }
+            val street   = session.serviceStreet?.takeIf { it.isNotBlank() }
+            if (region == null && district == null && ward == null && street == null) return@launch
+
+            when (val result = locationOfferRepository.fetchApplicableOffers(
+                region = region,
+                district = district,
+                ward = ward,
+                street = street,
+                tier = tierString,
+            )) {
+                is Result.Success -> _uiState.update { it.copy(applicableOffers = result.data) }
+                is Result.Error -> Log.w(TAG, "Refresh offers failed: ${result.message}")
+                is Result.Loading -> Unit
+            }
+        }
     }
 
     private fun loadServices() {
@@ -109,23 +138,51 @@ class ServicesViewModel @Inject constructor(
         }
     }
 
-    private fun loadOffers() {
-        if (district.isNullOrBlank()) return
+    /**
+     * Reads the GPS-resolved location off the patient session (set at app
+     * start by LocationResolver) and fetches offers matching ANY level the
+     * resolver pinned down. Re-runs whenever the session emits — that lets
+     * the offer banner appear automatically once a backfill completes for
+     * patients who hadn't been resolved yet.
+     */
+    private fun loadLocationAndOffers() {
         viewModelScope.launch {
-            when (val result = locationOfferRepository.fetchApplicableOffers(
-                district = district,
-                ward = ward,
-                tier = tierString,
-            )) {
-                is Result.Success -> {
-                    _uiState.update { it.copy(applicableOffers = result.data) }
-                    Log.d(TAG, "Loaded ${result.data.size} offer(s) for $district")
+            patientSessionRepository.getSession().collect { session ->
+                val region   = session?.region?.takeIf { it.isNotBlank() }
+                val district = session?.serviceDistrict?.takeIf { it.isNotBlank() }
+                val ward     = session?.serviceWard?.takeIf { it.isNotBlank() }
+                val street   = session?.serviceStreet?.takeIf { it.isNotBlank() }
+
+                _uiState.update {
+                    it.copy(
+                        serviceRegion = region,
+                        serviceDistrict = district,
+                        serviceWard = ward,
+                        serviceStreet = street,
+                    )
                 }
-                is Result.Error -> {
-                    Log.w(TAG, "Failed to load offers: ${result.message}")
-                    // No-op — UI already has empty list
+
+                if (region == null && district == null && ward == null && street == null) {
+                    _uiState.update { it.copy(applicableOffers = emptyList()) }
+                    return@collect
                 }
-                is Result.Loading -> { /* not emitted */ }
+
+                when (val result = locationOfferRepository.fetchApplicableOffers(
+                    region = region,
+                    district = district,
+                    ward = ward,
+                    street = street,
+                    tier = tierString,
+                )) {
+                    is Result.Success -> {
+                        _uiState.update { it.copy(applicableOffers = result.data) }
+                        Log.d(TAG, "Loaded ${result.data.size} offer(s) for $district/$region")
+                    }
+                    is Result.Error -> {
+                        Log.w(TAG, "Failed to load offers: ${result.message}")
+                    }
+                    is Result.Loading -> Unit
+                }
             }
         }
     }
@@ -165,6 +222,6 @@ class ServicesViewModel @Inject constructor(
                 _uiState.update { it.copy(services = tiers, isRefreshing = false) }
             }
         }
-        loadOffers()
+        refreshOffers()
     }
 }

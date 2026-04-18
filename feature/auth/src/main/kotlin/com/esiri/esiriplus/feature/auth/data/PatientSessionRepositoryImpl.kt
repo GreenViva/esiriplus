@@ -47,6 +47,27 @@ class PatientSessionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateLocation(
+        sessionId: String,
+        region: String?,
+        district: String?,
+        ward: String?,
+        street: String?,
+    ) {
+        withContext(ioDispatcher) {
+            val existing = patientSessionDao.getById(sessionId) ?: return@withContext
+            patientSessionDao.update(
+                existing.copy(
+                    region = region,
+                    serviceDistrict = district,
+                    serviceWard = ward,
+                    serviceStreet = street,
+                    updatedAt = System.currentTimeMillis(),
+                ),
+            )
+        }
+    }
+
     override suspend fun clearSession() {
         withContext(ioDispatcher) {
             patientSessionDao.clearAll()
@@ -60,6 +81,9 @@ private fun PatientSessionEntity.toDomain(): PatientSession = PatientSession(
     ageGroup = ageGroup,
     sex = sex,
     region = region,
+    serviceDistrict = serviceDistrict,
+    serviceWard = serviceWard,
+    serviceStreet = serviceStreet,
     bloodType = bloodType,
     allergies = allergies,
     chronicConditions = chronicConditions,
@@ -74,6 +98,9 @@ private fun PatientSession.toEntity(): PatientSessionEntity = PatientSessionEnti
     ageGroup = ageGroup,
     sex = sex,
     region = region,
+    serviceDistrict = serviceDistrict,
+    serviceWard = serviceWard,
+    serviceStreet = serviceStreet,
     bloodType = bloodType,
     allergies = allergies,
     chronicConditions = chronicConditions,

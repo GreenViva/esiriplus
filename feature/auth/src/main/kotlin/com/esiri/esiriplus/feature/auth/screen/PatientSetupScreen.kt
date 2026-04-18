@@ -9,9 +9,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -100,36 +97,31 @@ fun PatientSetupScreen(
         if (state.isComplete) onComplete()
     }
 
-    // Auto-detect location for health analytics (silent, no UI)
-    val fetchLocation = {
-        try {
-            val client = LocationServices.getFusedLocationProviderClient(context)
-            @Suppress("MissingPermission")
-            client.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        viewModel.detectRegionFromLocation(
-                            context, location.latitude, location.longitude,
-                        )
-                    }
-                }
-        } catch (_: Exception) { /* Location not available — skip silently */ }
-        Unit
-    }
-
+    // Resolve & persist the GPS hierarchy via LocationResolver. The ViewModel
+    // talks to FusedLocationProvider + Geocoder + the resolve-patient-location
+    // edge fn — this Composable just drives the permission prompt.
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
-    ) { granted -> if (granted) fetchLocation() }
+    ) { granted -> if (granted) viewModel.resolveCurrentLocation() }
 
     LaunchedEffect(Unit) {
         val hasPermission = ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_COARSE_LOCATION,
         ) == PackageManager.PERMISSION_GRANTED
-        if (hasPermission) {
-            fetchLocation()
-        } else {
+        if (!hasPermission) {
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
+    }
+
+    // Fire the resolver once both the patient session is created (so the row
+    // exists in patient_sessions) AND permission is granted. Without this guard
+    // the resolver races createSession and bails with "No session".
+    LaunchedEffect(state.patientId) {
+        if (state.patientId.isBlank()) return@LaunchedEffect
+        val granted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) viewModel.resolveCurrentLocation()
     }
 
     GradientBackground(modifier = modifier) {

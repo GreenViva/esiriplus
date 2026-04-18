@@ -15,6 +15,7 @@ import com.esiri.esiriplus.feature.patient.screen.PatientAppointmentsScreen
 import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientConsultationScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientHomeScreen
+import com.esiri.esiriplus.feature.patient.screen.PatientLocationGate
 import com.esiri.esiriplus.feature.patient.screen.ExtensionPaymentScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientPaymentScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientProfileScreen
@@ -34,8 +35,6 @@ import kotlinx.serialization.Serializable
 @Serializable data class ServiceLocationRoute(val tier: String = "ECONOMY")
 @Serializable data class ServicesRoute(
     val tier: String = "ECONOMY",
-    val serviceDistrict: String? = null,
-    val serviceWard: String? = null,
 )
 @Serializable data class PatientConsultationRoute(val consultationId: String)
 @Serializable data class PatientPaymentRoute(
@@ -51,8 +50,6 @@ import kotlinx.serialization.Serializable
     val serviceDurationMinutes: Int,
     val serviceTier: String = "ECONOMY",
     val appointmentId: String? = null,
-    val serviceDistrict: String? = null,
-    val serviceWard: String? = null,
 )
 @Serializable data class BookAppointmentRoute(
     val doctorId: String,
@@ -60,8 +57,6 @@ import kotlinx.serialization.Serializable
     val servicePriceAmount: Int,
     val serviceDurationMinutes: Int,
     val serviceTier: String = "ECONOMY",
-    val serviceDistrict: String? = null,
-    val serviceWard: String? = null,
 )
 @Serializable object PatientAppointmentsRoute
 @Serializable object MedicationScheduleRoute
@@ -98,23 +93,34 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
     navigation<PatientGraph>(startDestination = PatientHomeRoute) {
 
         // ── Home ──────────────────────────────────────────────────────────────
+        // Wrapped in PatientLocationGate so location permission is mandatory:
+        // a returning patient who revoked it in Settings is forced through
+        // the prompt before any home content (or downstream flow) renders.
         composable<PatientHomeRoute> {
-            PatientHomeScreen(
-                onStartConsultation = {
-                    navController.navigate(TierSelectionRoute)
-                },
-                onNavigateToProfile = { navController.navigate(PatientProfileRoute) },
-                onNavigateToReports = { navController.navigate(ReportsRoute) },
-                onNavigateToConsultationHistory = { navController.navigate(ConsultationHistoryRoute) },
-                onNavigateToAppointments = { navController.navigate(PatientAppointmentsRoute) },
-                onNavigateToOngoingConsultations = { navController.navigate(OngoingConsultationsRoute) },
-                onResumeConsultation = { consultationId ->
-                    navController.navigate(PatientConsultationRoute(consultationId))
-                },
-            )
+            // Resolve PatientHomeViewModel here so the gate can call
+            // onLocationGranted() without the home screen needing to.
+            val homeViewModel = androidx.hilt.navigation.compose.hiltViewModel<
+                com.esiri.esiriplus.feature.patient.viewmodel.PatientHomeViewModel,
+            >()
+            PatientLocationGate(onGranted = homeViewModel::onLocationGranted) {
+                PatientHomeScreen(
+                    onStartConsultation = {
+                        navController.navigate(TierSelectionRoute)
+                    },
+                    onNavigateToProfile = { navController.navigate(PatientProfileRoute) },
+                    onNavigateToReports = { navController.navigate(ReportsRoute) },
+                    onNavigateToConsultationHistory = { navController.navigate(ConsultationHistoryRoute) },
+                    onNavigateToAppointments = { navController.navigate(PatientAppointmentsRoute) },
+                    onNavigateToOngoingConsultations = { navController.navigate(OngoingConsultationsRoute) },
+                    onResumeConsultation = { consultationId ->
+                        navController.navigate(PatientConsultationRoute(consultationId))
+                    },
+                    viewModel = homeViewModel,
+                )
+            }
         }
 
-        // ── Tier selection (new entry point) ──────────────────────────────────
+        // ── Tier selection (entry point) ──────────────────────────────────────
         composable<TierSelectionRoute> {
             TierSelectionScreen(
                 onSelectRoyal = {
@@ -127,31 +133,25 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
             )
         }
 
-        // ── Service location (receives tier) ──────────────────────────────────
+        // ── Inside / Outside Tanzania gateway ─────────────────────────────────
+        // Inside-Tanzania routes straight to Services — the patient's actual
+        // region/district/ward/street comes from the session (GPS-resolved at
+        // app start), so no per-flow district picker exists here.
         composable<ServiceLocationRoute> { backStackEntry ->
             val route = backStackEntry.toRoute<ServiceLocationRoute>()
             ServiceLocationScreen(
-                tier = route.tier,
-                onSelectInsideTanzania = { district, ward ->
-                    navController.navigate(
-                        ServicesRoute(
-                            tier = route.tier,
-                            serviceDistrict = district,
-                            serviceWard = ward,
-                        ),
-                    )
+                onSelectInsideTanzania = {
+                    navController.navigate(ServicesRoute(tier = route.tier))
                 },
                 onSelectOutsideTanzania = {
-                    // Coming soon — ServiceLocationScreen handles dialog internally
+                    // Coming soon — handled by dialog inside the screen
                 },
                 onBack = { navController.popBackStack() },
             )
         }
 
         // ── Services (receives tier, applies PricingEngine) ───────────────────
-        composable<ServicesRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<ServicesRoute>()
-            // tier is injected into ServicesViewModel via SavedStateHandle automatically
+        composable<ServicesRoute> {
             ServicesScreen(
                 onServiceSelected = { category, price, duration, tier ->
                     navController.navigate(
@@ -160,8 +160,6 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                             servicePriceAmount = price,
                             serviceDurationMinutes = duration,
                             serviceTier = tier,
-                            serviceDistrict = route.serviceDistrict,
-                            serviceWard = route.serviceWard,
                         ),
                     )
                 },
@@ -185,8 +183,6 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                             servicePriceAmount = route.servicePriceAmount,
                             serviceDurationMinutes = route.serviceDurationMinutes,
                             serviceTier = route.serviceTier,
-                            serviceDistrict = route.serviceDistrict,
-                            serviceWard = route.serviceWard,
                         ),
                     )
                 },

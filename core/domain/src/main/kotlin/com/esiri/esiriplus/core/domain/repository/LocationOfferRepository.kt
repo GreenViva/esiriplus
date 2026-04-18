@@ -6,13 +6,15 @@ import com.esiri.esiriplus.core.domain.model.LocationOffer
 interface LocationOfferRepository {
     /**
      * Fetches every currently-active offer the authenticated patient can still
-     * redeem for the given [district]/[ward]/[tier] combination. Returns an
-     * empty list when [district] is null/blank or when nothing matches —
-     * callers should treat empty as "no discount to preview".
+     * redeem for the given location + [tier] combination. The backend infers
+     * missing ancestors, so sending any one of region/district/ward/street is
+     * enough to match offers at any broader level.
      */
     suspend fun fetchApplicableOffers(
+        region: String?,
         district: String?,
         ward: String?,
+        street: String?,
         tier: String,
     ): Result<List<LocationOffer>>
 }

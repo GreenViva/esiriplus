@@ -8,9 +8,11 @@ import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.common.util.IdempotencyKeyGenerator
 import com.esiri.esiriplus.core.database.EsiriplusDatabase
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
+import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.database.dao.SessionDao
 import com.esiri.esiriplus.core.database.dao.UserDao
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
+import com.esiri.esiriplus.core.database.entity.PatientSessionEntity
 import com.esiri.esiriplus.core.domain.model.DoctorRegistration
 import com.esiri.esiriplus.core.domain.model.Session
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
@@ -68,6 +70,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val tokenManager: TokenManager,
     private val sessionDao: SessionDao,
     private val userDao: UserDao,
+    private val patientSessionDao: PatientSessionDao,
     private val doctorProfileDao: DoctorProfileDao,
     private val database: EsiriplusDatabase,
     private val fileUploadService: FileUploadService,
@@ -144,6 +147,19 @@ class AuthRepositoryImpl @Inject constructor(
         withContext(ioDispatcher) {
             userDao.insertUser(session.user.toEntity())
             sessionDao.insertSession(session.toEntity())
+            // Seed patient_sessions row so location/demographics writers (like
+            // LocationResolver and ConsultationRequestViewModel) have a row
+            // to update. Without this they bail with "No session" because the
+            // local table stays empty even after auth succeeds.
+            val now = System.currentTimeMillis()
+            patientSessionDao.insert(
+                PatientSessionEntity(
+                    sessionId = session.user.id,
+                    sessionTokenHash = response.accessToken.hashCode().toString(),
+                    createdAt = now,
+                    updatedAt = now,
+                ),
+            )
         }
         // Plain-prefs backup — survives DB wipes, Keystore failures.
         sessionBackup.save(

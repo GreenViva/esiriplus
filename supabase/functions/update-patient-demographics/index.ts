@@ -30,6 +30,17 @@ Deno.serve(async (req) => {
     if (typeof body.region === "string" && body.region.trim()) {
       update.region = body.region.trim();
     }
+    // Full GPS-resolved hierarchy. Each level may be null when the geocoder
+    // / resolver couldn't pin it down — that's expected and fine for matching.
+    if (typeof body.service_district === "string") {
+      update.service_district = body.service_district.trim() || null;
+    }
+    if (typeof body.service_ward === "string") {
+      update.service_ward = body.service_ward.trim() || null;
+    }
+    if (typeof body.service_street === "string") {
+      update.service_street = body.service_street.trim() || null;
+    }
     if (typeof body.sex === "string" && body.sex.trim()) {
       update.sex = body.sex.trim();
     }
