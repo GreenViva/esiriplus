@@ -26,7 +26,7 @@ const REFRESH_TTL_D = 7;
 const MIN_CORRECT   = 3; // must answer 3 of 5 correctly
 
 const ALLOWED_QUESTIONS = [
-  "first_pet",
+  "favorite_animal",
   "favorite_city",
   "birth_city",
   "primary_school",

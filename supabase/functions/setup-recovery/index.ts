@@ -23,7 +23,7 @@ import { getServiceClient } from "../_shared/supabase.ts";
 
 // ── Allowed question keys ─────────────────────────────────────────────────────
 const ALLOWED_QUESTIONS = [
-  "first_pet",
+  "favorite_animal",
   "favorite_city",
   "birth_city",
   "primary_school",
@@ -65,7 +65,7 @@ async function computeRecoveryHash(answers: Record<string, string>): Promise<str
 
 // ── Validate request body ─────────────────────────────────────────────────────
 interface SetupRequest {
-  answers: Record<string, string>; // { first_pet: "Fluffy", favorite_city: "Dar" ... }
+  answers: Record<string, string>; // { favorite_animal: "Lion", favorite_city: "Dar" ... }
 }
 
 function validate(body: unknown): SetupRequest {

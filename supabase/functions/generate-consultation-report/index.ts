@@ -266,11 +266,20 @@ Respond ONLY with valid JSON, no markdown, no backticks.
       throw new ValidationError(`Report save failed: ${reportErr.message}`);
     }
 
-    // Mark report as submitted — this triggers fn_sync_doctor_in_session()
-    // which clears in_session, making the doctor available for new requests.
+    // Mark report as submitted AND ensure consultation is completed — this
+    // triggers fn_sync_doctor_in_session() which clears in_session, making
+    // the doctor available for new requests. Setting status alongside
+    // report_submitted is a belt-and-suspenders guarantee: even if the
+    // consultation was not already marked completed (e.g. the client
+    // disconnected before end_consultation RPC ran), submitting the report
+    // always releases the doctor from in_session.
+    const terminalStatuses = ["completed", "cancelled", "timeout"];
+    const nextStatus = terminalStatuses.includes((consultation.status ?? "").toLowerCase())
+      ? consultation.status
+      : "completed";
     await supabase
       .from("consultations")
-      .update({ report_submitted: true })
+      .update({ status: nextStatus, report_submitted: true })
       .eq("consultation_id", consultation_id);
 
     // ── Medication timetables (ROYAL only) ───────────────────────────────
