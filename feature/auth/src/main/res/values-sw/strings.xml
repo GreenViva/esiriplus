@@ -28,6 +28,7 @@
     <string name="role_welcome_title">Karibu eSIRI Plus</string>
     <string name="role_welcome_subtitle">Ungependa kuendelea vipi?</string>
     <string name="role_for_patients">KWA WAGONJWA</string>
+    <string name="role_patient_badge_subtitle">Pata msaada wa kimatibabu kwa siri</string>
     <string name="role_new_platform">Mpya kwenye jukwaa?</string>
     <string name="role_new_platform_subtitle">Bofya hapa kuanza</string>
     <string name="role_have_my_id">Nina Kitambulisho changu</string>
@@ -35,6 +36,8 @@
     <string name="role_id_recovery_note">Lazima uwe umeweka maswali ya kupata tena ili uingie kwa Kitambulisho cha Mgonjwa.</string>
     <string name="role_forgot_patient_id">Umesahau Kitambulisho chako cha Mgonjwa?</string>
     <string name="role_or_divider">au</string>
+    <string name="role_for_doctors">KWA MADAKTARI</string>
+    <string name="role_doctor_badge_subtitle">Simamia kliniki yako</string>
     <string name="role_doctor_portal">LANGO LA DAKTARI</string>
     <string name="role_sign_in">Ingia</string>
     <string name="role_sign_up">Jisajili</string>

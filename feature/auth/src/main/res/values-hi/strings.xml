@@ -28,6 +28,7 @@
     <string name="role_welcome_title">eSIRI Plus में आपका स्वागत है</string>
     <string name="role_welcome_subtitle">आप कैसे आगे बढ़ना चाहेंगे?</string>
     <string name="role_for_patients">मरीज़ों के लिए</string>
+    <string name="role_patient_badge_subtitle">गुमनाम रूप से चिकित्सा सहायता प्राप्त करें</string>
     <string name="role_new_platform">प्लेटफ़ॉर्म पर नए हैं?</string>
     <string name="role_new_platform_subtitle">शुरू करने के लिए यहाँ क्लिक करें</string>
     <string name="role_have_my_id">मेरे पास मेरी आईडी है</string>
@@ -35,6 +36,8 @@
     <string name="role_id_recovery_note">अपनी मरीज़ आईडी से लॉग इन करने के लिए आपको रिकवरी प्रश्न सेट करने होंगे।</string>
     <string name="role_forgot_patient_id">मरीज़ आईडी भूल गए?</string>
     <string name="role_or_divider">या</string>
+    <string name="role_for_doctors">डॉक्टरों के लिए</string>
+    <string name="role_doctor_badge_subtitle">अपने अभ्यास का प्रबंधन करें</string>
     <string name="role_doctor_portal">डॉक्टर पोर्टल</string>
     <string name="role_sign_in">साइन इन</string>
     <string name="role_sign_up">साइन अप</string>

@@ -145,7 +145,7 @@ class AuthRepositoryImplTest {
         val repository = createRepository()
 
         val result = repository.setupSecurityQuestions(
-            mapOf("first_pet" to "Simba"),
+            mapOf("favorite_animal" to "Simba"),
         )
 
         assertTrue(result is Result.Success)

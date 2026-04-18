@@ -29,6 +29,7 @@
     <string name="role_welcome_title">مرحبًا بك في eSIRI Plus</string>
     <string name="role_welcome_subtitle">كيف تود المتابعة؟</string>
     <string name="role_for_patients">للمرضى</string>
+    <string name="role_patient_badge_subtitle">احصل على مساعدة طبية بشكل مجهول</string>
     <string name="role_new_platform">جديد على المنصة؟</string>
     <string name="role_new_platform_subtitle">انقر هنا للبدء</string>
     <string name="role_have_my_id">لدي رقم المريض الخاص بي</string>
@@ -36,6 +37,8 @@
     <string name="role_id_recovery_note">يجب أن تكون قد أعددت أسئلة الاسترداد لتسجيل الدخول برقم المريض الخاص بك.</string>
     <string name="role_forgot_patient_id">هل نسيت رقم المريض الخاص بك؟</string>
     <string name="role_or_divider">أو</string>
+    <string name="role_for_doctors">للأطباء</string>
+    <string name="role_doctor_badge_subtitle">إدارة عيادتك</string>
     <string name="role_doctor_portal">بوابة الطبيب</string>
     <string name="role_sign_in">تسجيل الدخول</string>
     <string name="role_sign_up">إنشاء حساب</string>
