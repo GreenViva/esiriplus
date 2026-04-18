@@ -129,6 +129,8 @@ data class DoctorDashboardUiState(
     val isLoadingAppointments: Boolean = false,
     /** Active + Royal completed-but-in-follow-up-window consultations. */
     val ongoingConsultations: List<ConsultationEntity> = emptyList(),
+    /** Consultations with status=completed AND report_submitted=false for this doctor. */
+    val unsubmittedReportsCount: Int = 0,
 )
 
 // ─── Service Command ────────────────────────────────────────────────────────────
@@ -407,7 +409,19 @@ class DoctorDashboardViewModel @Inject constructor(
         }
     }
 
+    private suspend fun fetchUnsubmittedReportsCount(doctorId: String) {
+        when (val result = consultationService.getUnsubmittedReports(doctorId)) {
+            is ApiResult.Success -> {
+                _uiState.update { it.copy(unsubmittedReportsCount = result.data.size) }
+            }
+            else -> Log.w(TAG, "Failed to fetch unsubmitted reports count: $result")
+        }
+    }
+
     private suspend fun fetchConsultationsFromSupabase(doctorId: String) {
+        // Always refresh the unsubmitted-reports badge; it's independent of the
+        // main consultations list (which may early-exit when empty).
+        fetchUnsubmittedReportsCount(doctorId)
         when (val result = consultationService.getConsultationsForDoctor(doctorId)) {
             is ApiResult.Success -> {
                 val rows = result.data

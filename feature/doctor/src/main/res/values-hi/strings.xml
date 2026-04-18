@@ -330,4 +330,18 @@
     <string name="med_nurse_reminder_badge">नर्स रिमाइंडर: %1$s %2$d दिन के लिए</string>
     <string name="med_set_medication_reminder">दवा रिमाइंडर सेट करें</string>
 
+    <!-- ═══ अप्रस्तुत रिपोर्टें ═══ -->
+    <string name="unsubmitted_reports_title">अप्रस्तुत रिपोर्टें</string>
+    <string name="unsubmitted_reports_badge_title">%1$d रिपोर्ट(ें) अप्रस्तुत</string>
+    <string name="unsubmitted_reports_badge_subtitle">जमा करने और काम जारी रखने के लिए टैप करें</string>
+    <string name="unsubmitted_reports_hint">रिपोर्ट खोलने और जमा करने के लिए किसी पंक्ति पर टैप करें।</string>
+    <string name="unsubmitted_reports_row_patient">मरीज़ %1$s</string>
+    <string name="unsubmitted_reports_file_cta">रिपोर्ट जमा करें</string>
+    <string name="unsubmitted_reports_empty_title">सभी रिपोर्टें जमा हो गई</string>
+    <string name="unsubmitted_reports_empty_body">आप नए परामर्श स्वीकार कर सकते हैं।</string>
+    <string name="unsubmitted_reports_dialog_title">लंबित रिपोर्टें जमा करें</string>
+    <string name="unsubmitted_reports_dialog_body">आपके पास %1$d परामर्श रिपोर्ट जमा करने के लिए लंबित हैं। जब तक हर रिपोर्ट जमा नहीं हो जाती, आपको नए परामर्श अनुरोध प्राप्त नहीं होंगे।</string>
+    <string name="unsubmitted_reports_dialog_file_now">अभी जमा करें</string>
+    <string name="unsubmitted_reports_dialog_later">बाद में</string>
+
 </resources>

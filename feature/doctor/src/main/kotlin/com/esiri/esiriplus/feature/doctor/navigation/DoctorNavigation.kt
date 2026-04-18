@@ -11,6 +11,7 @@ import com.esiri.esiriplus.feature.doctor.screen.DoctorConsultationListScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorDashboardScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorNotificationsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorReportScreen
+import com.esiri.esiriplus.feature.doctor.screen.DoctorUnsubmittedReportsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorVideoCallScreen
 import com.esiri.esiriplus.feature.doctor.screen.RoyalClientsScreen
 import kotlinx.serialization.Serializable
@@ -25,6 +26,7 @@ import kotlinx.serialization.Serializable
 @Serializable object DoctorAppointmentsRoute
 @Serializable object DoctorAvailabilitySettingsRoute
 @Serializable object RoyalClientsRoute
+@Serializable object DoctorUnsubmittedReportsRoute
 
 fun NavGraphBuilder.doctorGraph(
     navController: NavController,
@@ -41,7 +43,19 @@ fun NavGraphBuilder.doctorGraph(
                 onNavigateToNotifications = { navController.navigate(DoctorNotificationsRoute) },
                 onNavigateToAppointments = { navController.navigate(DoctorAppointmentsRoute) },
                 onNavigateToAvailabilitySettings = { navController.navigate(DoctorAvailabilitySettingsRoute) },
+                onNavigateToUnsubmittedReports = { navController.navigate(DoctorUnsubmittedReportsRoute) },
                 onSignOut = onSignOut,
+            )
+        }
+        composable<DoctorUnsubmittedReportsRoute> {
+            DoctorUnsubmittedReportsScreen(
+                onReportSelected = { consultationId ->
+                    // Route to the detail screen — DoctorReportRoute is a
+                    // deprecated stub. The detail screen auto-opens the report
+                    // bottom sheet when the consultation phase is COMPLETED.
+                    navController.navigate(DoctorConsultationDetailRoute(consultationId))
+                },
+                onBack = { navController.popBackStack() },
             )
         }
         composable<DoctorNotificationsRoute> {

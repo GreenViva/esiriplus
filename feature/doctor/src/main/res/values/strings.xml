@@ -344,4 +344,18 @@
     <string name="med_nurse_reminder_badge">Nurse reminder: %1$s for %2$dd</string>
     <string name="med_set_medication_reminder">Set Medication Reminder</string>
 
+    <!-- ═══ Unsubmitted Reports ═══ -->
+    <string name="unsubmitted_reports_title">Unsubmitted Reports</string>
+    <string name="unsubmitted_reports_badge_title">%1$d unsubmitted report(s)</string>
+    <string name="unsubmitted_reports_badge_subtitle">Tap to file and continue working</string>
+    <string name="unsubmitted_reports_hint">Tap a row to open and file the report.</string>
+    <string name="unsubmitted_reports_row_patient">Patient %1$s</string>
+    <string name="unsubmitted_reports_file_cta">File report</string>
+    <string name="unsubmitted_reports_empty_title">All reports submitted</string>
+    <string name="unsubmitted_reports_empty_body">You\u2019re clear to take new consultations.</string>
+    <string name="unsubmitted_reports_dialog_title">File pending reports</string>
+    <string name="unsubmitted_reports_dialog_body">You have %1$d consultation report(s) waiting to be submitted. You won\u2019t receive new consultation requests until every report is filed.</string>
+    <string name="unsubmitted_reports_dialog_file_now">File Reports Now</string>
+    <string name="unsubmitted_reports_dialog_later">Later</string>
+
 </resources>

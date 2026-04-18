@@ -330,4 +330,18 @@
     <string name="med_nurse_reminder_badge">Rappel infirmier : %1$s pendant %2$d j</string>
     <string name="med_set_medication_reminder">D\u00e9finir un rappel de m\u00e9dicament</string>
 
+    <!-- ═══ Rapports non soumis ═══ -->
+    <string name="unsubmitted_reports_title">Rapports non soumis</string>
+    <string name="unsubmitted_reports_badge_title">%1$d rapport(s) non soumis</string>
+    <string name="unsubmitted_reports_badge_subtitle">Appuyez pour d\u00e9poser et continuer \u00e0 travailler</string>
+    <string name="unsubmitted_reports_hint">Appuyez sur une ligne pour ouvrir et d\u00e9poser le rapport.</string>
+    <string name="unsubmitted_reports_row_patient">Patient %1$s</string>
+    <string name="unsubmitted_reports_file_cta">D\u00e9poser le rapport</string>
+    <string name="unsubmitted_reports_empty_title">Tous les rapports sont soumis</string>
+    <string name="unsubmitted_reports_empty_body">Vous pouvez accepter de nouvelles consultations.</string>
+    <string name="unsubmitted_reports_dialog_title">D\u00e9poser les rapports en attente</string>
+    <string name="unsubmitted_reports_dialog_body">Vous avez %1$d rapport(s) de consultation en attente de soumission. Vous ne recevrez pas de nouvelles demandes de consultation tant que chaque rapport n\u2019aura pas \u00e9t\u00e9 d\u00e9pos\u00e9.</string>
+    <string name="unsubmitted_reports_dialog_file_now">D\u00e9poser maintenant</string>
+    <string name="unsubmitted_reports_dialog_later">Plus tard</string>
+
 </resources>

@@ -330,4 +330,18 @@
     <string name="med_nurse_reminder_badge">تذكير الممرضة: %1$s لمدة %2$d يوم</string>
     <string name="med_set_medication_reminder">تعيين تذكير الدواء</string>
 
+    <!-- ═══ التقارير غير المرسلة ═══ -->
+    <string name="unsubmitted_reports_title">التقارير غير المرسلة</string>
+    <string name="unsubmitted_reports_badge_title">%1$d تقرير/تقارير غير مرسلة</string>
+    <string name="unsubmitted_reports_badge_subtitle">اضغط للإرسال ومتابعة العمل</string>
+    <string name="unsubmitted_reports_hint">اضغط على الصف لفتح التقرير وإرساله.</string>
+    <string name="unsubmitted_reports_row_patient">المريض %1$s</string>
+    <string name="unsubmitted_reports_file_cta">إرسال التقرير</string>
+    <string name="unsubmitted_reports_empty_title">تم إرسال جميع التقارير</string>
+    <string name="unsubmitted_reports_empty_body">يمكنك قبول استشارات جديدة.</string>
+    <string name="unsubmitted_reports_dialog_title">قدم التقارير المعلقة</string>
+    <string name="unsubmitted_reports_dialog_body">لديك %1$d تقرير استشارة في انتظار الإرسال. لن تصلك طلبات استشارة جديدة حتى يتم إرسال كل تقرير.</string>
+    <string name="unsubmitted_reports_dialog_file_now">أرسل الآن</string>
+    <string name="unsubmitted_reports_dialog_later">لاحقًا</string>
+
 </resources>

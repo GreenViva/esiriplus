@@ -330,4 +330,18 @@
     <string name="med_nurse_reminder_badge">Ukumbusho wa muuguzi: %1$s kwa siku %2$d</string>
     <string name="med_set_medication_reminder">Weka Ukumbusho wa Dawa</string>
 
+    <!-- ═══ Ripoti Zisizowasilishwa ═══ -->
+    <string name="unsubmitted_reports_title">Ripoti Zisizowasilishwa</string>
+    <string name="unsubmitted_reports_badge_title">Ripoti %1$d hazijawasilishwa</string>
+    <string name="unsubmitted_reports_badge_subtitle">Bofya kuwasilisha na kuendelea kufanya kazi</string>
+    <string name="unsubmitted_reports_hint">Bofya safu kufungua na kuwasilisha ripoti.</string>
+    <string name="unsubmitted_reports_row_patient">Mgonjwa %1$s</string>
+    <string name="unsubmitted_reports_file_cta">Wasilisha ripoti</string>
+    <string name="unsubmitted_reports_empty_title">Ripoti zote zimewasilishwa</string>
+    <string name="unsubmitted_reports_empty_body">Uko huru kupokea mashauriano mapya.</string>
+    <string name="unsubmitted_reports_dialog_title">Wasilisha ripoti zinazosubiri</string>
+    <string name="unsubmitted_reports_dialog_body">Una ripoti %1$d ya mashauriano zinazosubiri kuwasilishwa. Hutapokea maombi mapya ya mashauriano mpaka kila ripoti iwasilishwe.</string>
+    <string name="unsubmitted_reports_dialog_file_now">Wasilisha Sasa</string>
+    <string name="unsubmitted_reports_dialog_later">Baadaye</string>
+
 </resources>

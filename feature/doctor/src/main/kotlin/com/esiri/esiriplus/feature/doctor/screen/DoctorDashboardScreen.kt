@@ -81,6 +81,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -137,6 +138,7 @@ fun DoctorDashboardScreen(
     onNavigateToConsultation: (consultationId: String) -> Unit = {},
     onNavigateToAppointments: () -> Unit = {},
     onNavigateToAvailabilitySettings: () -> Unit = {},
+    onNavigateToUnsubmittedReports: () -> Unit = {},
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoctorDashboardViewModel = hiltViewModel(),
@@ -241,6 +243,75 @@ fun DoctorDashboardScreen(
                 }
             }
         }
+    }
+
+    // ── Unsubmitted reports blocking dialog ───────────────────────────────────
+    // Surfaces whenever the doctor has completed consultations with no report
+    // filed. While in that state the server keeps in_session=true, which
+    // prevents new consultation requests from arriving. The dialog explains
+    // this and offers a direct path to the list.
+    var showUnsubmittedDialog by remember { mutableStateOf(false) }
+    var unsubmittedDismissedThisSession by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.unsubmittedReportsCount) {
+        when {
+            uiState.unsubmittedReportsCount == 0 -> {
+                unsubmittedDismissedThisSession = false
+                showUnsubmittedDialog = false
+            }
+            uiState.unsubmittedReportsCount > 0 && !unsubmittedDismissedThisSession -> {
+                showUnsubmittedDialog = true
+            }
+        }
+    }
+
+    if (showUnsubmittedDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showUnsubmittedDialog = false
+                unsubmittedDismissedThisSession = true
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.unsubmitted_reports_dialog_title),
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(
+                        R.string.unsubmitted_reports_dialog_body,
+                        uiState.unsubmittedReportsCount,
+                    ),
+                    color = Color.Black,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showUnsubmittedDialog = false
+                    unsubmittedDismissedThisSession = true
+                    onNavigateToUnsubmittedReports()
+                }) {
+                    Text(
+                        text = stringResource(R.string.unsubmitted_reports_dialog_file_now),
+                        color = BrandTeal,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showUnsubmittedDialog = false
+                    unsubmittedDismissedThisSession = true
+                }) {
+                    Text(
+                        text = stringResource(R.string.unsubmitted_reports_dialog_later),
+                        color = Color.Black,
+                    )
+                }
+            },
+        )
     }
 
     // Overlay permission dialog
@@ -387,12 +458,22 @@ fun DoctorDashboardScreen(
             when (selectedNav) {
                 DoctorNavItem.DASHBOARD -> DashboardContent(
                     uiState = uiState,
-                    onToggleOnline = viewModel::onToggleOnline,
+                    onToggleOnline = {
+                        // Block going ONLINE while there are unsubmitted reports —
+                        // going OFFLINE is always allowed. Shows the blocking
+                        // dialog so the doctor knows why and can file the reports.
+                        if (uiState.unsubmittedReportsCount > 0 && !uiState.isOnline) {
+                            showUnsubmittedDialog = true
+                        } else {
+                            viewModel.onToggleOnline()
+                        }
+                    },
                     onViewAllRequests = onNavigateToRoyalClients,
                     onViewAllAppointments = onNavigateToAppointments,
                     onOpenSidebar = { isSidebarOpen = true },
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
                     onNotificationsClick = onNavigateToNotifications,
+                    onUnsubmittedReportsClick = onNavigateToUnsubmittedReports,
                     onRefresh = viewModel::refresh,
                     onAcknowledgeWarning = viewModel::acknowledgeWarning,
                     onToggleServeAsGp = viewModel::toggleServeAsGp,
@@ -679,6 +760,7 @@ private fun DashboardContent(
     onOpenSidebar: () -> Unit,
     onSetAvailability: () -> Unit,
     onNotificationsClick: () -> Unit = {},
+    onUnsubmittedReportsClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onAcknowledgeWarning: () -> Unit = {},
     onToggleServeAsGp: () -> Unit = {},
@@ -733,6 +815,16 @@ private fun DashboardContent(
                 warningCount = uiState.warningCount,
                 isNew = !uiState.warningAcknowledged,
                 onDismiss = onAcknowledgeWarning,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+        }
+
+        // Unsubmitted reports badge (visible if count > 0)
+        if (uiState.unsubmittedReportsCount > 0) {
+            Spacer(modifier = Modifier.height(8.dp))
+            UnsubmittedReportsBadge(
+                count = uiState.unsubmittedReportsCount,
+                onClick = onUnsubmittedReportsClick,
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
@@ -1211,6 +1303,69 @@ private fun WarningBadge(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun UnsubmittedReportsBadge(
+    count: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, Color(0xFFFCD6B4), RoundedCornerShape(12.dp))
+            .background(Color(0xFFFFF7ED))
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(Color(0xFFEA580C), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = "\u270E", fontSize = 14.sp, color = Color.White)
+            }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 4.dp, y = (-4).dp)
+                    .size(18.dp)
+                    .background(Color(0xFFDC2626), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "$count",
+                    fontSize = if (count >= 10) 8.sp else 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.unsubmitted_reports_badge_title, count),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFB45309),
+            )
+            Text(
+                text = stringResource(R.string.unsubmitted_reports_badge_subtitle),
+                fontSize = 11.sp,
+                color = Color(0xFF92400E),
+            )
+        }
+        Text(
+            text = "\u25B6",
+            fontSize = 12.sp,
+            color = Color(0xFFB45309),
+        )
     }
 }
 

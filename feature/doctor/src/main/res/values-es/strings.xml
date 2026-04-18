@@ -330,4 +330,18 @@
     <string name="med_nurse_reminder_badge">Recordatorio de enfermera: %1$s por %2$d d</string>
     <string name="med_set_medication_reminder">Establecer recordatorio de medicamento</string>
 
+    <!-- ═══ Informes no enviados ═══ -->
+    <string name="unsubmitted_reports_title">Informes no enviados</string>
+    <string name="unsubmitted_reports_badge_title">%1$d informe(s) sin enviar</string>
+    <string name="unsubmitted_reports_badge_subtitle">Toque para enviar y seguir trabajando</string>
+    <string name="unsubmitted_reports_hint">Toque una fila para abrir y enviar el informe.</string>
+    <string name="unsubmitted_reports_row_patient">Paciente %1$s</string>
+    <string name="unsubmitted_reports_file_cta">Enviar informe</string>
+    <string name="unsubmitted_reports_empty_title">Todos los informes enviados</string>
+    <string name="unsubmitted_reports_empty_body">Puede aceptar nuevas consultas.</string>
+    <string name="unsubmitted_reports_dialog_title">Enviar informes pendientes</string>
+    <string name="unsubmitted_reports_dialog_body">Tiene %1$d informe(s) de consulta pendientes de env\u00edo. No recibir\u00e1 nuevas solicitudes de consulta hasta que cada informe sea enviado.</string>
+    <string name="unsubmitted_reports_dialog_file_now">Enviar ahora</string>
+    <string name="unsubmitted_reports_dialog_later">Luego</string>
+
 </resources>
