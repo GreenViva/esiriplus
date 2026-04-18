@@ -177,7 +177,7 @@ function PatientSetupContent() {
 
   // Recovery via security questions
   const SECURITY_QUESTIONS = [
-    { key: 'first_pet', label: "What was your first pet's name?" },
+    { key: 'favorite_animal', label: "What's your favourite animal?" },
     { key: 'favorite_city', label: 'What is your favorite city?' },
     { key: 'birth_city', label: 'What city were you born in?' },
     { key: 'primary_school', label: 'What primary school did you attend?' },

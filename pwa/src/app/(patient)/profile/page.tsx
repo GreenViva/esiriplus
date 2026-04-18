@@ -82,7 +82,7 @@ export default function ProfilePage() {
       .catch(() => {
         // Fallback questions if edge function fails
         setQuestions([
-          { key: 'first_pet', label: "What was the name of your first pet?" },
+          { key: 'favorite_animal', label: "What's your favourite animal?" },
           { key: 'favorite_city', label: "What is your favorite city?" },
           { key: 'birth_city', label: "In which city were you born?" },
           { key: 'primary_school', label: "What was the name of your primary school?" },
