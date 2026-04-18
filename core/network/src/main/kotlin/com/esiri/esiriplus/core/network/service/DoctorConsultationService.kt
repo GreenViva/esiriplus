@@ -36,6 +36,23 @@ data class ConsultationRow(
     @SerialName("is_reopened") val isReopened: Boolean = false,
 )
 
+@Serializable
+data class UnsubmittedReportRow(
+    @SerialName("consultation_id") val consultationId: String,
+    @SerialName("service_type") val serviceType: String = "general",
+    @SerialName("service_tier") val serviceTier: String = "ECONOMY",
+    @SerialName("consultation_type") val consultationType: String? = null,
+    @SerialName("chief_complaint") val chiefComplaint: String? = null,
+    @SerialName("updated_at") val updatedAt: String,
+    @SerialName("session_end_time") val sessionEndTime: String? = null,
+    @SerialName("patient_sessions") val patientSession: UnsubmittedReportPatientRef? = null,
+)
+
+@Serializable
+data class UnsubmittedReportPatientRef(
+    @SerialName("patient_id") val patientId: String? = null,
+)
+
 @Singleton
 class DoctorConsultationService @Inject constructor(
     private val supabaseClientProvider: SupabaseClientProvider,
@@ -49,6 +66,29 @@ class DoctorConsultationService @Inject constructor(
                 }
                 .decodeList<ConsultationRow>()
             Log.d(TAG, "Fetched ${result.size} consultations for doctor $doctorId")
+            result
+        }
+    }
+
+    suspend fun getUnsubmittedReports(doctorId: String): ApiResult<List<UnsubmittedReportRow>> {
+        return safeApiCall {
+            val result = supabaseClientProvider.client.from("consultations")
+                .select(
+                    columns = io.github.jan.supabase.postgrest.query.Columns.raw(
+                        "consultation_id,service_type,service_tier,consultation_type," +
+                            "chief_complaint,updated_at,session_end_time," +
+                            "patient_sessions(patient_id)",
+                    ),
+                ) {
+                    filter {
+                        eq("doctor_id", doctorId)
+                        eq("status", "completed")
+                        eq("report_submitted", false)
+                    }
+                    order("updated_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
+                }
+                .decodeList<UnsubmittedReportRow>()
+            Log.d(TAG, "Fetched ${result.size} unsubmitted reports for doctor $doctorId")
             result
         }
     }
