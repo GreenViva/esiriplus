@@ -31,7 +31,7 @@ export default function AdminDoctorManagementPage() {
       supabase
         .from("doctor_profiles")
         .select(
-          "doctor_id, full_name, email, phone, specialty, license_number, is_verified, is_available, average_rating, total_ratings, rejection_reason, created_at, profile_photo_url, license_document_url, certificates_url, bio, years_experience, country, suspended_until, is_banned, banned_at, ban_reason"
+          "doctor_id, full_name, email, phone, specialty, license_number, is_verified, is_available, average_rating, total_ratings, rejection_reason, created_at, profile_photo_url, license_document_url, certificates_url, bio, years_experience, country, suspended_until, is_banned, banned_at, ban_reason, flagged, flag_reason, flagged_at"
         )
         .order("created_at", { ascending: false })
         .range(from, to),

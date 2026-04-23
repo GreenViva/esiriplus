@@ -13,6 +13,9 @@ export interface ConsultationRow {
   service_type: string;
   chief_complaint: string | null;
   consultation_type: string | null;
+  service_region: string | null;
+  service_district: string | null;
+  service_ward: string | null;
   created_at: string;
   patient_sessions: {
     region: string | null;
@@ -33,7 +36,16 @@ export interface DiagnosisRow {
 export interface ReportRow {
   report_id: string;
   consultation_id: string;
-  generated_at: string;
+  created_at: string;
+}
+
+export interface PatientSessionRow {
+  session_id: string;
+  region: string | null;
+  service_district: string | null;
+  age: string | null;
+  sex: string | null;
+  created_at: string;
 }
 
 type DateRange = "30d" | "90d" | "1y" | "all";
@@ -53,6 +65,10 @@ export default function HealthAnalyticsPage() {
   const [consultations, setConsultations] = useState<ConsultationRow[]>([]);
   const [diagnoses, setDiagnoses] = useState<DiagnosisRow[]>([]);
   const [reports, setReports] = useState<ReportRow[]>([]);
+  // Footprint = all patient sessions with region/demographics, NOT date-scoped.
+  // Feeds the Regions Covered stat AND the Region/Trends tab content so they
+  // populate as soon as patients are registered, not only when they book.
+  const [patientSessions, setPatientSessions] = useState<PatientSessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState<DateRange>("90d");
 
@@ -64,7 +80,7 @@ export default function HealthAnalyticsPage() {
     let consultQuery = supabase
       .from("consultations")
       .select(
-        "consultation_id, patient_session_id, doctor_id, status, service_type, chief_complaint, consultation_type, created_at, patient_sessions(region, age, sex)"
+        "consultation_id, patient_session_id, doctor_id, status, service_type, chief_complaint, consultation_type, service_region, service_district, service_ward, created_at, patient_sessions(region, age, sex)"
       )
       .order("created_at", { ascending: false })
       .limit(PAGE_SIZE);
@@ -75,26 +91,40 @@ export default function HealthAnalyticsPage() {
       .order("created_at", { ascending: false })
       .limit(PAGE_SIZE);
 
+    // Reports live in consultation_reports (not patient_reports — that table
+    // doesn't exist server-side). Previous query silently returned zero rows
+    // so the "Total Reports" stat was always 0.
     let reportQuery = supabase
-      .from("patient_reports")
-      .select("report_id, consultation_id, generated_at")
-      .order("generated_at", { ascending: false })
+      .from("consultation_reports")
+      .select("report_id, consultation_id, created_at")
+      .order("created_at", { ascending: false })
       .limit(PAGE_SIZE);
 
     if (cutoff) {
       consultQuery = consultQuery.gte("created_at", cutoff);
       diagQuery = diagQuery.gte("created_at", cutoff);
-      reportQuery = reportQuery.gte("generated_at", cutoff);
+      reportQuery = reportQuery.gte("created_at", cutoff);
     }
+
+    // Patient-session footprint (region + demographics + created_at).
+    // NOT date-scoped — we want the full footprint so Region/Trends tabs
+    // populate even before any consultations have been booked.
+    const patientSessionsQuery = supabase
+      .from("patient_sessions")
+      .select("session_id, region, service_district, age, sex, created_at")
+      .order("created_at", { ascending: false })
+      .limit(PAGE_SIZE);
 
     Promise.all([
       consultQuery,
       diagQuery.then((res) => (res.error ? { data: [] } : res)),
       reportQuery,
-    ]).then(([consultationsRes, diagnosesRes, reportsRes]) => {
+      patientSessionsQuery,
+    ]).then(([consultationsRes, diagnosesRes, reportsRes, sessionsRes]) => {
       setConsultations((consultationsRes.data ?? []) as unknown as ConsultationRow[]);
       setDiagnoses((diagnosesRes.data ?? []) as unknown as DiagnosisRow[]);
       setReports((reportsRes.data ?? []) as unknown as ReportRow[]);
+      setPatientSessions((sessionsRes.data ?? []) as unknown as PatientSessionRow[]);
       setLoading(false);
     });
   }, [dateRange]);
@@ -105,7 +135,7 @@ export default function HealthAnalyticsPage() {
 
   return (
     <>
-      <RealtimeRefresh tables={["consultations", "diagnoses", "patient_reports"]} channelName="analytics-realtime" onUpdate={fetchData} />
+      <RealtimeRefresh tables={["consultations", "diagnoses", "consultation_reports", "patient_sessions"]} channelName="analytics-realtime" onUpdate={fetchData} />
 
       {/* Date range picker */}
       <div className="flex items-center justify-between mb-6">
@@ -139,6 +169,7 @@ export default function HealthAnalyticsPage() {
           initialConsultations={consultations}
           initialDiagnoses={diagnoses}
           initialReports={reports}
+          initialPatientSessions={patientSessions}
         />
       )}
     </>

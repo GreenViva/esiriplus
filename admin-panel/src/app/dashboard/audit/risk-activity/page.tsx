@@ -7,6 +7,10 @@ import RoleGuard from "@/components/RoleGuard";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 import type { RiskFlag, AdminLogRow } from "@/lib/types/database";
 
+// Baseline set of security-relevant action names. We still list the named
+// security events (lockouts) explicitly, but the failed-auth count also
+// matches any action ending in `_failed` so newly-added failure paths don't
+// require editing this file.
 const SECURITY_ACTIONS = [
   "session_locked_brute_force",
   "recovery_locked",
@@ -17,6 +21,9 @@ const SECURITY_ACTIONS = [
   "token_generation_failed",
   "manage_consultation_failed",
 ];
+
+const WINDOW_DAYS = 7;
+const WINDOW_LABEL = `${WINDOW_DAYS}d`;
 
 export default function RiskActivityPage() {
   const [errors24h, setErrors24h] = useState(0);
@@ -32,30 +39,39 @@ export default function RiskActivityPage() {
 
   const fetchData = useCallback(() => {
     const supabase = createClient();
-    const twentyFourHoursAgo = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
+    const windowStart = new Date(
+      Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000
     ).toISOString();
 
     Promise.all([
+      // Errors: level='error' OR any row with an error_message. Catches both
+      // logEvent-style writes and ad-hoc inserts that only set error_message.
       supabase
         .from("admin_logs")
         .select("*", { count: "exact", head: true })
-        .eq("level", "error")
-        .gte("created_at", twentyFourHoursAgo),
+        .or("level.eq.error,error_message.not.is.null")
+        .gte("created_at", windowStart),
       supabase
         .from("admin_logs")
         .select("*", { count: "exact", head: true })
         .eq("level", "warn")
-        .gte("created_at", twentyFourHoursAgo),
+        .gte("created_at", windowStart),
+      // Failed auth: any action ending in _failed OR named security events.
       supabase
         .from("admin_logs")
         .select("*", { count: "exact", head: true })
-        .in("action", SECURITY_ACTIONS)
-        .gte("created_at", twentyFourHoursAgo),
+        .or(
+          `action.ilike.%_failed,action.in.(${SECURITY_ACTIONS.join(",")})`
+        )
+        .gte("created_at", windowStart),
+      // Locked sessions: count session_locked_brute_force admin-log rows
+      // instead of relying on patient_sessions.is_locked (the column is
+      // added by a one-off script that may not have run on every DB).
       supabase
-        .from("patient_sessions")
+        .from("admin_logs")
         .select("*", { count: "exact", head: true })
-        .eq("is_locked", true),
+        .eq("action", "session_locked_brute_force")
+        .gte("created_at", windowStart),
       supabase
         .from("admin_logs")
         .select("*")
@@ -68,7 +84,7 @@ export default function RiskActivityPage() {
         .from("recovery_attempts")
         .select("ip_address, attempted_at")
         .eq("success", false)
-        .gte("attempted_at", twentyFourHoursAgo)
+        .gte("attempted_at", windowStart)
         .order("attempted_at", { ascending: false })
         .limit(500)
         .then((res) => (res.error ? { data: [] } : res)),
@@ -89,6 +105,15 @@ export default function RiskActivityPage() {
       suspiciousIpsRes,
       riskFlagsRes,
     ]) => {
+      // Surface query errors to the devtools console so the next "it doesn't
+      // show numbers" is debuggable instead of silently reading 0.
+      if (errorsRes.error) console.error("risk: errors query failed", errorsRes.error);
+      if (warningsRes.error) console.error("risk: warnings query failed", warningsRes.error);
+      if (failedAuthRes.error) console.error("risk: failed-auth query failed", failedAuthRes.error);
+      if (lockedSessionsRes.error) console.error("risk: locked-sessions query failed", lockedSessionsRes.error);
+      if (securityEventsRes.error) console.error("risk: security-events query failed", securityEventsRes.error);
+      if (riskFlagsRes.error) console.error("risk: risk-flags query failed", riskFlagsRes.error);
+
       setErrors24h(errorsRes.count ?? 0);
       setWarnings24h(warningsRes.count ?? 0);
       setFailedAuth24h(failedAuthRes.count ?? 0);
@@ -146,7 +171,7 @@ export default function RiskActivityPage() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
-          label="Errors (24h)"
+          label={`Errors (${WINDOW_LABEL})`}
           value={errors24h}
           iconBg="bg-red-50"
           icon={
@@ -166,7 +191,7 @@ export default function RiskActivityPage() {
           }
         />
         <StatCard
-          label="Warnings (24h)"
+          label={`Warnings (${WINDOW_LABEL})`}
           value={warnings24h}
           iconBg="bg-orange-50"
           icon={
@@ -186,7 +211,7 @@ export default function RiskActivityPage() {
           }
         />
         <StatCard
-          label="Failed Auth (24h)"
+          label={`Failed Auth (${WINDOW_LABEL})`}
           value={failedAuth24h}
           iconBg="bg-yellow-50"
           icon={
@@ -206,7 +231,7 @@ export default function RiskActivityPage() {
           }
         />
         <StatCard
-          label="Locked Sessions"
+          label={`Locked Sessions (${WINDOW_LABEL})`}
           value={lockedSessions}
           iconBg="bg-purple-50"
           icon={
@@ -334,7 +359,7 @@ export default function RiskActivityPage() {
         {/* Suspicious IPs */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-base font-semibold text-gray-900 mb-1">
-            Suspicious IPs (24h)
+            Suspicious IPs ({WINDOW_LABEL})
           </h2>
           <p className="text-xs text-gray-400 mb-4">
             IP addresses with multiple failed recovery/auth attempts

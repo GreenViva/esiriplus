@@ -12,6 +12,7 @@ interface PaymentSummary {
   completedCount: number;
   pendingCount: number;
   failedCount: number;
+  completedAmount: number;
   pendingAmount: number;
   failedAmount: number;
   doctorCommissions: number;
@@ -42,7 +43,9 @@ export default function FinancialIntegrityPage() {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86400_000).toISOString();
 
     Promise.all([
-      // All payments
+      // Gateway payments — used for pending/failed reconciliation and
+      // duplicate detection, NOT for revenue totals (free-offer and some
+      // flows don't write a payments row).
       supabase
         .from("payments")
         .select("payment_id, amount, status, created_at, patient_session_id")
@@ -54,18 +57,27 @@ export default function FinancialIntegrityPage() {
         .select("payment_id, amount, status, created_at, patient_session_id")
         .order("created_at", { ascending: false })
         .limit(500),
-      // Doctor earnings for commission calculation
+      // Doctor earnings — already post-split by the fn_auto_create_doctor_earning
+      // trigger, so summing these gives what the platform has accrued to doctors.
       supabase
         .from("doctor_earnings")
         .select("earning_id, amount, status, created_at")
-        .limit(500),
-    ]).then(([paymentsRes, servicePaymentsRes, earningsRes]) => {
+        .limit(5000),
+      // Consultations — source of truth for Total Revenue and Daily Revenue
+      // (matches the admin dashboard and payments page). A consultation that
+      // hasn't failed and carries a fee > 0 counts as gross platform revenue.
+      supabase
+        .from("consultations")
+        .select("consultation_id, consultation_fee, status, created_at")
+        .gt("consultation_fee", 0)
+        .limit(5000),
+    ]).then(([paymentsRes, servicePaymentsRes, earningsRes, consultationsRes]) => {
       const allPayments = [
         ...(paymentsRes.data ?? []),
         ...(servicePaymentsRes.data ?? []),
       ];
 
-      // Summary stats
+      // Gateway-level reconciliation counts (payment-record status).
       const completed = allPayments.filter(
         (p) => p.status === "completed" || p.status === "paid"
       );
@@ -73,9 +85,28 @@ export default function FinancialIntegrityPage() {
       const failed = allPayments.filter(
         (p) => p.status === "failed" || p.status === "cancelled"
       );
-      const totalRevenue = completed.reduce((s, p) => s + (p.amount ?? 0), 0);
+      const completedAmount = completed.reduce((s, p) => s + (p.amount ?? 0), 0);
       const pendingAmount = pending.reduce((s, p) => s + (p.amount ?? 0), 0);
       const failedAmount = failed.reduce((s, p) => s + (p.amount ?? 0), 0);
+
+      // Total Revenue = sum of consultation_fee across non-failed consultations.
+      // Matches the definition used by the dashboard and payments pages.
+      const failedConsultationStatuses = new Set([
+        "cancelled", "canceled", "timeout", "expired", "rejected", "failed",
+      ]);
+      const consultations = (consultationsRes.data ?? []) as Array<{
+        consultation_id: string;
+        consultation_fee: number | null;
+        status: string | null;
+        created_at: string;
+      }>;
+      const revenueConsultations = consultations.filter(
+        (c) => !failedConsultationStatuses.has((c.status ?? "").toLowerCase())
+      );
+      const totalRevenue = revenueConsultations.reduce(
+        (s, c) => s + (c.consultation_fee ?? 0),
+        0
+      );
       const doctorCommissions = (earningsRes.data ?? []).reduce(
         (s, e) => s + (e.amount ?? 0),
         0
@@ -86,23 +117,25 @@ export default function FinancialIntegrityPage() {
         completedCount: completed.length,
         pendingCount: pending.length,
         failedCount: failed.length,
+        completedAmount,
         pendingAmount,
         failedAmount,
         doctorCommissions,
         platformProfit: totalRevenue - doctorCommissions,
       });
 
-      // Daily revenue (last 30 days)
+      // Daily revenue (last 30 days) — from consultations, same source as
+      // Total Revenue so the two figures reconcile.
       const dailyMap = new Map<string, { revenue: number; count: number }>();
-      for (const p of completed) {
-        if (p.created_at < thirtyDaysAgo) continue;
-        const day = p.created_at.slice(0, 10);
+      for (const c of revenueConsultations) {
+        if (c.created_at < thirtyDaysAgo) continue;
+        const day = c.created_at.slice(0, 10);
         const existing = dailyMap.get(day);
         if (existing) {
-          existing.revenue += p.amount ?? 0;
+          existing.revenue += c.consultation_fee ?? 0;
           existing.count += 1;
         } else {
-          dailyMap.set(day, { revenue: p.amount ?? 0, count: 1 });
+          dailyMap.set(day, { revenue: c.consultation_fee ?? 0, count: 1 });
         }
       }
       const daily = Array.from(dailyMap.entries())
@@ -161,7 +194,7 @@ export default function FinancialIntegrityPage() {
     <RoleGuard allowed={["admin", "audit"]}>
       <div>
         <RealtimeRefresh
-          tables={["payments", "service_access_payments", "doctor_earnings"]}
+          tables={["payments", "service_access_payments", "doctor_earnings", "consultations"]}
           channelName="financial-audit-realtime"
           onUpdate={fetchData}
         />
@@ -270,7 +303,7 @@ export default function FinancialIntegrityPage() {
               <StatusBar
                 label="Completed"
                 count={s.completedCount}
-                amount={s.totalRevenue}
+                amount={s.completedAmount}
                 total={s.completedCount + s.pendingCount + s.failedCount}
                 color="bg-green-500"
               />

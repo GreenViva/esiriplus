@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
-import RatingsView from "../hr/ratings/RatingsView";
+import DoctorRatingsSummary from "../hr/ratings/DoctorRatingsSummary";
 
-const PAGE_SIZE = 50;
+// Fetch more than the prior 50-cap so per-doctor averages/totals on the
+// summary view reflect every review the admin cares about.
+const PAGE_SIZE = 1000;
 
 export default function RatingsPage() {
   const [allRatings, setAllRatings] = useState<
@@ -62,7 +64,7 @@ export default function RatingsPage() {
         channelName="admin-ratings-realtime"
         onUpdate={fetchData}
       />
-      <RatingsView ratings={allRatings} onRefresh={fetchData} />
+      <DoctorRatingsSummary ratings={allRatings} />
     </>
   );
 }

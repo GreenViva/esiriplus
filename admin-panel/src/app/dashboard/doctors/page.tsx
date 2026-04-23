@@ -14,14 +14,16 @@ const PAGE_SIZE = 20;
 
 export default function DoctorsPage() {
   const searchParams = useSearchParams();
-  const filter = searchParams.get("filter") ?? undefined;
+  // Default to "pending" so approved/rejected doctors don't clutter the
+  // main applications queue. "All" is an explicit filter=all choice.
+  const filter = searchParams.get("filter") ?? "pending";
   const q = searchParams.get("q") ?? undefined;
   const pageStr = searchParams.get("page") ?? "1";
   const page = Math.max(1, parseInt(pageStr, 10) || 1);
 
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [counts, setCounts] = useState({ pending: 0, rejected: 0, approved: 0, all: 0 });
+  const [counts, setCounts] = useState({ pending: 0, rejected: 0, approved: 0, flagged: 0, all: 0 });
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +44,10 @@ export default function DoctorsPage() {
       query = query.eq("is_verified", false).not("rejection_reason", "is", null);
     } else if (filter === "verified") {
       query = query.eq("is_verified", true);
+    } else if (filter === "flagged") {
+      query = query.eq("flagged", true);
     }
+    // filter === "all" → no extra predicates, shows everyone.
 
     // Apply search server-side
     if (q?.trim()) {
@@ -58,7 +63,8 @@ export default function DoctorsPage() {
       supabase.from("doctor_profiles").select("*", { count: "exact", head: true }).eq("is_verified", false).is("rejection_reason", null),
       supabase.from("doctor_profiles").select("*", { count: "exact", head: true }).eq("is_verified", false).not("rejection_reason", "is", null),
       supabase.from("doctor_profiles").select("*", { count: "exact", head: true }).eq("is_verified", true),
-    ]).then(([dataRes, allRes, pendingRes, rejectedRes, approvedRes]) => {
+      supabase.from("doctor_profiles").select("*", { count: "exact", head: true }).eq("flagged", true),
+    ]).then(([dataRes, allRes, pendingRes, rejectedRes, approvedRes, flaggedRes]) => {
       if (dataRes.error) setFetchError(dataRes.error.message);
       setDoctors((dataRes.data ?? []) as DoctorProfile[]);
       setTotalCount(dataRes.count ?? 0);
@@ -67,6 +73,7 @@ export default function DoctorsPage() {
         pending: pendingRes.count ?? 0,
         rejected: rejectedRes.count ?? 0,
         approved: approvedRes.count ?? 0,
+        flagged: flaggedRes.count ?? 0,
       });
       setLoading(false);
     });
@@ -168,8 +175,19 @@ export default function DoctorsPage() {
           }
         />
         <TabLink
-          href="/dashboard/doctors"
-          active={!filter}
+          href="/dashboard/doctors?filter=flagged"
+          active={filter === "flagged"}
+          label="Flagged"
+          count={counts.flagged}
+          icon={
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+            </svg>
+          }
+        />
+        <TabLink
+          href="/dashboard/doctors?filter=all"
+          active={filter === "all"}
           label="All"
           count={counts.all}
           icon={
@@ -207,17 +225,30 @@ export default function DoctorsPage() {
                 <p className="font-semibold text-gray-900 truncate">{doc.full_name}</p>
                 <p className="text-sm text-gray-500 truncate">{specialtyLabel(doc.specialty)}</p>
               </div>
-              <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
-                  doc.is_verified
-                    ? "bg-green-50 text-green-700"
-                    : doc.rejection_reason
-                      ? "bg-red-50 text-red-700"
-                      : "bg-amber-50 text-amber-700"
-                }`}
-              >
-                {doc.is_verified ? "Approved" : doc.rejection_reason ? "Rejected" : "Pending"}
-              </span>
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <span
+                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                    doc.is_verified
+                      ? "bg-green-50 text-green-700"
+                      : doc.rejection_reason
+                        ? "bg-red-50 text-red-700"
+                        : "bg-amber-50 text-amber-700"
+                  }`}
+                >
+                  {doc.is_verified ? "Approved" : doc.rejection_reason ? "Rejected" : "Pending"}
+                </span>
+                {doc.flagged && (
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700"
+                    title={doc.flag_reason ?? "Auto-flagged"}
+                  >
+                    <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24">
+                      <path d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                    </svg>
+                    Flagged
+                  </span>
+                )}
+              </div>
             </div>
           </Link>
         ))}

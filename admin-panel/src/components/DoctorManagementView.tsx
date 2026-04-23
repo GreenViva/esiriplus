@@ -12,6 +12,8 @@ import {
   banDoctor,
   unbanDoctor,
   warnDoctor,
+  flagDoctor,
+  unflagDoctor,
 } from "@/lib/adminApi";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
@@ -36,11 +38,13 @@ export interface Doctor {
   years_experience: number | null;
   country: string | null;
   suspended_until: string | null;
+  flagged: boolean;
+  flag_reason: string | null;
 }
 
 type SortKey = "status" | "rating";
 type SortDir = "asc" | "desc";
-type StatusFilter = "all" | "pending" | "active" | "suspended" | "banned" | "rejected";
+type StatusFilter = "all" | "pending" | "active" | "suspended" | "banned" | "rejected" | "flagged";
 
 interface Props {
   doctors: Doctor[];
@@ -67,6 +71,8 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
   const [banModal, setBanModal] = useState<string | null>(null);
   const [banReason, setBanReason] = useState("");
   const [unbanConfirm, setUnbanConfirm] = useState<string | null>(null);
+  const [flagModal, setFlagModal] = useState<string | null>(null);
+  const [flagReason, setFlagReason] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function getStatus(d: Doctor): string {
@@ -92,7 +98,11 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
     }
 
     // Status filter
-    if (statusFilter !== "all") {
+    if (statusFilter === "flagged") {
+      // Flagged is orthogonal to the primary status — it's an annotation
+      // that can apply to an active or suspended doctor alike.
+      list = list.filter((d) => d.flagged);
+    } else if (statusFilter !== "all") {
       list = list.filter((d) => getStatus(d) === statusFilter);
     }
 
@@ -206,6 +216,29 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
     onRefresh?.();
   }
 
+  async function handleFlag(doctorId: string) {
+    setLoading(doctorId);
+    setError("");
+    const result = await flagDoctor(doctorId, flagReason.trim() || "Manually flagged by admin");
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setFlagModal(null);
+      setFlagReason("");
+    }
+    setLoading(null);
+    onRefresh?.();
+  }
+
+  async function handleUnflag(doctorId: string) {
+    setLoading(doctorId);
+    setError("");
+    const result = await unflagDoctor(doctorId);
+    if (result.error) setError(result.error);
+    setLoading(null);
+    onRefresh?.();
+  }
+
   const statusBadge: Record<string, { bg: string; text: string }> = {
     pending: { bg: "bg-amber-50", text: "text-amber-700" },
     active: { bg: "bg-green-50", text: "text-green-700" },
@@ -256,6 +289,7 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
           <option value="suspended">Suspended</option>
           <option value="banned">Banned</option>
           <option value="rejected">Rejected</option>
+          <option value="flagged">Flagged</option>
         </select>
       </div>
 
@@ -342,14 +376,27 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
 
                     {/* Status */}
                     <td className="px-5 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
-                        {status}
-                        {status === "suspended" && d.suspended_until && (
-                          <span className="ml-1 opacity-75">
-                            ({Math.max(1, Math.ceil((new Date(d.suspended_until).getTime() - Date.now()) / 86400000))}d left)
+                      <div className="flex flex-col items-start gap-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+                          {status}
+                          {status === "suspended" && d.suspended_until && (
+                            <span className="ml-1 opacity-75">
+                              ({Math.max(1, Math.ceil((new Date(d.suspended_until).getTime() - Date.now()) / 86400000))}d left)
+                            </span>
+                          )}
+                        </span>
+                        {d.flagged && (
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700"
+                            title={d.flag_reason ?? "Flagged"}
+                          >
+                            <svg className="h-2.5 w-2.5 fill-current" viewBox="0 0 24 24">
+                              <path d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                            </svg>
+                            Flagged
                           </span>
                         )}
-                      </span>
+                      </div>
                     </td>
 
                     {/* Rating */}
@@ -465,6 +512,29 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
                             </button>
                           )
                         ) : null}
+                        {/* Flag/Unflag: orthogonal to primary status, available
+                            on any verified doctor. */}
+                        {d.is_verified && (d.flagged ? (
+                          <button
+                            onClick={() => handleUnflag(d.doctor_id)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                          >
+                            <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24">
+                              <path d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                            </svg>
+                            Unflag
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => { setFlagModal(d.doctor_id); setFlagReason(""); }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                          >
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                            </svg>
+                            Flag
+                          </button>
+                        ))}
                       </div>
                     </td>
                   </tr>
@@ -664,6 +734,42 @@ export default function DoctorManagementView({ doctors, currentPage, totalPages,
                 className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 disabled:opacity-50 transition-colors"
               >
                 {loading === banModal ? "Banning..." : "Confirm Ban"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Flag Modal */}
+      {flagModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 mx-4">
+            <h3 className="text-lg font-bold text-red-600 mb-1">Flag Doctor</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Flagging surfaces this doctor in the Flagged filter for review.
+              They keep normal platform access until you suspend or ban them.
+            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+            <textarea
+              value={flagReason}
+              onChange={(e) => setFlagReason(e.target.value)}
+              placeholder="Why is this doctor being flagged?"
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/30 focus:border-brand-teal resize-none mb-4"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => { setFlagModal(null); setFlagReason(""); }}
+                className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleFlag(flagModal)}
+                disabled={loading === flagModal}
+                className="px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {loading === flagModal ? "Flagging..." : "Confirm Flag"}
               </button>
             </div>
           </div>

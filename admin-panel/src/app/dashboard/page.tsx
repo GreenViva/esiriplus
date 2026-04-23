@@ -16,8 +16,7 @@ export default async function DashboardPage() {
     patientsRes,
     activeConsultationsRes,
     completedConsultationsRes,
-    servicePaymentsRes,
-    earningsRes,
+    paidConsultationsRes,
     pendingCredentialsRes,
   ] = await Promise.all([
     supabase.from("doctor_profiles").select("*", { count: "exact", head: true }),
@@ -38,15 +37,15 @@ export default async function DashboardPage() {
       .from("consultations")
       .select("*", { count: "exact", head: true })
       .eq("status", "completed"),
+    // Total Revenue = sum of consultation_fee across all non-failed
+    // consultations that carry a fee (> 0). Counts every booked/ongoing/
+    // completed consultation whether payment has cleared yet or not;
+    // excludes free/test consultations (fee = 0) and failed flows.
     supabase
-      .from("service_access_payments")
-      .select("amount")
-      .eq("status", "completed")
-      .limit(1000),
-    supabase
-      .from("doctor_earnings")
-      .select("amount")
-      .limit(1000),
+      .from("consultations")
+      .select("consultation_fee, status")
+      .gt("consultation_fee", 0)
+      .limit(5000),
     supabase
       .from("doctor_profiles")
       .select("*", { count: "exact", head: true })
@@ -60,8 +59,7 @@ export default async function DashboardPage() {
     patientsRes.error,
     activeConsultationsRes.error,
     completedConsultationsRes.error,
-    servicePaymentsRes.error,
-    earningsRes.error,
+    paidConsultationsRes.error,
     pendingCredentialsRes.error,
   ].filter(Boolean);
 
@@ -73,19 +71,17 @@ export default async function DashboardPage() {
   const completedConsultations = completedConsultationsRes.count ?? 0;
   const pendingCredentials = pendingCredentialsRes.count ?? 0;
 
-  const servicePaymentRevenue = (servicePaymentsRes.data ?? []).reduce(
-    (sum, p) => sum + (p.amount ?? 0),
+  // Exclude failed-flow statuses; sum consultation_fee across the rest.
+  const failedStatuses = new Set([
+    "cancelled", "canceled", "timeout", "expired", "rejected", "failed",
+  ]);
+  const totalRevenue = (paidConsultationsRes.data ?? []).reduce(
+    (sum, c) =>
+      failedStatuses.has((c.status ?? "").toLowerCase())
+        ? sum
+        : sum + (c.consultation_fee ?? 0),
     0,
   );
-
-  const doctorEarningsTotal = (earningsRes.data ?? []).reduce(
-    (sum, e) => sum + (e.amount ?? 0),
-    0,
-  );
-
-  const totalRevenue = servicePaymentRevenue > 0
-    ? servicePaymentRevenue
-    : doctorEarningsTotal * 2;
 
   function formatRevenue(amount: number): string {
     if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M TZS`;
@@ -93,28 +89,30 @@ export default async function DashboardPage() {
     return formatCurrency(amount);
   }
 
+  // Raised from 10-per-source so the paginated Activity feed has something
+  // meaningful to page through instead of the old 20-item hard cap.
   const [paymentsRes, recentDoctorsRes, recentConsultationsRes, logsRes] =
     await Promise.all([
       supabase
         .from("payments")
         .select("payment_id, amount, currency, payment_type, status, service_access_payments(service_type), created_at")
         .order("created_at", { ascending: false })
-        .limit(10),
+        .limit(100),
       supabase
         .from("doctor_profiles")
         .select("doctor_id, full_name, specialty, is_verified, created_at, updated_at")
         .order("updated_at", { ascending: false })
-        .limit(10),
+        .limit(100),
       supabase
         .from("consultations")
         .select("consultation_id, status, service_type, doctor_id, doctor_profiles(full_name), created_at, updated_at")
         .order("updated_at", { ascending: false })
-        .limit(10),
+        .limit(100),
       supabase
         .from("admin_logs")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(10),
+        .limit(100),
     ]);
 
   const activities: ActivityItem[] = [];
@@ -195,7 +193,9 @@ export default async function DashboardPage() {
   }
 
   activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  const recentActivity = activities.slice(0, 20);
+  // No slice — ActivityFeed paginates client-side so the admin can browse
+  // deeper without hitting an arbitrary cap.
+  const recentActivity = activities;
 
   return (
     <div>

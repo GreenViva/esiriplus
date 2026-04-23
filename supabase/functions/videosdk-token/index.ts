@@ -83,8 +83,9 @@ Deno.serve(async (req: Request) => {
     const auth = await validateAuth(req);
     await LIMITS.video(auth.userId ?? auth.sessionId ?? "anon");
 
-    // Limit concurrent video room creations to prevent exhausting VideoSDK quota
-    const releaseConcurrency = await acquireConcurrencySlot("videosdk-room", 50);
+    // Concurrency slot kept for observability only; cap set far above any
+    // realistic VideoSDK plan so the effective ceiling is the VideoSDK tier.
+    const releaseConcurrency = await acquireConcurrencySlot("videosdk-room", 100_000);
 
     const raw = await req.json();
 

@@ -101,6 +101,21 @@ export async function unsuspendDoctor(doctorId: string) {
   });
 }
 
+export async function flagDoctor(doctorId: string, reason: string) {
+  return invokeEdgeFunction("manage-doctor", {
+    action: "flag",
+    doctor_id: doctorId,
+    reason,
+  });
+}
+
+export async function unflagDoctor(doctorId: string) {
+  return invokeEdgeFunction("manage-doctor", {
+    action: "unflag",
+    doctor_id: doctorId,
+  });
+}
+
 export async function unbanDoctor(doctorId: string) {
   return invokeEdgeFunction("manage-doctor", {
     action: "unban",
@@ -212,21 +227,35 @@ export async function deauthorizeDevice(doctorId: string) {
 export interface HealthAnalyticsReport {
   generated_at: string;
   data_summary: {
+    total_patients: number;
     total_consultations: number;
     total_diagnoses: number;
     total_prescriptions: number;
+    total_reports: number;
+    total_ratings: number;
+    total_redemptions: number;
     regions_count: number;
   };
   report: {
     executive_summary: string;
+    coverage_analysis: string;
     regional_hotspots: Array<{
       region: string;
       concern: string;
       priority: "high" | "medium" | "low";
     }>;
+    district_breakdown: Array<{
+      region: string;
+      district: string;
+      observation: string;
+    }>;
     disease_patterns: string;
     demographic_insights: string;
     service_utilization: string;
+    satisfaction_signals: string;
+    offer_uptake: string;
+    trend_analysis: string;
+    equity_notes: string;
     recommendations: string[];
     data_quality_notes: string;
   };

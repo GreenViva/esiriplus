@@ -538,9 +538,9 @@ async function handleAccept(
   // that the consultation row is the source of truth for the final fee.
   // Non-fatal — if offer lookup fails, the consultation is already created at
   // full price and the patient just doesn't get the discount.
-  if (!isFollowUpAccept &&
-      (request.service_district || request.service_ward || request.service_street ||
-       (request.service_region && request.service_region !== "TANZANIA"))) {
+  // Always attempt a match, even when the patient has no location fields —
+  // global offers (all-NULL targeting) still need to redeem and tick the counter.
+  if (!isFollowUpAccept) {
     try {
       const tierUpper = (request.service_tier ?? "ECONOMY").toUpperCase();
       const tierMult = tierUpper === "ROYAL" ? 10 : 1;

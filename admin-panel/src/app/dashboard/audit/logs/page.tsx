@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getAllAuthUsers } from "@/lib/adminApi";
 import RoleGuard from "@/components/RoleGuard";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 import type { AdminLogRow } from "@/lib/types/database";
@@ -10,8 +11,13 @@ const PAGE_SIZE = 25;
 
 type ActionFilter = "all" | "approve_doctor" | "reject_doctor" | "suspend_doctor" | "ban_doctor" | "warn_doctor" | "create_portal_user" | "delete_user_role" | "flag_rating";
 
+type EnrichedLog = AdminLogRow & {
+  admin_email: string;
+  target_name: string | null;
+};
+
 export default function AuditLogExplorerPage() {
-  const [logs, setLogs] = useState<AdminLogRow[]>([]);
+  const [logs, setLogs] = useState<EnrichedLog[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -46,13 +52,52 @@ export default function AuditLogExplorerPage() {
       );
     }
 
-    query.then(({ data, count, error }) => {
+    Promise.all([query, getAllAuthUsers()]).then(async ([{ data, count, error }, authUsersRes]) => {
       if (error && page > 1) {
         // Range exceeded — reset to page 1
         setPage(1);
         return;
       }
-      setLogs(data ?? []);
+
+      const rows = (data ?? []) as AdminLogRow[];
+
+      // admin_id → email
+      const emailMap: Record<string, string> = {};
+      for (const u of authUsersRes.data?.users ?? []) {
+        emailMap[u.id] = u.email ?? u.id.slice(0, 8) + "...";
+      }
+
+      // target_id → doctor full_name (for doctor-scoped log rows).
+      // manage-doctor writes target_type="doctor" while other functions use
+      // "doctor_profile" — resolve both the same way.
+      const doctorTargetIds = rows
+        .filter(
+          (l) =>
+            (l.target_type === "doctor" || l.target_type === "doctor_profile") &&
+            l.target_id
+        )
+        .map((l) => l.target_id!) as string[];
+
+      const doctorNameMap: Record<string, string> = {};
+      if (doctorTargetIds.length > 0) {
+        const { data: doctors } = await supabase
+          .from("doctor_profiles")
+          .select("doctor_id, full_name")
+          .in("doctor_id", doctorTargetIds);
+        for (const d of doctors ?? []) {
+          doctorNameMap[d.doctor_id] = d.full_name;
+        }
+      }
+
+      const enriched: EnrichedLog[] = rows.map((log) => ({
+        ...log,
+        admin_email: log.admin_id
+          ? emailMap[log.admin_id] ?? log.admin_id.slice(0, 8) + "..."
+          : "\u2014",
+        target_name: log.target_id ? doctorNameMap[log.target_id] ?? null : null,
+      }));
+
+      setLogs(enriched);
       setTotalCount(count ?? 0);
       setLoading(false);
     });
@@ -158,9 +203,10 @@ export default function AuditLogExplorerPage() {
                     const date = new Date(log.created_at);
                     const details = log.details as Record<string, unknown> | null;
                     const email = (details?.email as string) ?? "";
+                    const key = log.log_id ?? log.id ?? `${log.admin_id}-${log.created_at}`;
 
                     return (
-                      <tr key={log.log_id} className="hover:bg-gray-50">
+                      <tr key={key} className="hover:bg-gray-50">
                         <td className="px-5 py-3 text-sm text-gray-600 whitespace-nowrap">
                           {date.toLocaleDateString("en-US", {
                             month: "short",
@@ -177,11 +223,15 @@ export default function AuditLogExplorerPage() {
                             {formatAction(log.action)}
                           </span>
                         </td>
-                        <td className="px-5 py-3 text-sm text-gray-600 truncate max-w-[200px]">
-                          {log.admin_id?.slice(0, 8) ?? "\u2014"}
+                        <td className="px-5 py-3 text-sm text-gray-700 truncate max-w-[240px]" title={log.admin_id ?? undefined}>
+                          {log.admin_email}
                         </td>
                         <td className="px-5 py-3 text-sm text-gray-600">
-                          {log.target_type ?? "\u2014"}
+                          {log.target_name ? (
+                            <span className="text-gray-800 font-medium">{log.target_name}</span>
+                          ) : (
+                            <span>{log.target_type ?? "\u2014"}</span>
+                          )}
                           {email && (
                             <span className="text-gray-400 ml-1">({email})</span>
                           )}

@@ -86,9 +86,10 @@ export const LIMITS = {
   message: (userId: string) =>
     checkRateLimit(`message:${userId}`, 60, 60),
 
-  /** Video/call token: 20 req/min */
+  /** Video/call token: 600 req/min (effectively unlimited; abuse-only guard).
+   *  Real ceiling is the VideoSDK plan, not this limiter. */
   video: (userId: string) =>
-    checkRateLimit(`video:${userId}`, 20, 60),
+    checkRateLimit(`video:${userId}`, 600, 60),
 
   /** Consultation requests: 15 req/min */
   consultation: (userId: string) =>

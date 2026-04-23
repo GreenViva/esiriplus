@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
-import RatingsView from "./RatingsView";
+import DoctorRatingsSummary from "./DoctorRatingsSummary";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 1000;
 
 export default function HRRatingsPage() {
   const [allRatings, setAllRatings] = useState<
@@ -62,7 +62,7 @@ export default function HRRatingsPage() {
         channelName="hr-ratings-realtime"
         onUpdate={fetchData}
       />
-      <RatingsView ratings={allRatings} onRefresh={fetchData} />
+      <DoctorRatingsSummary ratings={allRatings} />
     </>
   );
 }

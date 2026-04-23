@@ -25,7 +25,9 @@ type Action =
   | "suspend"
   | "warn"
   | "unsuspend"
-  | "unban";
+  | "unban"
+  | "flag"
+  | "unflag";
 
 interface RequestBody {
   action: Action;
@@ -43,6 +45,8 @@ const VALID_ACTIONS: Action[] = [
   "warn",
   "unsuspend",
   "unban",
+  "flag",
+  "unflag",
 ];
 
 // ── Validation ───────────────────────────────────────────────────────────────
@@ -367,6 +371,56 @@ async function handleUnban(
   return successResponse({ success: true, action: "unban" }, 200, origin);
 }
 
+// Manual flag — complements the auto-flag trigger. Admin can mark a doctor
+// as flagged for any reason (pattern of late acceptance, patient complaints,
+// etc.). The flag surfaces in the admin panel's Flagged tab.
+async function handleFlag(
+  body: RequestBody,
+  auth: AuthResult,
+  origin: string | null
+): Promise<Response> {
+  const reason = (body.reason ?? "").trim() || "Manually flagged by admin";
+  const supabase = getServiceClient();
+
+  const { error } = await supabase
+    .from("doctor_profiles")
+    .update({
+      flagged: true,
+      flag_reason: reason,
+      flagged_at: new Date().toISOString(),
+    })
+    .eq("doctor_id", body.doctor_id);
+
+  if (error) throw new ValidationError(error.message);
+
+  await insertAdminLog(auth.userId!, "flag_doctor", body.doctor_id, { reason });
+
+  return successResponse({ success: true, action: "flag" }, 200, origin);
+}
+
+async function handleUnflag(
+  body: RequestBody,
+  auth: AuthResult,
+  origin: string | null
+): Promise<Response> {
+  const supabase = getServiceClient();
+
+  const { error } = await supabase
+    .from("doctor_profiles")
+    .update({
+      flagged: false,
+      flag_reason: null,
+      flagged_at: null,
+    })
+    .eq("doctor_id", body.doctor_id);
+
+  if (error) throw new ValidationError(error.message);
+
+  await insertAdminLog(auth.userId!, "unflag_doctor", body.doctor_id);
+
+  return successResponse({ success: true, action: "unflag" }, 200, origin);
+}
+
 // ── Main handler ─────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -397,6 +451,10 @@ Deno.serve(async (req: Request) => {
         return await handleUnsuspend(body, auth, origin);
       case "unban":
         return await handleUnban(body, auth, origin);
+      case "flag":
+        return await handleFlag(body, auth, origin);
+      case "unflag":
+        return await handleUnflag(body, auth, origin);
       default:
         throw new ValidationError("Unknown action");
     }

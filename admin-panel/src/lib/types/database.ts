@@ -41,6 +41,11 @@ export interface DoctorProfile {
   verification_status: string | null;
   warning_message: string | null;
   warning_at: string | null;
+  /** Auto-flagged by the Postgres trigger after 3 consecutive
+   *  non-accepted requests (rejected/expired). */
+  flagged: boolean;
+  flag_reason: string | null;
+  flagged_at: string | null;
 }
 
 export interface Consultation {

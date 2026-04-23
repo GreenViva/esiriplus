@@ -16,7 +16,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import type { ConsultationRow, DiagnosisRow, ReportRow } from "./page";
+import type { ConsultationRow, DiagnosisRow, ReportRow, PatientSessionRow } from "./page";
 import { generateHealthAnalytics, type HealthAnalyticsReport } from "./actions";
 
 /* ── Helpers ─────────────────────────────────────────── */
@@ -59,41 +59,62 @@ interface Props {
   initialConsultations: ConsultationRow[];
   initialDiagnoses: DiagnosisRow[];
   initialReports: ReportRow[];
+  /** Every registered patient session (not date-scoped). Drives the Region
+   *  and Trends tabs so they populate before any consultation is booked. */
+  initialPatientSessions: PatientSessionRow[];
 }
 
 export default function HealthAnalyticsView({
   initialConsultations,
   initialDiagnoses,
   initialReports,
+  initialPatientSessions,
 }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("region");
+  const [showRegionsModal, setShowRegionsModal] = useState(false);
+  const [showDiseasesModal, setShowDiseasesModal] = useState(false);
   const consultations = initialConsultations;
   const diagnoses = initialDiagnoses;
   const reports = initialReports;
+  const patientSessions = initialPatientSessions;
+
+  // Derive the clean list of canonical regions (for the stat + modal) and a
+  // per-region patient count (for the Region tab chart) in one pass.
+  const { patientRegions, patientRegionCounts } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of patientSessions) {
+      const raw = s.region?.trim();
+      if (!raw) continue;
+      if (raw.toUpperCase() === "TANZANIA") continue;
+      // Legacy comma-joined blobs from the old Geocoder path get excluded
+      // until LocationResolver backfills them with canonical names.
+      if (raw.includes(",")) continue;
+      counts[raw] = (counts[raw] || 0) + 1;
+    }
+    return {
+      patientRegions: Object.keys(counts),
+      patientRegionCounts: counts,
+    };
+  }, [patientSessions]);
 
   /* ── Derived stats ─────────────────────────────────── */
 
-  const regionMap = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const c of consultations) {
-      const region = c.patient_sessions?.region;
-      if (region) {
-        map[region] = (map[region] || 0) + 1;
-      }
-    }
-    return map;
-  }, [consultations]);
-
+  // Region tab chart: patients per region (from patient_sessions), so the
+  // chart populates the moment a patient registers — no need to wait for
+  // consultations.
   const regionData = useMemo(
     () =>
-      Object.entries(regionMap)
+      Object.entries(patientRegionCounts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10)
         .map(([name, count]) => ({ name, count })),
-    [regionMap]
+    [patientRegionCounts]
   );
 
-  const regionsCount = Object.keys(regionMap).length;
+  // Regions Covered reflects where we have registered patients, not just
+  // those who booked in the selected period — "Dar es Salaam" counts even
+  // with zero consultations yet.
+  const regionsCount = patientRegions.length;
 
   const serviceMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -112,44 +133,80 @@ export default function HealthAnalyticsView({
     [serviceMap]
   );
 
-  const diseaseCategories = useMemo(() => {
-    const codes = new Set<string>();
+  // Distinct disease categories + their counts and a representative label.
+  // Prefers ICD codes from diagnoses; falls back to service_type when no
+  // diagnosis rows exist yet. Sorted by frequency desc for the modal list.
+  const diseaseCategoryList = useMemo(() => {
+    const fromDiagnoses = new Map<
+      string,
+      { count: number; descriptions: Set<string> }
+    >();
     for (const d of diagnoses) {
-      if (d.icd_code) codes.add(d.icd_code);
+      if (!d.icd_code) continue;
+      const key = d.icd_code;
+      const entry = fromDiagnoses.get(key) ?? { count: 0, descriptions: new Set() };
+      entry.count += 1;
+      if (d.description) entry.descriptions.add(d.description);
+      fromDiagnoses.set(key, entry);
     }
-    // Fall back to service types if no ICD codes exist yet
-    if (codes.size === 0) {
-      for (const c of consultations) {
-        codes.add(c.service_type);
-      }
+
+    if (fromDiagnoses.size > 0) {
+      return Array.from(fromDiagnoses.entries())
+        .map(([code, { count, descriptions }]) => ({
+          code,
+          label: Array.from(descriptions)[0] ?? code,
+          count,
+        }))
+        .sort((a, b) => b.count - a.count);
     }
-    return codes.size;
+
+    const fromServices = new Map<string, number>();
+    for (const c of consultations) {
+      fromServices.set(c.service_type, (fromServices.get(c.service_type) ?? 0) + 1);
+    }
+    return Array.from(fromServices.entries())
+      .map(([code, count]) => ({ code, label: serviceLabel(code), count }))
+      .sort((a, b) => b.count - a.count);
   }, [consultations, diagnoses]);
 
-  /* ── Trends: consultations per week ──────────────── */
+  const diseaseCategories = diseaseCategoryList.length;
+
+  /* ── Trends: consultations + registrations per week ── */
 
   const trendData = useMemo(() => {
-    const weekMap: Record<string, number> = {};
-    for (const c of consultations) {
-      const d = new Date(c.created_at);
-      // week start (Monday) using UTC to avoid timezone drift
+    const weekStartOf = (iso: string): string => {
+      const d = new Date(iso);
       const day = d.getUTCDay();
       const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1);
       const weekStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), diff));
-      const key = weekStart.toISOString().slice(0, 10);
-      weekMap[key] = (weekMap[key] || 0) + 1;
+      return weekStart.toISOString().slice(0, 10);
+    };
+
+    const consults: Record<string, number> = {};
+    for (const c of consultations) {
+      const key = weekStartOf(c.created_at);
+      consults[key] = (consults[key] || 0) + 1;
     }
-    return Object.entries(weekMap)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([week, count]) => ({
-        week: new Date(week + "T00:00:00Z").toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          timeZone: "UTC",
-        }),
-        consultations: count,
-      }));
-  }, [consultations]);
+    const regs: Record<string, number> = {};
+    for (const s of patientSessions) {
+      const key = weekStartOf(s.created_at);
+      regs[key] = (regs[key] || 0) + 1;
+    }
+
+    const allWeeks = Array.from(
+      new Set([...Object.keys(consults), ...Object.keys(regs)]),
+    ).sort();
+
+    return allWeeks.map((week) => ({
+      week: new Date(week + "T00:00:00Z").toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      }),
+      consultations: consults[week] ?? 0,
+      registrations: regs[week] ?? 0,
+    }));
+  }, [consultations, patientSessions]);
 
   /* ── Severity breakdown ─────────────────────────── */
 
@@ -211,6 +268,7 @@ export default function HealthAnalyticsView({
         <AnalyticsStatCard
           label="Regions Covered"
           value={regionsCount}
+          onClick={regionsCount > 0 ? () => setShowRegionsModal(true) : undefined}
           icon={
             <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -221,6 +279,7 @@ export default function HealthAnalyticsView({
         <AnalyticsStatCard
           label="Disease Categories"
           value={diseaseCategories}
+          onClick={diseaseCategories > 0 ? () => setShowDiseasesModal(true) : undefined}
           icon={
             <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
@@ -279,8 +338,142 @@ export default function HealthAnalyticsView({
       {activeTab === "disease" && (
         <DiseaseTab serviceData={serviceData} severityData={severityData} diagnoses={diagnoses} />
       )}
-      {activeTab === "trends" && <TrendsTab data={trendData} total={consultations.length} />}
+      {activeTab === "trends" && (
+        <TrendsTab
+          data={trendData}
+          totalConsultations={consultations.length}
+          totalRegistrations={patientSessions.length}
+        />
+      )}
       {activeTab === "insights" && <InsightsTab />}
+
+      {showRegionsModal && (
+        <RegionsCoveredModal
+          regions={patientRegions}
+          onClose={() => setShowRegionsModal(false)}
+        />
+      )}
+
+      {showDiseasesModal && (
+        <DiseaseCategoriesModal
+          items={diseaseCategoryList}
+          onClose={() => setShowDiseasesModal(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── Regions Covered modal ───────────────────────────── */
+
+function RegionsCoveredModal({
+  regions,
+  onClose,
+}: {
+  regions: string[];
+  onClose: () => void;
+}) {
+  const sorted = [...regions].sort((a, b) => a.localeCompare(b));
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Regions Covered</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {sorted.length} location{sorted.length !== 1 ? "s" : ""} with registered patients
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <ul className="overflow-y-auto divide-y divide-gray-50">
+          {sorted.map((name) => (
+            <li key={name} className="px-5 py-3 text-sm text-gray-800 flex items-center gap-2">
+              <svg className="h-4 w-4 text-brand-teal flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              {name}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ── Disease Categories modal ───────────────────────── */
+
+function DiseaseCategoriesModal({
+  items,
+  onClose,
+}: {
+  items: { code: string; label: string; count: number }[];
+  onClose: () => void;
+}) {
+  const total = items.reduce((s, i) => s + i.count, 0);
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Disease Categories</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {items.length} categor{items.length === 1 ? "y" : "ies"} — {total} diagnos{total === 1 ? "is" : "es"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <ul className="overflow-y-auto divide-y divide-gray-50">
+          {items.map((item) => {
+            const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+            return (
+              <li key={item.code} className="px-5 py-3 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{item.label}</p>
+                  {item.code !== item.label && (
+                    <p className="text-xs text-gray-400 font-mono">{item.code}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <span className="text-sm font-semibold text-gray-800">{item.count}</span>
+                  <span className="text-xs text-gray-400 w-10 text-right">{pct}%</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -291,18 +484,39 @@ function AnalyticsStatCard({
   label,
   value,
   icon,
+  onClick,
 }: {
   label: string;
   value: number;
   icon: React.ReactNode;
+  onClick?: () => void;
 }) {
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+  const body = (
+    <>
       <div className="flex items-start justify-between mb-3">
         <p className="text-sm font-medium text-gray-500">{label}</p>
         {icon}
       </div>
       <p className="text-3xl font-bold text-gray-900">{value}</p>
+      {onClick && (
+        <p className="text-xs text-brand-teal mt-2 font-medium">View list →</p>
+      )}
+    </>
+  );
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 w-full text-left cursor-pointer hover:border-brand-teal hover:shadow-md transition-all"
+      >
+        {body}
+      </button>
+    );
+  }
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+      {body}
     </div>
   );
 }
@@ -341,12 +555,12 @@ function RegionTab({ data }: { data: { name: string; count: number }[] }) {
   if (data.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
-        <h2 className="text-lg font-bold text-gray-900">Consultations by Region</h2>
+        <h2 className="text-lg font-bold text-gray-900">Patients by Region</h2>
         <p className="text-sm text-gray-400 mt-1">
-          Top 10 regions with most consultations
+          Top 10 regions with most registered patients
         </p>
         <div className="flex items-center justify-center py-16">
-          <p className="text-gray-400">No location data available yet</p>
+          <p className="text-gray-400">No registered patients yet</p>
         </div>
       </div>
     );
@@ -355,9 +569,9 @@ function RegionTab({ data }: { data: { name: string; count: number }[] }) {
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900">Consultations by Region</h2>
+        <h2 className="text-lg font-bold text-gray-900">Patients by Region</h2>
         <p className="text-sm text-gray-400 mt-1 mb-6">
-          Top 10 regions with most consultations
+          Top 10 regions with most registered patients
         </p>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%" minHeight={200}>
@@ -392,7 +606,7 @@ function RegionTab({ data }: { data: { name: string; count: number }[] }) {
                 Region
               </th>
               <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Consultations
+                Patients
               </th>
               <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Share
@@ -597,17 +811,19 @@ function SeverityBadge({ severity }: { severity: string }) {
 
 function TrendsTab({
   data,
-  total,
+  totalConsultations,
+  totalRegistrations,
 }: {
-  data: { week: string; consultations: number }[];
-  total: number;
+  data: { week: string; consultations: number; registrations: number }[];
+  totalConsultations: number;
+  totalRegistrations: number;
 }) {
   if (data.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
-        <h2 className="text-lg font-bold text-gray-900">Consultation Trends</h2>
+        <h2 className="text-lg font-bold text-gray-900">Weekly Activity</h2>
         <p className="text-sm text-gray-400 mt-1">
-          Weekly consultation volume over time
+          Patient registrations and consultation volume over time
         </p>
         <div className="flex items-center justify-center py-16">
           <p className="text-gray-400">No trend data available yet</p>
@@ -621,14 +837,20 @@ function TrendsTab({
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Consultation Trends</h2>
+            <h2 className="text-lg font-bold text-gray-900">Weekly Activity</h2>
             <p className="text-sm text-gray-400 mt-1">
-              Weekly consultation volume over time
+              Patient registrations and consultation volume over time
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900">{total}</p>
-            <p className="text-xs text-gray-400">Total consultations</p>
+          <div className="flex items-start gap-6">
+            <div className="text-right">
+              <p className="text-2xl font-bold text-gray-900">{totalRegistrations}</p>
+              <p className="text-xs text-gray-400">Total registrations</p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-gray-900">{totalConsultations}</p>
+              <p className="text-xs text-gray-400">Total consultations</p>
+            </div>
           </div>
         </div>
         <div className="h-80">
@@ -644,9 +866,20 @@ function TrendsTab({
                   boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                 }}
               />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Line
+                type="monotone"
+                dataKey="registrations"
+                name="Patient registrations"
+                stroke="#3B82F6"
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: "#3B82F6" }}
+                activeDot={{ r: 6 }}
+              />
               <Line
                 type="monotone"
                 dataKey="consultations"
+                name="Consultations"
                 stroke="#2A9D8F"
                 strokeWidth={2.5}
                 dot={{ r: 4, fill: "#2A9D8F" }}
@@ -774,7 +1007,7 @@ function InsightsTab() {
           <div>
             <h2 className="text-lg font-bold text-gray-900">AI Health Insights</h2>
             <p className="text-xs text-gray-400">
-              Generated {new Date(report!.generated_at).toLocaleString()} — {summary.total_consultations} consultations, {summary.total_diagnoses} diagnoses, {summary.regions_count} regions
+              Generated {new Date(report!.generated_at).toLocaleString()} — {summary.total_patients ?? 0} patients, {summary.total_consultations} consultations, {summary.total_diagnoses} diagnoses, {summary.total_reports ?? 0} reports, {summary.total_ratings ?? 0} ratings, {summary.regions_count} regions
             </p>
           </div>
         </div>
@@ -795,6 +1028,13 @@ function InsightsTab() {
         <p className="text-sm text-gray-700 leading-relaxed">{r.executive_summary}</p>
       </ReportSection>
 
+      {/* Coverage Analysis */}
+      {r.coverage_analysis && (
+        <ReportSection title="Coverage Analysis">
+          <p className="text-sm text-gray-700 leading-relaxed">{r.coverage_analysis}</p>
+        </ReportSection>
+      )}
+
       {/* Regional Hotspots */}
       {r.regional_hotspots && r.regional_hotspots.length > 0 && (
         <ReportSection title="Regional Hotspots">
@@ -806,6 +1046,23 @@ function InsightsTab() {
                   <p className="text-sm font-semibold text-gray-900">{hotspot.region}</p>
                   <p className="text-sm text-gray-600 mt-0.5">{hotspot.concern}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </ReportSection>
+      )}
+
+      {/* District Breakdown */}
+      {r.district_breakdown && r.district_breakdown.length > 0 && (
+        <ReportSection title="District Breakdown">
+          <div className="space-y-2">
+            {r.district_breakdown.map((d, i) => (
+              <div key={i} className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <p className="text-sm font-semibold text-gray-900">
+                  {d.district}
+                  <span className="text-xs text-gray-400 font-normal ml-2">{d.region}</span>
+                </p>
+                <p className="text-sm text-gray-600 mt-0.5">{d.observation}</p>
               </div>
             ))}
           </div>
@@ -826,6 +1083,34 @@ function InsightsTab() {
       <ReportSection title="Service Utilization">
         <p className="text-sm text-gray-700 leading-relaxed">{r.service_utilization}</p>
       </ReportSection>
+
+      {/* Satisfaction Signals */}
+      {r.satisfaction_signals && (
+        <ReportSection title="Patient Satisfaction Signals">
+          <p className="text-sm text-gray-700 leading-relaxed">{r.satisfaction_signals}</p>
+        </ReportSection>
+      )}
+
+      {/* Offer Uptake */}
+      {r.offer_uptake && (
+        <ReportSection title="Offer Uptake & Subsidy Impact">
+          <p className="text-sm text-gray-700 leading-relaxed">{r.offer_uptake}</p>
+        </ReportSection>
+      )}
+
+      {/* Trend Analysis */}
+      {r.trend_analysis && (
+        <ReportSection title="Trend Analysis">
+          <p className="text-sm text-gray-700 leading-relaxed">{r.trend_analysis}</p>
+        </ReportSection>
+      )}
+
+      {/* Equity Notes */}
+      {r.equity_notes && (
+        <ReportSection title="Equity & Access">
+          <p className="text-sm text-gray-700 leading-relaxed">{r.equity_notes}</p>
+        </ReportSection>
+      )}
 
       {/* Recommendations */}
       {r.recommendations && r.recommendations.length > 0 && (

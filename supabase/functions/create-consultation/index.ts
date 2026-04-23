@@ -176,6 +176,9 @@ Deno.serve(async (req: Request) => {
     const region = String(body.service_region ?? "TANZANIA").toUpperCase();
     const district = body.service_district?.trim() || null;
     const ward = body.service_ward?.trim() || null;
+    const street = (body as Record<string, unknown>).service_street
+      ? String((body as Record<string, unknown>).service_street).trim() || null
+      : null;
 
     const basePrice = (body as Record<string, unknown>).price
       ? Number((body as Record<string, unknown>).price)
@@ -196,26 +199,26 @@ Deno.serve(async (req: Request) => {
     const consultationFee = tierAdjustedPrice;
     let patientAmountDue = tierAdjustedPrice;
     let matchedOffer: { offer_id: string } | null = null;
-    if (district) {
-      const { data: offer, error: offerErr } = await supabase.rpc("match_location_offer", {
-        p_patient_session_id: auth.sessionId,
-        p_district: district,
-        p_ward: ward,
-        p_service_type: body.service_type,
-        p_tier: tier,
-      });
-      if (offerErr) {
-        console.warn("[create-consultation] match_location_offer failed (non-fatal):", offerErr.message);
-      } else if (offer && offer.offer_id) {
-        matchedOffer = offer;
-        if (offer.discount_type === "free") {
-          patientAmountDue = 0;
-        } else if (offer.discount_type === "percent") {
-          const pct = Math.max(0, Math.min(100, Number(offer.discount_value) || 0));
-          patientAmountDue = Math.max(0, Math.round(tierAdjustedPrice * (100 - pct) / 100));
-        } else if (offer.discount_type === "fixed") {
-          patientAmountDue = Math.max(0, tierAdjustedPrice - (Number(offer.discount_value) || 0));
-        }
+    const { data: offer, error: offerErr } = await supabase.rpc("match_location_offer", {
+      p_patient_session_id: auth.sessionId,
+      p_district: district,
+      p_ward: ward,
+      p_service_type: body.service_type,
+      p_tier: tier,
+      p_region: region,
+      p_street: street,
+    });
+    if (offerErr) {
+      console.warn("[create-consultation] match_location_offer failed (non-fatal):", offerErr.message);
+    } else if (offer && offer.offer_id) {
+      matchedOffer = offer;
+      if (offer.discount_type === "free") {
+        patientAmountDue = 0;
+      } else if (offer.discount_type === "percent") {
+        const pct = Math.max(0, Math.min(100, Number(offer.discount_value) || 0));
+        patientAmountDue = Math.max(0, Math.round(tierAdjustedPrice * (100 - pct) / 100));
+      } else if (offer.discount_type === "fixed") {
+        patientAmountDue = Math.max(0, tierAdjustedPrice - (Number(offer.discount_value) || 0));
       }
     }
 

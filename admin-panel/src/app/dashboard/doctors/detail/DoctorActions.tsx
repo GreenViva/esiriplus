@@ -3,18 +3,19 @@
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import { approveDoctor, rejectDoctor, deauthorizeDevice, suspendDoctor, unsuspendDoctor } from "@/lib/adminApi";
+import { approveDoctor, rejectDoctor, deauthorizeDevice, suspendDoctor, unsuspendDoctor, flagDoctor, unflagDoctor } from "@/lib/adminApi";
 
 interface Props {
   doctorId: string;
   isVerified: boolean;
   isAvailable: boolean;
   isBanned: boolean;
+  isFlagged: boolean;
   hasDevice: boolean;
   onRefresh?: () => void;
 }
 
-export default function DoctorActions({ doctorId, isVerified, isAvailable, isBanned, hasDevice, onRefresh }: Props) {
+export default function DoctorActions({ doctorId, isVerified, isAvailable, isBanned, isFlagged, hasDevice, onRefresh }: Props) {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [approveModalOpen, setApproveModalOpen] = useState(false);
@@ -23,6 +24,8 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
   const [suspendDays, setSuspendDays] = useState<number>(7);
   const [suspendReason, setSuspendReason] = useState("");
+  const [flagModalOpen, setFlagModalOpen] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
 
   async function handleApprove() {
     setLoading("approve");
@@ -82,6 +85,28 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
     setLoading(null);
   }
 
+  async function handleFlag() {
+    setLoading("flag");
+    setError("");
+    const result = await flagDoctor(doctorId, flagReason.trim() || "Manually flagged by admin");
+    if (result.error) setError(result.error);
+    else {
+      setFlagModalOpen(false);
+      setFlagReason("");
+      onRefresh?.();
+    }
+    setLoading(null);
+  }
+
+  async function handleUnflag() {
+    setLoading("unflag");
+    setError("");
+    const result = await unflagDoctor(doctorId);
+    if (result.error) setError(result.error);
+    else onRefresh?.();
+    setLoading(null);
+  }
+
   return (
     <>
       <div className="flex gap-3 flex-wrap">
@@ -125,6 +150,22 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
             onClick={handleDeauthorize}
           >
             Deauthorize Device
+          </Button>
+        )}
+        {!isFlagged ? (
+          <Button
+            variant="outline"
+            onClick={() => setFlagModalOpen(true)}
+          >
+            Flag Doctor
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            loading={loading === "unflag"}
+            onClick={handleUnflag}
+          >
+            Unflag Doctor
           </Button>
         )}
       </div>
@@ -221,6 +262,37 @@ export default function DoctorActions({ doctorId, isVerified, isAvailable, isBan
             onClick={handleSuspend}
           >
             Confirm Suspension
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={flagModalOpen}
+        onClose={() => setFlagModalOpen(false)}
+        title="Flag Doctor"
+      >
+        <p className="text-sm text-gray-600 mb-4">
+          Flagging a doctor surfaces them in the Flagged tab for review.
+          The doctor keeps normal platform access until you suspend or ban them.
+        </p>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+        <textarea
+          value={flagReason}
+          onChange={(e) => setFlagReason(e.target.value)}
+          placeholder="Why is this doctor being flagged?"
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none mb-4"
+        />
+        <div className="flex justify-end gap-3 mt-4">
+          <Button variant="outline" onClick={() => setFlagModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            loading={loading === "flag"}
+            onClick={handleFlag}
+          >
+            Confirm Flag
           </Button>
         </div>
       </Modal>

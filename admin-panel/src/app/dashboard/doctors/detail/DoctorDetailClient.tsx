@@ -184,6 +184,7 @@ export default function DoctorDetailPage() {
         isVerified={doctor.is_verified}
         isAvailable={doctor.is_available}
         isBanned={isBanned}
+        isFlagged={doctor.flagged}
         hasDevice={bindings.some((b) => b.is_active)}
         onRefresh={fetchData}
       />
