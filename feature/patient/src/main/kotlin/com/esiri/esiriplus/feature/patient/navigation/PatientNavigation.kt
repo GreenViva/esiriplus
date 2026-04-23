@@ -91,7 +91,10 @@ import kotlinx.serialization.Serializable
 
 // ── Navigation graph ──────────────────────────────────────────────────────────
 
-fun NavGraphBuilder.patientGraph(navController: NavController) {
+fun NavGraphBuilder.patientGraph(
+    navController: NavController,
+    onSignOut: () -> Unit = {},
+) {
     navigation<PatientGraph>(startDestination = PatientHomeRoute) {
 
         // ── Home ──────────────────────────────────────────────────────────────
@@ -393,9 +396,10 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onStartConsultation = {
                     navController.navigate(TierSelectionRoute)
                 },
-                onSignedOut = {
-                    navController.popBackStack(PatientHomeRoute, inclusive = false)
-                },
+                // Agent sign-out must go all the way back to role selection
+                // (where doctor / patient / agent entry points live) — not to
+                // the patient home, since an agent is not a patient.
+                onSignedOut = onSignOut,
                 onNavigateToEarnings = {
                     navController.navigate(AgentEarningsRoute)
                 },

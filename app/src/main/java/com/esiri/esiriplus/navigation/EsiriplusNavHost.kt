@@ -185,7 +185,7 @@ fun EsiriplusNavHost(
                 navController.navigate(AgentDashboardRoute)
             },
         )
-        patientGraph(navController = navController)
+        patientGraph(navController = navController, onSignOut = onLogout)
         doctorGraph(navController = navController, onSignOut = onLogout)
     }
 }
