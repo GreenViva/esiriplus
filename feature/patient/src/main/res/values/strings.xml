@@ -218,6 +218,20 @@
     <string name="payment_failed_default">Payment failed</string>
     <string name="payment_try_again">Try Again</string>
 
+    <!-- Pay by Mobile Number (provider integration TODO) -->
+    <!-- TODO(i18n): translate into sw/fr/es/ar/hi -->
+    <string name="payment_method_header">Choose payment method</string>
+    <string name="payment_method_mpesa_title">M-Pesa STK Push</string>
+    <string name="payment_method_mpesa_subtitle">Enter PIN on your SIM prompt</string>
+    <string name="payment_method_mobile_title">Pay by Mobile Number</string>
+    <string name="payment_method_mobile_subtitle">Confirm on your mobile money wallet (M-Pesa, Yas, Halotel, Airtel)</string>
+    <string name="payment_phone_title">Enter mobile number</string>
+    <string name="payment_phone_hint">We’ll ask your mobile money provider to prompt this number with the exact amount. You’ll confirm with your wallet PIN.</string>
+    <string name="payment_phone_label">Mobile number</string>
+    <string name="payment_phone_continue">Continue</string>
+    <string name="payment_phone_invalid">Enter a valid Tanzanian number (2557XXXXXXXX)</string>
+    <string name="payment_processing_mobile_message">Check your phone. Approve TZS %d on your mobile money wallet prompt to complete payment.</string>
+
     <!-- ===== ExtensionPaymentScreen ===== -->
     <string name="extension_title">Extension Payment</string>
     <string name="extension_back">Back</string>

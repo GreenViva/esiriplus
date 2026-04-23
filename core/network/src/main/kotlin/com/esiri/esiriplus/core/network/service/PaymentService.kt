@@ -3,6 +3,7 @@ package com.esiri.esiriplus.core.network.service
 import com.esiri.esiriplus.core.network.EdgeFunctionClient
 import com.esiri.esiriplus.core.network.api.SupabaseApi
 import com.esiri.esiriplus.core.network.api.model.PaymentApiModel
+import com.esiri.esiriplus.core.network.dto.InitiateMobilePaymentResponse
 import com.esiri.esiriplus.core.network.dto.StkPushResponse
 import com.esiri.esiriplus.core.network.model.ApiResult
 import kotlinx.serialization.json.buildJsonObject
@@ -53,6 +54,32 @@ class PaymentService @Inject constructor(
             put("idempotency_key", idempotencyKey)
         }
         return edgeFunctionClient.invokeAndDecode("mpesa-stk-push", body)
+    }
+
+    /**
+     * "Pay by Mobile Number" — provider-driven flow. Creates a payments row
+     * and asks the mobile-money provider to push its own wallet prompt to the
+     * user's device. The user enters their wallet PIN on the provider's UI;
+     * we never see it. The client polls [getPaymentStatus] afterwards, same
+     * as the STK path. See docs/mobile-payment-architecture.md.
+     */
+    suspend fun initiateMobilePayment(
+        phoneNumber: String,
+        amount: Int,
+        paymentType: String,
+        serviceType: String? = null,
+        consultationId: String? = null,
+        idempotencyKey: String,
+    ): ApiResult<InitiateMobilePaymentResponse> {
+        val body = buildJsonObject {
+            put("phone_number", phoneNumber)
+            put("amount", amount)
+            put("payment_type", paymentType)
+            if (serviceType != null) put("service_type", serviceType)
+            if (consultationId != null) put("consultation_id", consultationId)
+            put("idempotency_key", idempotencyKey)
+        }
+        return edgeFunctionClient.invokeAndDecode("initiate-mobile-payment", body)
     }
 
     /**

@@ -32,3 +32,30 @@ data class PaymentStatusResponse(
     @SerialName("transaction_id") val transactionId: String? = null,
     @SerialName("failure_reason") val failureReason: String? = null,
 )
+
+// ── "Pay by Mobile Number" flow ─────────────────────────────────────────────
+// Provider-driven: the app posts the user's phone number, the server asks the
+// mobile-money provider to push a wallet prompt to that device. The user
+// confirms with their wallet PIN on the provider's own UI — no PIN round-trip
+// through our app. The client then polls payments.status like it does for STK.
+// See docs/mobile-payment-architecture.md.
+
+/** Request body for initiate-mobile-payment. */
+@Serializable
+data class InitiateMobilePaymentRequest(
+    @SerialName("phone_number") val phoneNumber: String,
+    val amount: Int,
+    @SerialName("payment_type") val paymentType: String,
+    @SerialName("service_type") val serviceType: String? = null,
+    @SerialName("consultation_id") val consultationId: String? = null,
+    @SerialName("idempotency_key") val idempotencyKey: String,
+)
+
+/** Response from initiate-mobile-payment. */
+@Serializable
+data class InitiateMobilePaymentResponse(
+    val message: String,
+    @SerialName("payment_id") val paymentId: String,
+    @SerialName("payment_env") val paymentEnv: String? = null,
+    val status: String? = null,
+)

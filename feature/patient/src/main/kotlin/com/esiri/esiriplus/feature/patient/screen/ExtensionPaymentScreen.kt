@@ -105,6 +105,11 @@ fun ExtensionPaymentScreen(
                     },
                 )
 
+                // The "Pay by Mobile Number" flow is only offered for the main
+                // consultation payment. Extensions always use the existing
+                // M-Pesa STK path, so this state is unreachable here.
+                PaymentStep.PHONE_ENTRY -> Unit
+
                 PaymentStep.PROCESSING -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,

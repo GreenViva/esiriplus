@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.validation.InputValidators
 import com.esiri.esiriplus.core.database.dao.PaymentDao
 import com.esiri.esiriplus.core.database.entity.PaymentEntity
+import com.esiri.esiriplus.core.domain.model.PaymentMethod
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.model.ApiResult
 import com.esiri.esiriplus.core.network.service.PaymentService
@@ -32,12 +33,18 @@ data class PaymentUiState(
     val paymentId: String? = null,
     val paymentStatus: PaymentStep = PaymentStep.CONFIRM,
     val errorMessage: String? = null,
+    /** Selected method for this attempt. Persisted across retries. */
+    val paymentMethod: PaymentMethod = PaymentMethod.MPESA,
+    /** Mobile-number flow only: the phone the user typed. */
+    val phoneNumberInput: String = "",
 )
 
 enum class PaymentStep {
-    /** Show amount + "Pay" button */
+    /** Show amount + method chooser */
     CONFIRM,
-    /** STK push sent, waiting for mock callback */
+    /** MOBILE_NUMBER only: user typing their phone before we ask the provider to push its prompt */
+    PHONE_ENTRY,
+    /** MPESA STK wait, or MOBILE_NUMBER provider wallet-prompt wait */
     PROCESSING,
     /** Payment completed */
     COMPLETED,
@@ -106,6 +113,98 @@ class PatientPaymentViewModel @Inject constructor(
                 amount = if (routeAmount > 0) routeAmount else 0,
                 serviceType = routeServiceType.ifBlank { "gp" },
             )
+        }
+    }
+
+    fun selectMethod(method: PaymentMethod) {
+        _uiState.update { it.copy(paymentMethod = method, errorMessage = null) }
+    }
+
+    /**
+     * Triggered by the "Pay" button on the CONFIRM screen. Branches on the
+     * selected method:
+     *  - MPESA → classic STK push (existing flow)
+     *  - MOBILE_NUMBER → jump to PHONE_ENTRY; the actual initiate call
+     *    happens once the user submits the phone.
+     */
+    fun onPayClicked() {
+        when (_uiState.value.paymentMethod) {
+            PaymentMethod.MPESA -> initiatePayment()
+            PaymentMethod.MOBILE_NUMBER -> _uiState.update {
+                it.copy(
+                    paymentStatus = PaymentStep.PHONE_ENTRY,
+                    phoneNumberInput = patientPhone.takeIf { p -> p != "255700000000" }.orEmpty(),
+                    errorMessage = null,
+                )
+            }
+        }
+    }
+
+    fun onPhoneInputChanged(phone: String) {
+        _uiState.update {
+            it.copy(phoneNumberInput = phone.filter { c -> c.isDigit() }.take(12))
+        }
+    }
+
+    /**
+     * Mobile-number flow: hit initiate-mobile-payment with the typed phone
+     * number. The server creates the payments row and asks the provider to
+     * push its wallet prompt to the user's device. The user confirms on the
+     * provider's own UI with their wallet PIN; we poll [getPaymentStatus]
+     * like we do for STK.
+     */
+    fun submitPhoneNumber() {
+        val state = _uiState.value
+        if (state.isLoading) return
+
+        val phone = state.phoneNumberInput
+        if (!phone.matches(Regex("^2556\\d{8}\$|^2557\\d{8}\$"))) {
+            _uiState.update {
+                it.copy(errorMessage = application.getString(R.string.payment_phone_invalid))
+            }
+            return
+        }
+
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+        viewModelScope.launch {
+            val idempotencyKey = UUID.randomUUID().toString()
+            val result = paymentService.initiateMobilePayment(
+                phoneNumber = phone,
+                amount = state.amount,
+                paymentType = "service_access",
+                serviceType = state.serviceType,
+                consultationId = state.consultationId.ifBlank { null },
+                idempotencyKey = idempotencyKey,
+            )
+
+            when (result) {
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            paymentId = result.data.paymentId,
+                            paymentStatus = PaymentStep.PROCESSING,
+                        )
+                    }
+                    startPolling(result.data.paymentId)
+                }
+                is ApiResult.Error -> _uiState.update {
+                    it.copy(isLoading = false, errorMessage = result.message)
+                }
+                is ApiResult.NetworkError -> _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = application.getString(R.string.vm_network_error),
+                    )
+                }
+                is ApiResult.Unauthorized -> _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = application.getString(R.string.vm_session_expired),
+                    )
+                }
+            }
         }
     }
 
@@ -218,15 +317,20 @@ class PatientPaymentViewModel @Inject constructor(
     private fun persistCompletedPayment(paymentId: String, transactionId: String?) {
         viewModelScope.launch {
             try {
+                val state = _uiState.value
                 val sessionId = authRepository.currentSession.first()?.user?.id ?: ""
                 val now = System.currentTimeMillis()
+                val phoneForRecord = when (state.paymentMethod) {
+                    PaymentMethod.MOBILE_NUMBER -> state.phoneNumberInput.ifBlank { patientPhone }
+                    PaymentMethod.MPESA -> patientPhone
+                }
                 val entity = PaymentEntity(
                     paymentId = paymentId,
                     patientSessionId = sessionId,
-                    amount = _uiState.value.amount,
-                    paymentMethod = "MPESA",
+                    amount = state.amount,
+                    paymentMethod = state.paymentMethod.name,
                     transactionId = transactionId,
-                    phoneNumber = patientPhone,
+                    phoneNumber = phoneForRecord,
                     status = "completed",
                     createdAt = now,
                     updatedAt = now,

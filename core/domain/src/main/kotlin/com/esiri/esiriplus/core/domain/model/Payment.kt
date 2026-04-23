@@ -22,5 +22,14 @@ enum class PaymentStatus {
 }
 
 enum class PaymentMethod {
+    /** Classic M-Pesa STK push to the SIM. Existing flow. */
     MPESA,
+
+    /**
+     * User enters a mobile number, receives a push notification on their
+     * device, and confirms the payment by entering a one-time PIN. Backed by
+     * the initiate-mobile-payment / confirm-mobile-payment edge functions.
+     * Provider integration is a TODO — see docs/mobile-payment-architecture.md.
+     */
+    MOBILE_NUMBER,
 }
