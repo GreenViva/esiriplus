@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.core.network.api
 
+import com.esiri.esiriplus.core.network.api.model.AgentEarningApiModel
 import com.esiri.esiriplus.core.network.api.model.ConsultationApiModel
 import com.esiri.esiriplus.core.network.api.model.PaymentApiModel
 import com.esiri.esiriplus.core.network.api.model.UpdateConsultationStatusBody
@@ -82,4 +83,16 @@ interface SupabaseApi {
         @Body body: Map<String, String>,
         @Header("Prefer") prefer: String = "resolution=merge-duplicates",
     ): Response<Unit>
+
+    // Agent earnings — RLS (agents_read_own_earnings) restricts rows to the
+    // agent's own UUID automatically when the request carries their JWT.
+    @GET("rest/v1/agent_earnings")
+    suspend fun getAgentEarnings(
+        @Query("select") select: String = "*",
+        @Query("order") order: String = "created_at.desc",
+        @Query("status") statusFilter: String? = null,
+        @Header("Range") range: String? = null,
+        @Header("Range-Unit") rangeUnit: String = "items",
+        @Header("Prefer") prefer: String = "count=exact",
+    ): Response<List<AgentEarningApiModel>>
 }

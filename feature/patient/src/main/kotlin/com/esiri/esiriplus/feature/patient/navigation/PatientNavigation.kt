@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.esiri.esiriplus.feature.patient.screen.AgentDashboardScreen
+import com.esiri.esiriplus.feature.patient.screen.AgentEarningsScreen
 import com.esiri.esiriplus.feature.patient.screen.BookAppointmentScreen
 import com.esiri.esiriplus.feature.patient.screen.ConsultationHistoryScreen
 import com.esiri.esiriplus.feature.patient.screen.FollowUpWaitingScreen
@@ -70,6 +71,7 @@ import kotlinx.serialization.Serializable
 @Serializable object ReportsRoute
 @Serializable data class ReportDetailRoute(val reportId: String)
 @Serializable object AgentDashboardRoute
+@Serializable object AgentEarningsRoute
 @Serializable data class FollowUpWaitingRoute(
     val parentConsultationId: String,
     val doctorId: String,
@@ -394,6 +396,16 @@ fun NavGraphBuilder.patientGraph(navController: NavController) {
                 onSignedOut = {
                     navController.popBackStack(PatientHomeRoute, inclusive = false)
                 },
+                onNavigateToEarnings = {
+                    navController.navigate(AgentEarningsRoute)
+                },
+            )
+        }
+
+        // ── Agent Earnings ──────────────────────────────────────────────────
+        composable<AgentEarningsRoute> {
+            AgentEarningsScreen(
+                onBack = { navController.popBackStack() },
             )
         }
     }

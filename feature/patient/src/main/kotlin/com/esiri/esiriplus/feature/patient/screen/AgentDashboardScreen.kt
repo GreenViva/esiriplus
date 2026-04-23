@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -43,9 +44,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.feature.patient.viewmodel.AgentDashboardViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 private val AgentAmber = Color(0xFFF59E0B)
 private val AgentOrange = Color(0xFFEF6C00)
+private val BrandTeal = Color(0xFF2A9D8F)
 private val WarmBackground = Color(0xFFFFF7ED)
 private val CardBackground = Color(0xFFFFFFFF)
 
@@ -54,6 +58,7 @@ private val CardBackground = Color(0xFFFFFFFF)
 fun AgentDashboardScreen(
     onStartConsultation: () -> Unit,
     onSignedOut: () -> Unit,
+    onNavigateToEarnings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AgentDashboardViewModel = hiltViewModel(),
 ) {
@@ -69,6 +74,12 @@ fun AgentDashboardScreen(
         viewModel.sessionReady.collect {
             onStartConsultation()
         }
+    }
+
+    // Re-pull earnings badge every time the dashboard is shown, so
+    // admin-side "mark paid" is reflected without a sign-out.
+    LaunchedEffect(Unit) {
+        viewModel.refreshEarningsSummary()
     }
 
     Scaffold(
@@ -161,7 +172,22 @@ fun AgentDashboardScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Finished Consultations card
+            // Earnings card with pending-count badge
+            AgentActionCard(
+                icon = Icons.Default.AccountBalanceWallet,
+                title = "Earnings",
+                subtitle = if (uiState.pendingEarningsCount > 0)
+                    "TZS ${formatAmount(uiState.pendingEarningsAmount)} pending payment"
+                else
+                    "View your commission history",
+                gradientColors = listOf(BrandTeal, Color(0xFF1F7A6F)),
+                badge = uiState.pendingEarningsCount.takeIf { it > 0 },
+                onClick = onNavigateToEarnings,
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            // Finished Consultations card (placeholder)
             AgentActionCard(
                 icon = Icons.Default.DateRange,
                 title = "Finished Consultations",
@@ -210,6 +236,7 @@ private fun AgentActionCard(
     subtitle: String,
     gradientColors: List<Color>,
     onClick: () -> Unit,
+    badge: Int? = null,
 ) {
     Card(
         onClick = onClick,
@@ -244,12 +271,29 @@ private fun AgentActionCard(
             Spacer(Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp,
-                    color = Color.Black,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp,
+                        color = Color.Black,
+                    )
+                    if (badge != null) {
+                        Spacer(Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFEF4444), CircleShape)
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                        ) {
+                            Text(
+                                text = if (badge > 99) "99+" else badge.toString(),
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = subtitle,
@@ -267,3 +311,6 @@ private fun AgentActionCard(
         }
     }
 }
+
+private fun formatAmount(value: Long): String =
+    NumberFormat.getNumberInstance(Locale.US).format(value)

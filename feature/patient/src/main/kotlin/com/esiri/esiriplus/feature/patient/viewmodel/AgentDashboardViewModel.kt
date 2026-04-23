@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.common.result.Result
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.network.TokenManager
+import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.service.AgentEarningsService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,10 @@ data class AgentDashboardUiState(
     val isSignedOut: Boolean = false,
     val isCreatingSession: Boolean = false,
     val errorMessage: String? = null,
+    /** Count of unpaid earnings rows — drives the badge on the Earnings card. */
+    val pendingEarningsCount: Int = 0,
+    /** Sum of unpaid earnings amounts (TZS). */
+    val pendingEarningsAmount: Long = 0,
 )
 
 @HiltViewModel
@@ -31,6 +37,7 @@ class AgentDashboardViewModel @Inject constructor(
     private val application: Application,
     private val tokenManager: TokenManager,
     private val authRepository: AuthRepository,
+    private val agentEarningsService: AgentEarningsService,
 ) : ViewModel() {
 
     private val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -45,6 +52,33 @@ class AgentDashboardViewModel @Inject constructor(
     /** Emitted once when patient session is ready and we can navigate to consultation flow. */
     private val _sessionReady = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val sessionReady: SharedFlow<Unit> = _sessionReady.asSharedFlow()
+
+    init {
+        refreshEarningsSummary()
+    }
+
+    /**
+     * Re-fetch pending badge numbers. Called on init and when the user
+     * returns from the earnings screen so admin-side "mark paid" actions
+     * are reflected without a sign-out/sign-in.
+     */
+    fun refreshEarningsSummary() {
+        viewModelScope.launch {
+            when (val result = agentEarningsService.getSummary()) {
+                is ApiResult.Success -> _uiState.update {
+                    it.copy(
+                        pendingEarningsCount = result.data.pendingCount,
+                        pendingEarningsAmount = result.data.pendingAmount,
+                    )
+                }
+                else -> {
+                    // Badge is non-critical; swallow errors so a flaky network
+                    // doesn't red-flag the dashboard.
+                    Log.d(TAG, "Earnings summary refresh failed (non-fatal)")
+                }
+            }
+        }
+    }
 
     /**
      * Creates a patient session (anonymous) so the agent can go through the
