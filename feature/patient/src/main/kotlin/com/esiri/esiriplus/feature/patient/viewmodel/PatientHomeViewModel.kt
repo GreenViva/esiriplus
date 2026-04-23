@@ -70,12 +70,11 @@ class PatientHomeViewModel @Inject constructor(
     }
 
     /**
-     * One-shot backfill for legacy sessions that finished setup before the
-     * full hierarchy was captured. If the session has no district yet AND
-     * location permission is already granted, silently re-resolve via
-     * LocationResolver. Failure is non-fatal — offers just won't surface.
-     * The user is never prompted; if permission isn't granted yet, the
-     * permission gate will handle that on its next entry.
+     * Refresh the session's location on every app start (if permission is
+     * granted). LocationResolver re-runs GPS + reverse-geocode + server
+     * canonicalisation, so any stale or inconsistent cached hierarchy
+     * (e.g. a ward that doesn't belong to the stored district) gets
+     * overwritten with the canonical tuple. Non-fatal on failure.
      */
     private fun backfillLocationIfMissing() {
         viewModelScope.launch {
@@ -85,8 +84,6 @@ class PatientHomeViewModel @Inject constructor(
             // find a session.
             seedPatientSessionRowIfMissing()
 
-            val session = patientSessionDao.getSession().first() ?: return@launch
-            if (!session.serviceDistrict.isNullOrBlank()) return@launch
             val granted = ContextCompat.checkSelfPermission(
                 application,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -95,7 +92,7 @@ class PatientHomeViewModel @Inject constructor(
             try {
                 locationResolver.resolveAndPersist()
             } catch (e: Exception) {
-                Log.w(TAG, "Location backfill failed (non-fatal)", e)
+                Log.w(TAG, "Location refresh failed (non-fatal)", e)
             }
         }
     }
