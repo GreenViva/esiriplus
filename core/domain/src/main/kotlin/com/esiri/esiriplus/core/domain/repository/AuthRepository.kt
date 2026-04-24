@@ -15,4 +15,13 @@ interface AuthRepository {
     suspend fun recoverPatientSession(answers: Map<String, String>): Result<Session>
     suspend fun setupSecurityQuestions(answers: Map<String, String>): Result<Unit>
     suspend fun lookupPatientById(patientId: String): Result<Session>
+
+    /**
+     * Push the device's current FCM token to the server with retry.
+     *
+     * Used on login and for retry from the doctor dashboard when the
+     * "Notifications unavailable" banner is shown. Returns `true` if the
+     * server accepted the token, `false` if every attempt failed.
+     */
+    suspend fun pushFcmTokenToServer(maxAttempts: Int = 3): Boolean
 }

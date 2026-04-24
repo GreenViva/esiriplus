@@ -131,6 +131,14 @@ data class DoctorDashboardUiState(
     val ongoingConsultations: List<ConsultationEntity> = emptyList(),
     /** Consultations with status=completed AND report_submitted=false for this doctor. */
     val unsubmittedReportsCount: Int = 0,
+    /**
+     * False when the doctor's FCM token failed to register (silent-drop bug
+     * root cause — see AuthRepositoryImpl.pushFcmTokenToServer). Drives the
+     * "Notifications unavailable" banner and blocks go-online.
+     */
+    val fcmTokenRegistered: Boolean = true,
+    /** True while a manual retry of the FCM registration is in flight. */
+    val fcmTokenRetrying: Boolean = false,
 )
 
 // ─── Service Command ────────────────────────────────────────────────────────────
@@ -1055,6 +1063,16 @@ class DoctorDashboardViewModel @Inject constructor(
             Log.w(TAG, "onToggleOnline: doctor not verified, ignoring")
             return
         }
+        // Block go-online when push delivery is not proven — otherwise the
+        // doctor will silently miss every consultation request and get
+        // auto-flagged for ghosting (the Gordian scenario).
+        if (!_uiState.value.fcmTokenRegistered) {
+            Log.w(TAG, "onToggleOnline: FCM not registered, blocking toggle")
+            _uiState.update {
+                it.copy(suspensionMessage = "Notifications are unavailable. Tap Retry above before going online.")
+            }
+            return
+        }
         // Block toggle while suspended
         val suspUntil = _uiState.value.suspendedUntil
         if (suspUntil != null) {
@@ -1114,10 +1132,40 @@ class DoctorDashboardViewModel @Inject constructor(
     // ─── FCM Token ──────────────────────────────────────────────────────────────
 
     private suspend fun pushFcmTokenIfNeeded(doctorId: String) {
-        try {
+        val ok = try {
             fcmTokenRepository.fetchAndRegisterToken(doctorId)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to push FCM token", e)
+            false
+        }
+        _uiState.update { it.copy(fcmTokenRegistered = ok) }
+        if (!ok) {
+            Log.w(TAG, "FCM token NOT registered — dashboard will show notifications-unavailable banner")
+        }
+    }
+
+    /**
+     * Called when the doctor taps the "Retry" action on the
+     * Notifications-unavailable banner. Retries the token push with fresh
+     * backoff; flips `fcmTokenRegistered` back to `true` on success.
+     */
+    fun retryFcmTokenRegistration() {
+        val doctorId = _uiState.value.doctorId
+        if (doctorId.isBlank() || _uiState.value.fcmTokenRetrying) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(fcmTokenRetrying = true) }
+            val ok = try {
+                fcmTokenRepository.fetchAndRegisterToken(doctorId)
+            } catch (e: Exception) {
+                Log.e(TAG, "Retry FCM token push failed", e)
+                false
+            }
+            _uiState.update {
+                it.copy(
+                    fcmTokenRegistered = ok,
+                    fcmTokenRetrying = false,
+                )
+            }
         }
     }
 

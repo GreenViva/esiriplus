@@ -60,6 +60,12 @@
     <string name="banner_rejected_title">Application Not Approved</string>
     <string name="banner_rejected_resubmit">Please review the reason and resubmit your credentials.</string>
 
+    <!-- ═══ Dashboard: Notifications Unavailable Banner ═══ -->
+    <!-- TODO(i18n): translate into sw/fr/es/ar/hi -->
+    <string name="banner_notifications_unavailable_title">Notifications unavailable</string>
+    <string name="banner_notifications_unavailable_message">We couldn\'t register your device for push alerts. You won\'t receive consultation requests until this is fixed.</string>
+    <string name="banner_notifications_unavailable_retry">Retry</string>
+
     <!-- ═══ Dashboard: Stats Grid ═══ -->
     <string name="stats_pending_requests">Royal Clients</string>
     <string name="stats_active_consultations">Active Consultations</string>

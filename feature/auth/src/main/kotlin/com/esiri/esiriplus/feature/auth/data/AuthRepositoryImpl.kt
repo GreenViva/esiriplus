@@ -354,16 +354,50 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun pushFcmTokenToServer() {
-        try {
-            val fcmToken = com.google.firebase.messaging.FirebaseMessaging.getInstance()
-                .token.await()
-            val body = buildJsonObject { put("fcm_token", fcmToken) }
-            edgeFunctionClient.invoke("update-fcm-token", body)
-            Log.d(TAG, "FCM token pushed to server after login")
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to push FCM token to server after login", e)
+    /**
+     * Push the device's FCM token to the server so pushes can be delivered.
+     *
+     * Retries up to [maxAttempts] times with exponential backoff (1s, 2s, 4s)
+     * because the old fire-and-forget version silently dropped failures on the
+     * floor, leaving the doctor's `fcm_tokens` row empty and every subsequent
+     * push silently dying at `send-push-notification.single()`. The cohort of
+     * doctors bitten by this included Dr Gordian, who got auto-flagged for
+     * "missing 3 consecutive requests" that his phone never actually received.
+     *
+     * Returns `true` if the server accepted the token on any attempt,
+     * `false` if every attempt failed or if Firebase never handed us a
+     * token. Callers that care (e.g. the doctor dashboard) can show a
+     * "Notifications unavailable" banner and block go-online.
+     */
+    override suspend fun pushFcmTokenToServer(maxAttempts: Int): Boolean {
+        repeat(maxAttempts) { attempt ->
+            try {
+                val fcmToken = com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                    .token.await()
+                if (fcmToken.isNullOrBlank()) {
+                    Log.w(TAG, "FCM returned null/blank token on attempt ${attempt + 1}")
+                } else {
+                    val body = buildJsonObject { put("fcm_token", fcmToken) }
+                    when (val result = edgeFunctionClient.invoke("update-fcm-token", body)) {
+                        is ApiResult.Success -> {
+                            Log.d(TAG, "FCM token pushed to server (attempt ${attempt + 1})")
+                            return true
+                        }
+                        else -> {
+                            Log.w(TAG, "update-fcm-token rejected on attempt ${attempt + 1}: $result")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "FCM token push threw on attempt ${attempt + 1}", e)
+            }
+            // Exponential backoff between attempts, but not after the last one.
+            if (attempt < maxAttempts - 1) {
+                kotlinx.coroutines.delay(1_000L shl attempt) // 1s, 2s, 4s
+            }
         }
+        Log.e(TAG, "FCM token push failed after $maxAttempts attempts — doctor will not receive pushes")
+        return false
     }
 
     private suspend fun cacheDoctorProfile(doctorId: String) {

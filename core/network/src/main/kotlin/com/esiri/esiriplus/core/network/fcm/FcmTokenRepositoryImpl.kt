@@ -50,10 +50,10 @@ class FcmTokenRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun registerToken(token: String, userId: String) {
+    override suspend fun registerToken(token: String, userId: String): Boolean {
         prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
 
-        try {
+        return try {
             val response = supabaseApi.upsertFcmToken(
                 mapOf(
                     "user_id" to userId,
@@ -63,11 +63,14 @@ class FcmTokenRepositoryImpl @Inject constructor(
             )
             if (response.isSuccessful) {
                 Log.d(TAG, "FCM token pushed to fcm_tokens for $userId")
+                true
             } else {
                 Log.e(TAG, "FCM token upsert failed: ${response.code()} ${response.errorBody()?.string()}")
+                false
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to push FCM token to fcm_tokens", e)
+            false
         }
     }
 
@@ -79,23 +82,28 @@ class FcmTokenRepositoryImpl @Inject constructor(
         prefs.edit().remove(KEY_FCM_TOKEN).apply()
     }
 
-    override suspend fun fetchAndRegisterToken(userId: String) {
-        try {
-            // Always fetch a fresh token from Firebase to ensure it's current
-            val token = FirebaseMessaging.getInstance().token.await()
-            Log.d(TAG, "Firebase token obtained for $userId: ${token.take(10)}...")
-            registerToken(token, userId)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to fetch Firebase token", e)
-            // Fall back to stored token if Firebase fetch fails
-            val stored = getStoredToken()
-            if (stored != null) {
-                Log.d(TAG, "Using stored FCM token for $userId")
-                registerToken(stored, userId)
-            } else {
-                Log.e(TAG, "No stored FCM token available either")
+    override suspend fun fetchAndRegisterToken(userId: String, maxAttempts: Int): Boolean {
+        repeat(maxAttempts) { attempt ->
+            val token = try {
+                FirebaseMessaging.getInstance().token.await()
+            } catch (e: Exception) {
+                Log.w(TAG, "FCM fetch failed on attempt ${attempt + 1}", e)
+                getStoredToken()  // Fallback to cached token
+            }
+
+            if (token.isNullOrBlank()) {
+                Log.w(TAG, "No FCM token available on attempt ${attempt + 1}")
+            } else if (registerToken(token, userId)) {
+                Log.d(TAG, "FCM token registered for $userId on attempt ${attempt + 1}")
+                return true
+            }
+
+            if (attempt < maxAttempts - 1) {
+                kotlinx.coroutines.delay(1_000L shl attempt) // 1s, 2s, 4s
             }
         }
+        Log.e(TAG, "FCM token registration failed after $maxAttempts attempts for $userId — pushes will not arrive")
+        return false
     }
 
     companion object {

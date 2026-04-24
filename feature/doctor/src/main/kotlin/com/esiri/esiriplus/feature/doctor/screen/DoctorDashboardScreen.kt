@@ -477,6 +477,7 @@ fun DoctorDashboardScreen(
                     onRefresh = viewModel::refresh,
                     onAcknowledgeWarning = viewModel::acknowledgeWarning,
                     onToggleServeAsGp = viewModel::toggleServeAsGp,
+                    onRetryFcmRegistration = viewModel::retryFcmTokenRegistration,
                 )
                 DoctorNavItem.CONSULTATIONS -> ConsultationsContent(
                     uiState = uiState,
@@ -764,6 +765,7 @@ private fun DashboardContent(
     onRefresh: () -> Unit = {},
     onAcknowledgeWarning: () -> Unit = {},
     onToggleServeAsGp: () -> Unit = {},
+    onRetryFcmRegistration: () -> Unit = {},
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 
@@ -804,6 +806,19 @@ private fun DashboardContent(
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
             else -> PendingReviewBanner(modifier = Modifier.padding(horizontal = 12.dp))
+        }
+
+        // Notifications-unavailable banner — rendered only for verified doctors
+        // whose FCM token registration failed. Without this, the doctor would
+        // go online and silently miss every consultation request (the Gordian
+        // scenario that produced the auto-flag feedback loop).
+        if (uiState.isVerified && !uiState.fcmTokenRegistered) {
+            Spacer(modifier = Modifier.height(8.dp))
+            NotificationsUnavailableBanner(
+                retrying = uiState.fcmTokenRetrying,
+                onRetry = onRetryFcmRegistration,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
         }
 
         // Warnings badge (visible if count > 0, heartbeat only if unacknowledged)
@@ -1139,6 +1154,71 @@ private fun RejectedBanner(reason: String, modifier: Modifier = Modifier) {
                 color = Color(0xFF991B1B),
                 lineHeight = 14.sp,
             )
+        }
+    }
+}
+
+@Composable
+private fun NotificationsUnavailableBanner(
+    retrying: Boolean,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(10.dp))
+            .background(Color(0xFFFEF2F2))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(Color(0xFFDC2626), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(14.dp),
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.banner_notifications_unavailable_title),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+            Text(
+                text = stringResource(R.string.banner_notifications_unavailable_message),
+                fontSize = 12.sp,
+                color = Color.Black,
+                lineHeight = 16.sp,
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        TextButton(
+            onClick = onRetry,
+            enabled = !retrying,
+        ) {
+            if (retrying) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = Color(0xFFDC2626),
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.banner_notifications_unavailable_retry),
+                    color = Color(0xFFDC2626),
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
     }
 }
