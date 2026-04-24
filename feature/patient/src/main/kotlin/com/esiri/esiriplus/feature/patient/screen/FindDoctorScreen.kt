@@ -807,6 +807,39 @@ private fun DoctorDetailSheet(
                         )
                     }
                 }
+
+                // Specialist-serving-as-GP disclosure: shown only in the GP list
+                // when this doctor's primary specialty is specialist and they've
+                // opted in via can_serve_as_gp. The patient is paying the GP rate
+                // (server already computes it off service_type=gp), but deserves
+                // to know they're booking a specialist.
+                if (serviceCategory.equals("gp", ignoreCase = true) &&
+                    doctor.specialty.equals("specialist", ignoreCase = true) &&
+                    doctor.canServeAsGp
+                ) {
+                    Spacer(Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFFFFBEB))
+                            .border(0.5.dp, Color(0xFFFBBF24).copy(alpha = 0.5f), RoundedCornerShape(10.dp)),
+                    ) {
+                        Text(
+                            text = if (!doctor.specialistField.isNullOrBlank())
+                                stringResource(
+                                    R.string.find_doctor_specialist_as_gp,
+                                    doctor.specialistField!!
+                                        .replaceFirstChar { it.uppercase() },
+                                )
+                            else
+                                stringResource(R.string.find_doctor_specialist_as_gp_fallback),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFB45309),
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.height(20.dp))
