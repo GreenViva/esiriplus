@@ -223,35 +223,89 @@ When the doctor taps **Submit Report** at the bottom of the form:
 
 ## 5. Medicine catalogue
 
-### 5.1 Source
+### 5.1 Source — shared file
 
-Android ships a static list of ~150 medications inside
-`DoctorReportViewModel.kt` as a `companion object` constant
-`MEDICATIONS: List<String>`. The list covers antibiotics,
-anti-inflammatories, anaesthetics, and general-practice staples.
+The catalogue lives at `shared/medications.json` in this repository. It
+is the **single source of truth** for both Android and iOS; whoever
+edits one platform must also update the JSON in the same PR.
 
-iOS must ship **the same list, byte-for-byte**, so that a doctor
-working across Android and iOS sees identical autocomplete
-suggestions. Copy the Kotlin list into Swift as a frozen constant:
+Shape:
 
-```swift
-enum MedicationCatalogue {
-  static let all: [String] = [
-    "Amoxicillin 500mg caps",
-    "Azithromycin 500mg tabs",
-    "Ibuprofen 400mg tabs",
-    // ... 147 more entries, preserving exact order and spelling from
-    // feature/doctor/.../viewmodel/DoctorReportViewModel.kt:352-456
+```json
+{
+  "version": "2026-04-24",
+  "medications": [
+    { "name": "Amoxycillin trihydrate 500mg BP caps", "category": "Antibiotics & Anti-infective" },
+    { "name": "Ceftriaxone 1gm vial USP 30", "category": "Antibiotics & Anti-infective" },
+    { "name": "Ceftriaxone 500mg inj", "category": "Antibiotics & Anti-infective" },
+    ...
   ]
 }
 ```
 
-When the Android list is edited in future, iOS must be updated in the
-same PR. Consider promoting this to a shared JSON file under
-`shared/medications.json` with a one-time import script — but that's
-a later cleanup, not part of this spec.
+Each entry has `name` (the string that appears in autocomplete + goes
+into the submitted prescription) and `category` (a bucket heading for
+grouping — currently unused by Android UI but available if iOS wants
+to surface section headers in the suggestions list; optional feature).
 
-### 5.2 Search semantics
+### 5.2 How to consume it on iOS
+
+Option A — bundle the JSON into the app at build time:
+
+```swift
+enum MedicationCatalogue {
+  struct Entry: Decodable { let name: String; let category: String }
+  private struct File: Decodable { let version: String; let medications: [Entry] }
+
+  static let all: [Entry] = {
+    guard let url = Bundle.main.url(forResource: "medications", withExtension: "json"),
+          let data = try? Data(contentsOf: url),
+          let file = try? JSONDecoder().decode(File.self, from: data) else {
+      assertionFailure("medications.json missing from bundle")
+      return []
+    }
+    return file.medications
+  }()
+
+  /// Matches Android's `companion object MEDICATIONS` ordered String list.
+  static let names: [String] = all.map { $0.name }
+}
+```
+
+Add `shared/medications.json` to the iOS Xcode project as a build-time
+resource. Don't re-copy its contents into Swift — the indirection
+is the whole point.
+
+Option B — generate a Swift file at build time via a small script
+(`scripts/gen-medications-swift.mjs`) that reads the JSON and emits
+`MedicationCatalogue.generated.swift`. Safer for offline / assertion
+simplicity. Either is fine; A is lighter.
+
+Android will read the same file via a build-time KSP step in a
+follow-up PR (tracked separately). Until then, Android keeps the
+Kotlin list at `DoctorReportViewModel.MEDICATIONS` in sync by hand.
+**If you edit the Android Kotlin list without also editing the JSON,
+iOS autocomplete diverges silently — don't.**
+
+### 5.3 Current contents
+
+~87 entries grouped into the following categories:
+
+- Antibiotics & Anti-infective (30)
+- Anaesthetics (18)
+- Antimalarials (5)
+- NSAIDs & Analgesics (4)
+- Gynaecology (4)
+- Steroidal Anti-inflammatory (4)
+- Antifungal, Electrolyte Replenishers, Coagulants & Anti-coagulants (3 each)
+- Anthelmintics, Antiviral, Antispasmodics, Vitamins, Antiepileptics (2 each)
+- Sedatives & Hypnotics, Anticholinergics, Diuretics (1 each)
+
+iOS does not need to hard-code these categories — read them from
+`entry.category`. If the catalogue grows, new categories appear
+automatically.
+
+### 5.4 Search semantics
 
 - **Min query length**: 2 characters. Below that, show no suggestions.
 - **Match rule**: `contains(query, caseInsensitive)` — not
@@ -262,7 +316,7 @@ a later cleanup, not part of this spec.
 
 Reference: `DoctorReportScreen.kt:372-377`.
 
-### 5.3 Injection detection
+### 5.5 Injection detection
 
 A medication's **name** tells iOS whether to pre-select the Injection
 form: if the name contains the substring `" inj"` (case-insensitive,

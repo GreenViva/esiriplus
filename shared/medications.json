@@ -1,0 +1,112 @@
+{
+  "_comment_1": "Medication catalogue shared across Android, iOS, and any future platform.",
+  "_comment_2": "Android source of truth: feature/doctor/src/main/kotlin/com/esiri/esiriplus/feature/doctor/viewmodel/DoctorReportViewModel.kt (MEDICATIONS). When editing here, edit there in the SAME PR.",
+  "_comment_3": "Order and spelling are significant — autocomplete behaviour must be identical across platforms so a doctor moving between devices sees the same list.",
+  "_comment_4": "Any medication name containing \" inj\" (case-insensitive, leading space) auto-selects the Injection form in the dosage dialog. Route (IM/IV/SC) then becomes a required field.",
+  "version": "2026-04-24",
+  "medications": [
+    { "name": "Amoxycillin trihydrate 500mg BP caps", "category": "Antibiotics & Anti-infective" },
+    { "name": "Ceftriaxone 1gm vial USP 30", "category": "Antibiotics & Anti-infective" },
+    { "name": "Amoxicillin + Ac. Clavulanate 500/125mg tab", "category": "Antibiotics & Anti-infective" },
+    { "name": "Ciprofloxacine 500mg tab USP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Sulphamethoxazole 400mg + Trimethoprim 80mg tabs BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Gentamycine 80mg/2ml inj BP09", "category": "Antibiotics & Anti-infective" },
+    { "name": "Amoxicilline 250mg caps BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Neomycine + Bacitracin (0.5% + 500IU/gm) ointment", "category": "Antibiotics & Anti-infective" },
+    { "name": "Streptomycine 1gm inj BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Gentamycine 20mg/2ml inj BP09", "category": "Antibiotics & Anti-infective" },
+    { "name": "Ceftazidime 1gm inj", "category": "Antibiotics & Anti-infective" },
+    { "name": "Cefotaxime 1gm + WFI inj USP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Amoxicilline + Ac. Clavulanate 1gm/200mg inj", "category": "Antibiotics & Anti-infective" },
+    { "name": "Kanamycine 1gm inj BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Erythromycine 500mg tabs BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Clanoxy 1.2gm inj (Amox + Pot. Clav)", "category": "Antibiotics & Anti-infective" },
+    { "name": "Ceftriaxone 500mg inj", "category": "Antibiotics & Anti-infective" },
+    { "name": "Amoxicillin and clavulanate potassium tabs USP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Cefixime tabs USP 200mg", "category": "Antibiotics & Anti-infective" },
+    { "name": "Keftaz 1000 (Ceftazidime for inj USP 1gm)", "category": "Antibiotics & Anti-infective" },
+    { "name": "Clanoxy 625mg (Amox + Pot Clav) tabs USP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Chloramphenicol inj BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Gentamicine inj 80mg BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Amoxicillin 500mg and clavulanate potassium 62.5mg tabs USP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Chloramphenicol inj 1gm BP", "category": "Antibiotics & Anti-infective" },
+    { "name": "Imipenem + Cilastatin 500mg", "category": "Antibiotics & Anti-infective" },
+    { "name": "Teicoplanin 400mg", "category": "Antibiotics & Anti-infective" },
+    { "name": "Vancomycin 500mg/1gm", "category": "Antibiotics & Anti-infective" },
+    { "name": "Meropenem 500mg", "category": "Antibiotics & Anti-infective" },
+    { "name": "Cefepime 1gm", "category": "Antibiotics & Anti-infective" },
+
+    { "name": "Diazepam 5mg/ml, 2ml inj BP", "category": "Sedatives & Hypnotics" },
+
+    { "name": "Miconazole 2% cream", "category": "Anti-fungal" },
+    { "name": "Nystatine 100000 IU ointment BP", "category": "Anti-fungal" },
+    { "name": "Amphotericine B for inj USP (50mg/vial)", "category": "Anti-fungal" },
+
+    { "name": "Metronidazole 250mg tabs BP", "category": "Anthelmintics" },
+    { "name": "Helmanil tabs (Albendazole)", "category": "Anthelmintics" },
+
+    { "name": "Acyclovir 3% 5gm eye ointment BP", "category": "Antiviral" },
+    { "name": "Acyclovir 5% 10gm cream", "category": "Antiviral" },
+
+    { "name": "Paracetamol 500mg tabs BP 09", "category": "NSAIDs & Analgesics" },
+    { "name": "Diclofenac 75mg/3ml inj BP", "category": "NSAIDs & Analgesics" },
+    { "name": "Ibuprofen 200mg tabs BP", "category": "NSAIDs & Analgesics" },
+    { "name": "Ibuprofen 400mg tab", "category": "NSAIDs & Analgesics" },
+
+    { "name": "Quinine base 600mg/2ml inj", "category": "Antimalarials" },
+    { "name": "Quinine inj 100mg/ml, 2ml inj", "category": "Antimalarials" },
+    { "name": "Quinine 100mg/ml inj amp 2.4ml", "category": "Antimalarials" },
+    { "name": "Quinine 300mg (2ml amp) BP", "category": "Antimalarials" },
+    { "name": "Artemether 80mg", "category": "Antimalarials" },
+
+    { "name": "Atropine sulphate 1mg inj", "category": "Anticholinergics" },
+
+    { "name": "Hyoscine butyl bromide injection BP", "category": "Antispasmodics" },
+    { "name": "N-butyl hyoscine bromide inj 20mg", "category": "Antispasmodics" },
+
+    { "name": "Hydrocortisone 100mg inj BP", "category": "Steroidal Anti-inflammatory" },
+    { "name": "Dexamethasone 4mg inj BP", "category": "Steroidal Anti-inflammatory" },
+    { "name": "Betamethasone 0.1%, 5gm cream BP", "category": "Steroidal Anti-inflammatory" },
+    { "name": "Hydrocortisone sodium succinate 100mg", "category": "Steroidal Anti-inflammatory" },
+
+    { "name": "Calcium gluconate inj BP", "category": "Electrolyte Replenishers" },
+    { "name": "Sodium chloride inj", "category": "Electrolyte Replenishers" },
+    { "name": "Potassium chloride inj", "category": "Electrolyte Replenishers" },
+
+    { "name": "Cyanocobalamine (Hydroxocobalamine) 1mg inj", "category": "Vitamins" },
+    { "name": "Ascorbic acid inj 500mg BP", "category": "Vitamins" },
+
+    { "name": "Ergometrine inj BP", "category": "Gynaecology" },
+    { "name": "Oxytocin inj 10IU/ml, 1ml BP", "category": "Gynaecology" },
+    { "name": "Oxytocin inj 5IU/ml, 1ml amp BP", "category": "Gynaecology" },
+    { "name": "Methylergometrine 0.2mg/ml, 1ml inj USP", "category": "Gynaecology" },
+
+    { "name": "Frusemide 10mg/ml, 2ml inj BP", "category": "Diuretics" },
+
+    { "name": "Propofol 1gm inj BP", "category": "Anaesthetics" },
+    { "name": "Propofol inj (1% w/v) BP", "category": "Anaesthetics" },
+    { "name": "Ketamine 50mg/ml 10ml inj BP", "category": "Anaesthetics" },
+    { "name": "Haloperidol 5mg/ml, 1ml inj", "category": "Anaesthetics" },
+    { "name": "Bupivacaine 0.25% (950mg/20ml) inj BP", "category": "Anaesthetics" },
+    { "name": "Thiopental 0.5gm inj BP", "category": "Anaesthetics" },
+    { "name": "Lignocaine injection BP", "category": "Anaesthetics" },
+    { "name": "Lidocaine injection", "category": "Anaesthetics" },
+    { "name": "Bupivacaine 0.5% inj BP", "category": "Anaesthetics" },
+    { "name": "Vecuronium bromide 4mg & 10mg", "category": "Anaesthetics" },
+    { "name": "Pancuronium bromide BP 4mg", "category": "Anaesthetics" },
+    { "name": "Ropivacaine hydrochloride 40/150/200", "category": "Anaesthetics" },
+    { "name": "Atracurium besylate USP 10mg/ml", "category": "Anaesthetics" },
+    { "name": "Suxamethonium chloride 100mg/2ml inj", "category": "Anaesthetics" },
+    { "name": "Neostigmine inj 0.5mg/ml BP", "category": "Anaesthetics" },
+    { "name": "Lignocaine hydrochloride & dextrose inj USP", "category": "Anaesthetics" },
+    { "name": "Lidocaine 2% + adrenaline inj", "category": "Anaesthetics" },
+    { "name": "Bupivacaine rachi anaesthesia", "category": "Anaesthetics" },
+
+    { "name": "Vitamin K1 (Phytonadione) 10mg/ml inj BP", "category": "Coagulants & Anti-coagulants" },
+    { "name": "Heparinate sodium inj 5000IU/ml", "category": "Coagulants & Anti-coagulants" },
+    { "name": "Ethamsylate 250mg/2ml inj", "category": "Coagulants & Anti-coagulants" },
+
+    { "name": "Phenobarbital inj 100mg/ml, 2ml amp", "category": "Antiepileptics" },
+    { "name": "Phenobarbital 200mg/ml", "category": "Antiepileptics" }
+  ]
+}
