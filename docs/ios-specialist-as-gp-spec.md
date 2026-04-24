@@ -2,8 +2,13 @@
 
 iOS implementation spec for the feature that lets a specialist doctor opt in to
 appearing on the **General Practitioner (GP) listing** at the **GP rate**.
-Backend + PWA already ship this; this spec brings iOS to feature parity. See
-`docs/ios-pay-by-mobile-number-spec.md` for the broader iOS delivery conventions.
+Backend, PWA, and Android all ship this now; iOS is the last surface. When
+behaviour is ambiguous on iOS, mirror Android — it's the closest platform
+match and the SSO-of-truth for copy, colours, and gating.
+
+Updated 2026-04-24 after Android's patient-side disclosure pill shipped in
+commit `27561d9`. See `docs/ios-pay-by-mobile-number-spec.md` for the broader
+iOS delivery conventions.
 
 ## 1. What this feature does
 
@@ -26,19 +31,18 @@ cross-serve closes both gaps without double-booking.
 
 ## 2. State at a glance
 
-| Layer | Status | Notes |
+| Layer | Status | Reference |
 |---|---|---|
 | Database | **Done** | `doctor_profiles.can_serve_as_gp BOOLEAN DEFAULT false` — migration `20260406300000_add_can_serve_as_gp_and_earnings_realtime.sql` |
-| Backend — find-doctor filter | **Done** | `list-doctors` returns specialists with the flag in the GP query (see §6.1) |
-| Backend — fee calculation | **Done** | `create-consultation` reads `service_tiers` keyed on `service_type`, so `service_type = "gp"` → GP price regardless of doctor's primary `specialty` |
+| Backend — find-doctor filter | **Done** | `supabase/functions/list-doctors/index.ts:30-44` — returns specialists with the flag in the GP query (see §6.1) |
+| Backend — fee calculation | **Done** | `create-consultation/index.ts` reads `service_tiers` keyed on `service_type`, so `service_type = "gp"` → GP price regardless of the doctor's primary `specialty` |
 | PWA — doctor toggle UI | **Done** | `pwa/src/app/(doctor)/dashboard/page.tsx:458-489` |
-| Android — doctor toggle UI | **Missing** | Column exists on `DoctorProfileEntity`; no editor screen |
-| Android — patient disclosure | **Missing** | FindDoctor lists specialists as GPs indistinguishably — `specialist_field` is fetched but not rendered |
-| iOS — both sides | **This spec** | Ship the toggle on the doctor dashboard AND the specialist disclosure on FindDoctor |
+| PWA — patient disclosure | **Missing** | Not in scope for PWA right now; same gap as Android had before today |
+| Android — doctor toggle UI | **Done** | `feature/doctor/.../DoctorDashboardScreen.kt:1003-1009` (`ServeAsGpToggle`) + VM method `toggleServeAsGp()` at `DoctorDashboardViewModel.kt:1149-1158` |
+| Android — patient disclosure | **Done (2026-04-24)** | `feature/patient/.../FindDoctorScreen.kt:809+` amber pill on `DoctorDetailSheet`. Commit `27561d9`. |
+| iOS — both sides | **This spec** | Ship the toggle on the doctor dashboard AND the disclosure on the doctor detail view |
 
-iOS does **not** need any backend work. Read `can_serve_as_gp` from the
-`doctor_profiles` row, write it with a single PostgREST PATCH, and surface
-`specialist_field` in the patient list.
+iOS does **not** need any backend, DTO, or service-layer work that Android hasn't already proven. `DoctorProfileRow` already has `specialty`, `specialist_field`, and `can_serve_as_gp`; `list-doctors` already returns all three on every row. Read them, render them, write the one boolean when the toggle flips.
 
 ## 3. Data model
 
@@ -164,75 +168,139 @@ uses the doctor's own session JWT, not service role.
 | `specialist_gp_toggle_failed` | Couldn't update GP availability. Try again. |
 
 Translate for `sw`/`fr`/`es`/`ar`/`hi` before release. Mark with
-`TODO(i18n)`. Match the Android string catalogue style when Android
-catches up — same keys.
+`TODO(i18n)`. Use the same keys Android uses when it ships the same
+strings so the translation pipeline stays aligned.
 
 ## 5. Patient-side UX
 
 ### 5.1 Disclosure requirement
 
-When the patient picks "General Practitioner" from the Services screen and
-lands on FindDoctor, some rows in the list may be specialists who opted
-into the GP pool. Today's Android doesn't distinguish them; the fix on
-iOS is to show the specialist's sub-specialty inline so the patient is
-never surprised at consultation start.
+When a patient picks "General Practitioner" from Services and lands on
+FindDoctor, some rows will be specialists who opted into the GP pool.
+Without a visual cue, the patient can't tell them apart from native GPs
+and is surprised at consultation start. The pill fixes that.
 
-### 5.2 Where it shows
+### 5.2 Where it renders — match the Android placement
 
-Inside each doctor card in the FindDoctor list (the same card that shows
-avatar, name, rating, fee, availability pill). Only displayed when:
+Android ships two levels of doctor UI on FindDoctor:
 
-- The list is the GP list (the patient picked GP), **and**
-- `doctor.specialty == "specialist"` **and** `doctor.canServeAsGp == true`.
+1. **Avatar grid** (`DoctorAvatarItem` in `feature/patient/.../FindDoctorScreen.kt:478+`) —
+   a compact grid of profile photos with last name only. Too small for a
+   disclosure pill; the pill is **not** shown here.
+2. **Detail sheet** (`DoctorDetailSheet` in the same file, line 596+) —
+   opens when the patient taps an avatar. Full info: name, specialty
+   badge, availability, rating, experience, fee, request buttons. **This
+   is where the pill lives.**
 
-Omit it for native GPs (`specialty == "gp"`) and for any non-GP list
-(picking "Specialist" shows specialists at the specialist rate — no
-disclosure needed).
+If the iOS FindDoctor has the same two-level UX, mirror it: pill on the
+detail view, never on the compact list. If the iOS FindDoctor uses a
+single list of rich cards (no separate detail sheet), render the pill
+inside each card under the name/specialty row — but commit to one place,
+don't duplicate.
 
-### 5.3 Visual
+**Gating conditions** (all three must be true):
 
-A small pill directly under the doctor's name:
+- The list context is GP — i.e. the patient picked "General Practitioner"
+  on the Services screen. Android gets this via the `serviceCategory`
+  parameter passed into `DoctorDetailSheet`; iOS should carry an equivalent
+  selection into its detail view.
+- `doctor.specialty == "specialist"` (exact match, case-insensitive).
+- `doctor.canServeAsGp == true`.
+
+Omit the pill everywhere else — for native GPs, for any non-GP service
+list, and when `canServeAsGp` is false. The Specialist list shows
+specialists at the specialist rate and never needs this disclosure.
+
+### 5.3 Visual — matches Android's commit `27561d9`
+
+The Android reference implementation (source: `FindDoctorScreen.kt:814-843`)
+renders the pill immediately below the specialty + availability row,
+before the Spacer that leads into the info card.
 
 ```
-Dr. Amina Haji                              ★ 4.8 (32)
-Specialist · Cardiology (serving as GP)
-Available now                               TZS 5,000
+Dr. Amina Haji                ✓
+Specialist     [Available now]
+┌──────────────────────────────────┐
+│ Specialist · Cardiology          │
+│ (serving as GP)                  │   ← the disclosure pill
+└──────────────────────────────────┘
+
+───── Info card (rating, experience, fee) ─────
 ```
 
-Pill rendering:
+Exact tokens from Android:
 
-- Background: `#FFFBEB` (light amber)
-- Foreground text: `#B45309` (warm amber)
-- Font: 11sp semibold
-- Prefix: `"Specialist · "` literal, followed by `specialistField`
-  (capitalised first letter). When `specialistField` is blank, fall back
-  to `"Specialist (serving as GP)"`.
-- Suffix: `" (serving as GP)"` — required so the patient reads the full
-  sentence and understands the arrangement before tapping.
-
-This is the same amber treatment used elsewhere in the app for
-informational banners. Keep it subtle — the goal is disclosure, not
-marketing.
-
-### 5.4 Fee display
-
-The TZS amount shown on the card and on the request confirmation is
-always the **GP rate**. No recalculation on the client; the server
-already computes it correctly based on `service_type = "gp"` in the
-consultation request payload. The client must not show a "specialist
-rate striked through" — the specialist's higher rate is not relevant
-in the GP flow.
-
-### 5.5 Copy matrix
-
-| Key | English |
+| Property | Value |
 |---|---|
-| `finddoctor_specialist_as_gp_prefix` | Specialist |
-| `finddoctor_specialist_as_gp_suffix` | (serving as GP) |
-| `finddoctor_specialist_as_gp_fallback` | Specialist (serving as GP) |
+| Background | `#FFFBEB` (warm light amber) |
+| Border | 0.5pt `#FBBF24` at 50% alpha |
+| Corner radius | 10pt |
+| Horizontal padding inside pill | 10pt |
+| Vertical padding inside pill | 4pt |
+| Gap from the specialty/status row above | 6pt |
+| Text font | 11sp (~11pt on iOS), SemiBold |
+| Text color | `#B45309` (warm amber) |
 
-`finddoctor_specialist_as_gp_prefix` + middle dot + `specialistField` +
-space + `finddoctor_specialist_as_gp_suffix` is the full sentence.
+Use the same hex values on iOS — amber is the ambient "informational"
+treatment used elsewhere in the brand.
+
+### 5.4 Copy — text building rule
+
+Android's implementation uses a conditional pattern the iOS team should
+match exactly:
+
+```
+if specialistField is non-empty:
+    text = L10n("Specialist · %@ (serving as GP)", specialistField.capitalizingFirstLetter())
+else:
+    text = L10n("Specialist (serving as GP)")
+```
+
+Specifics:
+- **Prefix literal**: `"Specialist"` — translatable.
+- **Separator**: a middle-dot `·` (U+00B7), not a colon or hyphen.
+- **Middle arg**: `specialist_field` from the doctor row, with first
+  character uppercased (Android uses
+  `specialistField!!.replaceFirstChar { it.uppercase() }` at line 830).
+  Don't touch the rest — `"paediatric surgery"` → `"Paediatric surgery"`.
+- **Suffix**: `" (serving as GP)"` — required; this is what actually
+  conveys the rate arrangement. Dropping the suffix makes the pill
+  meaningless.
+- **Fallback**: when `specialist_field` is null/empty, render exactly
+  `"Specialist (serving as GP)"` — no middle dot, no empty placeholder.
+
+### 5.5 Fee display
+
+The TZS amount on every screen (list card, detail sheet, request
+confirmation, consultation) is the **GP rate** — not the specialist rate.
+The server already computes it correctly from `service_type = "gp"` in
+the consultation request payload; iOS must not recalculate.
+
+Do **not** render a "striked-through specialist rate" or any comparison
+treatment — the specialist's native rate is irrelevant in the GP flow
+and showing it just confuses the patient.
+
+### 5.6 Copy matrix
+
+Two keys, matching Android's `strings.xml` (see `feature/patient/src/main/res/values/strings.xml`, keys `find_doctor_specialist_as_gp` and `find_doctor_specialist_as_gp_fallback`):
+
+| Key | English | Usage |
+|---|---|---|
+| `find_doctor_specialist_as_gp` | `Specialist · %1$s (serving as GP)` | Primary template — `%1$s` receives `specialist_field` (first char uppercased). |
+| `find_doctor_specialist_as_gp_fallback` | `Specialist (serving as GP)` | Used verbatim when `specialist_field` is null or blank. |
+
+Keep the placeholder token (`%1$s` on Android, `%@` or `%1$@` on iOS)
+intact across translations. The middle-dot character is literally
+embedded in the localized string — do not strip it.
+
+### 5.7 Android reference — code pointer
+
+For pixel-exact parity, the canonical Android implementation is at
+`feature/patient/src/main/kotlin/com/esiri/esiriplus/feature/patient/screen/FindDoctorScreen.kt`,
+approximately lines 814–843 inside `DoctorDetailSheet`. It shows the
+`if/when/Spacer/Box/Text` shape of the final rendered pill. Read it
+before starting iOS work; it answers all the questions this spec
+hasn't anticipated.
 
 ## 6. Connectivity
 
@@ -332,34 +400,48 @@ final class DoctorDashboardViewModel: ObservableObject {
 
 ## 8. Acceptance criteria
 
-1. **Toggle visibility**: The "Serve as General Practitioner" row appears
-   on the doctor dashboard **if and only if** the signed-in doctor's
-   specialty is `specialist`, they're verified, and not suspended. A
-   regular GP never sees the toggle.
-2. **Toggle persists**: Flipping the toggle writes `can_serve_as_gp` to
-   the doctor's own `doctor_profiles` row. The value persists across
-   app restarts and across devices.
-3. **Toggle fails gracefully**: If the PATCH fails, the switch snaps
-   back to its prior value and a short toast appears.
+Cross-check each against the Android build before sign-off — if iOS
+behaves the same as Android on each point, the feature is done.
+
+1. **Toggle visibility (doctor side)**: The "Serve as General Practitioner"
+   row appears on the doctor dashboard **if and only if** the signed-in
+   doctor's specialty is `specialist`, they're verified, and not
+   suspended. A native GP never sees the toggle. An unverified or
+   suspended specialist never sees it either.
+2. **Toggle persists**: Flipping writes `can_serve_as_gp` to the
+   doctor's own `doctor_profiles` row via PostgREST PATCH. The new value
+   survives app restart and is the same across devices (next login
+   reflects it).
+3. **Toggle fails gracefully**: If the PATCH errors, the switch snaps
+   back to its prior value and a short non-blocking toast appears
+   ("Couldn't update GP availability. Try again.").
 4. **Patient list shows opt-in specialists**: With a test specialist
-   account flagged `can_serve_as_gp = true`, opening the GP list as a
-   patient shows that specialist alongside native GPs.
-5. **Specialist disclosure is rendered**: Specialist cards in the GP
-   list display the amber "Specialist · {field} (serving as GP)" pill.
-   Native-GP cards show no such pill.
-6. **Fee is GP rate**: Tapping a specialist's card in the GP list and
-   proceeding to the confirmation screen shows the GP price (not the
-   specialist price). Do not render a "crossed-out specialist rate"
-   anywhere in this flow.
-7. **Toggling off removes listing within ~60s**: After a specialist
-   toggles off, patients opening fresh GP queries no longer see that
-   specialist. (The cache on the patient side is the only limiting
-   factor; no explicit invalidation required from iOS.)
-8. **No regression on non-GP specialty queries**: Picking "Specialist"
-   from services lists only `specialty = specialist` doctors regardless
-   of their `can_serve_as_gp` value, at specialist rates as before.
-9. **Strings are keyed**: All new copy lives in `Localizable.strings`
-   (or string catalog equivalents) under the keys in §4.5 and §5.5.
+   flagged `can_serve_as_gp = true`, opening the GP list as a patient
+   shows that specialist alongside native GPs. Without the flag they
+   do not appear.
+5. **Disclosure pill is rendered (patient side)**: On the GP-context
+   doctor detail view, specialists with the flag show the amber pill
+   with copy built per §5.4. Native-GP detail views show no pill. The
+   Specialist-list detail view shows no pill (even for the same
+   doctor).
+6. **Fallback copy**: A specialist with `specialist_field = null` or
+   blank shows the verbatim fallback `"Specialist (serving as GP)"`
+   — no empty middle-dot artefact, no crash.
+7. **Fee is GP rate end-to-end**: From the detail sheet fee → request
+   button → confirmation sheet → billed consultation, the TZS amount
+   is the GP rate (server-computed). No striked-through specialist
+   rate anywhere.
+8. **Toggling off removes listing**: After a specialist toggles off,
+   patients opening fresh GP queries no longer see that specialist
+   within one query cycle. Cached/stale lists on the patient side
+   clear on pull-to-refresh or next natural reload; no explicit
+   invalidation required from iOS.
+9. **No regression on non-GP queries**: Picking "Specialist" from
+   Services still lists only `specialty = specialist` doctors
+   regardless of `can_serve_as_gp`, and at specialist rates.
+10. **Strings are keyed**: All new copy lives in `Localizable.strings`
+    (or string-catalog equivalents) under the keys in §4.5 and §5.6.
+    No hardcoded English in the pill or the toggle.
 
 ## 9. Out of scope
 
