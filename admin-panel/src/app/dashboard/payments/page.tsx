@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import PaymentsView, { type PaymentRow, type DoctorRevenueRow } from "./PaymentsView";
+import PaymentsView, { type PaymentRow, type DoctorRevenueRow, type AgentRevenueRow } from "./PaymentsView";
 import RealtimeRefresh from "@/components/RealtimeRefresh";
 
 const PAGE_SIZE = 50;
@@ -10,6 +10,7 @@ const PAGE_SIZE = 50;
 export default function PaymentsPage() {
   const [rows, setRows] = useState<PaymentRow[]>([]);
   const [doctorRevenue, setDoctorRevenue] = useState<DoctorRevenueRow[]>([]);
+  const [agentRevenue, setAgentRevenue] = useState<AgentRevenueRow[]>([]);
   // Total Revenue = sum of consultation_fee across non-failed consultations
   // with fee > 0. Mirrors the admin dashboard definition exactly.
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -52,13 +53,32 @@ export default function PaymentsPage() {
         .eq("is_verified", true),
       // Consultations: drives the Completed/Pending/Failed stat cards,
       // Total Revenue, the Paid-by-Patient tab, and the consultation
-      // count / last_active columns in the To-Doctor tab. The money
-      // column (amount_owed) comes from doctor_earnings, not from here.
+      // count / last_active columns in the To-Doctor and To-Agent tabs.
+      // The money column (amount_owed) comes from doctor_earnings /
+      // agent_earnings, not from here.
       supabase
         .from("consultations")
-        .select("consultation_id, doctor_id, patient_session_id, consultation_fee, service_type, status, created_at")
+        .select("consultation_id, doctor_id, agent_id, patient_session_id, consultation_fee, service_type, status, created_at")
         .limit(5000),
-    ]).then(([servicePaymentsRes, earningsRes, paymentsRes, doctorProfilesRes, consultationsRes]) => {
+      // Agent earnings: source of truth for what the app owes each agent
+      // (10% commission on completed referrals). Fetched all so we can
+      // sum unpaid balances. The agents page uses the same table.
+      supabase
+        .from("agent_earnings")
+        .select("agent_id, amount, status")
+        .limit(10000),
+      supabase
+        .from("agent_profiles")
+        .select("agent_id, full_name, mobile_number, place_of_residence"),
+    ]).then(([
+      servicePaymentsRes,
+      earningsRes,
+      paymentsRes,
+      doctorProfilesRes,
+      consultationsRes,
+      agentEarningsRes,
+      agentProfilesRes,
+    ]) => {
       // Build unified payment rows
       const paymentRows: PaymentRow[] = [];
       const seenIds = new Set<string>();
@@ -109,6 +129,7 @@ export default function PaymentsPage() {
       const consultations = (consultationsRes.data ?? []) as Array<{
         consultation_id: string;
         doctor_id: string | null;
+        agent_id: string | null;
         patient_session_id: string | null;
         consultation_fee: number | null;
         service_type: string | null;
@@ -195,6 +216,54 @@ export default function PaymentsPage() {
       revenue.sort((a, b) => b.amount_owed - a.amount_owed);
       setDoctorRevenue(revenue);
 
+      // Amount owed per agent = sum of agent_earnings rows where the status
+      // is not yet "paid". Consultations drive the activity metrics
+      // (consultation_count and last_active) using consultations.agent_id
+      // — the commission is a fixed 10% which the earnings trigger has
+      // already recorded.
+      const agentMap = new Map<string, { owed: number; count: number; lastActive: string }>();
+      for (const c of consultations) {
+        if (!c.agent_id) continue;
+        const s = (c.status ?? "").toLowerCase();
+        if (failedSet.has(s)) continue;
+        if ((c.consultation_fee ?? 0) <= 0) continue;
+        const entry = agentMap.get(c.agent_id) ?? { owed: 0, count: 0, lastActive: c.created_at };
+        entry.count += 1;
+        if (c.created_at > entry.lastActive) entry.lastActive = c.created_at;
+        agentMap.set(c.agent_id, entry);
+      }
+      for (const e of agentEarningsRes.data ?? []) {
+        if (!e.agent_id) continue;
+        if ((e.status ?? "").toLowerCase() === "paid") continue;
+        const entry = agentMap.get(e.agent_id) ?? { owed: 0, count: 0, lastActive: "" };
+        entry.owed += e.amount ?? 0;
+        agentMap.set(e.agent_id, entry);
+      }
+
+      const agentProfileLookup = new Map<
+        string,
+        { full_name: string; mobile_number: string | null; place_of_residence: string | null }
+      >();
+      for (const ap of agentProfilesRes.data ?? []) {
+        agentProfileLookup.set(ap.agent_id, ap);
+      }
+
+      const agentRev: AgentRevenueRow[] = Array.from(agentMap.entries()).map(([agentId, data]) => {
+        const profile = agentProfileLookup.get(agentId);
+        return {
+          agent_id: agentId,
+          agent_name: profile?.full_name ?? "Unknown Agent",
+          residence: profile?.place_of_residence ?? "",
+          phone: profile?.mobile_number ?? null,
+          amount_owed: data.owed,
+          consultation_count: data.count,
+          last_active: data.lastActive,
+        };
+      });
+
+      agentRev.sort((a, b) => b.amount_owed - a.amount_owed);
+      setAgentRevenue(agentRev);
+
       // Completed = finished session.
       // Failed   = any terminal-not-delivered state.
       // Pending  = EVERYTHING else (paid-not-started, accepted-awaiting-slot,
@@ -243,13 +312,14 @@ export default function PaymentsPage() {
   return (
     <div>
       <RealtimeRefresh
-        tables={["payments", "service_access_payments", "doctor_earnings", "consultations"]}
+        tables={["payments", "service_access_payments", "doctor_earnings", "agent_earnings", "consultations"]}
         channelName="admin-payments-realtime"
         onUpdate={fetchData}
       />
       <PaymentsView
         payments={rows}
         doctorRevenue={doctorRevenue}
+        agentRevenue={agentRevenue}
         totalRevenue={totalRevenue}
         consultationCounts={consultationCounts}
         onRefresh={fetchData}

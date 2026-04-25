@@ -28,6 +28,17 @@ export interface DoctorRevenueRow {
   last_active: string;
 }
 
+export interface AgentRevenueRow {
+  agent_id: string;
+  agent_name: string;
+  residence: string;
+  phone: string | null;
+  /** Sum of agent_earnings the app still owes this agent (status != "paid"). */
+  amount_owed: number;
+  consultation_count: number;
+  last_active: string;
+}
+
 function formatShortDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleString("en-US", {
@@ -67,6 +78,7 @@ function ServiceBadge({ type }: { type: string }) {
 interface Props {
   payments: PaymentRow[];
   doctorRevenue: DoctorRevenueRow[];
+  agentRevenue: AgentRevenueRow[];
   /** Gross revenue from completed consultations' consultation_fee. Computed
    *  server-side independent of the payment record tables so it always
    *  reflects real platform activity (including free-offer consultations). */
@@ -80,16 +92,18 @@ interface Props {
 export default function PaymentsView({
   payments,
   doctorRevenue,
+  agentRevenue,
   totalRevenue,
   consultationCounts,
   onRefresh,
 }: Props) {
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"patients" | "doctors">("patients");
+  const [tab, setTab] = useState<"patients" | "doctors" | "agents">("patients");
   const [expandedPatient, setExpandedPatient] = useState<string | null>(null);
   const [patientPage, setPatientPage] = useState(1);
   const PATIENTS_PER_PAGE = 20;
   const [payWithDoctor, setPayWithDoctor] = useState<DoctorRevenueRow | null>(null);
+  const [payWithAgent, setPayWithAgent] = useState<AgentRevenueRow | null>(null);
 
 
   // Apply search to patient payments
@@ -168,6 +182,18 @@ export default function PaymentsView({
     );
   }
 
+  // Apply search to agent revenue
+  let filteredAgents = agentRevenue;
+  if (search.trim() && tab === "agents") {
+    const q = search.toLowerCase();
+    filteredAgents = filteredAgents.filter((a) =>
+      a.agent_name.toLowerCase().includes(q) ||
+      (a.residence ?? "").toLowerCase().includes(q) ||
+      (a.phone ?? "").toLowerCase().includes(q) ||
+      String(a.amount_owed).includes(q)
+    );
+  }
+
   return (
     <>
       {/* Header */}
@@ -242,7 +268,13 @@ export default function PaymentsView({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={tab === "patients" ? "Search by phone, receipt, patient..." : "Search by doctor name, specialty..."}
+          placeholder={
+            tab === "patients"
+              ? "Search by phone, receipt, patient..."
+              : tab === "doctors"
+              ? "Search by doctor name, specialty..."
+              : "Search by agent name, residence, phone..."
+          }
           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-colors"
         />
         {search && (
@@ -257,7 +289,7 @@ export default function PaymentsView({
         )}
       </div>
 
-      {/* Tab buttons: By Patients / By Doctor */}
+      {/* Tab buttons: By Patients / To Doctor / To Agent */}
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => { setTab("patients"); setSearch(""); }}
@@ -279,10 +311,20 @@ export default function PaymentsView({
         >
           To Doctor
         </button>
+        <button
+          onClick={() => { setTab("agents"); setSearch(""); }}
+          className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+            tab === "agents"
+              ? "bg-teal-600 text-white"
+              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          To Agent
+        </button>
       </div>
 
       {/* Tab content */}
-      {tab === "patients" ? (
+      {tab === "patients" && (
         <>
           {/* Grouped-by-patient table. One row per patient; click to expand
               and see their individual transactions. */}
@@ -416,7 +458,9 @@ export default function PaymentsView({
             )}
           </div>
         </>
-      ) : (
+      )}
+
+      {tab === "doctors" && (
         <>
           {/* Amounts owed to each doctor (unpaid earnings).
               Click Pay With to settle a doctor's balance via mobile money. */}
@@ -502,12 +546,109 @@ export default function PaymentsView({
         </>
       )}
 
+      {tab === "agents" && (
+        <>
+          {/* Amounts owed to each agent (unpaid agent_earnings rows).
+              Agents earn a 10% commission on consultations they refer. */}
+          {filteredAgents.length > 0 ? (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50/50">
+                      <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Agent</th>
+                      <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Residence</th>
+                      <th className="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Consultations</th>
+                      <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount Owed</th>
+                      <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Active</th>
+                      <th className="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Pay</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filteredAgents.map((a) => (
+                      <tr key={a.agent_id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-semibold text-xs shrink-0">
+                              {a.agent_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                            </div>
+                            <span className="text-gray-900 font-medium text-sm">{a.agent_name}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
+                            {a.residence || "—"}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-gray-900 font-semibold text-center">
+                          {a.consultation_count}
+                        </td>
+                        <td className="px-5 py-4 text-gray-900 font-semibold text-right whitespace-nowrap">
+                          TSh {a.amount_owed.toLocaleString("en-US")}
+                        </td>
+                        <td className="px-5 py-4 text-gray-500 text-xs whitespace-nowrap">
+                          {a.last_active ? formatShortDate(a.last_active) : "—"}
+                        </td>
+                        <td className="px-5 py-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setPayWithAgent(a)}
+                            disabled={a.amount_owed <= 0}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 text-white hover:bg-teal-700 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
+                          >
+                            Pay With
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-200 bg-gray-50/80">
+                      <td className="px-5 py-3 text-gray-900 font-bold text-sm" colSpan={2}>
+                        Total ({filteredAgents.length} agent{filteredAgents.length !== 1 ? "s" : ""})
+                      </td>
+                      <td className="px-5 py-3 text-gray-900 font-bold text-center">
+                        {filteredAgents.reduce((sum, a) => sum + a.consultation_count, 0)}
+                      </td>
+                      <td className="px-5 py-3 text-gray-900 font-bold text-right whitespace-nowrap">
+                        TSh {filteredAgents.reduce((sum, a) => sum + a.amount_owed, 0).toLocaleString("en-US")}
+                      </td>
+                      <td className="px-5 py-3" colSpan={2}></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
+              <p className="text-gray-400">
+                {search.trim() ? `No agents matching "${search}"` : "No agent revenue data found."}
+              </p>
+            </div>
+          )}
+          <p className="text-xs text-gray-400 mt-3">
+            {filteredAgents.length} agent{filteredAgents.length !== 1 ? "s" : ""} found
+          </p>
+        </>
+      )}
+
       {payWithDoctor && (
         <PayDoctorModal
           doctor={payWithDoctor}
           onClose={() => setPayWithDoctor(null)}
           onPaid={() => {
             setPayWithDoctor(null);
+            onRefresh?.();
+          }}
+        />
+      )}
+
+      {payWithAgent && (
+        <PayAgentModal
+          agent={payWithAgent}
+          onClose={() => setPayWithAgent(null)}
+          onPaid={() => {
+            setPayWithAgent(null);
             onRefresh?.();
           }}
         />
@@ -629,6 +770,150 @@ function PayDoctorModal({
               onChange={(e) => setAmount(Number(e.target.value) || 0)}
               min={0}
               max={doctor.amount_owed}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-600"
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-3 px-5 py-4 bg-gray-50 border-t border-gray-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={submitting}
+            className="px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 disabled:opacity-50"
+          >
+            {submitting ? "Paying..." : "Pay"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Pay agent modal ──────────────────────────────────
+ * Mirrors PayDoctorModal: admin picks a mobile-money provider, confirms
+ * the agent's phone and the amount (prefilled to the total owed), and
+ * triggers a payout. Backend wiring is a follow-up — the UI validates
+ * input and surfaces the intent.
+ */
+function PayAgentModal({
+  agent,
+  onClose,
+  onPaid,
+}: {
+  agent: AgentRevenueRow;
+  onClose: () => void;
+  onPaid: () => void;
+}) {
+  const [provider, setProvider] = useState<"mpesa" | "tigo" | "airtel">("mpesa");
+  const [phone, setPhone] = useState(agent.phone ?? "");
+  const [amount, setAmount] = useState(agent.amount_owed);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    setError(null);
+    if (!phone.trim()) return setError("Agent phone is required.");
+    if (amount <= 0) return setError("Amount must be greater than zero.");
+    if (amount > agent.amount_owed) return setError("Cannot pay more than the amount owed.");
+
+    setSubmitting(true);
+    try {
+      // TODO: wire to a pay-agent edge function (B2C M-Pesa/Tigo/Airtel)
+      // and flip matching agent_earnings rows to status='paid'.
+      await new Promise((r) => setTimeout(r, 800));
+      onPaid();
+    } catch (e) {
+      setError((e as Error).message ?? "Payout failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Pay {agent.agent_name}</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Settle the app's balance to this agent via mobile money
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-4">
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Owed</p>
+            <p className="text-xl font-bold text-gray-900">TSh {agent.amount_owed.toLocaleString("en-US")}</p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Pay with</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["mpesa", "tigo", "airtel"] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setProvider(p)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    provider === p
+                      ? "bg-teal-600 text-white border-teal-600"
+                      : "bg-white text-gray-700 border-gray-200 hover:border-teal-600"
+                  }`}
+                >
+                  {p === "mpesa" ? "M-Pesa" : p === "tigo" ? "Tigo Pesa" : "Airtel Money"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Phone</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="255..."
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Amount (TSh)</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value) || 0)}
+              min={0}
+              max={agent.amount_owed}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-600"
             />
           </div>
