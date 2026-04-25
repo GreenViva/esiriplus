@@ -29,10 +29,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,12 +71,13 @@ fun RoleSelectionScreen(
     onPatientSelected: () -> Unit,
     onDoctorSelected: () -> Unit,
     @Suppress("UNUSED_PARAMETER") onDoctorRegister: () -> Unit,
-    @Suppress("UNUSED_PARAMETER") onRecoverPatientId: () -> Unit,
-    @Suppress("UNUSED_PARAMETER") onHaveMyId: () -> Unit,
+    onRecoverPatientId: () -> Unit,
+    onHaveMyId: () -> Unit,
     onAgentSelected: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
+    var patientSheetOpen by rememberSaveable { mutableStateOf(false) }
 
     GradientBackground(modifier = modifier) {
         ScrollIndicatorBox(scrollState = scrollState) {
@@ -109,7 +119,7 @@ fun RoleSelectionScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                HeroPatientCard(onContinue = onPatientSelected)
+                HeroPatientCard(onContinue = { patientSheetOpen = true })
 
                 Spacer(Modifier.height(20.dp))
 
@@ -153,6 +163,144 @@ fun RoleSelectionScreen(
 
                 Spacer(Modifier.height(20.dp))
             }
+        }
+    }
+
+    if (patientSheetOpen) {
+        PatientGateSheet(
+            onDismiss = { patientSheetOpen = false },
+            onNewPatient = onPatientSelected,
+            onHaveMyId = onHaveMyId,
+            onForgotId = onRecoverPatientId,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PatientGateSheet(
+    onDismiss: () -> Unit,
+    onNewPatient: () -> Unit,
+    onHaveMyId: () -> Unit,
+    onForgotId: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    fun closeThen(action: () -> Unit) {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion {
+            onDismiss()
+            action()
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.role_patient_sheet_title),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.role_patient_sheet_subtitle),
+                fontSize = 13.sp,
+                color = Color.Black,
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            PatientGateOption(
+                title = stringResource(R.string.role_patient_sheet_new_title),
+                subtitle = stringResource(R.string.role_patient_sheet_new_subtitle),
+                iconPainter = painterResource(R.drawable.ic_person_add),
+                onClick = { closeThen(onNewPatient) },
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            PatientGateOption(
+                title = stringResource(R.string.role_patient_sheet_have_id_title),
+                subtitle = stringResource(R.string.role_patient_sheet_have_id_subtitle),
+                iconPainter = painterResource(R.drawable.ic_key),
+                onClick = { closeThen(onHaveMyId) },
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            PatientGateOption(
+                title = stringResource(R.string.role_patient_sheet_forgot_id_title),
+                subtitle = stringResource(R.string.role_patient_sheet_forgot_id_subtitle),
+                iconPainter = painterResource(R.drawable.ic_lock),
+                onClick = { closeThen(onForgotId) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun PatientGateOption(
+    title: String,
+    subtitle: String,
+    iconPainter: Painter,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = Color.White,
+        border = BorderStroke(1.dp, CardBorder),
+        onClick = onClick,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(BrandTeal.copy(alpha = 0.10f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = iconPainter,
+                    contentDescription = null,
+                    tint = BrandTeal,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = BrandTeal,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }

@@ -66,6 +66,14 @@
     <string name="role_become_agent_subtitle">Earn money</string>
     <string name="role_need_help">Need help?</string>
     <string name="role_help_phone">+255 663 582 994</string>
+    <string name="role_patient_sheet_title">Continue as Patient</string>
+    <string name="role_patient_sheet_subtitle">What brings you here today?</string>
+    <string name="role_patient_sheet_new_title">I\'m new to eSIRI Plus</string>
+    <string name="role_patient_sheet_new_subtitle">Start a new consultation</string>
+    <string name="role_patient_sheet_have_id_title">I have my Patient ID</string>
+    <string name="role_patient_sheet_have_id_subtitle">Sign in to your records</string>
+    <string name="role_patient_sheet_forgot_id_title">I forgot my Patient ID</string>
+    <string name="role_patient_sheet_forgot_id_subtitle">Recover with security questions</string>
 
     <!-- DoctorLoginScreen -->
     <string name="doctor_login_title">Doctor Portal</string>
