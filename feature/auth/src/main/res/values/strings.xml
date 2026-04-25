@@ -44,6 +44,29 @@
     <string name="role_forgot_password">Forgot your password?</string>
     <string name="role_copyright">\u00A9 2026 eSIRI Plus. All rights reserved.</string>
 
+    <!-- RoleSelectionScreen redesign -->
+    <string name="role_brand_primary">eSIRI</string>
+    <string name="role_brand_accent">Plus</string>
+    <string name="role_hero_title_1">Need a doctor?</string>
+    <string name="role_hero_title_2">We\'re here.</string>
+    <string name="role_hero_subtitle">Talk to a real doctor from your phone. Private, simple, and available whenever you need it.</string>
+    <string name="role_hero_card_title">Get medical help</string>
+    <string name="role_hero_card_subtitle">Chat with a licensed doctor in minutes — no appointment needed.</string>
+    <string name="role_continue_as_patient">Continue as Patient</string>
+    <string name="role_trust_private_value">100%</string>
+    <string name="role_trust_private_label">Private</string>
+    <string name="role_trust_available_value">24/7</string>
+    <string name="role_trust_available_label">Available</string>
+    <string name="role_trust_real_value">Real</string>
+    <string name="role_trust_real_label">Doctors</string>
+    <string name="role_not_a_patient">NOT A PATIENT?</string>
+    <string name="role_im_a_doctor_title">I\'m a Doctor</string>
+    <string name="role_im_a_doctor_subtitle">Manage practice</string>
+    <string name="role_become_agent_title">Become Agent</string>
+    <string name="role_become_agent_subtitle">Earn money</string>
+    <string name="role_need_help">Need help?</string>
+    <string name="role_help_phone">+255 663 582 994</string>
+
     <!-- DoctorLoginScreen -->
     <string name="doctor_login_title">Doctor Portal</string>
     <string name="doctor_login_subtitle">Sign in to manage your consultations</string>
