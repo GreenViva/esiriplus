@@ -546,25 +546,38 @@ private fun NotPatientCard(
 @Composable
 private fun NeedHelpLine() {
     val context = LocalContext.current
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.role_need_help),
+                color = Color.Black,
+                fontSize = 13.sp,
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = stringResource(R.string.role_help_phone),
+                color = BrandTeal,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable {
+                    context.startActivity(
+                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
+                    )
+                },
+            )
+        }
+        Spacer(Modifier.height(2.dp))
         Text(
-            text = stringResource(R.string.role_need_help),
-            color = Color.Black,
-            fontSize = 13.sp,
-        )
-        Spacer(Modifier.width(6.dp))
-        Text(
-            text = stringResource(R.string.role_help_phone),
+            text = stringResource(R.string.role_help_email),
             color = BrandTeal,
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.clickable {
                 context.startActivity(
-                    Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
+                    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:info@esiri.africa")),
                 )
             },
         )

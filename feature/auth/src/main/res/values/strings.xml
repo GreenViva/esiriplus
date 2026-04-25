@@ -66,6 +66,7 @@
     <string name="role_become_agent_subtitle">Earn money</string>
     <string name="role_need_help">Need help?</string>
     <string name="role_help_phone">+255 663 582 994</string>
+    <string name="role_help_email">info@esiri.africa</string>
     <string name="role_patient_sheet_title">Continue as Patient</string>
     <string name="role_patient_sheet_subtitle">What brings you here today?</string>
     <string name="role_patient_sheet_new_title">I\'m new to eSIRI Plus</string>
