@@ -20,10 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
@@ -57,7 +55,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.GradientBackground
 
@@ -76,93 +73,89 @@ fun RoleSelectionScreen(
     onAgentSelected: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val scrollState = rememberScrollState()
     var patientSheetOpen by rememberSaveable { mutableStateOf(false) }
 
     GradientBackground(modifier = modifier) {
-        ScrollIndicatorBox(scrollState = scrollState) {
-            Column(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp),
+        ) {
+            Spacer(Modifier.height(12.dp))
+
+            BrandHeader()
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.role_hero_title_1),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.semantics { heading() },
+            )
+            Text(
+                text = stringResource(R.string.role_hero_title_2),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = BrandTeal,
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                text = stringResource(R.string.role_hero_subtitle),
+                fontSize = 13.sp,
+                color = Color.Black,
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            HeroPatientCard(onContinue = { patientSheetOpen = true })
+
+            Spacer(Modifier.height(14.dp))
+
+            TrustPillsRow()
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.role_not_a_patient),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 24.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Spacer(Modifier.height(24.dp))
-
-                BrandHeader()
-
-                Spacer(Modifier.height(28.dp))
-
-                Text(
-                    text = stringResource(R.string.role_hero_title_1),
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    modifier = Modifier.semantics { heading() },
+                NotPatientCard(
+                    title = stringResource(R.string.role_im_a_doctor_title),
+                    subtitle = stringResource(R.string.role_im_a_doctor_subtitle),
+                    iconPainter = painterResource(R.drawable.ic_stethoscope),
+                    onClick = onDoctorSelected,
+                    modifier = Modifier.weight(1f),
                 )
-                Text(
-                    text = stringResource(R.string.role_hero_title_2),
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = BrandTeal,
+                NotPatientCard(
+                    title = stringResource(R.string.role_become_agent_title),
+                    subtitle = stringResource(R.string.role_become_agent_subtitle),
+                    iconPainter = painterResource(R.drawable.ic_dollar),
+                    onClick = onAgentSelected,
+                    modifier = Modifier.weight(1f),
                 )
-
-                Spacer(Modifier.height(12.dp))
-
-                Text(
-                    text = stringResource(R.string.role_hero_subtitle),
-                    fontSize = 14.sp,
-                    color = Color.Black,
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                HeroPatientCard(onContinue = { patientSheetOpen = true })
-
-                Spacer(Modifier.height(20.dp))
-
-                TrustPillsRow()
-
-                Spacer(Modifier.height(28.dp))
-
-                Text(
-                    text = stringResource(R.string.role_not_a_patient),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    NotPatientCard(
-                        title = stringResource(R.string.role_im_a_doctor_title),
-                        subtitle = stringResource(R.string.role_im_a_doctor_subtitle),
-                        iconPainter = painterResource(R.drawable.ic_stethoscope),
-                        onClick = onDoctorSelected,
-                        modifier = Modifier.weight(1f),
-                    )
-                    NotPatientCard(
-                        title = stringResource(R.string.role_become_agent_title),
-                        subtitle = stringResource(R.string.role_become_agent_subtitle),
-                        iconPainter = painterResource(R.drawable.ic_dollar),
-                        onClick = onAgentSelected,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                NeedHelpLine()
-
-                Spacer(Modifier.height(20.dp))
             }
+
+            Spacer(Modifier.weight(1f))
+
+            NeedHelpLine()
+
+            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -368,60 +361,60 @@ private fun HeroPatientCard(onContinue: () -> Unit) {
         )
 
         Column(
-            modifier = Modifier.padding(horizontal = 22.dp, vertical = 22.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
-                    .background(Color.White.copy(alpha = 0.18f), RoundedCornerShape(12.dp)),
+                    .size(38.dp)
+                    .background(Color.White.copy(alpha = 0.18f), RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_chat_bubble_outline),
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(20.dp),
                 )
             }
 
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(20.dp))
 
             Text(
                 text = stringResource(R.string.role_hero_card_title),
                 color = Color.White,
-                fontSize = 22.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.role_hero_card_subtitle),
                 color = Color.White.copy(alpha = 0.85f),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(14.dp))
 
             Button(
                 onClick = onContinue,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(46.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = BrandTeal,
                 ),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(12.dp),
             ) {
                 Text(
                     text = stringResource(R.string.role_continue_as_patient),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(16.dp),
                 )
             }
         }
@@ -462,7 +455,7 @@ private fun TrustPill(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(40.dp)
                 .background(BrandTeal.copy(alpha = 0.10f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
@@ -471,28 +464,28 @@ private fun TrustPill(
                     painter = iconPainter,
                     contentDescription = null,
                     tint = BrandTeal,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(18.dp),
                 )
             } else if (iconVector != null) {
                 Icon(
                     imageVector = iconVector,
                     contentDescription = null,
                     tint = BrandTeal,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = value,
             color = Color.Black,
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
         )
         Text(
             text = label,
             color = Color.Black,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
         )
     }
 }
@@ -506,8 +499,8 @@ private fun NotPatientCard(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.height(78.dp),
-        shape = RoundedCornerShape(14.dp),
+        modifier = modifier.height(62.dp),
+        shape = RoundedCornerShape(12.dp),
         color = Color.White,
         border = BorderStroke(1.dp, CardBorder),
         shadowElevation = 1.dp,
@@ -515,35 +508,35 @@ private fun NotPatientCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 12.dp)
+                .padding(horizontal = 10.dp)
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .background(BrandTeal.copy(alpha = 0.10f), RoundedCornerShape(10.dp)),
+                    .size(32.dp)
+                    .background(BrandTeal.copy(alpha = 0.10f), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = iconPainter,
                     contentDescription = null,
                     tint = BrandTeal,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(16.dp),
                 )
             }
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     color = Color.Black,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
                     text = subtitle,
                     color = Color.Black,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                 )
             }
         }
