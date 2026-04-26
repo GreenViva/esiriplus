@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -68,6 +70,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -384,10 +387,52 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
 
             Spacer(Modifier.height(10.dp))
 
+            // Psychological CTA: subtle breathing scale on the whole pill +
+            // a forward-nudging arrow synced to the same cycle. Gives the
+            // button a "ready, go this way" feel that draws the eye without
+            // becoming distracting.
+            val cta = rememberInfiniteTransition(label = "cta_breathe")
+            val breathe by cta.animateFloat(
+                initialValue = 1f,
+                targetValue = 1.04f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+                label = "cta_scale",
+            )
+            val nudge by cta.animateFloat(
+                initialValue = 0f,
+                targetValue = 4f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+                label = "cta_arrow_nudge",
+            )
+            val glow by cta.animateFloat(
+                initialValue = 0.10f,
+                targetValue = 0.28f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+                label = "cta_glow",
+            )
+
             Row(
                 modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = breathe
+                        scaleY = breathe
+                    }
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color.White)
+                    .border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = glow),
+                        shape = RoundedCornerShape(10.dp),
+                    )
                     .pressableClick(onClick = onStartConsultation)
                     .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -404,7 +449,9 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
                     imageVector = Icons.Outlined.ArrowForward,
                     contentDescription = null,
                     tint = TealDeep,
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier
+                        .offset(x = nudge.dp)
+                        .size(14.dp),
                 )
             }
         }
