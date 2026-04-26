@@ -2,6 +2,7 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,18 +27,15 @@ import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.LocalHospital
 import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.PersonAddAlt1
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,6 +55,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -76,7 +75,6 @@ private val TealDeep     = Color(0xFF1E8E76)
 private val TealSoft     = Color(0xFFE8F6F1)
 private val TealBg       = Color(0xFFF4FAF7)
 private val Ink          = Color(0xFF14201D)
-private val InkSoft      = Color(0xFF2A3A36)
 private val Muted        = Color(0xFF6B7C77)
 private val Hairline     = Color(0xFFE5EFEA)
 private val WarmOrange   = Color(0xFFB86A1A)
@@ -151,20 +149,13 @@ private fun WelcomeTopBar() {
         colors = TopAppBarDefaults.topAppBarColors(containerColor = TealBg),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    contentAlignment = Alignment.Center,
+                Image(
+                    painter = painterResource(R.drawable.ic_splash_logo),
+                    contentDescription = "eSIRI Plus logo",
                     modifier = Modifier
                         .size(34.dp)
-                        .clip(CircleShape)
-                        .background(TealSoft),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.MonitorHeart,
-                        contentDescription = "eSIRI Plus logo",
-                        tint = TealDeep,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                        .clip(CircleShape),
+                )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = buildAnnotatedString {
@@ -178,15 +169,6 @@ private fun WelcomeTopBar() {
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Ink,
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = { /* TODO: open settings / language picker */ }) {
-                Icon(
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = "Settings",
-                    tint = InkSoft,
                 )
             }
         },
