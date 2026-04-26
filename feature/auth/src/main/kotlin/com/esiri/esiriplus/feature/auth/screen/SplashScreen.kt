@@ -4,12 +4,15 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +31,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -88,15 +94,23 @@ fun SplashScreen(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var ready by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
     LaunchedEffect(Unit) {
         delay(3_000)
-        onContinue()
+        ready = true
     }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(splashBackground()),
+            .background(splashBackground())
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource,
+                onClick = { if (ready) onContinue() },
+            ),
     ) {
         EditorialCornerMarks()
 
@@ -109,7 +123,7 @@ fun SplashScreen(
         ) {
             Spacer(Modifier.height(8.dp))
             HeroBlock()
-            BottomBlock()
+            BottomBlock(ready = ready)
         }
     }
 }
@@ -470,23 +484,23 @@ private fun Tagline() {
  *  Bottom block — progress + footer
  * ────────────────────────────────────────────────────────────────────────── */
 @Composable
-private fun BottomBlock() {
+private fun BottomBlock(ready: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        AnimatedProgressBar()
+        AnimatedProgressBar(ready = ready)
 
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = "PREPARING YOUR SPACE",
+            text = if (ready) "TAP TO CONTINUE" else "PREPARING YOUR SPACE",
             style = TextStyle(
                 fontFamily = EditorialSans,
                 fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = if (ready) FontWeight.SemiBold else FontWeight.Medium,
                 letterSpacing = 1.8.sp,
-                color = SplashColors.Muted,
+                color = if (ready) SplashColors.TealDeep else SplashColors.Muted,
             ),
         )
 
@@ -525,16 +539,24 @@ private fun BottomBlock() {
 }
 
 @Composable
-private fun AnimatedProgressBar() {
-    val infinite = rememberInfiniteTransition(label = "progress")
-    val fill by infinite.animateFloat(
-        initialValue = 0f,
+private fun AnimatedProgressBar(ready: Boolean) {
+    var startFill by remember { mutableStateOf(0f) }
+    LaunchedEffect(Unit) { startFill = 1f }
+    val fill by animateFloatAsState(
+        targetValue = startFill,
+        animationSpec = tween(durationMillis = 3_000, easing = FastOutSlowInEasing),
+        label = "fill",
+    )
+
+    val infinite = rememberInfiniteTransition(label = "tap_pulse")
+    val tapPulse by infinite.animateFloat(
+        initialValue = 0.5f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3_000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart,
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
         ),
-        label = "fill",
+        label = "tap_pulse",
     )
 
     Box(
@@ -546,8 +568,14 @@ private fun AnimatedProgressBar() {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(fill)
-                .background(SplashColors.TealDeep),
+                .fillMaxWidth(if (ready) 1f else fill)
+                .background(
+                    if (ready) {
+                        SplashColors.TealDeep.copy(alpha = tapPulse)
+                    } else {
+                        SplashColors.TealDeep
+                    },
+                ),
         )
     }
 }
