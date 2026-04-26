@@ -2,78 +2,85 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.StartOffset
-import androidx.compose.animation.core.StartOffsetType
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.AttachMoney
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.LocalHospital
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.PersonAddAlt1
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.feature.auth.R
-import com.esiri.esiriplus.feature.auth.ui.GradientBackground
+import kotlinx.coroutines.launch
 
-private val BrandTeal = Color(0xFF2A9D8F)
-private val BrandTealDeep = Color(0xFF238B7E)
-private val CardBorder = Color(0xFFE5E7EB)
+private val Teal         = Color(0xFF2DBE9E)
+private val TealDeep     = Color(0xFF1E8E76)
+private val TealSoft     = Color(0xFFE8F6F1)
+private val TealBg       = Color(0xFFF4FAF7)
+private val Ink          = Color(0xFF14201D)
+private val InkSoft      = Color(0xFF2A3A36)
+private val Muted        = Color(0xFF6B7C77)
+private val Hairline     = Color(0xFFE5EFEA)
+private val WarmOrange   = Color(0xFFB86A1A)
+private val WarmOrangeBg = Color(0xFFFFF1E0)
 
 @Composable
 @Suppress("LongParameterList")
@@ -84,91 +91,42 @@ fun RoleSelectionScreen(
     onRecoverPatientId: () -> Unit,
     onHaveMyId: () -> Unit,
     onAgentSelected: () -> Unit = {},
-    modifier: Modifier = Modifier,
+    @Suppress("UNUSED_PARAMETER") modifier: Modifier = Modifier,
 ) {
     var patientSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    GradientBackground(modifier = modifier) {
+    Scaffold(
+        containerColor = TealBg,
+        topBar = { WelcomeTopBar() },
+    ) { padding ->
         Column(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(horizontal = 20.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp),
         ) {
-            Spacer(Modifier.height(12.dp))
-
-            BrandHeader()
-
-            Spacer(Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.role_hero_title_1),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.semantics { heading() },
-            )
-            Text(
-                text = stringResource(R.string.role_hero_title_2),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = BrandTeal,
-            )
-
-            Spacer(Modifier.height(6.dp))
-
-            Text(
-                text = stringResource(R.string.role_hero_subtitle),
-                fontSize = 13.sp,
-                color = Color.Black,
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            HeroPatientCard(onContinue = { patientSheetOpen = true })
-
-            Spacer(Modifier.height(14.dp))
-
-            TrustPillsRow()
-
-            Spacer(Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.role_not_a_patient),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                NotPatientCard(
-                    title = stringResource(R.string.role_im_a_doctor_title),
-                    subtitle = stringResource(R.string.role_im_a_doctor_subtitle),
-                    iconPainter = painterResource(R.drawable.ic_stethoscope),
-                    onClick = onDoctorSelected,
-                    modifier = Modifier.weight(1f),
-                )
-                NotPatientCard(
-                    title = stringResource(R.string.role_become_agent_title),
-                    subtitle = stringResource(R.string.role_become_agent_subtitle),
-                    iconPainter = painterResource(R.drawable.ic_dollar),
-                    onClick = onAgentSelected,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            NeedHelpLine()
-
             Spacer(Modifier.height(8.dp))
+            HeadlineBlock()
+            Spacer(Modifier.height(20.dp))
+            HeroCard(onClick = { patientSheetOpen = true })
+            Spacer(Modifier.height(24.dp))
+            TrustRow()
+            SectionDivider(stringResource(R.string.role_not_a_patient_lc))
+            AlternateRoleRow(
+                onDoctorClick = onDoctorSelected,
+                onAgentClick = onAgentSelected,
+            )
+            Spacer(Modifier.height(16.dp))
+            HelpFooter(
+                onClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
+                    )
+                },
+            )
+            Spacer(Modifier.height(24.dp))
         }
     }
 
@@ -178,6 +136,318 @@ fun RoleSelectionScreen(
             onNewPatient = onPatientSelected,
             onHaveMyId = onHaveMyId,
             onForgotId = onRecoverPatientId,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WelcomeTopBar() {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = TealBg),
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(TealSoft),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.MonitorHeart,
+                        contentDescription = "eSIRI Plus logo",
+                        tint = TealDeep,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append("e")
+                        withStyle(
+                            SpanStyle(color = TealDeep, fontWeight = FontWeight.SemiBold),
+                        ) { append("SIRI") }
+                        append(" Plus")
+                    },
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Ink,
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { /* TODO: open settings / language picker */ }) {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = "Settings",
+                    tint = InkSoft,
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun HeadlineBlock() {
+    Text(
+        text = buildAnnotatedString {
+            append("Need a doctor?\n")
+            withStyle(SpanStyle(color = TealDeep, fontStyle = FontStyle.Italic)) {
+                append("We're here.")
+            }
+        },
+        fontSize = 36.sp,
+        fontWeight = FontWeight.Normal,
+        lineHeight = 40.sp,
+        color = Ink,
+    )
+    Spacer(Modifier.height(10.dp))
+    Text(
+        text = stringResource(R.string.role_hero_subtitle),
+        fontSize = 14.sp,
+        color = Muted,
+        lineHeight = 22.sp,
+    )
+}
+
+@Composable
+private fun HeroCard(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(Brush.linearGradient(listOf(Teal, TealDeep)))
+            .clickable(onClick = onClick)
+            .padding(24.dp),
+    ) {
+        Column {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White.copy(alpha = 0.18f)),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ChatBubbleOutline,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+
+            Spacer(Modifier.height(60.dp))
+
+            Text(
+                text = stringResource(R.string.role_hero_card_title),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Normal,
+                fontStyle = FontStyle.Italic,
+                color = Color.White,
+                lineHeight = 28.sp,
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.role_hero_card_subtitle),
+                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.9f),
+                lineHeight = 20.sp,
+            )
+            Spacer(Modifier.height(18.dp))
+
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = TealDeep,
+                ),
+                contentPadding = PaddingValues(vertical = 15.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.role_continue_as_patient),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Outlined.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TrustRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        TrustItem(
+            icon = Icons.Outlined.Security,
+            label = stringResource(R.string.role_trust_private_combo),
+            sub = stringResource(R.string.role_trust_private_subtitle),
+        )
+        TrustItem(
+            icon = Icons.Outlined.Schedule,
+            label = stringResource(R.string.role_trust_available_combo),
+            sub = stringResource(R.string.role_trust_available_subtitle),
+        )
+        TrustItem(
+            icon = Icons.Outlined.Verified,
+            label = stringResource(R.string.role_trust_real_combo),
+            sub = stringResource(R.string.role_trust_real_subtitle),
+        )
+    }
+    Spacer(Modifier.height(24.dp))
+}
+
+@Composable
+private fun TrustItem(icon: ImageVector, label: String, sub: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(100.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(TealSoft),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = TealDeep,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Ink,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = sub,
+            fontSize = 10.sp,
+            color = Muted,
+            textAlign = TextAlign.Center,
+            lineHeight = 14.sp,
+        )
+    }
+}
+
+@Composable
+private fun SectionDivider(text: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        HorizontalDivider(modifier = Modifier.weight(1f), color = Hairline)
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 12.dp),
+            fontSize = 11.sp,
+            color = Muted,
+            fontWeight = FontWeight.Medium,
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), color = Hairline)
+    }
+    Spacer(Modifier.height(14.dp))
+}
+
+@Composable
+private fun AlternateRoleRow(onDoctorClick: () -> Unit, onAgentClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        AltCard(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Outlined.LocalHospital,
+            iconBg = TealSoft,
+            iconTint = TealDeep,
+            title = stringResource(R.string.role_im_a_doctor_title),
+            subtitle = stringResource(R.string.role_im_a_doctor_subtitle),
+            onClick = onDoctorClick,
+        )
+        AltCard(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Outlined.AttachMoney,
+            iconBg = WarmOrangeBg,
+            iconTint = WarmOrange,
+            title = stringResource(R.string.role_become_agent_title),
+            subtitle = stringResource(R.string.role_become_agent_subtitle),
+            onClick = onAgentClick,
+        )
+    }
+}
+
+@Composable
+private fun AltCard(
+    modifier: Modifier,
+    icon: ImageVector,
+    iconBg: Color,
+    iconTint: Color,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White)
+            .border(1.dp, Hairline, RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .padding(14.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(30.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(iconBg),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(title, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Ink)
+        Spacer(Modifier.height(1.dp))
+        Text(subtitle, fontSize = 11.sp, color = Muted)
+    }
+}
+
+@Composable
+private fun HelpFooter(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.role_need_help) + " ",
+            fontSize = 11.sp,
+            color = Muted,
+        )
+        Text(
+            text = stringResource(R.string.role_help_phone),
+            fontSize = 11.sp,
+            color = TealDeep,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clickable(onClick = onClick),
         )
     }
 }
@@ -217,13 +487,13 @@ private fun PatientGateSheet(
                 text = stringResource(R.string.role_patient_sheet_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = Ink,
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.role_patient_sheet_subtitle),
                 fontSize = 13.sp,
-                color = Color.Black,
+                color = Muted,
             )
 
             Spacer(Modifier.height(20.dp))
@@ -231,7 +501,7 @@ private fun PatientGateSheet(
             PatientGateOption(
                 title = stringResource(R.string.role_patient_sheet_new_title),
                 subtitle = stringResource(R.string.role_patient_sheet_new_subtitle),
-                iconPainter = painterResource(R.drawable.ic_person_add),
+                icon = Icons.Outlined.PersonAddAlt1,
                 onClick = { closeThen(onNewPatient) },
             )
 
@@ -240,7 +510,7 @@ private fun PatientGateSheet(
             PatientGateOption(
                 title = stringResource(R.string.role_patient_sheet_have_id_title),
                 subtitle = stringResource(R.string.role_patient_sheet_have_id_subtitle),
-                iconPainter = painterResource(R.drawable.ic_key),
+                icon = Icons.Outlined.Key,
                 onClick = { closeThen(onHaveMyId) },
             )
 
@@ -249,7 +519,7 @@ private fun PatientGateSheet(
             PatientGateOption(
                 title = stringResource(R.string.role_patient_sheet_forgot_id_title),
                 subtitle = stringResource(R.string.role_patient_sheet_forgot_id_subtitle),
-                iconPainter = painterResource(R.drawable.ic_lock),
+                icon = Icons.Outlined.Lock,
                 onClick = { closeThen(onForgotId) },
             )
         }
@@ -260,395 +530,52 @@ private fun PatientGateSheet(
 private fun PatientGateOption(
     title: String,
     subtitle: String,
-    iconPainter: Painter,
+    icon: ImageVector,
     onClick: () -> Unit,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, CardBorder),
-        onClick = onClick,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(BrandTeal.copy(alpha = 0.10f), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = iconPainter,
-                    contentDescription = null,
-                    tint = BrandTeal,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
-                )
-                Text(
-                    text = subtitle,
-                    fontSize = 12.sp,
-                    color = Color.Black,
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                tint = BrandTeal,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun BrandHeader() {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .background(BrandTeal.copy(alpha = 0.10f), RoundedCornerShape(10.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_stethoscope),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-        Spacer(Modifier.width(10.dp))
-        Row {
-            Text(
-                text = stringResource(R.string.role_brand_primary),
-                color = Color.Black,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = stringResource(R.string.role_brand_accent),
-                color = BrandTeal,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
-
-@Composable
-private fun HeroPatientCard(onContinue: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(BrandTeal, BrandTealDeep),
-                ),
-            ),
-    ) {
-        // Decorative circles top-right
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 40.dp, y = (-40).dp)
-                .size(140.dp)
-                .background(Color.White.copy(alpha = 0.08f), CircleShape),
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 70.dp, y = 20.dp)
-                .size(90.dp)
-                .background(Color.White.copy(alpha = 0.06f), CircleShape),
-        )
-
-        Column(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .background(Color.White.copy(alpha = 0.18f), RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_chat_bubble_outline),
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            Text(
-                text = stringResource(R.string.role_hero_card_title),
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.role_hero_card_subtitle),
-                color = Color.White.copy(alpha = 0.85f),
-                fontSize = 12.sp,
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            ContinueWithWaves(onContinue = onContinue)
-        }
-    }
-}
-
-@Composable
-private fun ContinueWithWaves(onContinue: () -> Unit) {
-    val infinite = rememberInfiniteTransition(label = "cta_waves")
-    val waveDuration = 2200
-    val wave1 by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(waveDuration, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave1",
-    )
-    val wave2 by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(waveDuration, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-            initialStartOffset = StartOffset(waveDuration / 2, StartOffsetType.Delay),
-        ),
-        label = "wave2",
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val buttonH = 46.dp.toPx()
-            val buttonW = size.width
-            val buttonY = (size.height - buttonH) / 2f
-            val maxExpansion = 12.dp.toPx()
-            val baseCorner = 12.dp.toPx()
-            val ringStroke = 1.5.dp.toPx()
-
-            listOf(wave1, wave2).forEach { progress ->
-                val expansion = progress * maxExpansion
-                val alpha = (1f - progress).coerceIn(0f, 1f) * 0.5f
-                val corner = baseCorner + expansion
-                drawRoundRect(
-                    color = Color.White.copy(alpha = alpha),
-                    topLeft = Offset(0f, buttonY - expansion),
-                    size = Size(buttonW, buttonH + 2f * expansion),
-                    cornerRadius = CornerRadius(corner, corner),
-                    style = Stroke(width = ringStroke),
-                )
-            }
-        }
-
-        Button(
-            onClick = onContinue,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(46.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = BrandTeal,
-            ),
-            shape = RoundedCornerShape(12.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.role_continue_as_patient),
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-            )
-            Spacer(Modifier.width(6.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun TrustPillsRow() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White)
+            .border(1.dp, Hairline, RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        TrustPill(
-            iconPainter = painterResource(R.drawable.ic_shield),
-            value = stringResource(R.string.role_trust_private_value),
-            label = stringResource(R.string.role_trust_private_label),
-        )
-        TrustPill(
-            iconPainter = painterResource(R.drawable.ic_clock),
-            value = stringResource(R.string.role_trust_available_value),
-            label = stringResource(R.string.role_trust_available_label),
-        )
-        TrustPill(
-            iconVector = Icons.Default.Check,
-            value = stringResource(R.string.role_trust_real_value),
-            label = stringResource(R.string.role_trust_real_label),
-        )
-    }
-}
-
-@Composable
-private fun TrustPill(
-    iconPainter: Painter? = null,
-    iconVector: ImageVector? = null,
-    value: String,
-    label: String,
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(40.dp)
-                .background(BrandTeal.copy(alpha = 0.10f), CircleShape),
-            contentAlignment = Alignment.Center,
+                .clip(CircleShape)
+                .background(TealSoft),
         ) {
-            if (iconPainter != null) {
-                Icon(
-                    painter = iconPainter,
-                    contentDescription = null,
-                    tint = BrandTeal,
-                    modifier = Modifier.size(18.dp),
-                )
-            } else if (iconVector != null) {
-                Icon(
-                    imageVector = iconVector,
-                    contentDescription = null,
-                    tint = BrandTeal,
-                    modifier = Modifier.size(18.dp),
-                )
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = value,
-            color = Color.Black,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = label,
-            color = Color.Black,
-            fontSize = 11.sp,
-        )
-    }
-}
-
-@Composable
-private fun NotPatientCard(
-    title: String,
-    subtitle: String,
-    iconPainter: Painter,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.height(62.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, CardBorder),
-        shadowElevation = 1.dp,
-        onClick = onClick,
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(BrandTeal.copy(alpha = 0.10f), RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = iconPainter,
-                    contentDescription = null,
-                    tint = BrandTeal,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    color = Color.Black,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    text = subtitle,
-                    color = Color.Black,
-                    fontSize = 10.sp,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun NeedHelpLine() {
-    val context = LocalContext.current
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.role_need_help),
-                color = Color.Black,
-                fontSize = 13.sp,
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = TealDeep,
+                modifier = Modifier.size(20.dp),
             )
-            Spacer(Modifier.width(6.dp))
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.role_help_phone),
-                color = BrandTeal,
-                fontSize = 13.sp,
+                text = title,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable {
-                    context.startActivity(
-                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
-                    )
-                },
+                color = Ink,
+            )
+            Text(
+                text = subtitle,
+                fontSize = 12.sp,
+                color = Muted,
             )
         }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            text = stringResource(R.string.role_help_email),
-            color = BrandTeal,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.clickable {
-                context.startActivity(
-                    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:info@esiri.africa")),
-                )
-            },
+        Icon(
+            imageVector = Icons.Outlined.ArrowForward,
+            contentDescription = null,
+            tint = TealDeep,
+            modifier = Modifier.size(20.dp),
         )
     }
 }

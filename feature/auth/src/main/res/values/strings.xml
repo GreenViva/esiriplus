@@ -59,7 +59,14 @@
     <string name="role_trust_available_label">Available</string>
     <string name="role_trust_real_value">Real</string>
     <string name="role_trust_real_label">Doctors</string>
+    <string name="role_trust_private_combo">100% Private</string>
+    <string name="role_trust_private_subtitle">No real name needed</string>
+    <string name="role_trust_available_combo">24/7 Available</string>
+    <string name="role_trust_available_subtitle">Day or night</string>
+    <string name="role_trust_real_combo">Real Doctors</string>
+    <string name="role_trust_real_subtitle">MCT verified</string>
     <string name="role_not_a_patient">NOT A PATIENT?</string>
+    <string name="role_not_a_patient_lc">Not a patient?</string>
     <string name="role_im_a_doctor_title">I\'m a Doctor</string>
     <string name="role_im_a_doctor_subtitle">Manage practice</string>
     <string name="role_become_agent_title">Become Agent</string>

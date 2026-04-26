@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.security.crypto)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
 
