@@ -89,6 +89,7 @@ import com.esiri.esiriplus.feature.auth.ui.Hairline
 import com.esiri.esiriplus.feature.auth.ui.Ink
 import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
 import com.esiri.esiriplus.feature.auth.ui.Muted
+import com.esiri.esiriplus.feature.auth.ui.pressableClick
 import com.esiri.esiriplus.feature.auth.ui.Teal
 import com.esiri.esiriplus.feature.auth.ui.TealBg
 import com.esiri.esiriplus.feature.auth.ui.TealDeep
@@ -523,7 +524,7 @@ private fun IdActionButton(
             .clip(RoundedCornerShape(9.dp))
             .background(Color.White.copy(alpha = if (enabled) 0.16f else 0.08f))
             .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(9.dp))
-            .clickable(enabled = enabled, onClick = onClick)
+            .pressableClick(enabled = enabled, onClick = onClick)
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -615,7 +616,7 @@ private fun OptionRow(
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(1.dp, Hairline, RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .pressableClick(onClick = onClick)
             .padding(horizontal = 11.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

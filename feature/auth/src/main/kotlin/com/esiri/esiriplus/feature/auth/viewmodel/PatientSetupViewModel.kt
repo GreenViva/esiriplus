@@ -49,10 +49,11 @@ data class PatientSetupUiState(
     val pdfError: String? = null,
     val isComplete: Boolean = false,
 ) {
+    /** Card download only needs the ID. Sex / age render on the PDF when set
+     *  but are no longer required to enable the action — the user can save
+     *  their card immediately after the session is created. */
     val canDownloadPdf: Boolean
-        get() = patientId.isNotBlank() &&
-            sex.isNotBlank() &&
-            ageGroup.isNotBlank()
+        get() = patientId.isNotBlank()
 }
 
 @HiltViewModel

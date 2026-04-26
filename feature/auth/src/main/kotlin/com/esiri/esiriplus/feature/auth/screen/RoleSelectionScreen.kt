@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.Geist
 import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
+import com.esiri.esiriplus.feature.auth.ui.pressableClick
 import kotlinx.coroutines.launch
 
 private val Teal         = Color(0xFF2DBE9E)
@@ -485,7 +486,7 @@ private fun AltCard(
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .border(1.dp, Hairline, RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .pressableClick(onClick = onClick)
             .padding(horizontal = 11.dp, vertical = 9.dp),
     ) {
         Box(
@@ -636,7 +637,7 @@ private fun PatientGateOption(
             .clip(RoundedCornerShape(14.dp))
             .background(Color.White)
             .border(1.dp, Hairline, RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .pressableClick(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
