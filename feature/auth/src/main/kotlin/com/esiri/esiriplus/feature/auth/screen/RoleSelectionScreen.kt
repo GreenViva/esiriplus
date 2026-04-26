@@ -215,15 +215,49 @@ private fun HeadlineBlock() {
 
 @Composable
 private fun HeroCard(onClick: () -> Unit) {
+    val infinite = rememberInfiniteTransition(label = "card_shimmer")
+    val progress by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "card_shimmer_progress",
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
             .background(Brush.linearGradient(listOf(Teal, TealDeep)))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable(onClick = onClick),
     ) {
-        Column {
+        // Wave band — translucent white sweeping left → right across the
+        // whole badge. Drawn before the content Column so it tints the
+        // gradient backdrop without disturbing the icon, copy, or button.
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val w = size.width
+            val h = size.height
+            val bandWidth = w * 0.45f
+            val travel = w + 2f * bandWidth
+            val bandX = -bandWidth + travel * progress
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.White.copy(alpha = 0.16f),
+                        Color.Transparent,
+                    ),
+                    start = Offset(bandX, 0f),
+                    end = Offset(bandX + bandWidth, 0f),
+                ),
+                topLeft = Offset(0f, 0f),
+                size = Size(w, h),
+            )
+        }
+
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -260,75 +294,29 @@ private fun HeroCard(onClick: () -> Unit) {
             )
             Spacer(Modifier.height(10.dp))
 
-            ContinueAsPatientButton(onClick = onClick)
-        }
-    }
-}
-
-@Composable
-private fun ContinueAsPatientButton(onClick: () -> Unit) {
-    val infinite = rememberInfiniteTransition(label = "shimmer")
-    val progress by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2400, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "shimmer_progress",
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(11.dp)),
-    ) {
-        Button(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(11.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = TealDeep,
-            ),
-            contentPadding = PaddingValues(vertical = 9.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.role_continue_as_patient),
-                fontFamily = Geist,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Spacer(Modifier.width(6.dp))
-            Icon(
-                imageVector = Icons.Outlined.ArrowForward,
-                contentDescription = null,
-                modifier = Modifier.size(15.dp),
-            )
-        }
-
-        // Wave overlay — translucent teal band that travels left → right.
-        // Sits above the button so it tints the surface; the Canvas itself
-        // doesn't intercept clicks because it has no pointerInput.
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val w = size.width
-            val h = size.height
-            val bandWidth = w * 0.40f
-            val travel = w + 2f * bandWidth
-            val bandX = -bandWidth + travel * progress
-            drawRect(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        TealDeep.copy(alpha = 0.22f),
-                        Color.Transparent,
-                    ),
-                    start = Offset(bandX, 0f),
-                    end = Offset(bandX + bandWidth, 0f),
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(11.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = TealDeep,
                 ),
-                topLeft = Offset(0f, 0f),
-                size = Size(w, h),
-            )
+                contentPadding = PaddingValues(vertical = 9.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.role_continue_as_patient),
+                    fontFamily = Geist,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Outlined.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(15.dp),
+                )
+            }
         }
     }
 }
