@@ -88,6 +88,7 @@ import com.esiri.esiriplus.core.ui.theme.Ink
 import com.esiri.esiriplus.core.ui.theme.InkSoft
 import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
 import com.esiri.esiriplus.core.ui.theme.Muted
+import com.esiri.esiriplus.core.ui.theme.RainDropsCanvas
 import com.esiri.esiriplus.core.ui.theme.TealBg
 import com.esiri.esiriplus.core.ui.theme.TealDeep
 import com.esiri.esiriplus.core.ui.theme.TealSoft
@@ -348,10 +349,15 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
             .clip(RoundedCornerShape(18.dp))
             .background(
                 Brush.linearGradient(colors = listOf(HeroGradientStart, HeroGradientEnd)),
-            )
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            ),
     ) {
-        Column {
+        // Rain-on-water raindrops sit between the gradient backdrop and
+        // the content column. The Start consultation pill on top has its
+        // own breathing pulse — the ripples just animate the ambient
+        // surface.
+        RainDropsCanvas(modifier = Modifier.matchParentSize())
+
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(
                 text = "READY WHEN YOU ARE",
                 fontFamily = Geist,
