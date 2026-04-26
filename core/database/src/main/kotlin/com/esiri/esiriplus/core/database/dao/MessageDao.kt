@@ -48,4 +48,10 @@ interface MessageDao {
 
     @Query("DELETE FROM messages")
     suspend fun clearAll()
+
+    /** Local TTL: drop messages whose `createdAt` is older than the given epoch ms.
+     *  Mirrors the server-side cleanup policy (14 days). Safe because the server is
+     *  the source of truth — anything still valid will re-sync if needed. */
+    @Query("DELETE FROM messages WHERE createdAt < :olderThanEpochMs")
+    suspend fun deleteOlderThan(olderThanEpochMs: Long): Int
 }

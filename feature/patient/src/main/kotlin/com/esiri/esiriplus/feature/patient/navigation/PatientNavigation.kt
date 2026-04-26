@@ -11,6 +11,7 @@ import com.esiri.esiriplus.feature.patient.screen.BookAppointmentScreen
 import com.esiri.esiriplus.feature.patient.screen.ConsultationHistoryScreen
 import com.esiri.esiriplus.feature.patient.screen.FollowUpWaitingScreen
 import com.esiri.esiriplus.feature.patient.screen.OngoingConsultationsScreen
+import com.esiri.esiriplus.feature.patient.screen.PastChatDetailScreen
 import com.esiri.esiriplus.feature.patient.screen.MedicationScheduleScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientAppointmentsScreen
 import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
@@ -67,6 +68,7 @@ import kotlinx.serialization.Serializable
     val serviceType: String,
 )
 @Serializable object ConsultationHistoryRoute
+@Serializable data class PastChatDetailRoute(val consultationId: String)
 @Serializable object OngoingConsultationsRoute
 @Serializable object ReportsRoute
 @Serializable data class ReportDetailRoute(val reportId: String)
@@ -372,7 +374,14 @@ fun NavGraphBuilder.patientGraph(
         composable<ConsultationHistoryRoute> {
             ConsultationHistoryScreen(
                 onBack = { navController.popBackStack() },
+                onOpenChat = { consultationId ->
+                    navController.navigate(PastChatDetailRoute(consultationId))
+                },
             )
+        }
+
+        composable<PastChatDetailRoute> {
+            PastChatDetailScreen(onBack = { navController.popBackStack() })
         }
 
         composable<ReportsRoute> {

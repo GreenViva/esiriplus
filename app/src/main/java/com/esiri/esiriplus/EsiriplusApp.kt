@@ -10,6 +10,7 @@ import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.esiri.esiriplus.core.common.locale.LocaleHelper
+import com.esiri.esiriplus.worker.MessageCleanupWorker
 import com.esiri.esiriplus.worker.NotificationCleanupWorker
 import dagger.hilt.android.HiltAndroidApp
 import live.videosdk.rtc.android.VideoSDK
@@ -31,6 +32,7 @@ class EsiriplusApp : Application(), Configuration.Provider {
         VideoSDK.initialize(applicationContext)
         createNotificationChannels()
         NotificationCleanupWorker.enqueue(this)
+        MessageCleanupWorker.enqueue(this)
     }
 
     private fun createNotificationChannels() {

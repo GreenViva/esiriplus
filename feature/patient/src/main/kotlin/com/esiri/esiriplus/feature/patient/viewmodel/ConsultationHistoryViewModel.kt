@@ -3,11 +3,14 @@ package com.esiri.esiriplus.feature.patient.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.domain.model.Consultation
+import com.esiri.esiriplus.core.domain.model.ServiceType
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.ConsultationRepository
 import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,12 +20,18 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/** UI-shaped row for the Past chats list. */
+data class PastChatItem(
+    val consultation: Consultation,
+    val doctorName: String,
+    val isFollowUp: Boolean,
+)
+
 data class ConsultationHistoryUiState(
-    val consultations: List<Consultation> = emptyList(),
+    val items: List<PastChatItem> = emptyList(),
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val error: String? = null,
@@ -33,6 +42,7 @@ class ConsultationHistoryViewModel @Inject constructor(
     private val application: Application,
     private val consultationRepository: ConsultationRepository,
     private val authRepository: AuthRepository,
+    private val doctorProfileDao: DoctorProfileDao,
 ) : ViewModel() {
 
     private val _refreshTrigger = MutableStateFlow(0)
@@ -45,12 +55,18 @@ class ConsultationHistoryViewModel @Inject constructor(
                 .flatMapLatest { session ->
                     val userId = session?.user?.id
                     if (userId == null) {
-                        flowOf(ConsultationHistoryUiState(isLoading = false, error = application.getString(R.string.vm_not_signed_in)))
+                        flowOf(
+                            ConsultationHistoryUiState(
+                                isLoading = false,
+                                error = application.getString(R.string.vm_not_signed_in),
+                            ),
+                        )
                     } else {
                         consultationRepository.getConsultationsForPatient(userId)
-                            .map { consultations ->
+                            .map { consultations -> consultations.toItems() }
+                            .map { items ->
                                 ConsultationHistoryUiState(
-                                    consultations = consultations,
+                                    items = items,
                                     isLoading = false,
                                 )
                             }
@@ -74,6 +90,18 @@ class ConsultationHistoryViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ConsultationHistoryUiState(),
         )
+
+    private suspend fun List<Consultation>.toItems(): List<PastChatItem> = map { c ->
+        val name = c.doctorId
+            ?.takeIf { it.isNotBlank() }
+            ?.let { doctorProfileDao.getById(it)?.fullName }
+            ?: "Doctor"
+        PastChatItem(
+            consultation = c,
+            doctorName = name,
+            isFollowUp = c.serviceType == ServiceType.FOLLOW_UP,
+        )
+    }
 
     fun refresh() {
         viewModelScope.launch {

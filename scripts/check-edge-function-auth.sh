@@ -12,6 +12,7 @@ PUBLIC_FUNCTIONS=(
   "get-doctor-slots"
   "get-security-questions"
   "get-vapid-key"
+  "cleanup-expired-messages"
   "expire-followup-escrow"
   "lift-expired-suspensions"
   "list-doctors"
