@@ -259,13 +259,12 @@ fun PatientHomeScreen(
 
                 HomeHeroCard(onStartConsultation = { onStartConsultation("") })
 
-                if (uiState.ongoingConsultations.isNotEmpty()) {
-                    Spacer(Modifier.height(10.dp))
-                    PendingBadge(
-                        count = uiState.ongoingConsultations.size,
-                        onResume = onNavigateToOngoingConsultations,
-                    )
-                }
+                Spacer(Modifier.height(10.dp))
+
+                PendingBadge(
+                    count = uiState.ongoingConsultations.size,
+                    onResume = onNavigateToOngoingConsultations,
+                )
 
                 Spacer(Modifier.height(10.dp))
 
@@ -495,8 +494,11 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
                 }
             }
             Text(
-                text = if (count == 1) "1 consultation needs follow-up"
-                       else "$count consultations need follow-up",
+                text = when {
+                    count <= 0 -> "Nothing waiting on you right now"
+                    count == 1 -> "1 consultation needs follow-up"
+                    else -> "$count consultations need follow-up"
+                },
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 color = Muted,
@@ -506,8 +508,8 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
-                .background(TealDeep)
-                .pressableClick(onClick = onResume)
+                .background(if (count > 0) TealDeep else TealDeep.copy(alpha = 0.4f))
+                .pressableClick(enabled = count > 0, onClick = onResume)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
