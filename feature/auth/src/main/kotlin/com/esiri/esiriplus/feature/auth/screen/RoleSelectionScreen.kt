@@ -2,7 +2,16 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.StartOffsetType
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,8 +52,12 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -392,31 +405,87 @@ private fun HeroPatientCard(onContinue: () -> Unit) {
                 fontSize = 12.sp,
             )
 
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(8.dp))
 
-            Button(
-                onClick = onContinue,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(46.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = BrandTeal,
-                ),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.role_continue_as_patient),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                )
-                Spacer(Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
+            ContinueWithWaves(onContinue = onContinue)
+        }
+    }
+}
+
+@Composable
+private fun ContinueWithWaves(onContinue: () -> Unit) {
+    val infinite = rememberInfiniteTransition(label = "cta_waves")
+    val waveDuration = 2200
+    val wave1 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(waveDuration, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "wave1",
+    )
+    val wave2 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(waveDuration, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+            initialStartOffset = StartOffset(waveDuration / 2, StartOffsetType.Delay),
+        ),
+        label = "wave2",
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val buttonH = 46.dp.toPx()
+            val buttonW = size.width
+            val buttonY = (size.height - buttonH) / 2f
+            val maxExpansion = 12.dp.toPx()
+            val baseCorner = 12.dp.toPx()
+            val ringStroke = 1.5.dp.toPx()
+
+            listOf(wave1, wave2).forEach { progress ->
+                val expansion = progress * maxExpansion
+                val alpha = (1f - progress).coerceIn(0f, 1f) * 0.5f
+                val corner = baseCorner + expansion
+                drawRoundRect(
+                    color = Color.White.copy(alpha = alpha),
+                    topLeft = Offset(0f, buttonY - expansion),
+                    size = Size(buttonW, buttonH + 2f * expansion),
+                    cornerRadius = CornerRadius(corner, corner),
+                    style = Stroke(width = ringStroke),
                 )
             }
+        }
+
+        Button(
+            onClick = onContinue,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(46.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = BrandTeal,
+            ),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.role_continue_as_patient),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+            )
+            Spacer(Modifier.width(6.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+            )
         }
     }
 }
