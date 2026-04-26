@@ -1,6 +1,8 @@
 package com.esiri.esiriplus.feature.patient.screen
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,6 +65,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -214,6 +217,8 @@ fun PatientHomeScreen(
         )
     }
 
+    val context = LocalContext.current
+
     Scaffold(
         modifier = modifier,
         containerColor = TealBg,
@@ -221,6 +226,20 @@ fun PatientHomeScreen(
             HomeTopBar(
                 maskedId = uiState.maskedPatientId,
                 onSettingsClick = { showSettingsSheet = true },
+            )
+        },
+        bottomBar = {
+            HelpFooter(
+                onPhoneClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
+                    )
+                },
+                onEmailClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:info@esiri.africa")),
+                    )
+                },
             )
         },
     ) { padding ->
@@ -707,6 +726,46 @@ private fun SettingsSheet(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun HelpFooter(
+    onPhoneClick: () -> Unit,
+    onEmailClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TealBg)
+            .padding(horizontal = 24.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "Need help? ",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = Muted,
+            )
+            Text(
+                text = "+255 663 582 994",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = TealDeep,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable(onClick = onPhoneClick),
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text = "info@esiri.africa",
+            fontFamily = Geist,
+            fontSize = 11.sp,
+            color = TealDeep,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clickable(onClick = onEmailClick),
+        )
     }
 }
 
