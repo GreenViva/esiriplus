@@ -2,6 +2,13 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,6 +58,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -251,29 +260,75 @@ private fun HeroCard(onClick: () -> Unit) {
             )
             Spacer(Modifier.height(10.dp))
 
-            Button(
-                onClick = onClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(11.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = TealDeep,
+            ContinueAsPatientButton(onClick = onClick)
+        }
+    }
+}
+
+@Composable
+private fun ContinueAsPatientButton(onClick: () -> Unit) {
+    val infinite = rememberInfiniteTransition(label = "shimmer")
+    val progress by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "shimmer_progress",
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(11.dp)),
+    ) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(11.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = TealDeep,
+            ),
+            contentPadding = PaddingValues(vertical = 9.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.role_continue_as_patient),
+                fontFamily = Geist,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.width(6.dp))
+            Icon(
+                imageVector = Icons.Outlined.ArrowForward,
+                contentDescription = null,
+                modifier = Modifier.size(15.dp),
+            )
+        }
+
+        // Wave overlay — translucent teal band that travels left → right.
+        // Sits above the button so it tints the surface; the Canvas itself
+        // doesn't intercept clicks because it has no pointerInput.
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val w = size.width
+            val h = size.height
+            val bandWidth = w * 0.40f
+            val travel = w + 2f * bandWidth
+            val bandX = -bandWidth + travel * progress
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        TealDeep.copy(alpha = 0.22f),
+                        Color.Transparent,
+                    ),
+                    start = Offset(bandX, 0f),
+                    end = Offset(bandX + bandWidth, 0f),
                 ),
-                contentPadding = PaddingValues(vertical = 9.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.role_continue_as_patient),
-                    fontFamily = Geist,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Spacer(Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Outlined.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(15.dp),
-                )
-            }
+                topLeft = Offset(0f, 0f),
+                size = Size(w, h),
+            )
         }
     }
 }
