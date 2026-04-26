@@ -58,10 +58,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -77,6 +79,8 @@ import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.Geist
 import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
+import kotlin.math.PI
+import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 private val Teal         = Color(0xFF2DBE9E)
@@ -215,15 +219,34 @@ private fun HeadlineBlock() {
 
 @Composable
 private fun HeroCard(onClick: () -> Unit) {
-    val infinite = rememberInfiniteTransition(label = "card_shimmer")
-    val progress by infinite.animateFloat(
+    val infinite = rememberInfiniteTransition(label = "water_waves")
+    val twoPi = (2.0 * PI).toFloat()
+    val phase1 by infinite.animateFloat(
         initialValue = 0f,
-        targetValue = 1f,
+        targetValue = twoPi,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2800, easing = LinearEasing),
+            animation = tween(durationMillis = 4200, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
         ),
-        label = "card_shimmer_progress",
+        label = "wave_phase_1",
+    )
+    val phase2 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = twoPi,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 5800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "wave_phase_2",
+    )
+    val phase3 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = twoPi,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "wave_phase_3",
     )
 
     Box(
@@ -233,27 +256,30 @@ private fun HeroCard(onClick: () -> Unit) {
             .background(Brush.linearGradient(listOf(Teal, TealDeep)))
             .clickable(onClick = onClick),
     ) {
-        // Wave band — translucent white sweeping left → right across the
-        // whole badge. Drawn before the content Column so it tints the
-        // gradient backdrop without disturbing the icon, copy, or button.
+        // Three sinusoidal water waves at different depths and speeds,
+        // drawn behind the content so the icon, copy, and button stay
+        // legible. Phases are negated so the crests appear to drift right.
         Canvas(modifier = Modifier.matchParentSize()) {
-            val w = size.width
-            val h = size.height
-            val bandWidth = w * 0.45f
-            val travel = w + 2f * bandWidth
-            val bandX = -bandWidth + travel * progress
-            drawRect(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.White.copy(alpha = 0.16f),
-                        Color.Transparent,
-                    ),
-                    start = Offset(bandX, 0f),
-                    end = Offset(bandX + bandWidth, 0f),
-                ),
-                topLeft = Offset(0f, 0f),
-                size = Size(w, h),
+            drawWaterWave(
+                baseYRatio = 0.30f,
+                amplitudeDp = 6f,
+                wavelengthDp = 80f,
+                phase = -phase1,
+                alpha = 0.16f,
+            )
+            drawWaterWave(
+                baseYRatio = 0.58f,
+                amplitudeDp = 9f,
+                wavelengthDp = 120f,
+                phase = -phase2,
+                alpha = 0.20f,
+            )
+            drawWaterWave(
+                baseYRatio = 0.82f,
+                amplitudeDp = 5f,
+                wavelengthDp = 70f,
+                phase = -phase3,
+                alpha = 0.13f,
             )
         }
 
@@ -319,6 +345,36 @@ private fun HeroCard(onClick: () -> Unit) {
             }
         }
     }
+}
+
+private fun DrawScope.drawWaterWave(
+    baseYRatio: Float,
+    amplitudeDp: Float,
+    wavelengthDp: Float,
+    phase: Float,
+    alpha: Float,
+) {
+    val w = size.width
+    val h = size.height
+    val baseY = h * baseYRatio
+    val amplitude = amplitudeDp.dp.toPx()
+    val wavelength = wavelengthDp.dp.toPx()
+    val step = 4f
+    val k = (2f * PI.toFloat()) / wavelength
+    val path = Path().apply {
+        moveTo(0f, baseY + amplitude * sin(phase))
+        var x = step
+        while (x <= w) {
+            val y = baseY + amplitude * sin(k * x + phase)
+            lineTo(x, y)
+            x += step
+        }
+    }
+    drawPath(
+        path = path,
+        color = Color.White.copy(alpha = alpha),
+        style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round),
+    )
 }
 
 @Composable
