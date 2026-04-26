@@ -255,13 +255,13 @@ fun PatientHomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 20.dp),
             ) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
 
                 HomeHeroCard(onStartConsultation = { onStartConsultation("") })
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(10.dp))
 
                 firstOngoing?.let { consultation ->
                     val startMs = consultation.sessionStartTime ?: consultation.createdAt
@@ -270,22 +270,20 @@ fun PatientHomeScreen(
                         startedMins = mins,
                         onResume = { onResumeConsultation(consultation.consultationId) },
                     )
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(10.dp))
                 }
 
                 Text(
                     text = "YOUR RECORDS",
                     fontFamily = Geist,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Muted,
                     letterSpacing = 1.4.sp,
-                    modifier = Modifier.padding(bottom = 12.dp),
+                    modifier = Modifier.padding(bottom = 8.dp),
                 )
 
                 QuickCardGrid(quickCards)
-
-                Spacer(Modifier.height(24.dp))
             }
         }
     }
@@ -307,11 +305,10 @@ private fun HomeTopBar(
                         append("👋")
                     },
                     fontFamily = InstrumentSerif,
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
                     color = Ink,
                 )
-                Spacer(Modifier.height(1.dp))
                 Text(
                     text = buildAnnotatedString {
                         append("ID: ")
@@ -320,7 +317,7 @@ private fun HomeTopBar(
                         ) { append(maskedId.ifBlank { "—" }) }
                     },
                     fontFamily = Geist,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     color = Muted,
                     letterSpacing = 0.3.sp,
                 )
@@ -353,23 +350,23 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(18.dp))
             .background(
                 Brush.linearGradient(colors = listOf(HeroGradientStart, HeroGradientEnd)),
             )
-            .padding(22.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Column {
             Text(
                 text = "READY WHEN YOU ARE",
                 fontFamily = Geist,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 1.6.sp,
+                letterSpacing = 1.5.sp,
                 color = Color.White.copy(alpha = 0.75f),
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
 
             Text(
                 text = buildAnnotatedString {
@@ -377,45 +374,45 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
                     withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append("now.") }
                 },
                 fontFamily = InstrumentSerif,
-                fontSize = 30.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Normal,
-                lineHeight = 34.sp,
+                lineHeight = 28.sp,
                 color = Color.White,
             )
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
 
             Text(
-                text = "Choose a service · pay · get connected.\nUsually under 5 minutes.",
+                text = "Choose a service · pay · get connected. Usually under 5 minutes.",
                 fontFamily = Geist,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 color = Color.White.copy(alpha = 0.85f),
-                lineHeight = 20.sp,
+                lineHeight = 16.sp,
             )
 
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(11.dp))
                     .background(Color.White)
                     .pressableClick(onClick = onStartConsultation)
-                    .padding(horizontal = 18.dp, vertical = 13.dp),
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "Start consultation",
                     fontFamily = Geist,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TealDeep,
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.Outlined.ArrowForward,
                     contentDescription = null,
                     tint = TealDeep,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(15.dp),
                 )
             }
         }
@@ -450,46 +447,46 @@ private fun ActiveConsultationBanner(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, ActiveBannerBorder, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(11.dp))
+            .border(1.dp, ActiveBannerBorder, RoundedCornerShape(11.dp))
             .background(ActiveBannerBg)
             .pressableClick(onClick = onResume)
-            .padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+            .padding(horizontal = 10.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(18.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(14.dp)
+                    .size(12.dp)
                     .scale(scale)
                     .clip(CircleShape)
                     .background(PulseDot.copy(alpha = alpha * 0.4f)),
             )
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(7.dp)
                     .clip(CircleShape)
                     .background(ActiveBannerAccent),
             )
         }
 
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(9.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "Live consultation",
                 fontFamily = Geist,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Ink,
             )
             Text(
                 text = if (startedMins <= 0) "Just started" else "Started $startedMins min ago",
                 fontFamily = Geist,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 color = Muted,
             )
         }
@@ -497,7 +494,7 @@ private fun ActiveConsultationBanner(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(30.dp)
+                .size(26.dp)
                 .clip(CircleShape)
                 .background(Color.White),
         ) {
@@ -505,7 +502,7 @@ private fun ActiveConsultationBanner(
                 imageVector = Icons.Outlined.ChevronRight,
                 contentDescription = "Resume consultation",
                 tint = TealDeep,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(15.dp),
             )
         }
     }
@@ -513,10 +510,11 @@ private fun ActiveConsultationBanner(
 
 @Composable
 private fun QuickCardGrid(cards: List<QuickCard>) {
-    cards.chunked(2).forEach { row ->
+    val rows = cards.chunked(2)
+    rows.forEachIndexed { index, row ->
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             row.forEach { card ->
                 QuickCardItem(
@@ -526,7 +524,7 @@ private fun QuickCardGrid(cards: List<QuickCard>) {
             }
             if (row.size == 1) Spacer(Modifier.weight(1f))
         }
-        Spacer(Modifier.height(10.dp))
+        if (index < rows.lastIndex) Spacer(Modifier.height(8.dp))
     }
 }
 
@@ -534,11 +532,11 @@ private fun QuickCardGrid(cards: List<QuickCard>) {
 private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .border(1.dp, Hairline, RoundedCornerShape(14.dp))
+            .border(1.dp, Hairline, RoundedCornerShape(12.dp))
             .pressableClick(onClick = card.onClick)
-            .padding(14.dp),
+            .padding(horizontal = 11.dp, vertical = 10.dp),
     ) {
         Box(
             contentAlignment = Alignment.TopEnd,
@@ -547,8 +545,8 @@ private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(32.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(7.dp))
                     .background(TealSoft)
                     .align(Alignment.TopStart),
             ) {
@@ -556,23 +554,23 @@ private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
                     imageVector = card.icon,
                     contentDescription = null,
                     tint = TealDeep,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(14.dp),
                 )
             }
             if (card.showBadge) {
                 Box(
                     modifier = Modifier
-                        .size(8.dp)
+                        .size(7.dp)
                         .clip(CircleShape)
                         .background(Color.Red),
                 )
             }
         }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = card.title,
             fontFamily = Geist,
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             color = Ink,
         )
@@ -580,7 +578,7 @@ private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
         Text(
             text = card.subtitle,
             fontFamily = Geist,
-            fontSize = 11.sp,
+            fontSize = 10.sp,
             color = Muted,
         )
     }
