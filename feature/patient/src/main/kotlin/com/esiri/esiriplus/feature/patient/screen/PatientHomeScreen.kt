@@ -117,8 +117,8 @@ fun PatientHomeScreen(
     onNavigateToReports: () -> Unit,
     onNavigateToConsultationHistory: () -> Unit,
     onNavigateToAppointments: () -> Unit,
-    @Suppress("UNUSED_PARAMETER") onNavigateToOngoingConsultations: () -> Unit,
-    onResumeConsultation: (String) -> Unit,
+    onNavigateToOngoingConsultations: () -> Unit,
+    @Suppress("UNUSED_PARAMETER") onResumeConsultation: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientHomeViewModel = hiltViewModel(),
 ) {
@@ -181,8 +181,6 @@ fun PatientHomeScreen(
     }
 
     val pullRefreshState = rememberPullToRefreshState()
-    val firstOngoing = uiState.ongoingConsultations.firstOrNull()
-    val nowMs = remember(uiState.ongoingConsultations) { System.currentTimeMillis() }
 
     val quickCards = remember(uiState.hasUnreadReports) {
         listOf(
@@ -261,17 +259,15 @@ fun PatientHomeScreen(
 
                 HomeHeroCard(onStartConsultation = { onStartConsultation("") })
 
-                Spacer(Modifier.height(10.dp))
-
-                firstOngoing?.let { consultation ->
-                    val startMs = consultation.sessionStartTime ?: consultation.createdAt
-                    val mins = ((nowMs - startMs) / 60_000L).coerceAtLeast(0L).toInt()
-                    ActiveConsultationBanner(
-                        startedMins = mins,
-                        onResume = { onResumeConsultation(consultation.consultationId) },
-                    )
+                if (uiState.ongoingConsultations.isNotEmpty()) {
                     Spacer(Modifier.height(10.dp))
+                    PendingBadge(
+                        count = uiState.ongoingConsultations.size,
+                        onResume = onNavigateToOngoingConsultations,
+                    )
                 }
+
+                Spacer(Modifier.height(10.dp))
 
                 Text(
                     text = "YOUR RECORDS",
@@ -420,11 +416,8 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
 }
 
 @Composable
-private fun ActiveConsultationBanner(
-    startedMins: Int,
-    onResume: () -> Unit,
-) {
-    val pulse = rememberInfiniteTransition(label = "pulse")
+private fun PendingBadge(count: Int, onResume: () -> Unit) {
+    val pulse = rememberInfiniteTransition(label = "pending_pulse")
     val scale by pulse.animateFloat(
         initialValue = 1f,
         targetValue = 1.5f,
@@ -432,7 +425,7 @@ private fun ActiveConsultationBanner(
             animation = tween(900),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "pulse_scale",
+        label = "pending_pulse_scale",
     )
     val alpha by pulse.animateFloat(
         initialValue = 1f,
@@ -441,7 +434,7 @@ private fun ActiveConsultationBanner(
             animation = tween(900),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "pulse_alpha",
+        label = "pending_pulse_alpha",
     )
 
     Row(
@@ -476,33 +469,61 @@ private fun ActiveConsultationBanner(
         Spacer(Modifier.width(9.dp))
 
         Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Pending",
+                    fontFamily = Geist,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Ink,
+                )
+                Spacer(Modifier.width(6.dp))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(ActiveBannerAccent)
+                        .padding(horizontal = 6.dp, vertical = 1.dp),
+                ) {
+                    Text(
+                        text = count.toString(),
+                        fontFamily = Geist,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                }
+            }
             Text(
-                text = "Live consultation",
-                fontFamily = Geist,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Ink,
-            )
-            Text(
-                text = if (startedMins <= 0) "Just started" else "Started $startedMins min ago",
+                text = if (count == 1) "1 consultation needs follow-up"
+                       else "$count consultations need follow-up",
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 color = Muted,
             )
         }
 
-        Box(
-            contentAlignment = Alignment.Center,
+        Row(
             modifier = Modifier
-                .size(26.dp)
-                .clip(CircleShape)
-                .background(Color.White),
+                .clip(RoundedCornerShape(8.dp))
+                .background(TealDeep)
+                .pressableClick(onClick = onResume)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            Text(
+                text = "Resume",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+            )
+            Spacer(Modifier.width(4.dp))
             Icon(
                 imageVector = Icons.Outlined.ChevronRight,
-                contentDescription = "Resume consultation",
-                tint = TealDeep,
-                modifier = Modifier.size(15.dp),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(13.dp),
             )
         }
     }
