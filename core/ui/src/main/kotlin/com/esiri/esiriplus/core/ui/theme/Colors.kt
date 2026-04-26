@@ -1,11 +1,11 @@
-package com.esiri.esiriplus.feature.auth.ui
+package com.esiri.esiriplus.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Brand palette — shared by welcome, patient setup, and downstream auth
-// screens that follow the v1.3 redesign. Keep the variants in sync; the
-// older `BrandTeal = #2A9D8F` still appears in pre-redesign screens and
-// will be migrated as those screens are touched.
+// Brand palette — shared across welcome, patient setup, patient dashboard,
+// and downstream screens that follow the v1.3 redesign. Older screens may
+// still reference the legacy `BrandTeal = #2A9D8F`; migrate as you touch
+// them.
 val Teal         = Color(0xFF2DBE9E)
 val TealDeep     = Color(0xFF1E8E76)
 val TealSoft     = Color(0xFFE8F6F1)

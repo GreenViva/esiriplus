@@ -59,8 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.esiri.esiriplus.feature.auth.ui.Geist
-import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
+import com.esiri.esiriplus.core.ui.theme.Geist
+import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
 import kotlinx.coroutines.delay
 
 /* ──────────────────────────────────────────────────────────────────────────

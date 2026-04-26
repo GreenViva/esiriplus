@@ -1,17 +1,14 @@
 package com.esiri.esiriplus.feature.patient.screen
 
 import android.Manifest
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,41 +23,37 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.VolumeOff
+import androidx.compose.material.icons.outlined.VolumeUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -71,25 +64,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.ui.LanguageSwitchButton
-import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
+import com.esiri.esiriplus.core.ui.theme.Geist
+import com.esiri.esiriplus.core.ui.theme.Hairline
+import com.esiri.esiriplus.core.ui.theme.Ink
+import com.esiri.esiriplus.core.ui.theme.InkSoft
+import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
+import com.esiri.esiriplus.core.ui.theme.Muted
+import com.esiri.esiriplus.core.ui.theme.TealBg
+import com.esiri.esiriplus.core.ui.theme.TealDeep
+import com.esiri.esiriplus.core.ui.theme.TealSoft
+import com.esiri.esiriplus.core.ui.theme.pressableClick
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PatientHomeViewModel
 
-private val BrandTeal = Color(0xFF2A9D8F)
-private val MintLight = Color(0xFFE0F2F1)
+private val HeroGradientStart  = Color(0xFF2DBE9E)
+private val HeroGradientEnd    = Color(0xFF14302A)
+private val ActiveBannerBg     = Color(0xFFE8F6F1)
+private val ActiveBannerBorder = Color(0xFFC9E6DC)
+private val ActiveBannerAccent = Color(0xFF1E8E76)
+private val PulseDot           = Color(0xFF2DBE9E)
+
+private data class QuickCard(
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String,
+    val showBadge: Boolean,
+    val onClick: () -> Unit,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,25 +114,26 @@ fun PatientHomeScreen(
     onNavigateToReports: () -> Unit,
     onNavigateToConsultationHistory: () -> Unit,
     onNavigateToAppointments: () -> Unit,
-    onNavigateToOngoingConsultations: () -> Unit,
+    @Suppress("UNUSED_PARAMETER") onNavigateToOngoingConsultations: () -> Unit,
     onResumeConsultation: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientHomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
 
-    // Wrap reports navigation to clear the unread dot
+    // Wrap reports navigation to clear the unread dot.
     val handleNavigateToReports = {
         viewModel.markAllReportsRead()
         onNavigateToReports()
     }
 
-    // Request POST_NOTIFICATIONS permission on Android 13+
+    // Request POST_NOTIFICATIONS on Android 13+. FCM works either way, just
+    // no system tray without it.
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
-    ) { /* granted or not — FCM will work either way, just no system tray */ }
+    ) { /* fire-and-forget */ }
 
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -135,7 +151,6 @@ fun PatientHomeScreen(
         )
     }
 
-    // Pending rating bottom sheet
     val pendingRating = uiState.pendingRatingConsultation
     var showPendingRating by remember(pendingRating?.consultationId) {
         mutableStateOf(pendingRating != null)
@@ -150,691 +165,547 @@ fun PatientHomeScreen(
         )
     }
 
-    val pullRefreshState = rememberPullToRefreshState()
+    if (showSettingsSheet) {
+        SettingsSheet(
+            soundsEnabled = uiState.soundsEnabled,
+            onToggleSounds = viewModel::toggleSounds,
+            onLogout = {
+                showSettingsSheet = false
+                showLogoutDialog = true
+            },
+            onDismiss = { showSettingsSheet = false },
+        )
+    }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MintLight))
+    val pullRefreshState = rememberPullToRefreshState()
+    val firstOngoing = uiState.ongoingConsultations.firstOrNull()
+    val nowMs = remember(uiState.ongoingConsultations) { System.currentTimeMillis() }
+
+    val quickCards = remember(uiState.hasUnreadReports) {
+        listOf(
+            QuickCard(
+                icon = Icons.Outlined.ChatBubbleOutline,
+                title = "Past chats",
+                subtitle = "View history",
+                showBadge = false,
+                onClick = onNavigateToConsultationHistory,
             ),
-    ) {
-        val scrollState = rememberScrollState()
+            QuickCard(
+                icon = Icons.Outlined.Description,
+                title = "Reports",
+                subtitle = if (uiState.hasUnreadReports) "New report ready" else "Tap to view",
+                showBadge = uiState.hasUnreadReports,
+                onClick = handleNavigateToReports,
+            ),
+            QuickCard(
+                icon = Icons.Outlined.CalendarMonth,
+                title = "Appointments",
+                subtitle = "View upcoming",
+                showBadge = false,
+                onClick = onNavigateToAppointments,
+            ),
+            QuickCard(
+                icon = Icons.Outlined.FavoriteBorder,
+                title = "My health",
+                subtitle = "Edit profile",
+                showBadge = false,
+                onClick = onNavigateToProfile,
+            ),
+        )
+    }
+
+    Scaffold(
+        modifier = modifier,
+        containerColor = TealBg,
+        topBar = {
+            HomeTopBar(
+                maskedId = uiState.maskedPatientId,
+                onSettingsClick = { showSettingsSheet = true },
+            )
+        },
+    ) { padding ->
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.refresh() },
             state = pullRefreshState,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-        ScrollIndicatorBox(scrollState = scrollState) {
-        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 20.dp, vertical = 24.dp),
+                .padding(padding)
+                .fillMaxSize(),
         ) {
-            // Welcome Header
-            WelcomeHeader(
-                maskedPatientId = uiState.maskedPatientId,
-                patientId = uiState.patientId,
-                context = context,
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Settings Row
-            SettingsRow(
-                soundsEnabled = uiState.soundsEnabled,
-                onToggleSounds = viewModel::toggleSounds,
-                onLogout = { showLogoutDialog = true },
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Your Medical Info
-            MedicalInfoSection(onEdit = onNavigateToProfile)
-
-            Spacer(Modifier.height(2.dp))
-
-            // Quick Action Chips
-            QuickActionChips(
-                onServicesClick = { onStartConsultation("") },
-                onNewConsultationClick = { onStartConsultation("") },
-                onReportsClick = handleNavigateToReports,
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Start Consultation Card
-            StartConsultationCard(onClick = { onStartConsultation("") })
-
-            Spacer(Modifier.height(12.dp))
-
-            // Ongoing Consultations
-            OngoingConsultationsCard(
-                count = uiState.ongoingConsultations.size,
-                onClick = onNavigateToOngoingConsultations,
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Consultation History
-            DashboardSectionCard(
-                iconRes = R.drawable.ic_consultation,
-                title = stringResource(R.string.home_consultation_history),
-                subtitle = stringResource(R.string.home_consultation_history_subtitle),
-                onClick = onNavigateToConsultationHistory,
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Reports
-            DashboardSectionCard(
-                iconRes = R.drawable.ic_reports,
-                title = stringResource(R.string.home_reports),
-                subtitle = stringResource(R.string.home_reports_subtitle),
-                onClick = handleNavigateToReports,
-                showBadge = uiState.hasUnreadReports,
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // My Appointments
-            DashboardSectionCard(
-                iconRes = R.drawable.ic_calendar,
-                title = stringResource(R.string.home_my_appointments),
-                subtitle = stringResource(R.string.home_my_appointments_subtitle),
-                onClick = onNavigateToAppointments,
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Contact Us
-            ContactUsSection()
-
-            Spacer(Modifier.height(8.dp))
-        }
-        } // ScrollIndicatorBox
-        } // PullToRefreshBox
-
-        // Pulsing chat FAB when there is an active consultation
-        val activeConsultation = uiState.activeConsultation
-        if (activeConsultation != null) {
-            ActiveChatFab(
-                onClick = { onResumeConsultation(activeConsultation.consultationId) },
+            Column(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+            ) {
+                Spacer(Modifier.height(4.dp))
+
+                HomeHeroCard(onStartConsultation = { onStartConsultation("") })
+
+                Spacer(Modifier.height(16.dp))
+
+                firstOngoing?.let { consultation ->
+                    val startMs = consultation.sessionStartTime ?: consultation.createdAt
+                    val mins = ((nowMs - startMs) / 60_000L).coerceAtLeast(0L).toInt()
+                    ActiveConsultationBanner(
+                        startedMins = mins,
+                        onResume = { onResumeConsultation(consultation.consultationId) },
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                Text(
+                    text = "YOUR RECORDS",
+                    fontFamily = Geist,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Muted,
+                    letterSpacing = 1.4.sp,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+
+                QuickCardGrid(quickCards)
+
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeTopBar(
+    maskedId: String,
+    onSettingsClick: () -> Unit,
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = TealBg),
+        title = {
+            Column {
+                Text(
+                    text = buildAnnotatedString {
+                        append("Hi there ")
+                        append("👋")
+                    },
+                    fontFamily = InstrumentSerif,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Ink,
+                )
+                Spacer(Modifier.height(1.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append("ID: ")
+                        withStyle(
+                            SpanStyle(color = TealDeep, fontWeight = FontWeight.SemiBold),
+                        ) { append(maskedId.ifBlank { "—" }) }
+                    },
+                    fontFamily = Geist,
+                    fontSize = 11.sp,
+                    color = Muted,
+                    letterSpacing = 0.3.sp,
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onSettingsClick) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Hairline, CircleShape),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Settings",
+                        tint = InkSoft,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun HomeHeroCard(onStartConsultation: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(
+                Brush.linearGradient(colors = listOf(HeroGradientStart, HeroGradientEnd)),
             )
+            .padding(22.dp),
+    ) {
+        Column {
+            Text(
+                text = "READY WHEN YOU ARE",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 1.6.sp,
+                color = Color.White.copy(alpha = 0.75f),
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    append("Talk to a doctor\n")
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append("now.") }
+                },
+                fontFamily = InstrumentSerif,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Normal,
+                lineHeight = 34.sp,
+                color = Color.White,
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = "Choose a service · pay · get connected.\nUsually under 5 minutes.",
+                fontFamily = Geist,
+                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.85f),
+                lineHeight = 20.sp,
+            )
+
+            Spacer(Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .pressableClick(onClick = onStartConsultation)
+                    .padding(horizontal = 18.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Start consultation",
+                    fontFamily = Geist,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TealDeep,
+                )
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Outlined.ArrowForward,
+                    contentDescription = null,
+                    tint = TealDeep,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun WelcomeHeader(
-    maskedPatientId: String,
-    patientId: String,
-    context: Context,
+private fun ActiveConsultationBanner(
+    startedMins: Int,
+    onResume: () -> Unit,
 ) {
-    Text(
-        text = stringResource(R.string.home_welcome_back),
-        fontSize = 28.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.semantics { heading() },
+    val pulse = rememberInfiniteTransition(label = "pulse")
+    val scale by pulse.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "pulse_scale",
     )
-    Spacer(Modifier.height(8.dp))
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(R.string.home_your_patient_id),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 14.sp,
-        )
-        Spacer(Modifier.width(8.dp))
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    val alpha by pulse.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "pulse_alpha",
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, ActiveBannerBorder, RoundedCornerShape(12.dp))
+            .background(ActiveBannerBg)
+            .pressableClick(onClick = onResume)
+            .padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(20.dp),
         ) {
-            Text(
-                text = maskedPatientId,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                letterSpacing = 0.5.sp,
+            Box(
+                modifier = Modifier
+                    .size(14.dp)
+                    .scale(scale)
+                    .clip(CircleShape)
+                    .background(PulseDot.copy(alpha = alpha * 0.4f)),
+            )
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(ActiveBannerAccent),
             )
         }
-        Spacer(Modifier.width(4.dp))
-        IconButton(
-            onClick = {
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.setPrimaryClip(ClipData.newPlainText("Patient ID", patientId))
-                Toast.makeText(context, context.getString(R.string.home_patient_id_copied), Toast.LENGTH_SHORT).show()
-            },
-            modifier = Modifier.size(36.dp),
+
+        Spacer(Modifier.width(10.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Live consultation",
+                fontFamily = Geist,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Ink,
+            )
+            Text(
+                text = if (startedMins <= 0) "Just started" else "Started $startedMins min ago",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = Muted,
+            )
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(30.dp)
+                .clip(CircleShape)
+                .background(Color.White),
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_copy),
-                contentDescription = stringResource(R.string.home_copy_patient_id),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp),
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = "Resume consultation",
+                tint = TealDeep,
+                modifier = Modifier.size(16.dp),
             )
         }
     }
 }
 
 @Composable
-private fun SettingsRow(
+private fun QuickCardGrid(cards: List<QuickCard>) {
+    cards.chunked(2).forEach { row ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            row.forEach { card ->
+                QuickCardItem(
+                    card = card,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            if (row.size == 1) Spacer(Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(10.dp))
+    }
+}
+
+@Composable
+private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White)
+            .border(1.dp, Hairline, RoundedCornerShape(14.dp))
+            .pressableClick(onClick = card.onClick)
+            .padding(14.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.TopEnd,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(TealSoft)
+                    .align(Alignment.TopStart),
+            ) {
+                Icon(
+                    imageVector = card.icon,
+                    contentDescription = null,
+                    tint = TealDeep,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+            if (card.showBadge) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(Color.Red),
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = card.title,
+            fontFamily = Geist,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Ink,
+        )
+        Spacer(Modifier.height(1.dp))
+        Text(
+            text = card.subtitle,
+            fontFamily = Geist,
+            fontSize = 11.sp,
+            color = Muted,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsSheet(
     soundsEnabled: Boolean,
     onToggleSounds: () -> Unit,
     onLogout: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End,
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
     ) {
-        // Language
-        LanguageSwitchButton(
-            showLabel = true,
-            iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        // Sounds
-        Icon(
-            painter = painterResource(R.drawable.ic_volume),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(18.dp),
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(
-            text = stringResource(R.string.home_sounds),
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.width(4.dp))
-        Switch(
-            checked = soundsEnabled,
-            onCheckedChange = { onToggleSounds() },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = BrandTeal,
-                uncheckedTrackColor = MaterialTheme.colorScheme.outline,
-            ),
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        // Log Out
-        TextButton(onClick = onLogout) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                contentDescription = null,
-                tint = Color.Red,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = stringResource(R.string.home_log_out),
-                color = Color.Red,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-            )
-        }
-    }
-}
-
-@Composable
-private fun MedicalInfoSection(onEdit: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_heart),
-            contentDescription = null,
-            tint = BrandTeal,
-            modifier = Modifier.size(22.dp),
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.home_your_medical_info),
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            color = MaterialTheme.colorScheme.onSurface,
+        Column(
             modifier = Modifier
-                .weight(1f)
-                .semantics { heading() },
-        )
-        TextButton(
-            onClick = onEdit,
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
         ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(Modifier.width(4.dp))
             Text(
-                text = stringResource(R.string.home_edit),
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
+                text = "Settings",
+                fontFamily = InstrumentSerif,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Normal,
+                color = Ink,
             )
-        }
-    }
-}
+            Spacer(Modifier.height(16.dp))
 
-@Composable
-private fun QuickActionChips(
-    onServicesClick: () -> Unit,
-    onNewConsultationClick: () -> Unit,
-    onReportsClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        ActionChip(
-            iconRes = R.drawable.ic_services,
-            label = stringResource(R.string.home_chip_services),
-            onClick = onServicesClick,
-        )
-        ActionChip(
-            iconRes = R.drawable.ic_consultation,
-            label = stringResource(R.string.home_chip_new_consultation),
-            onClick = onNewConsultationClick,
-        )
-        ActionChip(
-            iconRes = R.drawable.ic_reports,
-            label = stringResource(R.string.home_chip_reports),
-            onClick = onReportsClick,
-        )
-    }
-}
-
-@Composable
-private fun ActionChip(
-    iconRes: Int,
-    label: String,
-    onClick: () -> Unit,
-) {
-    OutlinedCard(
-        onClick = onClick,
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                tint = BrandTeal,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = label,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
-}
-
-@Composable
-private fun StartConsultationCard(onClick: () -> Unit) {
-    val tealLight = Color(0xFF3DB8A9)
-
-    // Waves radiating around the whole badge every 1.5s
-    val infiniteTransition = rememberInfiniteTransition(label = "consultPulse")
-    val wave1 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave1",
-    )
-    val wave2 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, delayMillis = 500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave2",
-    )
-    val wave3 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, delayMillis = 1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave3",
-    )
-    // Stethoscope breathing pulse
-    val iconScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(750, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "iconPulse",
-    )
-
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center,
-    ) {
-        // Wave 1 - rounded rect ripple around the whole badge
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer {
-                    val s = 1f + wave1 * 0.06f
-                    scaleX = s
-                    scaleY = s
-                    alpha = (1f - wave1) * 0.5f
-                }
-                .border(2.dp, BrandTeal, RoundedCornerShape(16.dp)),
-        )
-        // Wave 2
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer {
-                    val s = 1f + wave2 * 0.06f
-                    scaleX = s
-                    scaleY = s
-                    alpha = (1f - wave2) * 0.35f
-                }
-                .border(1.5.dp, BrandTeal, RoundedCornerShape(16.dp)),
-        )
-        // Wave 3
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer {
-                    val s = 1f + wave3 * 0.06f
-                    scaleX = s
-                    scaleY = s
-                    alpha = (1f - wave3) * 0.2f
-                }
-                .border(1.dp, BrandTeal, RoundedCornerShape(16.dp)),
-        )
-
-        // The card
-        Card(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = BrandTeal),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        ) {
+            // Sounds
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                BrandTeal,
-                                tealLight.copy(alpha = 0.85f),
-                                BrandTeal,
-                            ),
-                        ),
-                    )
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .border(1.dp, Hairline, RoundedCornerShape(12.dp))
+                    .pressableClick(onClick = onToggleSounds)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Stethoscope with circular waves from it
                 Box(
-                    modifier = Modifier.size(72.dp),
                     contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(TealSoft),
                 ) {
-                    // Circle wave 1
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .graphicsLayer {
-                                val s = 0.5f + wave1 * 0.5f
-                                scaleX = s
-                                scaleY = s
-                                alpha = (1f - wave1) * 0.6f
-                            }
-                            .border(2.dp, Color.White, CircleShape),
+                    Icon(
+                        imageVector = if (soundsEnabled) Icons.Outlined.VolumeUp
+                                      else Icons.Outlined.VolumeOff,
+                        contentDescription = null,
+                        tint = TealDeep,
+                        modifier = Modifier.size(16.dp),
                     )
-                    // Circle wave 2
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .graphicsLayer {
-                                val s = 0.5f + wave2 * 0.5f
-                                scaleX = s
-                                scaleY = s
-                                alpha = (1f - wave2) * 0.45f
-                            }
-                            .border(1.5.dp, Color.White, CircleShape),
-                    )
-                    // Circle wave 3
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .graphicsLayer {
-                                val s = 0.5f + wave3 * 0.5f
-                                scaleX = s
-                                scaleY = s
-                                alpha = (1f - wave3) * 0.3f
-                            }
-                            .border(1.dp, Color.White, CircleShape),
-                    )
-                    // Stethoscope icon (source of waves)
-                    Box(
-                        modifier = Modifier
-                            .size(46.dp)
-                            .graphicsLayer {
-                                scaleX = iconScale
-                                scaleY = iconScale
-                            }
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.2f))
-                            .border(1.5.dp, Color.White.copy(alpha = 0.6f), CircleShape),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_stethoscope),
-                            contentDescription = null,
-                            modifier = Modifier.size(30.dp),
-                        )
-                    }
                 }
-
-                Spacer(Modifier.width(14.dp))
-
+                Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.home_start_consultation),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.White,
+                        text = "Sounds",
+                        fontFamily = Geist,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Ink,
                     )
-                    Spacer(Modifier.height(4.dp))
                     Text(
-                        text = stringResource(R.string.home_start_consultation_subtitle),
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.85f),
+                        text = if (soundsEnabled) "Notification sounds on" else "Silent mode",
+                        fontFamily = Geist,
+                        fontSize = 11.sp,
+                        color = Muted,
                     )
                 }
-
-                Spacer(Modifier.width(8.dp))
-
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.25f))
-                        .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = stringResource(R.string.home_content_desc_start),
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                Switch(
+                    checked = soundsEnabled,
+                    onCheckedChange = { onToggleSounds() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = TealDeep,
+                    ),
+                )
             }
-        }
-    }
-}
 
-@Composable
-private fun OngoingConsultationsCard(count: Int, onClick: () -> Unit) {
-    OutlinedCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, BrandTeal.copy(alpha = 0.4f)),
-        colors = CardDefaults.outlinedCardColors(containerColor = BrandTeal.copy(alpha = 0.06f)),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = BrandTeal.copy(alpha = 0.15f),
-                modifier = Modifier.size(44.dp),
+            Spacer(Modifier.height(10.dp))
+
+            // Language
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .border(1.dp, Hairline, RoundedCornerShape(12.dp))
+                    .padding(12.dp),
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_consultation),
-                        contentDescription = null,
-                        tint = BrandTeal,
-                        modifier = Modifier.size(22.dp),
-                    )
-                }
+                LanguageSwitchButton()
             }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.home_ongoing_consultations),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = stringResource(R.string.home_ongoing_consultations_subtitle),
-                    fontSize = 13.sp,
-                    color = Color.Black,
-                )
-            }
-            if (count > 0) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(BrandTeal, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = count.toString(),
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = stringResource(R.string.home_content_desc_open),
-                tint = BrandTeal,
-            )
-        }
-    }
-}
 
-@Composable
-private fun DashboardSectionCard(
-    iconRes: Int,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-    showBadge: Boolean = false,
-) {
-    OutlinedCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.size(44.dp),
+            Spacer(Modifier.height(10.dp))
+
+            // Logout
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .border(1.dp, Hairline, RoundedCornerShape(12.dp))
+                    .pressableClick(onClick = onLogout)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFFCE7E9)),
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            painter = painterResource(iconRes),
-                            contentDescription = null,
-                            tint = BrandTeal,
-                            modifier = Modifier.size(22.dp),
-                        )
-                    }
-                }
-                if (showBadge) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(Color.Red, CircleShape)
-                            .align(Alignment.TopEnd),
+                    Icon(
+                        imageVector = Icons.Outlined.Logout,
+                        contentDescription = null,
+                        tint = Color(0xFFC84856),
+                        modifier = Modifier.size(16.dp),
                     )
                 }
-            }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
+                Spacer(Modifier.width(12.dp))
                 Text(
-                    text = title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
+                    text = "Log out",
+                    fontFamily = Geist,
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFFC84856),
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = Color(0xFFC84856),
+                    modifier = Modifier.size(18.dp),
                 )
             }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = stringResource(R.string.home_content_desc_open),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }
@@ -849,6 +720,7 @@ private fun LogoutConfirmationDialog(
         title = {
             Text(
                 text = stringResource(R.string.home_logout_title),
+                fontFamily = Geist,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -856,6 +728,7 @@ private fun LogoutConfirmationDialog(
         text = {
             Text(
                 text = stringResource(R.string.home_logout_message),
+                fontFamily = Geist,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
@@ -863,6 +736,7 @@ private fun LogoutConfirmationDialog(
             TextButton(onClick = onConfirm) {
                 Text(
                     text = stringResource(R.string.home_logout_confirm),
+                    fontFamily = Geist,
                     color = Color.Red,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -872,136 +746,10 @@ private fun LogoutConfirmationDialog(
             TextButton(onClick = onDismiss) {
                 Text(
                     text = stringResource(R.string.home_logout_cancel),
-                    color = BrandTeal,
-                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Geist,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
     )
 }
-
-@Composable
-private fun ActiveChatFab(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "fabScale",
-    )
-
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "glowAlpha",
-    )
-
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
-        // Outer glow ring
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .graphicsLayer {
-                    scaleX = scale * 1.2f
-                    scaleY = scale * 1.2f
-                }
-                .background(
-                    color = BrandTeal.copy(alpha = glowAlpha * 0.3f),
-                    shape = CircleShape,
-                ),
-        )
-
-        // Main FAB button
-        FloatingActionButton(
-            onClick = onClick,
-            modifier = Modifier
-                .size(56.dp)
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                },
-            shape = CircleShape,
-            containerColor = BrandTeal,
-            contentColor = Color.White,
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = stringResource(R.string.home_content_desc_active_consultation),
-                modifier = Modifier.size(26.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun ContactUsSection() {
-    val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = "For help contact us",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(6.dp))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Phone,
-                contentDescription = null,
-                tint = BrandTeal,
-                modifier = Modifier.size(14.dp),
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = "+255 663 582 994",
-                fontSize = 12.sp,
-                color = BrandTeal,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable {
-                    context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")))
-                },
-            )
-            Spacer(Modifier.width(16.dp))
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = null,
-                tint = BrandTeal,
-                modifier = Modifier.size(14.dp),
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = "support@esiri.africa",
-                fontSize = 12.sp,
-                color = BrandTeal,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable {
-                    context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:support@esiri.africa")))
-                },
-            )
-        }
-    }
-}
-

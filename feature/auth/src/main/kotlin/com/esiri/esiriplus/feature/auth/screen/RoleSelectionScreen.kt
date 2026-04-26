@@ -79,9 +79,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.feature.auth.R
-import com.esiri.esiriplus.feature.auth.ui.Geist
-import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
-import com.esiri.esiriplus.feature.auth.ui.pressableClick
+import com.esiri.esiriplus.core.ui.theme.Geist
+import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
+import com.esiri.esiriplus.core.ui.theme.pressableClick
 import kotlinx.coroutines.launch
 
 private val Teal         = Color(0xFF2DBE9E)

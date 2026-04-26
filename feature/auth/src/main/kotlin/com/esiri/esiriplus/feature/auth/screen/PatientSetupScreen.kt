@@ -84,16 +84,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.esiri.esiriplus.feature.auth.R
-import com.esiri.esiriplus.feature.auth.ui.Geist
-import com.esiri.esiriplus.feature.auth.ui.Hairline
-import com.esiri.esiriplus.feature.auth.ui.Ink
-import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
-import com.esiri.esiriplus.feature.auth.ui.Muted
-import com.esiri.esiriplus.feature.auth.ui.pressableClick
-import com.esiri.esiriplus.feature.auth.ui.Teal
-import com.esiri.esiriplus.feature.auth.ui.TealBg
-import com.esiri.esiriplus.feature.auth.ui.TealDeep
-import com.esiri.esiriplus.feature.auth.ui.TealSoft
+import com.esiri.esiriplus.core.ui.theme.Geist
+import com.esiri.esiriplus.core.ui.theme.Hairline
+import com.esiri.esiriplus.core.ui.theme.Ink
+import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
+import com.esiri.esiriplus.core.ui.theme.Muted
+import com.esiri.esiriplus.core.ui.theme.pressableClick
+import com.esiri.esiriplus.core.ui.theme.Teal
+import com.esiri.esiriplus.core.ui.theme.TealBg
+import com.esiri.esiriplus.core.ui.theme.TealDeep
+import com.esiri.esiriplus.core.ui.theme.TealSoft
 import com.esiri.esiriplus.feature.auth.viewmodel.PatientSetupViewModel
 
 private val CardDark1   = Color(0xFF14302A)

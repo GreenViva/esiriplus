@@ -1,10 +1,10 @@
-package com.esiri.esiriplus.feature.auth.ui
+package com.esiri.esiriplus.core.ui.theme
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import com.esiri.esiriplus.feature.auth.R
+import com.esiri.esiriplus.core.ui.R
 
 val InstrumentSerif: FontFamily = FontFamily(
     Font(R.font.instrument_serif_regular, FontWeight.Normal),
