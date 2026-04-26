@@ -153,6 +153,17 @@ fun PatientSetupScreen(
         modifier = modifier,
         containerColor = TealBg,
         topBar = { PatientIdTopBar(onBack = onBack) },
+        bottomBar = {
+            if (!state.isCreatingSession && state.sessionError == null) {
+                ContinueBottomBar(
+                    isSaving = state.isSaving,
+                    enabled = state.patientId.isNotBlank() && !state.isSaving,
+                    saveError = state.saveError,
+                    onContinue = viewModel::onContinue,
+                    onSkip = onComplete,
+                )
+            }
+        },
     ) { padding ->
         when {
             state.isCreatingSession -> SessionLoading(padding)
@@ -165,12 +176,11 @@ fun PatientSetupScreen(
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 20.dp),
             ) {
                 StepStrip(currentStep = 3, totalSteps = 3)
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
 
                 Text(
                     text = buildAnnotatedString {
@@ -184,23 +194,23 @@ fun PatientSetupScreen(
                         ) { append("your secret key.") }
                     },
                     fontFamily = InstrumentSerif,
-                    fontSize = 28.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Normal,
-                    lineHeight = 32.sp,
+                    lineHeight = 26.sp,
                     color = Ink,
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
 
                 Text(
                     text = "This is your only ID on eSIRI Plus. No name, no phone, no trace — just this.",
                     fontFamily = Geist,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     color = Muted,
-                    lineHeight = 20.sp,
+                    lineHeight = 16.sp,
                 )
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(12.dp))
 
                 IdCard(
                     patientId = state.patientId,
@@ -215,19 +225,20 @@ fun PatientSetupScreen(
                 )
 
                 state.pdfError?.let { error ->
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(6.dp))
                     Text(
                         text = error,
-                        fontSize = 12.sp,
+                        fontFamily = Geist,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(10.dp))
 
                 SaveTip()
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(12.dp))
 
                 OptionRow(
                     icon = Icons.Outlined.Lock,
@@ -244,7 +255,7 @@ fun PatientSetupScreen(
                     onClick = onNavigateToRecoveryQuestions,
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 OptionRow(
                     icon = Icons.Outlined.Favorite,
@@ -256,76 +267,6 @@ fun PatientSetupScreen(
                     description = "Sex, age, allergies — helps doctors help you faster",
                     onClick = { healthSheetOpen = true },
                 )
-
-                Spacer(Modifier.height(20.dp))
-
-                state.saveError?.let { error ->
-                    Text(
-                        text = error,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                }
-
-                Button(
-                    onClick = viewModel::onContinue,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = TealDeep,
-                        contentColor = Color.White,
-                    ),
-                    contentPadding = PaddingValues(vertical = 15.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                    enabled = state.patientId.isNotBlank() && !state.isSaving,
-                ) {
-                    if (state.isSaving) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = Color.White,
-                        )
-                    } else {
-                        Text(
-                            text = "Continue",
-                            fontFamily = Geist,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Icon(
-                            imageVector = Icons.Outlined.ArrowForward,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = "Already saved your ID? ",
-                        fontFamily = Geist,
-                        fontSize = 12.sp,
-                        color = Muted,
-                    )
-                    Text(
-                        text = "Skip for now",
-                        fontFamily = Geist,
-                        fontSize = 12.sp,
-                        color = TealDeep,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable(enabled = !state.isSaving) {
-                            onComplete()
-                        },
-                    )
-                }
-
-                Spacer(Modifier.height(32.dp))
             }
         }
     }
@@ -335,6 +276,90 @@ fun PatientSetupScreen(
             viewModel = viewModel,
             onDismiss = { healthSheetOpen = false },
         )
+    }
+}
+
+@Composable
+private fun ContinueBottomBar(
+    isSaving: Boolean,
+    enabled: Boolean,
+    saveError: String?,
+    onContinue: () -> Unit,
+    onSkip: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TealBg)
+            .padding(horizontal = 20.dp)
+            .padding(top = 8.dp, bottom = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        saveError?.let { error ->
+            Text(
+                text = error,
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 6.dp),
+            )
+        }
+
+        Button(
+            onClick = onContinue,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(13.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = TealDeep,
+                contentColor = Color.White,
+            ),
+            contentPadding = PaddingValues(vertical = 12.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 3.dp),
+            enabled = enabled,
+        ) {
+            if (isSaving) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.White,
+                )
+            } else {
+                Text(
+                    text = "Continue",
+                    fontFamily = Geist,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Outlined.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "Already saved your ID? ",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = Muted,
+            )
+            Text(
+                text = "Skip for now",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = TealDeep,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable(enabled = !isSaving, onClick = onSkip),
+            )
+        }
     }
 }
 
@@ -420,50 +445,50 @@ private fun IdCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(18.dp))
             .background(Brush.linearGradient(listOf(CardDark1, CardDark2)))
-            .padding(22.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
         Column {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 14.dp),
+                modifier = Modifier.padding(bottom = 8.dp),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.size(13.dp),
+                    modifier = Modifier.size(12.dp),
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = "YOUR PATIENT ID",
                     fontFamily = Geist,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     color = Color.White.copy(alpha = 0.7f),
-                    letterSpacing = 1.4.sp,
+                    letterSpacing = 1.3.sp,
                 )
             }
 
             Text(
                 text = patientId.ifBlank { "—" },
                 fontFamily = Geist,
-                fontSize = 26.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp,
+                letterSpacing = 0.4.sp,
                 color = Color.White,
             )
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
 
             Text(
                 text = "Save this somewhere safe — like an ATM PIN.",
                 fontFamily = Geist,
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 color = Color.White.copy(alpha = 0.7f),
             )
 
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(12.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 IdActionButton(
@@ -495,11 +520,11 @@ private fun IdActionButton(
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(9.dp))
             .background(Color.White.copy(alpha = if (enabled) 0.16f else 0.08f))
-            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(9.dp))
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 10.dp),
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -507,13 +532,13 @@ private fun IdActionButton(
             imageVector = icon,
             contentDescription = null,
             tint = Color.White.copy(alpha = if (enabled) 1f else 0.5f),
-            modifier = Modifier.size(14.dp),
+            modifier = Modifier.size(13.dp),
         )
-        Spacer(Modifier.width(6.dp))
+        Spacer(Modifier.width(5.dp))
         Text(
             text = label,
             fontFamily = Geist,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = Color.White.copy(alpha = if (enabled) 1f else 0.5f),
         )
@@ -525,16 +550,16 @@ private fun SaveTip() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(11.dp))
             .background(WarnBg)
-            .border(1.dp, WarnBorder, RoundedCornerShape(12.dp))
-            .padding(10.dp),
+            .border(1.dp, WarnBorder, RoundedCornerShape(11.dp))
+            .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.Top,
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(28.dp)
+                .size(24.dp)
                 .clip(CircleShape)
                 .background(WarnIconBg),
         ) {
@@ -542,17 +567,17 @@ private fun SaveTip() {
                 imageVector = Icons.Outlined.Info,
                 contentDescription = null,
                 tint = WarnIconFg,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(13.dp),
             )
         }
 
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(8.dp))
 
         Column {
             Text(
                 text = "Lose this ID, lose your records",
                 fontFamily = Geist,
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = WarnTitleFg,
             )
@@ -560,9 +585,9 @@ private fun SaveTip() {
             Text(
                 text = "Set up recovery questions below — takes 1 minute, saves your access for life.",
                 fontFamily = Geist,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 color = WarnTextFg,
-                lineHeight = 16.sp,
+                lineHeight = 14.sp,
             )
         }
     }
@@ -587,36 +612,36 @@ private fun OptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .border(1.dp, Hairline, RoundedCornerShape(14.dp))
+            .border(1.dp, Hairline, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(14.dp),
+            .padding(horizontal = 11.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(32.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .size(28.dp)
+                .clip(RoundedCornerShape(7.dp))
                 .background(iconBg),
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(14.dp),
             )
         }
 
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(9.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = title,
                     fontFamily = Geist,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Ink,
                 )
@@ -626,9 +651,9 @@ private fun OptionRow(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
                         .background(tagBg)
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                        .padding(horizontal = 5.dp, vertical = 1.dp),
                     fontFamily = Geist,
-                    fontSize = 9.sp,
+                    fontSize = 8.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.4.sp,
                     color = tagFg,
@@ -638,19 +663,19 @@ private fun OptionRow(
             Text(
                 text = description,
                 fontFamily = Geist,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 color = Muted,
-                lineHeight = 15.sp,
+                lineHeight = 13.sp,
             )
         }
 
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(6.dp))
 
         Icon(
             imageVector = Icons.Outlined.ChevronRight,
             contentDescription = null,
             tint = Muted,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(16.dp),
         )
     }
 }
