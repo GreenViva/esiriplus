@@ -130,6 +130,7 @@ fun NavGraphBuilder.authGraph(
             }
             PatientSetupScreen(
                 onComplete = onPatientAuthenticated,
+                onBack = { navController.popBackStack() },
                 onNavigateToRecoveryQuestions = {
                     navController.navigate(SecurityQuestionsSetupRoute)
                 },
