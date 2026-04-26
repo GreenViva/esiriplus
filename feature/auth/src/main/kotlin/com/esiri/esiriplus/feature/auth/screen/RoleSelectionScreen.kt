@@ -2,8 +2,11 @@ package com.esiri.esiriplus.feature.auth.screen
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.StartOffsetType
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -58,10 +61,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -79,8 +81,6 @@ import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.feature.auth.R
 import com.esiri.esiriplus.feature.auth.ui.Geist
 import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
-import kotlin.math.PI
-import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 private val Teal         = Color(0xFF2DBE9E)
@@ -219,35 +219,13 @@ private fun HeadlineBlock() {
 
 @Composable
 private fun HeroCard(onClick: () -> Unit) {
-    val infinite = rememberInfiniteTransition(label = "water_waves")
-    val twoPi = (2.0 * PI).toFloat()
-    val phase1 by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = twoPi,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave_phase_1",
-    )
-    val phase2 by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = twoPi,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 5800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave_phase_2",
-    )
-    val phase3 by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = twoPi,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3400, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "wave_phase_3",
-    )
+    val infinite = rememberInfiniteTransition(label = "raindrops")
+
+    val drop1 by infinite.dropPhase(durationMillis = 2400, delayMillis = 0, label = "drop1")
+    val drop2 by infinite.dropPhase(durationMillis = 2800, delayMillis = 600, label = "drop2")
+    val drop3 by infinite.dropPhase(durationMillis = 2200, delayMillis = 1100, label = "drop3")
+    val drop4 by infinite.dropPhase(durationMillis = 3000, delayMillis = 300, label = "drop4")
+    val drop5 by infinite.dropPhase(durationMillis = 2600, delayMillis = 1500, label = "drop5")
 
     Box(
         modifier = Modifier
@@ -256,31 +234,16 @@ private fun HeroCard(onClick: () -> Unit) {
             .background(Brush.linearGradient(listOf(Teal, TealDeep)))
             .clickable(onClick = onClick),
     ) {
-        // Three sinusoidal water waves at different depths and speeds,
-        // drawn behind the content so the icon, copy, and button stay
-        // legible. Phases are negated so the crests appear to drift right.
+        // Rain-on-water: five fixed drop points across the card surface;
+        // each spawns a ring that expands outward and fades. Different
+        // durations + start offsets keep the ripples from syncing into
+        // a single pulse. Drawn behind the content so it stays legible.
         Canvas(modifier = Modifier.matchParentSize()) {
-            drawWaterWave(
-                baseYRatio = 0.30f,
-                amplitudeDp = 6f,
-                wavelengthDp = 80f,
-                phase = -phase1,
-                alpha = 0.16f,
-            )
-            drawWaterWave(
-                baseYRatio = 0.58f,
-                amplitudeDp = 9f,
-                wavelengthDp = 120f,
-                phase = -phase2,
-                alpha = 0.20f,
-            )
-            drawWaterWave(
-                baseYRatio = 0.82f,
-                amplitudeDp = 5f,
-                wavelengthDp = 70f,
-                phase = -phase3,
-                alpha = 0.13f,
-            )
+            drawRainRipple(xRatio = 0.20f, yRatio = 0.30f, phase = drop1)
+            drawRainRipple(xRatio = 0.75f, yRatio = 0.25f, phase = drop2)
+            drawRainRipple(xRatio = 0.40f, yRatio = 0.65f, phase = drop3)
+            drawRainRipple(xRatio = 0.85f, yRatio = 0.70f, phase = drop4)
+            drawRainRipple(xRatio = 0.15f, yRatio = 0.85f, phase = drop5)
         }
 
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
@@ -347,34 +310,52 @@ private fun HeroCard(onClick: () -> Unit) {
     }
 }
 
-private fun DrawScope.drawWaterWave(
-    baseYRatio: Float,
-    amplitudeDp: Float,
-    wavelengthDp: Float,
+@Composable
+private fun InfiniteTransition.dropPhase(
+    durationMillis: Int,
+    delayMillis: Int,
+    label: String,
+): androidx.compose.runtime.State<Float> = animateFloat(
+    initialValue = 0f,
+    targetValue = 1f,
+    animationSpec = infiniteRepeatable(
+        animation = tween(durationMillis = durationMillis, easing = FastOutSlowInEasing),
+        initialStartOffset = StartOffset(delayMillis, StartOffsetType.Delay),
+        repeatMode = RepeatMode.Restart,
+    ),
+    label = label,
+)
+
+private fun DrawScope.drawRainRipple(
+    xRatio: Float,
+    yRatio: Float,
     phase: Float,
-    alpha: Float,
 ) {
-    val w = size.width
-    val h = size.height
-    val baseY = h * baseYRatio
-    val amplitude = amplitudeDp.dp.toPx()
-    val wavelength = wavelengthDp.dp.toPx()
-    val step = 4f
-    val k = (2f * PI.toFloat()) / wavelength
-    val path = Path().apply {
-        moveTo(0f, baseY + amplitude * sin(phase))
-        var x = step
-        while (x <= w) {
-            val y = baseY + amplitude * sin(k * x + phase)
-            lineTo(x, y)
-            x += step
-        }
-    }
-    drawPath(
-        path = path,
+    val center = Offset(size.width * xRatio, size.height * yRatio)
+    val startRadius = 2.dp.toPx()
+    val maxRadius = 36.dp.toPx()
+    val radius = startRadius + (maxRadius - startRadius) * phase
+    val alpha = (1f - phase).coerceIn(0f, 1f) * 0.55f
+    val stroke = (1.6.dp.toPx()) * (1f - phase * 0.6f).coerceAtLeast(0.4f)
+    drawCircle(
         color = Color.White.copy(alpha = alpha),
-        style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round),
+        radius = radius,
+        center = center,
+        style = Stroke(width = stroke),
     )
+    // Inner secondary ring lagging slightly — fakes the dual-pulse you
+    // see when a real raindrop hits water.
+    val innerPhase = (phase - 0.18f).coerceIn(0f, 1f)
+    val innerRadius = startRadius + (maxRadius - startRadius) * innerPhase
+    val innerAlpha = (1f - innerPhase).coerceIn(0f, 1f) * 0.3f
+    if (innerAlpha > 0f) {
+        drawCircle(
+            color = Color.White.copy(alpha = innerAlpha),
+            radius = innerRadius,
+            center = center,
+            style = Stroke(width = stroke * 0.7f),
+        )
+    }
 }
 
 @Composable
