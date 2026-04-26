@@ -59,6 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.esiri.esiriplus.feature.auth.ui.Geist
+import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
 import kotlinx.coroutines.delay
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -83,8 +85,8 @@ private object SplashColors {
  *  Falls back to the system serif/sans until the design fonts (Instrument
  *  Serif, Geist) are added under res/font and wired up here.
  * ────────────────────────────────────────────────────────────────────────── */
-private val EditorialSerif: FontFamily = FontFamily.Serif
-private val EditorialSans:  FontFamily = FontFamily.SansSerif
+private val EditorialSerif: FontFamily = InstrumentSerif
+private val EditorialSans:  FontFamily = Geist
 
 /* ──────────────────────────────────────────────────────────────────────────
  *  Entry point

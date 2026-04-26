@@ -69,6 +69,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.feature.auth.R
+import com.esiri.esiriplus.feature.auth.ui.Geist
+import com.esiri.esiriplus.feature.auth.ui.InstrumentSerif
 import kotlinx.coroutines.launch
 
 private val Teal         = Color(0xFF2DBE9E)
@@ -170,6 +172,7 @@ private fun WelcomeTopBar() {
                         ) { append("SIRI") }
                         append(" Plus")
                     },
+                    fontFamily = Geist,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Ink,
@@ -193,10 +196,15 @@ private fun HeadlineBlock() {
     Text(
         text = buildAnnotatedString {
             append("Need a doctor?\n")
-            withStyle(SpanStyle(color = TealDeep, fontStyle = FontStyle.Italic)) {
-                append("We're here.")
-            }
+            withStyle(
+                SpanStyle(
+                    color = TealDeep,
+                    fontStyle = FontStyle.Italic,
+                    fontFamily = InstrumentSerif,
+                ),
+            ) { append("We're here.") }
         },
+        fontFamily = InstrumentSerif,
         fontSize = 36.sp,
         fontWeight = FontWeight.Normal,
         lineHeight = 40.sp,
@@ -205,6 +213,7 @@ private fun HeadlineBlock() {
     Spacer(Modifier.height(10.dp))
     Text(
         text = stringResource(R.string.role_hero_subtitle),
+        fontFamily = Geist,
         fontSize = 14.sp,
         color = Muted,
         lineHeight = 22.sp,
@@ -241,6 +250,7 @@ private fun HeroCard(onClick: () -> Unit) {
 
             Text(
                 text = stringResource(R.string.role_hero_card_title),
+                fontFamily = InstrumentSerif,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Normal,
                 fontStyle = FontStyle.Italic,
@@ -250,6 +260,7 @@ private fun HeroCard(onClick: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Text(
                 text = stringResource(R.string.role_hero_card_subtitle),
+                fontFamily = Geist,
                 fontSize = 13.sp,
                 color = Color.White.copy(alpha = 0.9f),
                 lineHeight = 20.sp,
@@ -268,6 +279,7 @@ private fun HeroCard(onClick: () -> Unit) {
             ) {
                 Text(
                     text = stringResource(R.string.role_continue_as_patient),
+                    fontFamily = Geist,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -330,6 +342,7 @@ private fun TrustItem(icon: ImageVector, label: String, sub: String) {
         Spacer(Modifier.height(8.dp))
         Text(
             text = label,
+            fontFamily = Geist,
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
             color = Ink,
@@ -337,6 +350,7 @@ private fun TrustItem(icon: ImageVector, label: String, sub: String) {
         )
         Text(
             text = sub,
+            fontFamily = Geist,
             fontSize = 10.sp,
             color = Muted,
             textAlign = TextAlign.Center,
@@ -355,6 +369,7 @@ private fun SectionDivider(text: String) {
         Text(
             text = text,
             modifier = Modifier.padding(horizontal = 12.dp),
+            fontFamily = Geist,
             fontSize = 11.sp,
             color = Muted,
             fontWeight = FontWeight.Medium,
@@ -424,9 +439,9 @@ private fun AltCard(
             )
         }
         Spacer(Modifier.height(10.dp))
-        Text(title, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Ink)
+        Text(title, fontFamily = Geist, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Ink)
         Spacer(Modifier.height(1.dp))
-        Text(subtitle, fontSize = 11.sp, color = Muted)
+        Text(subtitle, fontFamily = Geist, fontSize = 11.sp, color = Muted)
     }
 }
 
@@ -439,11 +454,13 @@ private fun HelpFooter(onClick: () -> Unit) {
     ) {
         Text(
             text = stringResource(R.string.role_need_help) + " ",
+            fontFamily = Geist,
             fontSize = 11.sp,
             color = Muted,
         )
         Text(
             text = stringResource(R.string.role_help_phone),
+            fontFamily = Geist,
             fontSize = 11.sp,
             color = TealDeep,
             fontWeight = FontWeight.SemiBold,
