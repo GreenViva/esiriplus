@@ -150,7 +150,7 @@ private fun WelcomeTopBar() {
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(R.drawable.ic_splash_logo),
+                    painter = painterResource(R.drawable.ic_stethoscope),
                     contentDescription = "eSIRI Plus logo",
                     modifier = Modifier
                         .size(34.dp)
