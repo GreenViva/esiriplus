@@ -119,9 +119,14 @@ fun RoleSelectionScreen(
             )
             Spacer(Modifier.weight(1f))
             HelpFooter(
-                onClick = {
+                onPhoneClick = {
                     context.startActivity(
                         Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
+                    )
+                },
+                onEmailClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:info@esiri.africa")),
                     )
                 },
             )
@@ -443,25 +448,38 @@ private fun AltCard(
 }
 
 @Composable
-private fun HelpFooter(onClick: () -> Unit) {
-    Row(
+private fun HelpFooter(
+    onPhoneClick: () -> Unit,
+    onEmailClick: () -> Unit,
+) {
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.role_need_help) + " ",
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = Muted,
+            )
+            Text(
+                text = stringResource(R.string.role_help_phone),
+                fontFamily = Geist,
+                fontSize = 11.sp,
+                color = TealDeep,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.clickable(onClick = onPhoneClick),
+            )
+        }
+        Spacer(Modifier.height(2.dp))
         Text(
-            text = stringResource(R.string.role_need_help) + " ",
-            fontFamily = Geist,
-            fontSize = 11.sp,
-            color = Muted,
-        )
-        Text(
-            text = stringResource(R.string.role_help_phone),
+            text = stringResource(R.string.role_help_email),
             fontFamily = Geist,
             fontSize = 11.sp,
             color = TealDeep,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.clickable(onClick = onClick),
+            modifier = Modifier.clickable(onClick = onEmailClick),
         )
     }
 }
