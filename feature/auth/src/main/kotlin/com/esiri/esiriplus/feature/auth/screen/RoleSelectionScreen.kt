@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.AttachMoney
@@ -106,21 +104,20 @@ fun RoleSelectionScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 20.dp),
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
             HeadlineBlock()
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(12.dp))
             HeroCard(onClick = { patientSheetOpen = true })
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(14.dp))
             TrustRow()
             SectionDivider(stringResource(R.string.role_not_a_patient_lc))
             AlternateRoleRow(
                 onDoctorClick = onDoctorSelected,
                 onAgentClick = onAgentSelected,
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.weight(1f))
             HelpFooter(
                 onClick = {
                     context.startActivity(
@@ -128,7 +125,7 @@ fun RoleSelectionScreen(
                     )
                 },
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -205,18 +202,18 @@ private fun HeadlineBlock() {
             ) { append("We're here.") }
         },
         fontFamily = InstrumentSerif,
-        fontSize = 36.sp,
+        fontSize = 28.sp,
         fontWeight = FontWeight.Normal,
-        lineHeight = 40.sp,
+        lineHeight = 32.sp,
         color = Ink,
     )
-    Spacer(Modifier.height(10.dp))
+    Spacer(Modifier.height(6.dp))
     Text(
         text = stringResource(R.string.role_hero_subtitle),
         fontFamily = Geist,
-        fontSize = 14.sp,
+        fontSize = 13.sp,
         color = Muted,
-        lineHeight = 22.sp,
+        lineHeight = 18.sp,
     )
 }
 
@@ -225,69 +222,69 @@ private fun HeroCard(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(Brush.linearGradient(listOf(Teal, TealDeep)))
             .clickable(onClick = onClick)
-            .padding(24.dp),
+            .padding(horizontal = 18.dp, vertical = 16.dp),
     ) {
         Column {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(Color.White.copy(alpha = 0.18f)),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ChatBubbleOutline,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(20.dp),
                 )
             }
 
-            Spacer(Modifier.height(60.dp))
+            Spacer(Modifier.height(20.dp))
 
             Text(
                 text = stringResource(R.string.role_hero_card_title),
                 fontFamily = InstrumentSerif,
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Normal,
                 fontStyle = FontStyle.Italic,
                 color = Color.White,
-                lineHeight = 28.sp,
+                lineHeight = 24.sp,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.role_hero_card_subtitle),
                 fontFamily = Geist,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 color = Color.White.copy(alpha = 0.9f),
-                lineHeight = 20.sp,
+                lineHeight = 16.sp,
             )
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(12.dp))
 
             Button(
                 onClick = onClick,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = TealDeep,
                 ),
-                contentPadding = PaddingValues(vertical = 15.dp),
+                contentPadding = PaddingValues(vertical = 11.dp),
             ) {
                 Text(
                     text = stringResource(R.string.role_continue_as_patient),
                     fontFamily = Geist,
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.Outlined.ArrowForward,
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(16.dp),
                 )
             }
         }
@@ -316,7 +313,7 @@ private fun TrustRow() {
             sub = stringResource(R.string.role_trust_real_subtitle),
         )
     }
-    Spacer(Modifier.height(24.dp))
+    Spacer(Modifier.height(14.dp))
 }
 
 @Composable
@@ -328,7 +325,7 @@ private fun TrustItem(icon: ImageVector, label: String, sub: String) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(36.dp)
+                .size(32.dp)
                 .clip(CircleShape)
                 .background(TealSoft),
         ) {
@@ -336,10 +333,10 @@ private fun TrustItem(icon: ImageVector, label: String, sub: String) {
                 imageVector = icon,
                 contentDescription = null,
                 tint = TealDeep,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(16.dp),
             )
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = label,
             fontFamily = Geist,
@@ -354,7 +351,7 @@ private fun TrustItem(icon: ImageVector, label: String, sub: String) {
             fontSize = 10.sp,
             color = Muted,
             textAlign = TextAlign.Center,
-            lineHeight = 14.sp,
+            lineHeight = 13.sp,
         )
     }
 }
@@ -376,7 +373,7 @@ private fun SectionDivider(text: String) {
         )
         HorizontalDivider(modifier = Modifier.weight(1f), color = Hairline)
     }
-    Spacer(Modifier.height(14.dp))
+    Spacer(Modifier.height(10.dp))
 }
 
 @Composable
@@ -418,27 +415,27 @@ private fun AltCard(
 ) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .border(1.dp, Hairline, RoundedCornerShape(14.dp))
+            .border(1.dp, Hairline, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(14.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(30.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .size(28.dp)
+                .clip(RoundedCornerShape(7.dp))
                 .background(iconBg),
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(15.dp),
             )
         }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
         Text(title, fontFamily = Geist, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Ink)
         Spacer(Modifier.height(1.dp))
         Text(subtitle, fontFamily = Geist, fontSize = 11.sp, color = Muted)
