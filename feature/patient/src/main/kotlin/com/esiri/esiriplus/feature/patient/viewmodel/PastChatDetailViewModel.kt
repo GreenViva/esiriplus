@@ -1,5 +1,6 @@
 package com.esiri.esiriplus.feature.patient.viewmodel
 
+import android.app.Application
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import com.esiri.esiriplus.core.database.dao.ConsultationDao
 import com.esiri.esiriplus.core.database.dao.DoctorProfileDao
 import com.esiri.esiriplus.core.database.dao.MessageDao
 import com.esiri.esiriplus.core.database.entity.MessageEntity
+import com.esiri.esiriplus.feature.patient.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +30,7 @@ data class PastChatDetailUiState(
 
 @HiltViewModel
 class PastChatDetailViewModel @Inject constructor(
+    private val application: Application,
     savedStateHandle: SavedStateHandle,
     private val consultationDao: ConsultationDao,
     private val doctorProfileDao: DoctorProfileDao,
@@ -46,13 +49,18 @@ class PastChatDetailViewModel @Inject constructor(
         headerTrigger.flatMapLatest {
             kotlinx.coroutines.flow.flow {
                 val consultation = consultationDao.getById(consultationId)
+                val fallback = application.getString(R.string.past_chats_default_doctor)
                 val doctorName = consultation?.doctorId
                     ?.takeIf { it.isNotBlank() }
                     ?.let { doctorProfileDao.getById(it)?.fullName }
-                    ?: "Doctor"
+                    ?: fallback
                 val isFollowUp = consultation?.parentConsultationId != null ||
                     consultation?.serviceType.equals("FOLLOW_UP", ignoreCase = true)
-                val title = if (isFollowUp) "Follow-up with $doctorName" else "Chat with $doctorName"
+                val title = if (isFollowUp) {
+                    application.getString(R.string.past_chats_followup_with, doctorName)
+                } else {
+                    application.getString(R.string.past_chats_chat_with, doctorName)
+                }
                 emit(title to isFollowUp)
             }
         },

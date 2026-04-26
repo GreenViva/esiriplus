@@ -91,16 +91,19 @@ class ConsultationHistoryViewModel @Inject constructor(
             initialValue = ConsultationHistoryUiState(),
         )
 
-    private suspend fun List<Consultation>.toItems(): List<PastChatItem> = map { c ->
-        val name = c.doctorId
-            ?.takeIf { it.isNotBlank() }
-            ?.let { doctorProfileDao.getById(it)?.fullName }
-            ?: "Doctor"
-        PastChatItem(
-            consultation = c,
-            doctorName = name,
-            isFollowUp = c.serviceType == ServiceType.FOLLOW_UP,
-        )
+    private suspend fun List<Consultation>.toItems(): List<PastChatItem> {
+        val fallback = application.getString(R.string.past_chats_default_doctor)
+        return map { c ->
+            val name = c.doctorId
+                ?.takeIf { it.isNotBlank() }
+                ?.let { doctorProfileDao.getById(it)?.fullName }
+                ?: fallback
+            PastChatItem(
+                consultation = c,
+                doctorName = name,
+                isFollowUp = c.serviceType == ServiceType.FOLLOW_UP,
+            )
+        }
     }
 
     fun refresh() {

@@ -317,4 +317,42 @@
     <string name="error_recovery_failed">Recovery failed. Please try again.</string>
     <string name="error_patient_id_not_found">Patient ID not found. Please check your ID and try again.</string>
     <string name="error_pdf_generate_failed">Failed to generate PDF</string>
+
+    <!-- ===== v1.3 patient setup step 3 ===== -->
+    <string name="setup_step_label">Last step</string>
+    <string name="setup_headline_prefix">"You\'re in. Here\'s "</string>
+    <string name="setup_headline_accent">your secret key.</string>
+    <string name="setup_headline_subtitle">This is your only ID on eSIRI Plus. No name, no phone, no trace — just this.</string>
+
+    <!-- ID card -->
+    <string name="setup_id_label">YOUR PATIENT ID</string>
+    <string name="setup_id_placeholder">—</string>
+    <string name="setup_id_hint">Save this somewhere safe — like an ATM PIN.</string>
+    <string name="setup_id_copy">Copy</string>
+    <string name="setup_id_copied">Copied!</string>
+    <string name="setup_id_save">Save card</string>
+    <string name="setup_id_saving">Saving…</string>
+
+    <!-- Save warning tip -->
+    <string name="setup_tip_title">Lose this ID, lose your records</string>
+    <string name="setup_tip_body">Set up recovery questions below — takes 1 minute, saves your access for life.</string>
+
+    <!-- Option rows -->
+    <string name="setup_option_recovery_title">Recovery Questions</string>
+    <string name="setup_option_recovery_recommended">Recommended</string>
+    <string name="setup_option_recovery_done">Done</string>
+    <string name="setup_option_recovery_pending">Get back into your account if you lose your ID</string>
+    <string name="setup_option_recovery_completed">Set — you can recover your account if you lose your ID</string>
+    <string name="setup_option_health_title">Health Profile</string>
+    <string name="setup_option_health_optional">Optional</string>
+    <string name="setup_option_health_subtitle">Sex, age, allergies — helps doctors help you faster</string>
+
+    <!-- Bottom actions -->
+    <string name="setup_continue">Continue</string>
+    <string name="setup_skip_prefix">"Already saved your ID? "</string>
+    <string name="setup_skip_action">Skip for now</string>
+
+    <!-- Health profile sheet -->
+    <string name="setup_health_sheet_done">Done</string>
+
 </resources>

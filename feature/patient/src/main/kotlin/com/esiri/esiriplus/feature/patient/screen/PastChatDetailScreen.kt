@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +50,7 @@ import com.esiri.esiriplus.core.ui.theme.Muted
 import com.esiri.esiriplus.core.ui.theme.TealBg
 import com.esiri.esiriplus.core.ui.theme.TealDeep
 import com.esiri.esiriplus.core.ui.theme.TealSoft
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.PastChatDetailViewModel
 import java.time.Instant
 import java.time.ZoneId
@@ -104,7 +106,7 @@ private fun DetailTopBar(title: String, onBack: () -> Unit) {
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.common_back),
                         tint = Ink,
                         modifier = Modifier.size(18.dp),
                     )
@@ -121,7 +123,7 @@ private fun DetailTopBar(title: String, onBack: () -> Unit) {
                     color = Ink,
                 )
                 Text(
-                    text = "Read-only · expires after 14 days",
+                    text = stringResource(R.string.past_chat_detail_subtitle),
                     fontFamily = Geist,
                     fontSize = 10.sp,
                     color = Muted,
@@ -262,14 +264,14 @@ private fun EmptyMessages(padding: PaddingValues) {
             }
             Spacer(Modifier.height(14.dp))
             Text(
-                text = "Nothing here",
+                text = stringResource(R.string.past_chat_detail_empty_title),
                 fontFamily = InstrumentSerif,
                 fontSize = 18.sp,
                 color = Ink,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "This chat may have already expired or never had any messages.",
+                text = stringResource(R.string.past_chat_detail_empty_body),
                 fontFamily = Geist,
                 fontSize = 12.sp,
                 color = Muted,

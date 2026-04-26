@@ -259,4 +259,36 @@
     <string name="error_recovery_failed">Kupata tena kumeshindikana. Tafadhali jaribu tena.</string>
     <string name="error_patient_id_not_found">Kitambulisho cha Mgonjwa hakijapatikana. Tafadhali angalia kitambulisho chako na ujaribu tena.</string>
     <string name="error_pdf_generate_failed">Imeshindwa kuunda PDF</string>
+
+    <!-- ===== v1.3 patient setup step 3 (Kiswahili) ===== -->
+    <string name="setup_step_label">Hatua ya mwisho</string>
+    <string name="setup_headline_prefix">"Umeingia. Hiki ndicho "</string>
+    <string name="setup_headline_accent">funguo lako la siri.</string>
+    <string name="setup_headline_subtitle">Hiki ndicho kitambulisho chako pekee kwenye eSIRI Plus. Hakuna jina, hakuna simu, hakuna ufuatiliaji — ni hiki tu.</string>
+
+    <string name="setup_id_label">KITAMBULISHO CHAKO CHA MGONJWA</string>
+    <string name="setup_id_placeholder">—</string>
+    <string name="setup_id_hint">Ihifadhi mahali salama — kama PIN ya ATM.</string>
+    <string name="setup_id_copy">Nakili</string>
+    <string name="setup_id_copied">Imenakiliwa!</string>
+    <string name="setup_id_save">Hifadhi kadi</string>
+    <string name="setup_id_saving">Inahifadhi…</string>
+
+    <string name="setup_tip_title">Ukipoteza kitambulisho hiki, unapoteza rekodi zako</string>
+    <string name="setup_tip_body">Weka maswali ya uokoaji hapa chini — inachukua dakika 1, hulinda ufikiaji wako maishani.</string>
+
+    <string name="setup_option_recovery_title">Maswali ya Uokoaji</string>
+    <string name="setup_option_recovery_recommended">Inapendekezwa</string>
+    <string name="setup_option_recovery_done">Imekamilika</string>
+    <string name="setup_option_recovery_pending">Rudisha akaunti yako ukipoteza kitambulisho chako</string>
+    <string name="setup_option_recovery_completed">Imewekwa — unaweza kupata akaunti yako tena ukipoteza kitambulisho</string>
+    <string name="setup_option_health_title">Wasifu wa Kiafya</string>
+    <string name="setup_option_health_optional">Si lazima</string>
+    <string name="setup_option_health_subtitle">Jinsia, umri, mzio — huwasaidia madaktari kukusaidia kwa haraka</string>
+
+    <string name="setup_continue">Endelea</string>
+    <string name="setup_skip_prefix">"Umeshahifadhi kitambulisho chako? "</string>
+    <string name="setup_skip_action">Ruka kwa sasa</string>
+
+    <string name="setup_health_sheet_done">Imekamilika</string>
 </resources>

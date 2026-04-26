@@ -184,40 +184,45 @@ fun PatientHomeScreen(
 
     val pullRefreshState = rememberPullToRefreshState()
 
+    val ctx = LocalContext.current
     val quickCards = remember(uiState.hasUnreadReports) {
         listOf(
             QuickCard(
                 icon = Icons.Outlined.ChatBubbleOutline,
-                title = "Past chats",
-                subtitle = "View history",
+                title = ctx.getString(R.string.home_card_past_chats),
+                subtitle = ctx.getString(R.string.home_card_past_chats_subtitle),
                 showBadge = false,
                 onClick = onNavigateToConsultationHistory,
             ),
             QuickCard(
                 icon = Icons.Outlined.Description,
-                title = "Reports",
-                subtitle = if (uiState.hasUnreadReports) "New report ready" else "Tap to view",
+                title = ctx.getString(R.string.home_card_reports),
+                subtitle = if (uiState.hasUnreadReports) {
+                    ctx.getString(R.string.home_card_reports_unread)
+                } else {
+                    ctx.getString(R.string.home_card_reports_subtitle)
+                },
                 showBadge = uiState.hasUnreadReports,
                 onClick = handleNavigateToReports,
             ),
             QuickCard(
                 icon = Icons.Outlined.CalendarMonth,
-                title = "Appointments",
-                subtitle = "View upcoming",
+                title = ctx.getString(R.string.home_card_appointments),
+                subtitle = ctx.getString(R.string.home_card_appointments_subtitle),
                 showBadge = false,
                 onClick = onNavigateToAppointments,
             ),
             QuickCard(
                 icon = Icons.Outlined.FavoriteBorder,
-                title = "My health",
-                subtitle = "Edit profile",
+                title = ctx.getString(R.string.home_card_my_health),
+                subtitle = ctx.getString(R.string.home_card_my_health_subtitle),
                 showBadge = false,
                 onClick = onNavigateToProfile,
             ),
         )
     }
 
-    val context = LocalContext.current
+    val context = ctx
 
     Scaffold(
         modifier = modifier,
@@ -270,7 +275,7 @@ fun PatientHomeScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "YOUR RECORDS",
+                    text = stringResource(R.string.home_records_label),
                     fontFamily = Geist,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -296,10 +301,7 @@ private fun HomeTopBar(
         title = {
             Column {
                 Text(
-                    text = buildAnnotatedString {
-                        append("Hi there ")
-                        append("👋")
-                    },
+                    text = stringResource(R.string.home_greeting),
                     fontFamily = InstrumentSerif,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
@@ -307,7 +309,7 @@ private fun HomeTopBar(
                 )
                 Text(
                     text = buildAnnotatedString {
-                        append("ID: ")
+                        append(stringResource(R.string.home_id_prefix))
                         withStyle(
                             SpanStyle(color = TealDeep, fontWeight = FontWeight.SemiBold),
                         ) { append(maskedId.ifBlank { "—" }) }
@@ -331,7 +333,7 @@ private fun HomeTopBar(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Settings,
-                        contentDescription = "Settings",
+                        contentDescription = stringResource(R.string.home_settings),
                         tint = InkSoft,
                         modifier = Modifier.size(18.dp),
                     )
@@ -359,7 +361,7 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
 
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(
-                text = "READY WHEN YOU ARE",
+                text = stringResource(R.string.home_hero_eyebrow),
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
@@ -371,8 +373,11 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
 
             Text(
                 text = buildAnnotatedString {
-                    append("Talk to a doctor\n")
-                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append("now.") }
+                    append(stringResource(R.string.home_hero_headline_main))
+                    append("\n")
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                        append(stringResource(R.string.home_hero_headline_accent))
+                    }
                 },
                 fontFamily = InstrumentSerif,
                 fontSize = 22.sp,
@@ -384,7 +389,7 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
             Spacer(Modifier.height(2.dp))
 
             Text(
-                text = "Choose a service · pay · get connected. Usually under 5 minutes.",
+                text = stringResource(R.string.home_hero_subtitle),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = Color.White.copy(alpha = 0.85f),
@@ -444,7 +449,7 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Start consultation",
+                    text = stringResource(R.string.home_hero_cta),
                     fontFamily = Geist,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -520,7 +525,7 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Pending",
+                    text = stringResource(R.string.home_pending_title),
                     fontFamily = Geist,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -545,9 +550,9 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
             }
             Text(
                 text = when {
-                    count <= 0 -> "Nothing waiting on you right now"
-                    count == 1 -> "1 consultation needs follow-up"
-                    else -> "$count consultations need follow-up"
+                    count <= 0 -> stringResource(R.string.home_pending_empty)
+                    count == 1 -> stringResource(R.string.home_pending_one)
+                    else -> stringResource(R.string.home_pending_many, count)
                 },
                 fontFamily = Geist,
                 fontSize = 9.sp,
@@ -570,7 +575,7 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Resume",
+                text = stringResource(R.string.home_pending_resume),
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -685,7 +690,7 @@ private fun SettingsSheet(
                 .padding(bottom = 24.dp),
         ) {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 fontFamily = InstrumentSerif,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Normal,
@@ -722,14 +727,18 @@ private fun SettingsSheet(
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Sounds",
+                        text = stringResource(R.string.settings_sounds),
                         fontFamily = Geist,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Ink,
                     )
                     Text(
-                        text = if (soundsEnabled) "Notification sounds on" else "Silent mode",
+                        text = if (soundsEnabled) {
+                            stringResource(R.string.settings_sounds_on)
+                        } else {
+                            stringResource(R.string.settings_sounds_off)
+                        },
                         fontFamily = Geist,
                         fontSize = 11.sp,
                         color = Muted,
@@ -788,7 +797,7 @@ private fun SettingsSheet(
                 }
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "Log out",
+                    text = stringResource(R.string.settings_logout),
                     fontFamily = Geist,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -820,13 +829,13 @@ private fun HelpFooter(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Need help? ",
+                text = stringResource(R.string.home_help_need),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = Muted,
             )
             Text(
-                text = "+255 663 582 994",
+                text = stringResource(R.string.home_help_phone),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = TealDeep,
@@ -836,7 +845,7 @@ private fun HelpFooter(
         }
         Spacer(Modifier.height(2.dp))
         Text(
-            text = "info@esiri.africa",
+            text = stringResource(R.string.home_help_email),
             fontFamily = Geist,
             fontSize = 11.sp,
             color = TealDeep,

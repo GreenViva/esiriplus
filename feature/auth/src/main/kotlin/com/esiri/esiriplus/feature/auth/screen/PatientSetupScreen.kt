@@ -185,14 +185,14 @@ fun PatientSetupScreen(
 
                 Text(
                     text = buildAnnotatedString {
-                        append("You're in. Here's ")
+                        append(stringResource(R.string.setup_headline_prefix))
                         withStyle(
                             SpanStyle(
                                 color = TealDeep,
                                 fontStyle = FontStyle.Italic,
                                 fontFamily = InstrumentSerif,
                             ),
-                        ) { append("your secret key.") }
+                        ) { append(stringResource(R.string.setup_headline_accent)) }
                     },
                     fontFamily = InstrumentSerif,
                     fontSize = 22.sp,
@@ -204,7 +204,7 @@ fun PatientSetupScreen(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = "This is your only ID on eSIRI Plus. No name, no phone, no trace — just this.",
+                    text = stringResource(R.string.setup_headline_subtitle),
                     fontFamily = Geist,
                     fontSize = 12.sp,
                     color = Muted,
@@ -245,13 +245,17 @@ fun PatientSetupScreen(
                     icon = Icons.Outlined.Lock,
                     iconBg = TealSoft,
                     iconTint = TealDeep,
-                    title = "Recovery Questions",
-                    tag = if (state.recoveryQuestionsCompleted) "Done" else "Recommended",
+                    title = stringResource(R.string.setup_option_recovery_title),
+                    tag = if (state.recoveryQuestionsCompleted) {
+                        stringResource(R.string.setup_option_recovery_done)
+                    } else {
+                        stringResource(R.string.setup_option_recovery_recommended)
+                    },
                     tagStyle = OptionTagStyle.Teal,
                     description = if (state.recoveryQuestionsCompleted) {
-                        "Set — you can recover your account if you lose your ID"
+                        stringResource(R.string.setup_option_recovery_completed)
                     } else {
-                        "Get back into your account if you lose your ID"
+                        stringResource(R.string.setup_option_recovery_pending)
                     },
                     onClick = onNavigateToRecoveryQuestions,
                 )
@@ -262,10 +266,10 @@ fun PatientSetupScreen(
                     icon = Icons.Outlined.Favorite,
                     iconBg = HeartBg,
                     iconTint = HeartFg,
-                    title = "Health Profile",
-                    tag = "Optional",
+                    title = stringResource(R.string.setup_option_health_title),
+                    tag = stringResource(R.string.setup_option_health_optional),
                     tagStyle = OptionTagStyle.Neutral,
-                    description = "Sex, age, allergies — helps doctors help you faster",
+                    description = stringResource(R.string.setup_option_health_subtitle),
                     onClick = { healthSheetOpen = true },
                 )
             }
@@ -326,7 +330,7 @@ private fun ContinueBottomBar(
                 )
             } else {
                 Text(
-                    text = "Continue",
+                    text = stringResource(R.string.setup_continue),
                     fontFamily = Geist,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -347,13 +351,13 @@ private fun ContinueBottomBar(
             horizontalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Already saved your ID? ",
+                text = stringResource(R.string.setup_skip_prefix),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = Muted,
             )
             Text(
-                text = "Skip for now",
+                text = stringResource(R.string.setup_skip_action),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = TealDeep,
@@ -415,7 +419,7 @@ private fun StepStrip(currentStep: Int, totalSteps: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = "Last step",
+            text = stringResource(R.string.setup_step_label),
             fontFamily = Geist,
             fontSize = 12.sp,
             color = Muted,
@@ -463,7 +467,7 @@ private fun IdCard(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "YOUR PATIENT ID",
+                    text = stringResource(R.string.setup_id_label),
                     fontFamily = Geist,
                     fontSize = 10.sp,
                     color = Color.White.copy(alpha = 0.7f),
@@ -472,7 +476,7 @@ private fun IdCard(
             }
 
             Text(
-                text = patientId.ifBlank { "—" },
+                text = patientId.ifBlank { stringResource(R.string.setup_id_placeholder) },
                 fontFamily = Geist,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
@@ -483,7 +487,7 @@ private fun IdCard(
             Spacer(Modifier.height(2.dp))
 
             Text(
-                text = "Save this somewhere safe — like an ATM PIN.",
+                text = stringResource(R.string.setup_id_hint),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = Color.White.copy(alpha = 0.7f),
@@ -495,14 +499,22 @@ private fun IdCard(
                 IdActionButton(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Outlined.ContentCopy,
-                    label = if (copied) "Copied!" else "Copy",
+                    label = if (copied) {
+                        stringResource(R.string.setup_id_copied)
+                    } else {
+                        stringResource(R.string.setup_id_copy)
+                    },
                     onClick = onCopy,
                     enabled = patientId.isNotBlank(),
                 )
                 IdActionButton(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Outlined.Download,
-                    label = if (isSaving) "Saving…" else "Save card",
+                    label = if (isSaving) {
+                        stringResource(R.string.setup_id_saving)
+                    } else {
+                        stringResource(R.string.setup_id_save)
+                    },
                     onClick = onSave,
                     enabled = canSave && !isSaving,
                 )
@@ -576,7 +588,7 @@ private fun SaveTip() {
 
         Column {
             Text(
-                text = "Lose this ID, lose your records",
+                text = stringResource(R.string.setup_tip_title),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -584,7 +596,7 @@ private fun SaveTip() {
             )
             Spacer(Modifier.height(1.dp))
             Text(
-                text = "Set up recovery questions below — takes 1 minute, saves your access for life.",
+                text = stringResource(R.string.setup_tip_body),
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 color = WarnTextFg,
@@ -752,7 +764,7 @@ private fun HealthProfileSheet(
                 .padding(bottom = 24.dp),
         ) {
             Text(
-                text = "Health Profile",
+                text = stringResource(R.string.setup_option_health_title),
                 fontFamily = InstrumentSerif,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Normal,
@@ -791,7 +803,7 @@ private fun HealthProfileSheet(
                 contentPadding = PaddingValues(vertical = 13.dp),
             ) {
                 Text(
-                    text = "Done",
+                    text = stringResource(R.string.setup_health_sheet_done),
                     fontFamily = Geist,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,

@@ -466,4 +466,62 @@
     <string name="med_schedule_ended">Ended</string>
     <string name="med_schedule_date_range">%1$s to %2$s (%3$d days)</string>
 
+    <!-- ===== v1.3 patient home redesign ===== -->
+    <string name="common_back">Back</string>
+    <string name="home_greeting">Hi there 👋</string>
+    <string name="home_id_prefix">"ID: "</string>
+    <string name="home_settings">Settings</string>
+
+    <!-- Hero card -->
+    <string name="home_hero_eyebrow">READY WHEN YOU ARE</string>
+    <string name="home_hero_headline_main">Talk to a doctor</string>
+    <string name="home_hero_headline_accent">now.</string>
+    <string name="home_hero_subtitle">Choose a service · pay · get connected. Usually under 5 minutes.</string>
+    <string name="home_hero_cta">Start consultation</string>
+
+    <!-- Pending badge -->
+    <string name="home_pending_title">Pending</string>
+    <string name="home_pending_resume">Resume</string>
+    <string name="home_pending_empty">Nothing waiting on you right now</string>
+    <string name="home_pending_one">1 consultation needs follow-up</string>
+    <string name="home_pending_many">%1$d consultations need follow-up</string>
+
+    <!-- Quick cards -->
+    <string name="home_records_label">YOUR RECORDS</string>
+    <string name="home_card_past_chats">Past chats</string>
+    <string name="home_card_past_chats_subtitle">View history</string>
+    <string name="home_card_reports">Reports</string>
+    <string name="home_card_reports_subtitle">Tap to view</string>
+    <string name="home_card_reports_unread">New report ready</string>
+    <string name="home_card_appointments">Appointments</string>
+    <string name="home_card_appointments_subtitle">View upcoming</string>
+    <string name="home_card_my_health">My health</string>
+    <string name="home_card_my_health_subtitle">Edit profile</string>
+
+    <!-- Help footer -->
+    <string name="home_help_need">"Need help? "</string>
+    <string name="home_help_phone">+255 663 582 994</string>
+    <string name="home_help_email">info\@esiri.africa</string>
+
+    <!-- Settings sheet -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_sounds">Sounds</string>
+    <string name="settings_sounds_on">Notification sounds on</string>
+    <string name="settings_sounds_off">Silent mode</string>
+    <string name="settings_logout">Log out</string>
+
+    <!-- Past chats list -->
+    <string name="past_chats_title">Past chats</string>
+    <string name="past_chats_subtitle">Kept for 14 days</string>
+    <string name="past_chats_empty_title">No chats yet</string>
+    <string name="past_chats_empty_body">Once you talk to a doctor, the chat lands here for 14 days.</string>
+    <string name="past_chats_chat_with">Chat with %1$s</string>
+    <string name="past_chats_followup_with">Follow-up with %1$s</string>
+    <string name="past_chats_default_doctor">Doctor</string>
+
+    <!-- Past chat detail -->
+    <string name="past_chat_detail_subtitle">Read-only · expires after 14 days</string>
+    <string name="past_chat_detail_empty_title">Nothing here</string>
+    <string name="past_chat_detail_empty_body">This chat may have already expired or never had any messages.</string>
+
 </resources>

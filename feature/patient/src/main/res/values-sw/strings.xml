@@ -419,4 +419,55 @@
     <string name="med_schedule_ended">Imeisha</string>
     <string name="med_schedule_date_range">%1$s hadi %2$s (siku %3$d)</string>
 
+    <!-- ===== v1.3 patient home redesign (Kiswahili) ===== -->
+    <string name="common_back">Rudi</string>
+    <string name="home_greeting">Habari 👋</string>
+    <string name="home_id_prefix">"Kitambulisho: "</string>
+    <string name="home_settings">Mipangilio</string>
+
+    <string name="home_hero_eyebrow">TAYARI WAKATI WOWOTE</string>
+    <string name="home_hero_headline_main">Zungumza na daktari</string>
+    <string name="home_hero_headline_accent">sasa.</string>
+    <string name="home_hero_subtitle">Chagua huduma · lipa · unganishwa. Kawaida chini ya dakika 5.</string>
+    <string name="home_hero_cta">Anza ushauri</string>
+
+    <string name="home_pending_title">Inasubiri</string>
+    <string name="home_pending_resume">Endelea</string>
+    <string name="home_pending_empty">Hakuna kinachokusubiri sasa hivi</string>
+    <string name="home_pending_one">Ushauri 1 unahitaji ufuatiliaji</string>
+    <string name="home_pending_many">Mashauri %1$d yanahitaji ufuatiliaji</string>
+
+    <string name="home_records_label">REKODI ZAKO</string>
+    <string name="home_card_past_chats">Mazungumzo</string>
+    <string name="home_card_past_chats_subtitle">Tazama historia</string>
+    <string name="home_card_reports">Ripoti</string>
+    <string name="home_card_reports_subtitle">Bofya kuona</string>
+    <string name="home_card_reports_unread">Ripoti mpya iko tayari</string>
+    <string name="home_card_appointments">Miadi</string>
+    <string name="home_card_appointments_subtitle">Tazama ijayo</string>
+    <string name="home_card_my_health">Afya yangu</string>
+    <string name="home_card_my_health_subtitle">Hariri wasifu</string>
+
+    <string name="home_help_need">"Unahitaji msaada? "</string>
+    <string name="home_help_phone">+255 663 582 994</string>
+    <string name="home_help_email">info\@esiri.africa</string>
+
+    <string name="settings_title">Mipangilio</string>
+    <string name="settings_sounds">Sauti</string>
+    <string name="settings_sounds_on">Sauti za arifa zimewashwa</string>
+    <string name="settings_sounds_off">Hali ya kimya</string>
+    <string name="settings_logout">Toka</string>
+
+    <string name="past_chats_title">Mazungumzo ya zamani</string>
+    <string name="past_chats_subtitle">Yanahifadhiwa kwa siku 14</string>
+    <string name="past_chats_empty_title">Bado hakuna mazungumzo</string>
+    <string name="past_chats_empty_body">Mara tu utakapozungumza na daktari, mazungumzo yataonekana hapa kwa siku 14.</string>
+    <string name="past_chats_chat_with">Mazungumzo na %1$s</string>
+    <string name="past_chats_followup_with">Ufuatiliaji na %1$s</string>
+    <string name="past_chats_default_doctor">Daktari</string>
+
+    <string name="past_chat_detail_subtitle">Kusoma tu · yatakwisha baada ya siku 14</string>
+    <string name="past_chat_detail_empty_title">Hakuna kitu hapa</string>
+    <string name="past_chat_detail_empty_body">Mazungumzo haya yameisha au hayajawahi kuwa na ujumbe wowote.</string>
+
 </resources>

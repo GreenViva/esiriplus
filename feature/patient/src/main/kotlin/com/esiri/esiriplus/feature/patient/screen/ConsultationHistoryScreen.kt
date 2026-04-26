@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +54,7 @@ import com.esiri.esiriplus.core.ui.theme.TealBg
 import com.esiri.esiriplus.core.ui.theme.TealDeep
 import com.esiri.esiriplus.core.ui.theme.TealSoft
 import com.esiri.esiriplus.core.ui.theme.pressableClick
+import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.ConsultationHistoryViewModel
 import com.esiri.esiriplus.feature.patient.viewmodel.PastChatItem
 import java.time.ZoneId
@@ -124,7 +126,7 @@ private fun PastChatsTopBar(onBack: () -> Unit) {
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.common_back),
                         tint = Ink,
                         modifier = Modifier.size(18.dp),
                     )
@@ -134,14 +136,14 @@ private fun PastChatsTopBar(onBack: () -> Unit) {
         title = {
             Column {
                 Text(
-                    text = "Past chats",
+                    text = stringResource(R.string.past_chats_title),
                     fontFamily = InstrumentSerif,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Normal,
                     color = Ink,
                 )
                 Text(
-                    text = "Kept for 14 days",
+                    text = stringResource(R.string.past_chats_subtitle),
                     fontFamily = Geist,
                     fontSize = 11.sp,
                     color = Muted,
@@ -157,9 +159,9 @@ private fun PastChatRow(
     onClick: () -> Unit,
 ) {
     val title = if (item.isFollowUp) {
-        "Follow-up with ${item.doctorName}"
+        stringResource(R.string.past_chats_followup_with, item.doctorName)
     } else {
-        "Chat with ${item.doctorName}"
+        stringResource(R.string.past_chats_chat_with, item.doctorName)
     }
     val timestamp = item.consultation.createdAt
         .atZone(ZoneId.systemDefault())
@@ -241,14 +243,14 @@ private fun EmptyView() {
             }
             Spacer(Modifier.height(14.dp))
             Text(
-                text = "No chats yet",
+                text = stringResource(R.string.past_chats_empty_title),
                 fontFamily = InstrumentSerif,
                 fontSize = 18.sp,
                 color = Ink,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Once you talk to a doctor, the chat lands here for 14 days.",
+                text = stringResource(R.string.past_chats_empty_body),
                 fontFamily = Geist,
                 fontSize = 12.sp,
                 color = Muted,
