@@ -556,11 +556,16 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
             )
         }
 
+        // Resume pill — also tappable, routes to the same destination as
+        // the surrounding row. Stays vibrant even when count is 0 so the
+        // affordance is consistent; the surrounding row's pressableClick
+        // catches taps on negative space, and the pill's own catches taps
+        // on the pill itself.
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(7.dp))
-                .background(if (count > 0) TealDeep else TealDeep.copy(alpha = 0.4f))
-                .pressableClick(enabled = count > 0, onClick = onResume)
+                .background(TealDeep)
+                .pressableClick(onClick = onResume)
                 .padding(horizontal = 8.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
