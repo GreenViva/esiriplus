@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -100,12 +99,25 @@ fun RoleSelectionScreen(
     Scaffold(
         containerColor = TealBg,
         topBar = { WelcomeTopBar() },
+        bottomBar = {
+            HelpFooter(
+                onPhoneClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
+                    )
+                },
+                onEmailClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:info@esiri.africa")),
+                    )
+                },
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .navigationBarsPadding()
                 .padding(horizontal = 20.dp),
         ) {
             Spacer(Modifier.height(4.dp))
@@ -119,20 +131,6 @@ fun RoleSelectionScreen(
                 onDoctorClick = onDoctorSelected,
                 onAgentClick = onAgentSelected,
             )
-            Spacer(Modifier.weight(1f))
-            HelpFooter(
-                onPhoneClick = {
-                    context.startActivity(
-                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:+255663582994")),
-                    )
-                },
-                onEmailClick = {
-                    context.startActivity(
-                        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:info@esiri.africa")),
-                    )
-                },
-            )
-            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -455,7 +453,10 @@ private fun HelpFooter(
     onEmailClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(TealBg)
+            .padding(horizontal = 20.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
