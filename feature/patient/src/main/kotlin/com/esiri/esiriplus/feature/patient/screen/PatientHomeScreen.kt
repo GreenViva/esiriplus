@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -252,21 +250,20 @@ fun PatientHomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp),
             ) {
                 Spacer(Modifier.height(2.dp))
 
                 HomeHeroCard(onStartConsultation = { onStartConsultation("") })
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 PendingBadge(
                     count = uiState.ongoingConsultations.size,
                     onResume = onNavigateToOngoingConsultations,
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = "YOUR RECORDS",
@@ -275,7 +272,7 @@ fun PatientHomeScreen(
                     fontWeight = FontWeight.SemiBold,
                     color = Muted,
                     letterSpacing = 1.4.sp,
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier.padding(bottom = 6.dp),
                 )
 
                 QuickCardGrid(quickCards)
@@ -349,7 +346,7 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
             .background(
                 Brush.linearGradient(colors = listOf(HeroGradientStart, HeroGradientEnd)),
             )
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 14.dp, vertical = 12.dp),
     ) {
         Column {
             Text(
@@ -357,11 +354,11 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
                 fontFamily = Geist,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 1.5.sp,
+                letterSpacing = 1.4.sp,
                 color = Color.White.copy(alpha = 0.75f),
             )
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
 
             Text(
                 text = buildAnnotatedString {
@@ -369,9 +366,9 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
                     withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { append("now.") }
                 },
                 fontFamily = InstrumentSerif,
-                fontSize = 24.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Normal,
-                lineHeight = 28.sp,
+                lineHeight = 26.sp,
                 color = Color.White,
             )
 
@@ -380,34 +377,34 @@ private fun HomeHeroCard(onStartConsultation: () -> Unit) {
             Text(
                 text = "Choose a service · pay · get connected. Usually under 5 minutes.",
                 fontFamily = Geist,
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 color = Color.White.copy(alpha = 0.85f),
-                lineHeight = 16.sp,
+                lineHeight = 15.sp,
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(11.dp))
+                    .clip(RoundedCornerShape(10.dp))
                     .background(Color.White)
                     .pressableClick(onClick = onStartConsultation)
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "Start consultation",
                     fontFamily = Geist,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TealDeep,
                 )
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(5.dp))
                 Icon(
                     imageVector = Icons.Outlined.ArrowForward,
                     contentDescription = null,
                     tint = TealDeep,
-                    modifier = Modifier.size(15.dp),
+                    modifier = Modifier.size(14.dp),
                 )
             }
         }
@@ -439,55 +436,55 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(11.dp))
-            .border(1.dp, ActiveBannerBorder, RoundedCornerShape(11.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, ActiveBannerBorder, RoundedCornerShape(10.dp))
             .background(ActiveBannerBg)
             .pressableClick(onClick = onResume)
-            .padding(horizontal = 10.dp, vertical = 9.dp),
+            .padding(horizontal = 9.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(16.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(12.dp)
+                    .size(10.dp)
                     .scale(scale)
                     .clip(CircleShape)
                     .background(PulseDot.copy(alpha = alpha * 0.4f)),
             )
             Box(
                 modifier = Modifier
-                    .size(7.dp)
+                    .size(6.dp)
                     .clip(CircleShape)
                     .background(ActiveBannerAccent),
             )
         }
 
-        Spacer(Modifier.width(9.dp))
+        Spacer(Modifier.width(8.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Pending",
                     fontFamily = Geist,
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Ink,
                 )
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(5.dp))
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(7.dp))
                         .background(ActiveBannerAccent)
-                        .padding(horizontal = 6.dp, vertical = 1.dp),
+                        .padding(horizontal = 5.dp, vertical = 1.dp),
                 ) {
                     Text(
                         text = count.toString(),
                         fontFamily = Geist,
-                        fontSize = 10.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
@@ -500,32 +497,33 @@ private fun PendingBadge(count: Int, onResume: () -> Unit) {
                     else -> "$count consultations need follow-up"
                 },
                 fontFamily = Geist,
-                fontSize = 10.sp,
+                fontSize = 9.sp,
                 color = Muted,
+                lineHeight = 12.sp,
             )
         }
 
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(7.dp))
                 .background(if (count > 0) TealDeep else TealDeep.copy(alpha = 0.4f))
                 .pressableClick(enabled = count > 0, onClick = onResume)
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .padding(horizontal = 8.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = "Resume",
                 fontFamily = Geist,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,
             )
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(3.dp))
             Icon(
                 imageVector = Icons.Outlined.ChevronRight,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(13.dp),
+                modifier = Modifier.size(12.dp),
             )
         }
     }
@@ -555,11 +553,11 @@ private fun QuickCardGrid(cards: List<QuickCard>) {
 private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(11.dp))
             .background(Color.White)
-            .border(1.dp, Hairline, RoundedCornerShape(12.dp))
+            .border(1.dp, Hairline, RoundedCornerShape(11.dp))
             .pressableClick(onClick = card.onClick)
-            .padding(horizontal = 11.dp, vertical = 10.dp),
+            .padding(horizontal = 10.dp, vertical = 8.dp),
     ) {
         Box(
             contentAlignment = Alignment.TopEnd,
@@ -568,7 +566,7 @@ private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(26.dp)
                     .clip(RoundedCornerShape(7.dp))
                     .background(TealSoft)
                     .align(Alignment.TopStart),
@@ -577,23 +575,23 @@ private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
                     imageVector = card.icon,
                     contentDescription = null,
                     tint = TealDeep,
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(13.dp),
                 )
             }
             if (card.showBadge) {
                 Box(
                     modifier = Modifier
-                        .size(7.dp)
+                        .size(6.dp)
                         .clip(CircleShape)
                         .background(Color.Red),
                 )
             }
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = card.title,
             fontFamily = Geist,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
             color = Ink,
         )
@@ -601,7 +599,7 @@ private fun QuickCardItem(card: QuickCard, modifier: Modifier) {
         Text(
             text = card.subtitle,
             fontFamily = Geist,
-            fontSize = 10.sp,
+            fontSize = 9.sp,
             color = Muted,
         )
     }
