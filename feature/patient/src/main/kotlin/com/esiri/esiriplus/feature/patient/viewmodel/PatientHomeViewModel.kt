@@ -13,6 +13,7 @@ import com.esiri.esiriplus.core.database.dao.PatientSessionDao
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
 import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
+import com.esiri.esiriplus.core.domain.usecase.DeletePatientAccountUseCase
 import com.esiri.esiriplus.core.domain.usecase.LogoutUseCase
 import com.esiri.esiriplus.core.database.entity.ConsultationEntity
 import com.esiri.esiriplus.core.network.service.LocationResolver
@@ -48,6 +49,7 @@ class PatientHomeViewModel @Inject constructor(
     private val application: Application,
     private val authRepository: AuthRepository,
     private val logoutUseCase: LogoutUseCase,
+    private val deletePatientAccountUseCase: DeletePatientAccountUseCase,
     private val consultationDao: ConsultationDao,
     private val patientSessionDao: PatientSessionDao,
     private val doctorRatingRepository: DoctorRatingRepository,
@@ -248,6 +250,10 @@ class PatientHomeViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch { logoutUseCase() }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch { deletePatientAccountUseCase() }
     }
 
     companion object {

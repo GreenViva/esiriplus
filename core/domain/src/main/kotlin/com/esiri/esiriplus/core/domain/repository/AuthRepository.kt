@@ -12,6 +12,11 @@ interface AuthRepository {
     suspend fun loginDoctor(email: String, password: String): Result<Session>
     suspend fun refreshSession(): Result<Session>
     suspend fun logout()
+    /** Marks the current patient account for deletion (30-day grace) on the
+     *  server, then runs the standard local logout. Returns true if the
+     *  server marked the row successfully, false if the call failed (the
+     *  local logout still ran). */
+    suspend fun deletePatientAccount(): Boolean
     suspend fun recoverPatientSession(answers: Map<String, String>): Result<Session>
     suspend fun setupSecurityQuestions(answers: Map<String, String>): Result<Unit>
     suspend fun lookupPatientById(patientId: String): Result<Session>

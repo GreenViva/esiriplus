@@ -457,6 +457,15 @@
     <string name="settings_sounds_on">Sauti za arifa zimewashwa</string>
     <string name="settings_sounds_off">Hali ya kimya</string>
     <string name="settings_logout">Toka</string>
+    <string name="settings_delete_account">Futa akaunti</string>
+    <string name="settings_delete_account_subtitle">Daima — siku 30 za neema</string>
+
+    <string name="delete_account_dialog_title">Futa akaunti yako?</string>
+    <string name="delete_account_dialog_body">Data yako yote itafutwa kabisa baada ya siku 30. Ingia tena ndani ya muda huo ili kufuta uamuzi huu.</string>
+    <string name="delete_account_dialog_prompt">Andika "%1$s" kuthibitisha:</string>
+    <string name="delete_account_phrase">futa akaunti yangu</string>
+    <string name="delete_account_confirm">Futa milele</string>
+    <string name="delete_account_cancel">Ghairi</string>
 
     <string name="past_chats_title">Mazungumzo ya zamani</string>
     <string name="past_chats_subtitle">Yanahifadhiwa kwa siku 14</string>

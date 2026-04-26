@@ -509,6 +509,16 @@
     <string name="settings_sounds_on">Notification sounds on</string>
     <string name="settings_sounds_off">Silent mode</string>
     <string name="settings_logout">Log out</string>
+    <string name="settings_delete_account">Delete account</string>
+    <string name="settings_delete_account_subtitle">Permanent — 30-day grace period</string>
+
+    <!-- Delete account confirmation dialog -->
+    <string name="delete_account_dialog_title">Delete your account?</string>
+    <string name="delete_account_dialog_body">All your data will be permanently deleted after 30 days. Sign back in within that window to cancel.</string>
+    <string name="delete_account_dialog_prompt">Type "%1$s" to confirm:</string>
+    <string name="delete_account_phrase">delete my account</string>
+    <string name="delete_account_confirm">Delete forever</string>
+    <string name="delete_account_cancel">Cancel</string>
 
     <!-- Past chats list -->
     <string name="past_chats_title">Past chats</string>

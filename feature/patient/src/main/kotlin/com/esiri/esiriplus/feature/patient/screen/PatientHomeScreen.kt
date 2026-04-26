@@ -34,6 +34,7 @@ import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Logout
@@ -46,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -127,6 +129,7 @@ fun PatientHomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
 
     // Wrap reports navigation to clear the unread dot.
     val handleNavigateToReports = {
@@ -178,7 +181,21 @@ fun PatientHomeScreen(
                 showSettingsSheet = false
                 showLogoutDialog = true
             },
+            onDeleteAccount = {
+                showSettingsSheet = false
+                showDeleteAccountDialog = true
+            },
             onDismiss = { showSettingsSheet = false },
+        )
+    }
+
+    if (showDeleteAccountDialog) {
+        DeleteAccountDialog(
+            onConfirm = {
+                showDeleteAccountDialog = false
+                viewModel.deleteAccount()
+            },
+            onDismiss = { showDeleteAccountDialog = false },
         )
     }
 
@@ -674,6 +691,7 @@ private fun SettingsSheet(
     soundsEnabled: Boolean,
     onToggleSounds: () -> Unit,
     onLogout: () -> Unit,
+    onDeleteAccount: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -811,8 +829,137 @@ private fun SettingsSheet(
                     modifier = Modifier.size(18.dp),
                 )
             }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Delete account — destructive, opens a confirmation dialog
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFC84856).copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                    .pressableClick(onClick = onDeleteAccount)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFFCE7E9)),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.DeleteForever,
+                        contentDescription = null,
+                        tint = Color(0xFFC84856),
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.settings_delete_account),
+                        fontFamily = Geist,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFC84856),
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_delete_account_subtitle),
+                        fontFamily = Geist,
+                        fontSize = 11.sp,
+                        color = Muted,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = Color(0xFFC84856),
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun DeleteAccountDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val expectedPhrase = stringResource(R.string.delete_account_phrase)
+    var typed by remember { mutableStateOf("") }
+    val matches = typed.trim().equals(expectedPhrase, ignoreCase = true)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        title = {
+            Text(
+                text = stringResource(R.string.delete_account_dialog_title),
+                fontFamily = InstrumentSerif,
+                fontSize = 20.sp,
+                color = Ink,
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(R.string.delete_account_dialog_body),
+                    fontFamily = Geist,
+                    fontSize = 13.sp,
+                    color = Ink,
+                    lineHeight = 18.sp,
+                )
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.delete_account_dialog_prompt, expectedPhrase),
+                    fontFamily = Geist,
+                    fontSize = 12.sp,
+                    color = Muted,
+                )
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = typed,
+                    onValueChange = { typed = it },
+                    placeholder = {
+                        Text(
+                            text = expectedPhrase,
+                            fontFamily = Geist,
+                            fontSize = 13.sp,
+                            color = Muted,
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                enabled = matches,
+            ) {
+                Text(
+                    text = stringResource(R.string.delete_account_confirm),
+                    fontFamily = Geist,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (matches) Color(0xFFC84856) else Muted,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = stringResource(R.string.delete_account_cancel),
+                    fontFamily = Geist,
+                    color = Ink,
+                )
+            }
+        },
+    )
 }
 
 @Composable

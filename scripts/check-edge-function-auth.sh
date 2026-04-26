@@ -15,6 +15,7 @@ PUBLIC_FUNCTIONS=(
   "cleanup-expired-messages"
   "expire-followup-escrow"
   "lift-expired-suspensions"
+  "purge-deleted-patients"
   "list-doctors"
   "log-performance-metrics"
   "login-agent"

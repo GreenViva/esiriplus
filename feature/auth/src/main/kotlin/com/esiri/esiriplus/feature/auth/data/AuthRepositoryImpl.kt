@@ -680,6 +680,25 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deletePatientAccount(): Boolean {
+        // Server-side soft-delete first — a 30-day purge clock starts on the
+        // patient_sessions row. Any failure here still falls through to the
+        // local logout so the device is wiped regardless.
+        var serverOk = false
+        try {
+            val result = edgeFunctionClient.invoke("delete-patient-account")
+            serverOk = result is com.esiri.esiriplus.core.network.model.ApiResult.Success
+            if (!serverOk) {
+                Log.w(TAG, "delete-patient-account returned non-success: $result")
+            }
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.w(TAG, "delete-patient-account call failed", e)
+        }
+
+        logout()
+        return serverOk
+    }
+
     override suspend fun logout() {
         if (logoutInProgress) {
             Log.w(TAG, "logout() already in progress — skipping duplicate call")
