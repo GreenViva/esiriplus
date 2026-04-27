@@ -30,7 +30,7 @@
     <string name="tier_headline_accent">be cared for?</string>
     <string name="tier_subtitle_short">Same doctors, different experience.</string>
     <string name="tier_price_from_label">FROM</string>
-    <string name="tier_economy_price_from">TSh 30,000</string>
+    <string name="tier_economy_price_from">TSh 5,000</string>
     <string name="tier_economy_short_desc">Quality care at standard rates — perfect for everyday concerns.</string>
     <string name="tier_economy_feature_1">Full consultation with a verified doctor</string>
     <string name="tier_economy_feature_2">1 follow-up within 14 days</string>
