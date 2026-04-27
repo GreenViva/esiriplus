@@ -152,9 +152,11 @@ Deno.serve(async (req: Request) => {
       throw new ValidationError("This account has been locked. Please use recovery questions.");
     }
 
-    if (!session.recovery_setup) {
-      throw new ValidationError("Recovery not set up for this account");
-    }
+    // The Patient ID is treated as a sufficient credential on its own.
+    // Recovery questions are still recommended (and required for the
+    // questions-only recovery path), but a user who skipped that step at
+    // registration can still sign back in with just their ID. Trade-off
+    // is documented in the patient onboarding spec.
 
     // Generate new session token and refresh token
     const newSessionToken       = generateSecureToken();
