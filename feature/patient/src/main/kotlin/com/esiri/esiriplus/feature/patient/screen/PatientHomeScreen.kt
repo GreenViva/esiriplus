@@ -42,7 +42,11 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.VolumeOff
 import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -130,6 +134,7 @@ fun PatientHomeScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    var showDeletionFeedbackSheet by remember { mutableStateOf(false) }
 
     // Wrap reports navigation to clear the unread dot.
     val handleNavigateToReports = {
@@ -193,9 +198,19 @@ fun PatientHomeScreen(
         DeleteAccountDialog(
             onConfirm = {
                 showDeleteAccountDialog = false
-                viewModel.deleteAccount()
+                showDeletionFeedbackSheet = true
             },
             onDismiss = { showDeleteAccountDialog = false },
+        )
+    }
+
+    if (showDeletionFeedbackSheet) {
+        DeletionFeedbackSheet(
+            onSubmit = { reasons, comment ->
+                showDeletionFeedbackSheet = false
+                viewModel.deleteAccount(reasons, comment)
+            },
+            onDismiss = { showDeletionFeedbackSheet = false },
         )
     }
 
@@ -960,6 +975,139 @@ private fun DeleteAccountDialog(
             }
         },
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun DeletionFeedbackSheet(
+    onSubmit: (reasonCodes: List<String>, comment: String?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val reasons = remember {
+        listOf(
+            "no_longer_needed" to R.string.deletion_feedback_reason_no_longer_needed,
+            "privacy" to R.string.deletion_feedback_reason_privacy,
+            "too_slow" to R.string.deletion_feedback_reason_too_slow,
+            "bad_experience" to R.string.deletion_feedback_reason_bad_experience,
+            "other" to R.string.deletion_feedback_reason_other,
+        )
+    }
+    val selected = remember { mutableStateOf<Set<String>>(emptySet()) }
+    var comment by remember { mutableStateOf("") }
+    val anything = selected.value.isNotEmpty() || comment.isNotBlank()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.deletion_feedback_title),
+                fontFamily = InstrumentSerif,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Normal,
+                color = Ink,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.deletion_feedback_subtitle),
+                fontFamily = Geist,
+                fontSize = 12.sp,
+                color = Muted,
+                lineHeight = 16.sp,
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            // Reason chips
+            androidx.compose.foundation.layout.FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                reasons.forEach { (code, labelRes) ->
+                    val isSelected = code in selected.value
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            selected.value = if (isSelected) selected.value - code
+                            else selected.value + code
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(labelRes),
+                                fontFamily = Geist,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = TealDeep,
+                            selectedLabelColor = Color.White,
+                        ),
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            Text(
+                text = stringResource(R.string.deletion_feedback_comment_label),
+                fontFamily = Geist,
+                fontSize = 12.sp,
+                color = Ink,
+            )
+            Spacer(Modifier.height(6.dp))
+            OutlinedTextField(
+                value = comment,
+                onValueChange = { if (it.length <= 1000) comment = it },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.deletion_feedback_comment_placeholder),
+                        fontFamily = Geist,
+                        fontSize = 13.sp,
+                        color = Muted,
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp),
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            Button(
+                onClick = {
+                    onSubmit(selected.value.toList(), comment.takeIf { it.isNotBlank() })
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFC84856),
+                    contentColor = Color.White,
+                ),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
+            ) {
+                Text(
+                    text = if (anything) {
+                        stringResource(R.string.deletion_feedback_submit)
+                    } else {
+                        stringResource(R.string.deletion_feedback_skip)
+                    },
+                    fontFamily = Geist,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
 }
 
 @Composable

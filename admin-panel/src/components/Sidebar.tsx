@@ -38,6 +38,7 @@ const adminSection: NavSection = {
     { href: "/dashboard/payments", label: "Payments", icon: PaymentsIcon },
     { href: "/dashboard/analytics", label: "Health Analytics", icon: AnalyticsIcon },
     { href: "/dashboard/ratings", label: "Ratings & Feedback", icon: RatingsIcon },
+    { href: "/dashboard/feedback", label: "Patient Deletion Feedback", icon: RatingsIcon },
     { href: "/dashboard/agents", label: "eSIRIPlus Agents", icon: AgentsIcon },
     { href: "/dashboard/offers", label: "Location Offers", icon: OffersIcon },
     { href: "/dashboard/users", label: "Role Management", icon: RoleIcon },

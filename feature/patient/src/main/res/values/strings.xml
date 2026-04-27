@@ -520,6 +520,19 @@
     <string name="delete_account_confirm">Delete forever</string>
     <string name="delete_account_cancel">Cancel</string>
 
+    <!-- Optional deletion feedback sheet -->
+    <string name="deletion_feedback_title">Sad to see you go</string>
+    <string name="deletion_feedback_subtitle">If you have a moment, tell us why. It is optional and anonymous.</string>
+    <string name="deletion_feedback_reason_no_longer_needed">I no longer need the service</string>
+    <string name="deletion_feedback_reason_privacy">I have privacy concerns</string>
+    <string name="deletion_feedback_reason_too_slow">The service was too slow</string>
+    <string name="deletion_feedback_reason_bad_experience">I had a bad experience</string>
+    <string name="deletion_feedback_reason_other">Something else</string>
+    <string name="deletion_feedback_comment_label">Anything you would like to add?</string>
+    <string name="deletion_feedback_comment_placeholder">Optional</string>
+    <string name="deletion_feedback_submit">Submit and delete</string>
+    <string name="deletion_feedback_skip">Skip and delete</string>
+
     <!-- Past chats list -->
     <string name="past_chats_title">Past chats</string>
     <string name="past_chats_subtitle">Kept for 14 days</string>

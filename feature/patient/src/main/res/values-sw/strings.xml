@@ -467,6 +467,18 @@
     <string name="delete_account_confirm">Futa milele</string>
     <string name="delete_account_cancel">Ghairi</string>
 
+    <string name="deletion_feedback_title">Inasikitisha kuondoka</string>
+    <string name="deletion_feedback_subtitle">Ukiwa na muda, tuambie kwa nini. Si lazima na ni siri.</string>
+    <string name="deletion_feedback_reason_no_longer_needed">Sihitaji huduma tena</string>
+    <string name="deletion_feedback_reason_privacy">Nina wasiwasi wa faragha</string>
+    <string name="deletion_feedback_reason_too_slow">Huduma ilikuwa polepole sana</string>
+    <string name="deletion_feedback_reason_bad_experience">Nilipata uzoefu mbaya</string>
+    <string name="deletion_feedback_reason_other">Sababu nyingine</string>
+    <string name="deletion_feedback_comment_label">Ungependa kuongeza nini?</string>
+    <string name="deletion_feedback_comment_placeholder">Si lazima</string>
+    <string name="deletion_feedback_submit">Wasilisha na futa</string>
+    <string name="deletion_feedback_skip">Ruka na futa</string>
+
     <string name="past_chats_title">Mazungumzo ya zamani</string>
     <string name="past_chats_subtitle">Yanahifadhiwa kwa siku 14</string>
     <string name="past_chats_empty_title">Bado hakuna mazungumzo</string>

@@ -17,6 +17,9 @@ interface AuthRepository {
      *  server marked the row successfully, false if the call failed (the
      *  local logout still ran). */
     suspend fun deletePatientAccount(): Boolean
+    /** Anonymous deletion-time feedback (best-effort). Call BEFORE
+     *  deletePatientAccount() so the JWT is still valid. */
+    suspend fun submitDeletionFeedback(reasonCodes: List<String>, comment: String?): Boolean
     suspend fun recoverPatientSession(answers: Map<String, String>): Result<Session>
     suspend fun setupSecurityQuestions(answers: Map<String, String>): Result<Unit>
     suspend fun lookupPatientById(patientId: String): Result<Session>

@@ -57,7 +57,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
@@ -677,6 +679,30 @@ class AuthRepositoryImpl @Inject constructor(
             org.json.JSONObject(payload).optString(claim, null)
         } catch (_: Exception) {
             null
+        }
+    }
+
+    override suspend fun submitDeletionFeedback(
+        reasonCodes: List<String>,
+        comment: String?,
+    ): Boolean {
+        if (reasonCodes.isEmpty() && comment.isNullOrBlank()) return true
+        val body = buildJsonObject {
+            put("reasons", JsonArray(reasonCodes.map { Json.encodeToJsonElement(it) }))
+            if (!comment.isNullOrBlank()) put("comment", comment.trim())
+            put(
+                "locale",
+                java.util.Locale.getDefault().toLanguageTag(),
+            )
+        }
+        return try {
+            val result = edgeFunctionClient.invoke("submit-deletion-feedback", body)
+            (result is com.esiri.esiriplus.core.network.model.ApiResult.Success).also {
+                if (!it) Log.w(TAG, "submit-deletion-feedback returned: $result")
+            }
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            Log.w(TAG, "submit-deletion-feedback failed", e)
+            false
         }
     }
 
