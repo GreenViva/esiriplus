@@ -44,6 +44,22 @@
     <string name="tier_royal_feature_3">Up to 2 home visits per case</string>
     <string name="tier_royal_cta">Continue with Royal</string>
     <string name="tier_royal_badge_premium">PREMIUM</string>
+
+    <!-- Services list v1.3 redesign -->
+    <string name="services_headline_prefix">"Who do you need "</string>
+    <string name="services_headline_accent">to talk to?</string>
+    <string name="services_location_active">Tanzania · %1$s tier active</string>
+    <string name="services_tier_label_economy">Economy</string>
+    <string name="services_tier_label_royal">Royal</string>
+    <string name="services_royal_pill">Royal benefits active · 14-day follow-up</string>
+    <string name="services_group_primary_care">Primary care</string>
+    <string name="services_group_pharmacy">Medication &amp; pharmacy</string>
+    <string name="services_group_mental_traditional">Mental health &amp; traditional</string>
+    <string name="services_popular_badge">POPULAR</string>
+    <string name="services_minutes_format">%1$d min</string>
+    <string name="services_pay_continue">Pay &amp; Continue</string>
+    <string name="services_selected_template">SELECTED · %1$s</string>
+    <string name="services_currency_amount">TSh %1$s</string>
     <string name="tier_comparison_note">Prices shown include all consultation fees. Royal Service prices are 10× the standard rate.</string>
     <!-- ===== ServicesScreen – Royal banner ===== -->
     <string name="services_royal_banner_title">Royal Service — Premium Benefits Active</string>

@@ -500,6 +500,22 @@
     <string name="tier_royal_cta">Endelea na Royal</string>
     <string name="tier_royal_badge_premium">YA HALI YA JUU</string>
 
+    <!-- Services list v1.3 redesign -->
+    <string name="services_headline_prefix">"Unahitaji kuzungumza na "</string>
+    <string name="services_headline_accent">nani?</string>
+    <string name="services_location_active">Tanzania · kifurushi cha %1$s kinatumika</string>
+    <string name="services_tier_label_economy">Economy</string>
+    <string name="services_tier_label_royal">Royal</string>
+    <string name="services_royal_pill">Faida za Royal zinatumika · ufuatiliaji wa siku 14</string>
+    <string name="services_group_primary_care">Huduma ya msingi</string>
+    <string name="services_group_pharmacy">Dawa na duka la dawa</string>
+    <string name="services_group_mental_traditional">Afya ya akili na asili</string>
+    <string name="services_popular_badge">MAARUFU</string>
+    <string name="services_minutes_format">dakika %1$d</string>
+    <string name="services_pay_continue">Lipa na uendelee</string>
+    <string name="services_selected_template">UMECHAGUA · %1$s</string>
+    <string name="services_currency_amount">TSh %1$s</string>
+
     <string name="past_chats_title">Mazungumzo ya zamani</string>
     <string name="past_chats_subtitle">Yanahifadhiwa kwa siku 14</string>
     <string name="past_chats_empty_title">Bado hakuna mazungumzo</string>
