@@ -280,7 +280,7 @@ private fun Emblem() {
             contentAlignment = Alignment.Center,
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_splash_logo),
+                painter = painterResource(R.drawable.ic_stethoscope),
                 contentDescription = null,
                 modifier = Modifier
                     .size(96.dp)
