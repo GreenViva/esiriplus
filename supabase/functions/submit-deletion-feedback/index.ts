@@ -10,8 +10,8 @@
 // "other"). The admin panel renders the localized labels; the database
 // stores the codes so a future locale change doesn't break aggregation.
 
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
-import { handleError } from "../_shared/errors.ts";
+import { handlePreflight } from "../_shared/cors.ts";
+import { errorResponse, successResponse } from "../_shared/errors.ts";
 import { validateAuth, requireRole } from "../_shared/auth.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
@@ -25,8 +25,10 @@ const REASON_CODES = new Set([
 
 const MAX_COMMENT_LENGTH = 2_000;
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return handleCors(req);
+Deno.serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
 
   try {
     const auth = await validateAuth(req);
@@ -48,12 +50,7 @@ Deno.serve(async (req) => {
       : null;
 
     if (reasons.length === 0 && !comment) {
-      // Treat as a no-op — user opened the sheet then closed it. 200 so the
-      // client doesn't show an error.
-      return new Response(
-        JSON.stringify({ recorded: false }),
-        { status: 200, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
-      );
+      return successResponse({ recorded: false }, 200, origin);
     }
 
     const supabase = getServiceClient();
@@ -63,17 +60,11 @@ Deno.serve(async (req) => {
 
     if (error) {
       console.error("[submit-deletion-feedback] insert error:", error);
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 500, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
-      );
+      throw new Error(error.message);
     }
 
-    return new Response(
-      JSON.stringify({ recorded: true }),
-      { status: 200, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
-    );
+    return successResponse({ recorded: true }, 200, origin);
   } catch (err) {
-    return handleError(err, req);
+    return errorResponse(err, origin);
   }
 });

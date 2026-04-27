@@ -9,28 +9,22 @@
 // is_active flips false; subsequent requests will fail to refresh and
 // the local app cache will sign out on the next 401.
 
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
-import { handleError } from "../_shared/errors.ts";
+import { handlePreflight } from "../_shared/cors.ts";
+import { errorResponse, successResponse, ValidationError } from "../_shared/errors.ts";
 import { validateAuth, requireRole } from "../_shared/auth.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return handleCors(req);
+Deno.serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
 
   try {
     const auth = await validateAuth(req);
     requireRole(auth, "patient");
 
     const sessionId = auth.sessionId;
-    if (!sessionId) {
-      return new Response(
-        JSON.stringify({ error: "No session ID found" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders(req), "Content-Type": "application/json" },
-        },
-      );
-    }
+    if (!sessionId) throw new ValidationError("No session ID found");
 
     const supabase = getServiceClient();
     const { data, error } = await supabase.rpc("fn_mark_patient_for_deletion", {
@@ -39,13 +33,7 @@ Deno.serve(async (req) => {
 
     if (error) {
       console.error("[delete-patient-account] RPC error:", error);
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        {
-          status: 500,
-          headers: { ...corsHeaders(req), "Content-Type": "application/json" },
-        },
-      );
+      throw new Error(error.message);
     }
 
     if (data !== true) {
@@ -54,18 +42,12 @@ Deno.serve(async (req) => {
       console.log(`[delete-patient-account] No-op for session ${sessionId} (already deleted or missing)`);
     }
 
-    return new Response(
-      JSON.stringify({
-        deleted: true,
-        purge_after_days: 30,
-        timestamp: new Date().toISOString(),
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
-      },
-    );
+    return successResponse({
+      deleted: true,
+      purge_after_days: 30,
+      timestamp: new Date().toISOString(),
+    }, 200, origin);
   } catch (err) {
-    return handleError(err, req);
+    return errorResponse(err, origin);
   }
 });

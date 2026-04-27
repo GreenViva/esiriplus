@@ -2,13 +2,15 @@
 // Called after patient completes the health profile setup (sex, age, region, etc.)
 // All fields are optional — patient can skip any of them.
 
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
-import { handleError } from "../_shared/errors.ts";
+import { corsHeaders, handlePreflight } from "../_shared/cors.ts";
+import { errorResponse } from "../_shared/errors.ts";
 import { validateAuth, requireRole } from "../_shared/auth.ts";
 import { getServiceClient } from "../_shared/supabase.ts";
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return handleCors(req);
+Deno.serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
 
   try {
     const auth = await validateAuth(req);
@@ -18,7 +20,7 @@ Deno.serve(async (req) => {
     if (!sessionId) {
       return new Response(
         JSON.stringify({ error: "No session ID found" }),
-        { status: 400, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
+        { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } },
       );
     }
 
@@ -61,7 +63,7 @@ Deno.serve(async (req) => {
     if (Object.keys(update).length <= 1) {
       return new Response(
         JSON.stringify({ error: "No fields to update" }),
-        { status: 400, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
+        { status: 400, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } },
       );
     }
 
@@ -75,7 +77,7 @@ Deno.serve(async (req) => {
       console.error("[update-patient-demographics] DB error:", error.message);
       return new Response(
         JSON.stringify({ error: "Failed to update demographics" }),
-        { status: 500, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
+        { status: 500, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } },
       );
     }
 
@@ -83,9 +85,9 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({ message: "Demographics updated" }),
-      { status: 200, headers: { ...corsHeaders(req), "Content-Type": "application/json" } },
+      { status: 200, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } },
     );
   } catch (err) {
-    return handleError(err, req);
+    return errorResponse(err, origin);
   }
 });
