@@ -58,9 +58,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.esiri.esiriplus.core.database.entity.ServiceTierEntity
 import com.esiri.esiriplus.core.domain.model.ConsultationTier
+import com.esiri.esiriplus.core.ui.PulsingScrollArrow
 import com.esiri.esiriplus.core.ui.theme.Geist
 import com.esiri.esiriplus.core.ui.theme.Hairline
 import com.esiri.esiriplus.core.ui.theme.Ink
@@ -162,14 +168,23 @@ fun ServicesScreen(
             }
         },
     ) { padding ->
-        Column(
+        val scrollState = rememberScrollState()
+        val canScrollDown by remember {
+            derivedStateOf { scrollState.canScrollForward }
+        }
+
+        Box(
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp),
+                .fillMaxSize(),
         ) {
-            Spacer(Modifier.height(4.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 20.dp),
+            ) {
+                Spacer(Modifier.height(4.dp))
 
             Text(
                 text = buildAnnotatedString {
@@ -227,6 +242,18 @@ fun ServicesScreen(
             }
 
             Spacer(Modifier.height(12.dp))
+            }
+
+            AnimatedVisibility(
+                visible = canScrollDown,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 12.dp),
+            ) {
+                PulsingScrollArrow(tint = TealDeep)
+            }
         }
     }
 }
