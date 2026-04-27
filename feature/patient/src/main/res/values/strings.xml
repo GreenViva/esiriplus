@@ -24,6 +24,26 @@
     <string name="tier_economy_benefit_2">1 follow-up consultation</string>
     <string name="tier_economy_benefit_3">Standard doctor access</string>
     <string name="tier_select">Select</string>
+
+    <!-- Tier selection v1.3 redesign -->
+    <string name="tier_headline_prefix">"How would you like to "</string>
+    <string name="tier_headline_accent">be cared for?</string>
+    <string name="tier_subtitle_short">Same doctors, different experience.</string>
+    <string name="tier_price_from_label">FROM</string>
+    <string name="tier_economy_price_from">TSh 30,000</string>
+    <string name="tier_economy_short_desc">Quality care at standard rates — perfect for everyday concerns.</string>
+    <string name="tier_economy_feature_1">Full consultation with a verified doctor</string>
+    <string name="tier_economy_feature_2">1 follow-up within 14 days</string>
+    <string name="tier_economy_feature_3">AI-assisted consultation report</string>
+    <string name="tier_economy_cta">Continue with Economy</string>
+    <string name="tier_economy_badge_chosen">MOST CHOSEN</string>
+    <string name="tier_royal_price_from">TSh 50,000</string>
+    <string name="tier_royal_short_desc">Priority handling, extended access, home visits when needed.</string>
+    <string name="tier_royal_feature_1">14-day follow-up window · unlimited</string>
+    <string name="tier_royal_feature_2">Priority queue · skip the wait</string>
+    <string name="tier_royal_feature_3">Up to 2 home visits per case</string>
+    <string name="tier_royal_cta">Continue with Royal</string>
+    <string name="tier_royal_badge_premium">PREMIUM</string>
     <string name="tier_comparison_note">Prices shown include all consultation fees. Royal Service prices are 10× the standard rate.</string>
     <!-- ===== ServicesScreen – Royal banner ===== -->
     <string name="services_royal_banner_title">Royal Service — Premium Benefits Active</string>

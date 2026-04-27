@@ -1,6 +1,7 @@
 package com.esiri.esiriplus.feature.patient.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,36 +19,61 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
+import com.esiri.esiriplus.core.ui.theme.Geist
+import com.esiri.esiriplus.core.ui.theme.Hairline
+import com.esiri.esiriplus.core.ui.theme.Ink
+import com.esiri.esiriplus.core.ui.theme.InkSoft
+import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
+import com.esiri.esiriplus.core.ui.theme.Muted
+import com.esiri.esiriplus.core.ui.theme.Teal
+import com.esiri.esiriplus.core.ui.theme.TealBg
+import com.esiri.esiriplus.core.ui.theme.TealDeep
+import com.esiri.esiriplus.core.ui.theme.TealSoft
+import com.esiri.esiriplus.core.ui.theme.pressableClick
 import com.esiri.esiriplus.feature.patient.R
 
-private val BrandTeal = Color(0xFF2A9D8F)
-private val RoyalDeep = Color(0xFF4C1D95)      // deep purple
-private val RoyalMid = Color(0xFF7C3AED)        // violet
-private val RoyalGold = Color(0xFFF59E0B)       // gold accent
-private val EconomyBg = Color(0xFFF0FDFA)
-private val RoyalBg = Color(0xFFF5F3FF)
+private val Royal         = Color(0xFF6E4FE0)
+private val RoyalDeep     = Color(0xFF4F2FBF)
+private val RoyalCheckBg  = Color(0xFFEFE6FF)
+private val EconomyCardBg = Color(0xFFF4FAF7)
+
+private enum class Tier { ECONOMY, ROYAL }
+
+private data class TierOption(
+    val tier: Tier,
+    val nameRes: Int,
+    val priceFromRes: Int,
+    val descriptionRes: Int,
+    val featureResIds: List<Int>,
+    val badgeRes: Int,
+    val ctaRes: Int,
+)
 
 @Composable
 fun TierSelectionScreen(
@@ -55,270 +82,282 @@ fun TierSelectionScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scrollState = rememberScrollState()
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFFFAFAFA)),
-    ) {
-        ScrollIndicatorBox(scrollState = scrollState) {
+    val tiers = remember {
+        listOf(
+            TierOption(
+                tier = Tier.ECONOMY,
+                nameRes = R.string.tier_economy_title,
+                priceFromRes = R.string.tier_economy_price_from,
+                descriptionRes = R.string.tier_economy_short_desc,
+                featureResIds = listOf(
+                    R.string.tier_economy_feature_1,
+                    R.string.tier_economy_feature_2,
+                    R.string.tier_economy_feature_3,
+                ),
+                badgeRes = R.string.tier_economy_badge_chosen,
+                ctaRes = R.string.tier_economy_cta,
+            ),
+            TierOption(
+                tier = Tier.ROYAL,
+                nameRes = R.string.tier_royal_title,
+                priceFromRes = R.string.tier_royal_price_from,
+                descriptionRes = R.string.tier_royal_short_desc,
+                featureResIds = listOf(
+                    R.string.tier_royal_feature_1,
+                    R.string.tier_royal_feature_2,
+                    R.string.tier_royal_feature_3,
+                ),
+                badgeRes = R.string.tier_royal_badge_premium,
+                ctaRes = R.string.tier_royal_cta,
+            ),
+        )
+    }
+
+    Scaffold(
+        modifier = modifier,
+        containerColor = TealBg,
+        topBar = { ServiceTierTopBar(onBack = onBack) },
+    ) { padding ->
         Column(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize()
-                .verticalScroll(scrollState),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp),
         ) {
-            // ── Top bar ──────────────────────────────────────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.tier_back),
-                        tint = Color.Black,
-                    )
-                }
-                Spacer(Modifier.width(4.dp))
-                Column {
-                    Text(
-                        text = stringResource(R.string.tier_title),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
-                    Text(
-                        text = stringResource(R.string.tier_subtitle),
-                        fontSize = 13.sp,
-                        color = Color.Gray,
-                    )
-                }
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.tier_headline_prefix))
+                    withStyle(
+                        SpanStyle(
+                            color = TealDeep,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = InstrumentSerif,
+                        ),
+                    ) { append(stringResource(R.string.tier_headline_accent)) }
+                },
+                fontFamily = InstrumentSerif,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Normal,
+                lineHeight = 30.sp,
+                color = Ink,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.tier_subtitle_short),
+                fontFamily = Geist,
+                fontSize = 13.sp,
+                color = Muted,
+            )
+
+            Spacer(Modifier.height(18.dp))
+
+            tiers.forEach { tier ->
+                TierCard(
+                    tier = tier,
+                    onClick = {
+                        when (tier.tier) {
+                            Tier.ECONOMY -> onSelectEconomy()
+                            Tier.ROYAL -> onSelectRoyal()
+                        }
+                    },
+                )
+                Spacer(Modifier.height(14.dp))
             }
 
-            HorizontalDivider(color = Color(0xFFE5E7EB))
             Spacer(Modifier.height(20.dp))
-
-            // ── Royal card ───────────────────────────────────────────────────
-            RoyalTierCard(
-                onClick = onSelectRoyal,
-                modifier = Modifier.padding(horizontal = 20.dp),
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // ── Economy card ─────────────────────────────────────────────────
-            EconomyTierCard(
-                onClick = onSelectEconomy,
-                modifier = Modifier.padding(horizontal = 20.dp),
-            )
-
-            Spacer(Modifier.height(32.dp))
         }
-        } // ScrollIndicatorBox
     }
 }
 
-// ── Royal tier card ───────────────────────────────────────────────────────────
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RoyalTierCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(listOf(RoyalDeep, RoyalMid)),
-                    RoundedCornerShape(20.dp),
-                ),
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                // Badge row
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth(),
+private fun ServiceTierTopBar(onBack: () -> Unit) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = TealBg),
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Hairline, CircleShape),
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(24.dp),
-                        color = RoyalGold,
-                        modifier = Modifier.padding(0.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.tier_royal_badge),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = stringResource(R.string.tier_royal_title),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.tier_royal_tagline),
-                    fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.85f),
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                val benefits = listOf(
-                    R.string.tier_royal_benefit_1,
-                    R.string.tier_royal_benefit_2,
-                    R.string.tier_royal_benefit_3,
-                    R.string.tier_royal_benefit_4,
-                    R.string.tier_royal_benefit_5,
-                )
-                benefits.forEach { res ->
-                    BenefitRow(text = stringResource(res), tint = RoyalGold)
-                    Spacer(Modifier.height(8.dp))
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                // CTA row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(R.string.tier_select),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = RoyalGold,
-                    )
-                    Spacer(Modifier.width(4.dp))
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = null,
-                        tint = RoyalGold,
+                        imageVector = Icons.Outlined.ArrowBack,
+                        contentDescription = stringResource(R.string.tier_back),
+                        tint = Ink,
                         modifier = Modifier.size(18.dp),
                     )
                 }
             }
-        }
-    }
-}
-
-// ── Economy tier card ─────────────────────────────────────────────────────────
-
-@Composable
-private fun EconomyTierCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    OutlinedCard(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BrandTeal.copy(alpha = 0.4f)),
-        colors = CardDefaults.outlinedCardColors(containerColor = EconomyBg),
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            // Badge
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = BrandTeal,
+        },
+        title = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = stringResource(R.string.tier_economy_badge),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                androidx.compose.foundation.Image(
+                    painter = painterResource(R.drawable.ic_stethoscope),
+                    contentDescription = "eSIRI Plus",
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape),
                 )
             }
+        },
+    )
+}
 
-            Spacer(Modifier.height(16.dp))
+@Composable
+private fun TierCard(tier: TierOption, onClick: () -> Unit) {
+    val isRoyal = tier.tier == Tier.ROYAL
+    val cardBorder = if (isRoyal) Hairline else Teal
+    val cardBg = if (isRoyal) Color.White else EconomyCardBg
+    val checkBg = if (isRoyal) RoyalCheckBg else TealSoft
+    val checkTint = if (isRoyal) Royal else TealDeep
+    val priceColor = if (isRoyal) Royal else TealDeep
+    val ctaBrush: Brush = if (isRoyal) {
+        Brush.linearGradient(listOf(Royal, RoyalDeep))
+    } else {
+        Brush.linearGradient(listOf(TealDeep, TealDeep))
+    }
+    val badgeBrush: Brush = ctaBrush
 
-            Text(
-                text = stringResource(R.string.tier_economy_title),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.tier_economy_tagline),
-                fontSize = 14.sp,
-                color = Color.Gray,
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            val benefits = listOf(
-                R.string.tier_economy_benefit_1,
-                R.string.tier_economy_benefit_2,
-                R.string.tier_economy_benefit_3,
-            )
-            benefits.forEach { res ->
-                BenefitRow(text = stringResource(res), tint = BrandTeal)
-                Spacer(Modifier.height(8.dp))
-            }
-
-            Spacer(Modifier.height(12.dp))
-
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(cardBg)
+                .border(1.5.dp, cardBorder, RoundedCornerShape(18.dp))
+                .pressableClick(onClick = onClick)
+                .padding(top = 26.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
             ) {
                 Text(
-                    text = stringResource(R.string.tier_select),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = BrandTeal,
+                    text = stringResource(tier.nameRes),
+                    fontFamily = InstrumentSerif,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Ink,
                 )
-                Spacer(Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = BrandTeal,
-                    modifier = Modifier.size(18.dp),
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = stringResource(R.string.tier_price_from_label),
+                        fontFamily = Geist,
+                        fontSize = 9.sp,
+                        color = Muted,
+                        letterSpacing = 1.sp,
+                    )
+                    Text(
+                        text = stringResource(tier.priceFromRes),
+                        fontFamily = Geist,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = priceColor,
+                        letterSpacing = 0.5.sp,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(tier.descriptionRes),
+                fontFamily = Geist,
+                fontSize = 12.sp,
+                color = Muted,
+                lineHeight = 18.sp,
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            tier.featureResIds.forEach { featureRes ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 4.dp),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(checkBg),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Check,
+                            contentDescription = null,
+                            tint = checkTint,
+                            modifier = Modifier.size(9.dp),
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(featureRes),
+                        fontFamily = Geist,
+                        fontSize = 12.sp,
+                        color = InkSoft,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(ctaBrush)
+                    .pressableClick(onClick = onClick)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(tier.ctaRes),
+                        fontFamily = Geist,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowForward,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
             }
         }
-    }
-}
 
-// ── Shared helpers ────────────────────────────────────────────────────────────
-
-@Composable
-private fun BenefitRow(text: String, tint: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Surface(
-            shape = CircleShape,
-            color = tint.copy(alpha = 0.15f),
-            modifier = Modifier.size(22.dp),
+        // Floating badge above the top-left corner.
+        Box(
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .offset(y = (-10).dp)
+                .align(Alignment.TopStart)
+                .clip(RoundedCornerShape(6.dp))
+                .background(badgeBrush)
+                .padding(horizontal = 10.dp, vertical = 4.dp),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null,
-                    tint = tint,
-                    modifier = Modifier.size(13.dp),
-                )
-            }
+            Text(
+                text = stringResource(tier.badgeRes),
+                fontFamily = Geist,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                letterSpacing = 0.6.sp,
+            )
         }
-        Spacer(Modifier.width(10.dp))
-        Text(
-            text = text,
-            fontSize = 14.sp,
-            color = if (tint == Color(0xFFF59E0B)) Color.White.copy(alpha = 0.9f) else Color.Black,
-        )
     }
 }
