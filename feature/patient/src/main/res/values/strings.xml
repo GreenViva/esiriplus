@@ -532,6 +532,7 @@
     <string name="deletion_feedback_comment_placeholder">Optional</string>
     <string name="deletion_feedback_submit">Submit and delete</string>
     <string name="deletion_feedback_skip">Skip and delete</string>
+    <string name="deletion_in_progress">Deleting your account…</string>
 
     <!-- Past chats list -->
     <string name="past_chats_title">Past chats</string>

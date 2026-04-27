@@ -44,6 +44,7 @@ import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -83,6 +84,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -318,6 +321,42 @@ fun PatientHomeScreen(
 
                 QuickCardGrid(quickCards)
             }
+        }
+    }
+
+    if (uiState.isDeletingAccount) {
+        DeletingAccountOverlay()
+    }
+}
+
+@Composable
+private fun DeletingAccountOverlay() {
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White)
+                .padding(horizontal = 22.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CircularProgressIndicator(
+                strokeWidth = 2.dp,
+                color = TealDeep,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.width(14.dp))
+            Text(
+                text = stringResource(R.string.deletion_in_progress),
+                fontFamily = Geist,
+                fontSize = 14.sp,
+                color = Ink,
+            )
         }
     }
 }

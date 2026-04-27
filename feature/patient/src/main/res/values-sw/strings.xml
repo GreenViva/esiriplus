@@ -478,6 +478,7 @@
     <string name="deletion_feedback_comment_placeholder">Si lazima</string>
     <string name="deletion_feedback_submit">Wasilisha na futa</string>
     <string name="deletion_feedback_skip">Ruka na futa</string>
+    <string name="deletion_in_progress">Inafuta akaunti yako…</string>
 
     <string name="past_chats_title">Mazungumzo ya zamani</string>
     <string name="past_chats_subtitle">Yanahifadhiwa kwa siku 14</string>

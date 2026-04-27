@@ -745,11 +745,15 @@ class AuthRepositoryImpl @Inject constructor(
             // Delete the FCM token from Firebase so this device stops receiving
             // pushes for the old account entirely. A fresh token is generated
             // on next login via fetchAndRegisterToken().
+            // Fire-and-forget the FCM token delete. The roundtrip to Firebase
+            // can take 1–2 s and the user is already gone — no reason to block
+            // the UI on it. A fresh token is generated on next login via
+            // fetchAndRegisterToken() regardless of whether this completes.
             try {
-                com.google.firebase.messaging.FirebaseMessaging.getInstance().deleteToken().await()
-                Log.d(TAG, "Firebase token deleted on logout")
+                com.google.firebase.messaging.FirebaseMessaging.getInstance().deleteToken()
+                Log.d(TAG, "Firebase token delete dispatched (not awaited)")
             } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
-                Log.w(TAG, "Failed to delete Firebase token (non-critical)")
+                Log.w(TAG, "Failed to dispatch Firebase token delete (non-critical)")
             }
 
             tokenManager.clearTokens()

@@ -41,6 +41,7 @@ data class PatientHomeUiState(
     val pendingRatingConsultation: ConsultationEntity? = null,
     val ongoingConsultations: List<ConsultationEntity> = emptyList(),
     val hasUnreadReports: Boolean = false,
+    val isDeletingAccount: Boolean = false,
 )
 
 // TODO: Localize hardcoded user-facing strings (error messages).
@@ -65,6 +66,7 @@ class PatientHomeViewModel @Inject constructor(
     private val _pendingRating = MutableStateFlow<ConsultationEntity?>(null)
     private val _isRefreshing = MutableStateFlow(false)
     private val _hasUnreadReports = MutableStateFlow(false)
+    private val _isDeletingAccount = MutableStateFlow(false)
 
     init {
         checkPendingRatings()
@@ -148,7 +150,21 @@ class PatientHomeViewModel @Inject constructor(
         consultationDao.getActiveConsultation(),
         _pendingRating,
         combine(ongoingConsultations, _isRefreshing, _hasUnreadReports) { ongoing, refreshing, unread -> Triple(ongoing, refreshing, unread) },
-    ) { session, soundsEnabled, activeConsultation, pendingRating, (ongoing, refreshing, hasUnread) ->
+        _isDeletingAccount,
+    ) { values: Array<Any?> ->
+        @Suppress("UNCHECKED_CAST")
+        val session = values[0] as com.esiri.esiriplus.core.domain.model.Session?
+        @Suppress("UNCHECKED_CAST")
+        val soundsEnabled = values[1] as Boolean
+        @Suppress("UNCHECKED_CAST")
+        val activeConsultation = values[2] as ConsultationEntity?
+        @Suppress("UNCHECKED_CAST")
+        val pendingRating = values[3] as ConsultationEntity?
+        @Suppress("UNCHECKED_CAST")
+        val triple = values[4] as Triple<List<ConsultationEntity>, Boolean, Boolean>
+        val (ongoing, refreshing, hasUnread) = triple
+        @Suppress("UNCHECKED_CAST")
+        val deleting = values[5] as Boolean
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -161,9 +177,10 @@ class PatientHomeViewModel @Inject constructor(
                 pendingRatingConsultation = pendingRating,
                 ongoingConsultations = ongoing,
                 hasUnreadReports = hasUnread,
+                isDeletingAccount = deleting,
             )
         } else {
-            PatientHomeUiState(isLoading = false)
+            PatientHomeUiState(isLoading = false, isDeletingAccount = deleting)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -256,11 +273,18 @@ class PatientHomeViewModel @Inject constructor(
 
     /** Optional feedback is submitted first (best-effort) while the JWT is
      *  still valid, then the account is marked for deletion + local logout
-     *  runs. Empty `reasons` and blank `comment` skips the feedback POST. */
+     *  runs. Empty `reasons` and blank `comment` skips the feedback POST.
+     *  Drives `isDeletingAccount` so the UI can show a blocking overlay
+     *  during the ~2-3 s of network + local-cleanup work. */
     fun deleteAccount(reasons: List<String> = emptyList(), comment: String? = null) {
         viewModelScope.launch {
-            submitDeletionFeedbackUseCase(reasons, comment)
-            deletePatientAccountUseCase()
+            _isDeletingAccount.value = true
+            try {
+                submitDeletionFeedbackUseCase(reasons, comment)
+                deletePatientAccountUseCase()
+            } finally {
+                _isDeletingAccount.value = false
+            }
         }
     }
 
