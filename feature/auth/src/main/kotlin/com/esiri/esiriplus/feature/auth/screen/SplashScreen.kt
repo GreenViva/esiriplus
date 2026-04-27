@@ -533,7 +533,7 @@ private fun BottomBlock(ready: Boolean) {
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "DAR ES SALAAM  ·  TANZANIA  ·  EST. 2024",
+            text = "DAR ES SALAAM  ·  TANZANIA  ·  EST. 2026",
             style = TextStyle(
                 fontFamily = EditorialSans,
                 fontSize = 10.sp,
