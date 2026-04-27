@@ -118,7 +118,7 @@ Deno.serve(async (req: Request) => {
     // Look up session by patient ID hash
     const { data: session } = await supabase
       .from("patient_sessions")
-      .select("session_id, is_active, is_locked, expires_at, recovery_setup")
+      .select("session_id, is_active, is_locked, expires_at, recovery_setup, deleted_at")
       .eq("patient_id_hash", patientIdHash)
       .single();
 
@@ -132,6 +132,20 @@ Deno.serve(async (req: Request) => {
 
       // Generic error — don't reveal if ID exists or not
       throw new ValidationError("Invalid Patient ID or account not found");
+    }
+
+    // Soft-deleted accounts must NOT be resurrected — the user requested
+    // permanent deletion, the row is just kept around for the 30-day
+    // legal/compliance window before fn_purge_deleted_patients wipes it.
+    if (session.deleted_at) {
+      await logEvent({
+        function_name: "recover-by-id",
+        level:         "warn",
+        session_id:    session.session_id,
+        action:        "recovery_blocked_deleted",
+        ip_address:    clientIp,
+      });
+      throw new ValidationError("This account has been deleted.");
     }
 
     if (session.is_locked) {

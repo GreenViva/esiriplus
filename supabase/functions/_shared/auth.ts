@@ -133,13 +133,17 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { data: session } = await supabase
       .from("patient_sessions")
-      .select("session_id, is_active, is_locked, expires_at")
+      .select("session_id, is_active, is_locked, expires_at, deleted_at")
       .eq("session_id", sessionId)
       .single();
 
     if (!session) {
       console.warn(`[AUTH] REJECTED patient token — session not found | session_id=${sessionId.slice(0, 8)}...`);
       throw new AuthError(401, "Session not found");
+    }
+    if (session.deleted_at) {
+      console.warn(`[AUTH] REJECTED patient token — account deleted | session_id=${sessionId.slice(0, 8)}...`);
+      throw new AuthError(401, "Account has been deleted");
     }
     if (!session.is_active) {
       console.warn(`[AUTH] REJECTED patient token — inactive session | session_id=${sessionId.slice(0, 8)}...`);

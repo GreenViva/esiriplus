@@ -170,7 +170,7 @@ Deno.serve(async (req: Request) => {
     // Look up session by recovery_hash
     const { data: session } = await supabase
       .from("patient_sessions")
-      .select("session_id, is_locked, recovery_setup, patient_id")
+      .select("session_id, is_locked, recovery_setup, patient_id, deleted_at")
       .eq("recovery_hash", recoveryHash)
       .single();
 
@@ -181,6 +181,13 @@ Deno.serve(async (req: Request) => {
         success:         false,
       });
       throw new ValidationError("No account found matching these answers, or recovery not set up");
+    }
+
+    // Soft-deleted accounts cannot be resurrected via recovery questions —
+    // the user opted to delete, the row is preserved only for the 30-day
+    // legal/compliance window before fn_purge_deleted_patients wipes it.
+    if (session.deleted_at) {
+      throw new ValidationError("This account has been deleted.");
     }
 
     if (session.is_locked) {

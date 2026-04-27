@@ -100,7 +100,7 @@ Deno.serve(async (req: Request) => {
     // Find session by ID + sha256 hash (fast indexed lookup)
     const { data: session, error: fetchErr } = await supabase
       .from("patient_sessions")
-      .select("session_id, is_active, expires_at, refresh_expires_at, created_at, refresh_token_bcrypt")
+      .select("session_id, is_active, expires_at, refresh_expires_at, created_at, refresh_token_bcrypt, deleted_at")
       .eq("session_id", sessionId)
       .eq("refresh_token_hash", refreshTokenHash)
       .single();
@@ -120,6 +120,10 @@ Deno.serve(async (req: Request) => {
         ip_address:    clientIp,
       });
       throw new ValidationError("Invalid or expired refresh token");
+    }
+
+    if (session.deleted_at) {
+      throw new ValidationError("This account has been deleted.");
     }
 
     if (!session.is_active) {
