@@ -229,6 +229,10 @@
     <string name="extension_payment_failed">Malipo Yameshindikana</string>
     <string name="extension_payment_failed_default">Malipo yameshindikana</string>
     <string name="extension_try_again">Jaribu Tena</string>
+    <string name="extension_headline_prefix">"Ongeza muda "</string>
+    <string name="extension_headline_accent">kidogo.</string>
+    <string name="extension_done_headline_prefix">"Kipindi "</string>
+    <string name="extension_done_headline_accent">kimeongezwa.</string>
 
     <!-- ===== ServiceLocationScreen ===== -->
     <string name="location_back">Rudi</string>
@@ -515,6 +519,18 @@
     <string name="services_pay_continue">Lipa na uendelee</string>
     <string name="services_selected_template">UMECHAGUA · %1$s</string>
     <string name="services_currency_amount">TSh %1$s</string>
+
+    <!-- Payment v1.3 redesign -->
+    <string name="payment_headline_prefix">"Wakati wa "</string>
+    <string name="payment_headline_accent_pay">kulipa.</string>
+    <string name="payment_amount_label">KIASI CHA KULIPA</string>
+    <string name="payment_check_phone_title">Angalia simu yako</string>
+    <string name="payment_check_phone_subtitle">Thibitisha TSh %1$s kwenye dirisha la mkoba. Usifunge programu.</string>
+    <string name="payment_done_headline_prefix">"Imelipwa. "</string>
+    <string name="payment_done_headline_accent">Uko tayari.</string>
+    <string name="payment_done_subtitle">TSh %1$s · imepokelewa. Tunakuunganisha na daktari…</string>
+    <string name="payment_phone_headline_prefix">"Nambari yako "</string>
+    <string name="payment_phone_headline_accent">ya simu?</string>
 
     <string name="past_chats_title">Mazungumzo ya zamani</string>
     <string name="past_chats_subtitle">Yanahifadhiwa kwa siku 14</string>

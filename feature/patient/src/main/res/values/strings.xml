@@ -60,6 +60,18 @@
     <string name="services_pay_continue">Pay &amp; Continue</string>
     <string name="services_selected_template">SELECTED · %1$s</string>
     <string name="services_currency_amount">TSh %1$s</string>
+
+    <!-- Payment v1.3 redesign -->
+    <string name="payment_headline_prefix">"Time to "</string>
+    <string name="payment_headline_accent_pay">pay.</string>
+    <string name="payment_amount_label">AMOUNT TO PAY</string>
+    <string name="payment_check_phone_title">Check your phone</string>
+    <string name="payment_check_phone_subtitle">Approve TSh %1$s on the wallet prompt. Don\'t close the app.</string>
+    <string name="payment_done_headline_prefix">"Paid. "</string>
+    <string name="payment_done_headline_accent">You\'re all set.</string>
+    <string name="payment_done_subtitle">TSh %1$s · received. Connecting you to your doctor…</string>
+    <string name="payment_phone_headline_prefix">"Your "</string>
+    <string name="payment_phone_headline_accent">number?</string>
     <string name="tier_comparison_note">Prices shown include all consultation fees. Royal Service prices are 10× the standard rate.</string>
     <!-- ===== ServicesScreen – Royal banner ===== -->
     <string name="services_royal_banner_title">Royal Service — Premium Benefits Active</string>
@@ -288,6 +300,10 @@
     <string name="extension_payment_failed">Payment Failed</string>
     <string name="extension_payment_failed_default">Payment failed</string>
     <string name="extension_try_again">Try Again</string>
+    <string name="extension_headline_prefix">"Extend a "</string>
+    <string name="extension_headline_accent">little longer.</string>
+    <string name="extension_done_headline_prefix">"Session "</string>
+    <string name="extension_done_headline_accent">extended.</string>
 
     <!-- ===== ServiceLocationScreen ===== -->
     <string name="location_back">Back</string>
