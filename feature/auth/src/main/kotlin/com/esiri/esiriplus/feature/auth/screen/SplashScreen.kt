@@ -9,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -61,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.esiri.esiriplus.core.ui.theme.Geist
 import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
+import com.esiri.esiriplus.feature.auth.R
 import kotlinx.coroutines.delay
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -276,9 +279,11 @@ private fun Emblem() {
                 .border(1.dp, SplashColors.Hairline, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Stethoscope(
+            Image(
+                painter = painterResource(R.drawable.ic_splash_logo),
+                contentDescription = null,
                 modifier = Modifier
-                    .size(86.dp)
+                    .size(96.dp)
                     .padding(bottom = 12.dp),
             )
 
