@@ -43,6 +43,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -147,22 +149,30 @@ fun ServicesScreen(
     val selected = state.services.firstOrNull { it.id == state.selectedServiceId }
         ?: state.services.firstOrNull()
 
+    var showPaymentFlow by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier,
         containerColor = TealBg,
         topBar = { ServicesTopBar(onBack = onBack) },
         bottomBar = {
             if (selected != null) {
+                val finalPrice = state.effectivePrice(selected.priceAmount, selected.category)
                 PayBar(
                     service = selected,
-                    finalPriceAmount = state.effectivePrice(selected.priceAmount, selected.category),
+                    finalPriceAmount = finalPrice,
                     onClick = {
-                        onServiceSelected(
-                            selected.category,
-                            state.effectivePrice(selected.priceAmount, selected.category),
-                            selected.durationMinutes,
-                            state.tier.name,
-                        )
+                        if (finalPrice == 0) {
+                            // Free offer — skip the payment dialog chain entirely.
+                            onServiceSelected(
+                                selected.category,
+                                0,
+                                selected.durationMinutes,
+                                state.tier.name,
+                            )
+                        } else {
+                            showPaymentFlow = true
+                        }
                     },
                 )
             }
@@ -255,6 +265,25 @@ fun ServicesScreen(
                 PulsingScrollArrow(tint = TealDeep)
             }
         }
+    }
+
+    if (showPaymentFlow && selected != null) {
+        val finalPrice = state.effectivePrice(selected.priceAmount, selected.category)
+        PaymentMethodFlow(
+            serviceName = selected.displayName,
+            priceAmount = finalPrice,
+            patientId = state.patientId,
+            onPaid = {
+                showPaymentFlow = false
+                onServiceSelected(
+                    selected.category,
+                    finalPrice,
+                    selected.durationMinutes,
+                    state.tier.name,
+                )
+            },
+            onDismiss = { showPaymentFlow = false },
+        )
     }
 }
 

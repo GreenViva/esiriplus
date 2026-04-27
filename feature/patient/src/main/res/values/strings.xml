@@ -163,6 +163,16 @@
     <string name="services_payment_confirmed_message">Your payment has been confirmed. You can now browse available healthcare providers.</string>
     <string name="services_continue">Continue</string>
     <string name="services_min_format">%d min</string>
+    <string name="services_pay_by_number">Pay by Mobile Number</string>
+    <string name="services_pay_by_number_subtitle">Approve a wallet prompt on any number</string>
+    <string name="services_enter_mobile_number">Enter mobile number</string>
+    <string name="services_send_prompt">Send Wallet Prompt</string>
+    <string name="services_check_your_phone">Check your phone</string>
+    <string name="services_approve_on_wallet">Approve TSh %1$s on the wallet prompt to confirm.</string>
+    <string name="services_payment_method_title_prefix">"Choose how to "</string>
+    <string name="services_payment_method_title_accent">pay.</string>
+    <string name="services_provider_title_prefix">"Pick a "</string>
+    <string name="services_provider_title_accent">provider.</string>
 
     <!-- ===== FindDoctorScreen ===== -->
     <string name="find_doctor_back">Back</string>

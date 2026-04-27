@@ -111,6 +111,16 @@
     <string name="services_payment_confirmed_message">Malipo yako yamethibitishwa. Sasa unaweza kupitia watoa huduma za afya wanaopatikana.</string>
     <string name="services_continue">Endelea</string>
     <string name="services_min_format">dk %d</string>
+    <string name="services_pay_by_number">Lipa kwa Nambari ya Simu</string>
+    <string name="services_pay_by_number_subtitle">Tutaomba kibali cha mkoba kwa nambari yoyote</string>
+    <string name="services_enter_mobile_number">Weka nambari ya simu</string>
+    <string name="services_send_prompt">Tuma Kibali cha Mkoba</string>
+    <string name="services_check_your_phone">Angalia simu yako</string>
+    <string name="services_approve_on_wallet">Thibitisha TSh %1$s kwenye dirisha la mkoba ili kukamilisha.</string>
+    <string name="services_payment_method_title_prefix">"Chagua jinsi ya "</string>
+    <string name="services_payment_method_title_accent">kulipa.</string>
+    <string name="services_provider_title_prefix">"Chagua "</string>
+    <string name="services_provider_title_accent">mtoa huduma.</string>
 
     <!-- ===== FindDoctorScreen ===== -->
     <string name="find_doctor_back">Rudi</string>
