@@ -35,9 +35,9 @@ export default function PaymentsPage() {
         .limit(PAGE_SIZE),
       // Earnings: source of truth for what the app owes each doctor.
       // The fn_auto_create_doctor_earning trigger already applies the
-      // platform cut (Royal 50%, Economy 30% + 20% follow-up escrow,
-      // substitute 60/40, etc.). We pull all rows so we can both sum
-      // pending balances and show per-doctor lifetime totals if needed.
+      // platform cut (Royal 50%, Economy 25% + 15% follow-up escrow held
+      // for 14 days). We pull all rows so we can both sum pending
+      // balances and show per-doctor lifetime totals if needed.
       supabase
         .from("doctor_earnings")
         .select("doctor_id, amount, status")
