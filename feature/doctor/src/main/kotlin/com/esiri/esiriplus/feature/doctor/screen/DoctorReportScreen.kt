@@ -120,12 +120,20 @@ fun ConsultationReportBottomSheet(
             )
         }
 
-        // Medication timetable dialog (Royal only)
+        // Medication timetable dialog (Royal only).
+        // If a timetable for this medication already exists, pre-populate the
+        // dialog with its values so the doctor can edit instead of starting
+        // over with default times.
         if (uiState.showTimetableDialog && uiState.timetableForPrescription != null) {
             val rx = uiState.timetableForPrescription!!
+            val existing = uiState.medicationTimetables
+                .firstOrNull { it.medicationName == rx.medication }
             MedicationTimetableDialog(
                 medicationName = rx.medication,
                 defaultDays = rx.days,
+                existingTimesPerDay = existing?.timesPerDay,
+                existingScheduledTimes = existing?.scheduledTimes,
+                existingDurationDays = existing?.durationDays,
                 onConfirm = { timesPerDay, scheduledTimes, durationDays ->
                     viewModel.confirmTimetable(timesPerDay, scheduledTimes, durationDays)
                 },

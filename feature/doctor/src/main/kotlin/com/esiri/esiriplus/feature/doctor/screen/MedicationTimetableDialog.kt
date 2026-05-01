@@ -49,12 +49,30 @@ private val TIME_DEFAULTS = mapOf(
 fun MedicationTimetableDialog(
     medicationName: String,
     defaultDays: Int = 7,
+    /**
+     * Existing schedule when re-opening to edit. When non-null, the dialog
+     * pre-populates with these values instead of the 3×/day default
+     * (so the doctor's previously-set times don't get clobbered).
+     */
+    existingTimesPerDay: Int? = null,
+    existingScheduledTimes: List<String>? = null,
+    existingDurationDays: Int? = null,
     onConfirm: (timesPerDay: Int, scheduledTimes: List<String>, durationDays: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var timesPerDay by remember { mutableIntStateOf(3) }
-    val scheduledTimes = remember { mutableStateListOf(*TIME_DEFAULTS[3]!!.toTypedArray()) }
-    var durationDays by remember { mutableStateOf(defaultDays.toString()) }
+    val initialTimesPerDay = existingTimesPerDay
+        ?.takeIf { it in 1..6 }
+        ?: 3
+    val initialScheduledTimes = existingScheduledTimes
+        ?.takeIf { it.isNotEmpty() }
+        ?: TIME_DEFAULTS[initialTimesPerDay]
+        ?: listOf("08:00")
+
+    var timesPerDay by remember { mutableIntStateOf(initialTimesPerDay) }
+    val scheduledTimes = remember { mutableStateListOf(*initialScheduledTimes.toTypedArray()) }
+    var durationDays by remember {
+        mutableStateOf((existingDurationDays ?: defaultDays).toString())
+    }
 
     fun updateTimesPerDay(n: Int) {
         timesPerDay = n

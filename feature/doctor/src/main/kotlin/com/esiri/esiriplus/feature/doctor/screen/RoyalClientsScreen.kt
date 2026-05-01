@@ -32,7 +32,9 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -89,8 +91,42 @@ fun RoyalClientsScreen(
     var nicknameVersion by remember { mutableStateOf(0) }
     // Track rename dialog
     var renamingConsultationId by remember { mutableStateOf<String?>(null) }
-    // Track medication timetable dialog
+    // Track medication timetable dialog: doctor taps "Set Medication Reminder",
+    // we fetch prescriptions for that consultation, then show either a picker
+    // (multiple meds), straight-to-dialog (single med), or empty-state toast.
     var timetableConsultation by remember { mutableStateOf<ConsultationEntity?>(null) }
+    var prescriptionsForPicker by remember {
+        mutableStateOf<List<com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel>?>(null)
+    }
+    var pickedPrescription by remember {
+        mutableStateOf<com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel?>(null)
+    }
+    val coroutineScope = rememberCoroutineScope()
+    val ctx = LocalContext.current
+
+    // When a consultation is selected for timetable setup, fetch its
+    // prescriptions in the background.
+    LaunchedEffect(timetableConsultation?.consultationId) {
+        val c = timetableConsultation
+        if (c == null) {
+            prescriptionsForPicker = null
+            return@LaunchedEffect
+        }
+        prescriptionsForPicker = null
+        val rows = viewModel.fetchPrescriptionsForConsultation(c.consultationId)
+        prescriptionsForPicker = rows
+        // If exactly one prescription, skip the picker and go straight to dialog.
+        if (rows.size == 1) {
+            pickedPrescription = rows.first()
+        } else if (rows.isEmpty()) {
+            android.widget.Toast.makeText(
+                ctx,
+                "No prescriptions on this consultation. Add one in the report first.",
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+            timetableConsultation = null
+        }
+    }
 
     Surface(modifier = modifier.fillMaxSize(), color = Color.White) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -222,26 +258,118 @@ fun RoyalClientsScreen(
         )
     }
 
-    // Medication timetable dialog
+    // Medication timetable flow:
+    //   1. Doctor tapped "Set Medication Reminder" → timetableConsultation set
+    //   2. LaunchedEffect fetches prescriptions
+    //   3. If multiple → show picker (PrescriptionPickerDialog)
+    //   4. If one → auto-select; user goes straight to MedicationTimetableDialog
+    //   5. Confirm → createMedicationTimetable with the actual medicine name
     val ttConsultation = timetableConsultation
-    if (ttConsultation != null) {
+    val rxList = prescriptionsForPicker
+    val picked = pickedPrescription
+
+    if (ttConsultation != null && rxList != null && rxList.size > 1 && picked == null) {
+        PrescriptionPickerDialog(
+            prescriptions = rxList,
+            onPick = { pickedPrescription = it },
+            onDismiss = {
+                pickedPrescription = null
+                timetableConsultation = null
+            },
+        )
+    }
+
+    if (ttConsultation != null && picked != null) {
+        val medLabel = picked.medicationName +
+            (picked.dosage?.takeIf { it.isNotBlank() }?.let { " · $it" } ?: "")
+        val parsedDays = picked.duration?.let { Regex("\\d+").find(it)?.value?.toIntOrNull() } ?: 7
         MedicationTimetableDialog(
-            medicationName = "Medication for ${nicknameStore.get(ttConsultation.consultationId) ?: "Royal Patient"}",
-            defaultDays = 7,
+            medicationName = medLabel,
+            defaultDays = parsedDays,
             onConfirm = { timesPerDay, scheduledTimes, durationDays ->
                 viewModel.createMedicationTimetable(
                     consultationId = ttConsultation.consultationId,
                     patientSessionId = ttConsultation.patientSessionId,
-                    medicationName = "Prescribed medication",
+                    medicationName = picked.medicationName,
                     timesPerDay = timesPerDay,
                     scheduledTimes = scheduledTimes,
                     durationDays = durationDays,
                 )
+                pickedPrescription = null
                 timetableConsultation = null
             },
-            onDismiss = { timetableConsultation = null },
+            onDismiss = {
+                pickedPrescription = null
+                // If we came from the picker, dismiss everything; if there was
+                // only one prescription, dismissing closes the whole flow.
+                timetableConsultation = null
+            },
         )
     }
+}
+
+/** Picker shown when the consultation has multiple prescribed medicines. */
+@Composable
+private fun PrescriptionPickerDialog(
+    prescriptions: List<com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel>,
+    onPick: (com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                "Choose medication",
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontSize = 18.sp,
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    "Pick the medicine you want to schedule a reminder for:",
+                    color = Color(0xFF6B7C77),
+                    fontSize = 13.sp,
+                )
+                Spacer(Modifier.height(12.dp))
+                prescriptions.forEach { rx ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        color = Color(0xFFF1FBF8),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFA7E5DA)),
+                        onClick = { onPick(rx) },
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                rx.medicationName,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF115E59),
+                                fontSize = 14.sp,
+                            )
+                            val sub = listOfNotNull(
+                                rx.dosage?.takeIf { it.isNotBlank() },
+                                rx.frequency?.takeIf { it.isNotBlank() },
+                                rx.duration?.takeIf { it.isNotBlank() },
+                            ).joinToString(" · ")
+                            if (sub.isNotBlank()) {
+                                Spacer(Modifier.height(2.dp))
+                                Text(sub, color = Color(0xFF0F766E), fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = onDismiss) {
+                Text("Cancel", color = Color(0xFF6B7C77))
+            }
+        },
+    )
 }
 
 // ── Call Option Bottom Sheet ─────────────────────────────────────────────────────

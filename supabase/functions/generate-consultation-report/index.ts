@@ -266,6 +266,36 @@ Respond ONLY with valid JSON, no markdown, no backticks.
       throw new ValidationError(`Report save failed: ${reportErr.message}`);
     }
 
+    // ── Normalised prescriptions ─────────────────────────────────────────
+    // The full prescription list is stored as JSON on consultation_reports
+    // for report rendering. We ALSO write one row per prescription into the
+    // standalone prescriptions table so other surfaces (Royal Clients screen
+    // medication-reminder picker, doctor's history view, etc.) can query a
+    // clean relational list. Best-effort: any failure here just logs.
+    if (prescriptionsList.length > 0) {
+      const rxRows = prescriptionsList
+        .filter((p) => typeof p.medication === "string" && p.medication.trim().length > 0)
+        .map((p) => ({
+          consultation_id,
+          medication_name: p.medication,
+          dosage: p.dosage ?? null,
+          frequency: null as string | null,
+          duration: null as string | null,
+        }));
+      if (rxRows.length > 0) {
+        try {
+          const { error: rxErr } = await supabase.from("prescriptions").insert(rxRows);
+          if (rxErr) {
+            console.warn(`[generate-report] prescriptions insert warning: ${rxErr.message}`);
+          } else {
+            console.log(`[generate-report] Inserted ${rxRows.length} prescriptions for ${consultation_id}`);
+          }
+        } catch (e) {
+          console.warn(`[generate-report] prescriptions insert exception:`, e);
+        }
+      }
+    }
+
     // Mark report as submitted AND ensure consultation is completed — this
     // triggers fn_sync_doctor_in_session() which clears in_session, making
     // the doctor available for new requests. Setting status alongside

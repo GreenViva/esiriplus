@@ -3,6 +3,7 @@ package com.esiri.esiriplus.core.network.api
 import com.esiri.esiriplus.core.network.api.model.AgentEarningApiModel
 import com.esiri.esiriplus.core.network.api.model.ConsultationApiModel
 import com.esiri.esiriplus.core.network.api.model.PaymentApiModel
+import com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel
 import com.esiri.esiriplus.core.network.api.model.UpdateConsultationStatusBody
 import com.esiri.esiriplus.core.network.api.model.UpdateUserBody
 import com.esiri.esiriplus.core.network.api.model.UserApiModel
@@ -45,6 +46,14 @@ interface SupabaseApi {
         @Header("Prefer") prefer: String = "return=representation",
         @Header("Accept") accept: String = "application/vnd.pgrst.object+json",
     ): Response<ConsultationApiModel>
+
+    // Prescriptions
+    @GET("rest/v1/prescriptions")
+    suspend fun getPrescriptionsForConsultation(
+        @Query("consultation_id") consultationIdFilter: String,
+        @Query("select") select: String = "prescription_id,medication_name,dosage,frequency,duration",
+        @Query("order") order: String = "created_at.asc",
+    ): List<PrescriptionApiModel>
 
     // Payments
     @GET("rest/v1/payments")
