@@ -10,7 +10,13 @@ data class ServiceTierEntity(
     val category: String,
     val displayName: String,
     val description: String,
+    /** Economy-tier price for this service. */
     val priceAmount: Int,
+    /**
+     * Royal-tier price for this service. Set explicitly per service (since
+     * 2026-05-01) — no longer computed as priceAmount × 10.
+     */
+    @ColumnInfo(defaultValue = "0") val royalPrice: Int = 0,
     val currency: String,
     val isActive: Boolean = true,
     val sortOrder: Int = 0,

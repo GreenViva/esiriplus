@@ -19,7 +19,8 @@ const SERVICES = [
     category: 'NURSE',
     name: 'Nurse',
     description: 'Normal consultations for everyday health concerns',
-    price: 5000,
+    price: 3000,
+    royalPrice: 322000,
     duration: 15,
     features: ['Basic health advice', 'Symptom assessment', 'Health education'],
     icon: HeartPulse,
@@ -31,7 +32,8 @@ const SERVICES = [
     category: 'CLINICAL_OFFICER',
     name: 'Clinical Officer',
     description: 'Daily medical consultations for common ailments',
-    price: 7000,
+    price: 5000,
+    royalPrice: 350000,
     duration: 15,
     features: ['Medical diagnosis', 'Treatment recommendations', 'Prescription guidance'],
     icon: UserCheck,
@@ -44,6 +46,7 @@ const SERVICES = [
     name: 'Pharmacist',
     description: 'Quick medication advice and drug interaction checks',
     price: 3000,
+    royalPrice: 322000,
     duration: 5,
     features: ['Medication advice', 'Drug interaction checks', 'Dosage guidance'],
     icon: Pill,
@@ -56,6 +59,7 @@ const SERVICES = [
     name: 'General Practitioner',
     description: 'Comprehensive care with specialist referrals when needed',
     price: 10000,
+    royalPrice: 420000,
     duration: 15,
     features: ['Full medical assessment', 'Treatment planning', 'Specialist referrals'],
     icon: Stethoscope,
@@ -68,6 +72,7 @@ const SERVICES = [
     name: 'Specialist',
     description: 'Expert consultation in specialized medical fields',
     price: 30000,
+    royalPrice: 700000,
     duration: 15,
     features: ['Specialized expertise', 'Advanced diagnostics', 'Detailed treatment plans'],
     icon: FlaskConical,
@@ -80,6 +85,7 @@ const SERVICES = [
     name: 'Psychologist',
     description: 'Professional mental health support and counseling',
     price: 50000,
+    royalPrice: 980000,
     duration: 20,
     features: ['Mental health support', 'Professional counseling', 'Therapy session'],
     icon: Brain,
@@ -92,6 +98,7 @@ const SERVICES = [
     name: 'Herbalist',
     description: 'Traditional and herbal medicine consultation',
     price: 5000,
+    royalPrice: 350000,
     duration: 15,
     features: ['Herbal medicine consultation', 'Traditional remedy guidance', 'Natural supplement advice'],
     icon: Leaf,
@@ -104,6 +111,7 @@ const SERVICES = [
     name: 'Drug Interaction',
     description: 'Check drug interactions and get safety guidance',
     price: 5000,
+    royalPrice: 350000,
     duration: 5,
     features: ['Drug interaction checks', 'Safety alerts', 'Dosage guidance'],
     icon: AlertTriangle,
@@ -114,10 +122,10 @@ const SERVICES = [
 
 type Tier = 'ECONOMY' | 'ROYAL';
 
-// Royal tier applies 10x multiplier (matching PricingEngine.kt)
-const ROYAL_MULTIPLIER = 10;
-function effectivePrice(base: number, tier: Tier): number {
-  return tier === 'ROYAL' ? base * ROYAL_MULTIPLIER : base;
+// Per-tier price lookup. The 10× multiplier was dropped 2026-05-01 — Royal
+// prices are explicit per service. Mirrors PricingEngine.kt.
+function effectivePrice(service: { price: number; royalPrice: number }, tier: Tier): number {
+  return tier === 'ROYAL' ? service.royalPrice : service.price;
 }
 
 function formatTZS(amount: number) {
@@ -524,7 +532,7 @@ function ServicesContent() {
 
   const isRoyal = tier === 'ROYAL';
   const selectedService = SERVICES.find((s) => s.id === selectedId);
-  const selectedPrice = selectedService ? effectivePrice(selectedService.price, tier) : 0;
+  const selectedPrice = selectedService ? effectivePrice(selectedService, tier) : 0;
 
   function handleContinue() {
     if (!selectedService) return;
@@ -563,7 +571,7 @@ function ServicesContent() {
       {/* Service List */}
       <div className="flex-1 overflow-y-auto px-5 pb-28 space-y-3">
         {SERVICES.map((service) => {
-          const price = effectivePrice(service.price, tier);
+          const price = effectivePrice(service, tier);
           const isSelected = selectedId === service.id;
           const Icon = service.icon;
 

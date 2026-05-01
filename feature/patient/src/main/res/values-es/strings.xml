@@ -6,7 +6,6 @@
     <string name="tier_title">Elige tu servicio</string>
     <string name="tier_subtitle">Selecciona el nivel de atención que más te convenga</string>
     <string name="tier_royal_badge">★ PREMIUM</string>
-    <string name="tier_royal_multiplier">10× el precio base</string>
     <string name="tier_royal_title">Servicio Real</string>
     <string name="tier_royal_tagline">Atención prioritaria con beneficios extendidos</string>
     <string name="tier_royal_benefit_1">Ventana de seguimiento de 14 días</string>

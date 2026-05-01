@@ -30,8 +30,8 @@ class DatabaseCallback(
         SERVICE_TIERS.forEach { tier ->
             db.execSQL(
                 """
-                INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder, durationMinutes, features)
-                VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+                INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, royalPrice, currency, isActive, sortOrder, durationMinutes, features)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
                 """.trimIndent(),
                 arrayOf<Any>(
                     tier.id,
@@ -39,6 +39,7 @@ class DatabaseCallback(
                     tier.displayName,
                     tier.description,
                     tier.priceAmount,
+                    tier.royalPrice,
                     tier.currency,
                     tier.sortOrder,
                     tier.durationMinutes,
@@ -79,8 +80,8 @@ class DatabaseCallback(
             SERVICE_TIERS.forEach { tier ->
                 db.execSQL(
                     """
-                    INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, currency, isActive, sortOrder, durationMinutes, features)
-                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+                    INSERT OR IGNORE INTO service_tiers (id, category, displayName, description, priceAmount, royalPrice, currency, isActive, sortOrder, durationMinutes, features)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
                     """.trimIndent(),
                     arrayOf<Any>(
                         tier.id,
@@ -88,6 +89,7 @@ class DatabaseCallback(
                         tier.displayName,
                         tier.description,
                         tier.priceAmount,
+                        tier.royalPrice,
                         tier.currency,
                         tier.sortOrder,
                         tier.durationMinutes,
@@ -110,6 +112,7 @@ class DatabaseCallback(
             val displayName: String,
             val description: String,
             val priceAmount: Int,
+            val royalPrice: Int,
             val currency: String,
             val sortOrder: Int,
             val durationMinutes: Int,
@@ -128,7 +131,8 @@ class DatabaseCallback(
                 category = "NURSE",
                 displayName = "Nurse",
                 description = "Normal consultations for everyday health concerns",
-                priceAmount = 5000,
+                priceAmount = 3000,
+                royalPrice = 322000,
                 currency = "TZS",
                 sortOrder = 1,
                 durationMinutes = 15,
@@ -139,7 +143,8 @@ class DatabaseCallback(
                 category = "CLINICAL_OFFICER",
                 displayName = "Clinical Officer",
                 description = "Daily medical consultations for common ailments",
-                priceAmount = 7000,
+                priceAmount = 5000,
+                royalPrice = 350000,
                 currency = "TZS",
                 sortOrder = 2,
                 durationMinutes = 15,
@@ -151,6 +156,7 @@ class DatabaseCallback(
                 displayName = "Pharmacist",
                 description = "Quick medication advice and drug interaction checks",
                 priceAmount = 3000,
+                royalPrice = 322000,
                 currency = "TZS",
                 sortOrder = 3,
                 durationMinutes = 5,
@@ -162,6 +168,7 @@ class DatabaseCallback(
                 displayName = "General Practitioner",
                 description = "Comprehensive care with specialist referrals when needed",
                 priceAmount = 10000,
+                royalPrice = 420000,
                 currency = "TZS",
                 sortOrder = 4,
                 durationMinutes = 15,
@@ -173,6 +180,7 @@ class DatabaseCallback(
                 displayName = "Specialist",
                 description = "Expert consultation in specialized medical fields",
                 priceAmount = 30000,
+                royalPrice = 700000,
                 currency = "TZS",
                 sortOrder = 5,
                 durationMinutes = 15,
@@ -184,6 +192,7 @@ class DatabaseCallback(
                 displayName = "Psychologist",
                 description = "Professional mental health support and counseling",
                 priceAmount = 50000,
+                royalPrice = 980000,
                 currency = "TZS",
                 sortOrder = 6,
                 durationMinutes = 20,
@@ -195,6 +204,7 @@ class DatabaseCallback(
                 displayName = "Herbalist",
                 description = "Traditional and herbal medicine consultation",
                 priceAmount = 5000,
+                royalPrice = 350000,
                 currency = "TZS",
                 sortOrder = 7,
                 durationMinutes = 15,
@@ -206,6 +216,7 @@ class DatabaseCallback(
                 displayName = "Drug Interaction",
                 description = "Check drug interactions and get safety guidance",
                 priceAmount = 5000,
+                royalPrice = 350000,
                 currency = "TZS",
                 sortOrder = 8,
                 durationMinutes = 5,

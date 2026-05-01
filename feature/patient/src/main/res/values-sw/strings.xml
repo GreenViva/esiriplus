@@ -6,7 +6,6 @@
     <string name="tier_title">Chagua Huduma Yako</string>
     <string name="tier_subtitle">Chagua kiwango cha huduma kinachokufaa</string>
     <string name="tier_royal_badge">★ HUDUMA YA JUU</string>
-    <string name="tier_royal_multiplier">Mara 10 ya bei ya kawaida</string>
     <string name="tier_royal_title">Huduma ya Kifalme</string>
     <string name="tier_royal_tagline">Huduma ya kipaumbele na faida zaidi</string>
     <string name="tier_royal_benefit_1">Dirisha la kufuatilia la siku 14</string>
@@ -499,14 +498,14 @@
     <string name="tier_headline_accent">huduma vipi?</string>
     <string name="tier_subtitle_short">Madaktari sawa, uzoefu tofauti.</string>
     <string name="tier_price_from_label">KUANZIA</string>
-    <string name="tier_economy_price_from">TSh 5,000</string>
+    <string name="tier_economy_price_from">TSh 3,000</string>
     <string name="tier_economy_short_desc">Huduma bora kwa bei ya kawaida — inayofaa matatizo ya kila siku.</string>
     <string name="tier_economy_feature_1">Mashauriano kamili na daktari aliyethibitishwa</string>
     <string name="tier_economy_feature_2">Ufuatiliaji 1 ndani ya siku 14</string>
     <string name="tier_economy_feature_3">Ripoti ya mashauriano kwa msaada wa AI</string>
     <string name="tier_economy_cta">Endelea na Economy</string>
     <string name="tier_economy_badge_chosen">INAYOPENDWA ZAIDI</string>
-    <string name="tier_royal_price_from">TSh 50,000</string>
+    <string name="tier_royal_price_from">TSh 322,000</string>
     <string name="tier_royal_short_desc">Huduma ya kipaumbele, ufikiaji wa muda mrefu, ziara nyumbani inapohitajika.</string>
     <string name="tier_royal_feature_1">Siku 14 za ufuatiliaji · bila kikomo</string>
     <string name="tier_royal_feature_2">Foleni ya kipaumbele · ruka kusubiri</string>

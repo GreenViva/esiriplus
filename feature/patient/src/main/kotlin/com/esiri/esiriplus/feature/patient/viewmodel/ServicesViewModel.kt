@@ -39,18 +39,20 @@ data class ServicesUiState(
     /** Offers currently available to this patient for their location + tier. */
     val applicableOffers: List<LocationOffer> = emptyList(),
 ) {
-    /** Price after tier multiplier only — used as the "original" strikethrough price. */
-    fun tierAdjustedPrice(basePrice: Int): Int = PricingEngine.calculatePrice(basePrice, tier)
+    /**
+     * Price for the selected tier (Economy or Royal) — used as the "original"
+     * strikethrough price before any location offer is applied.
+     */
+    fun tierAdjustedPrice(service: ServiceTierEntity): Int =
+        PricingEngine.calculatePrice(service.priceAmount, service.royalPrice, tier)
 
     /**
-     * The final price a patient pays. Applies tier multiplier then the best
-     * matching offer (if any). Existing call sites that pass no [serviceCategory]
-     * continue to get tier-only pricing — that keeps unrelated flows unaffected.
+     * The final price a patient pays. Picks the tier price for [service], then
+     * applies the best matching location offer (if any).
      */
-    fun effectivePrice(basePrice: Int, serviceCategory: String? = null): Int {
-        val adjusted = tierAdjustedPrice(basePrice)
-        if (serviceCategory == null) return adjusted
-        val offer = offerFor(serviceCategory) ?: return adjusted
+    fun effectivePrice(service: ServiceTierEntity): Int {
+        val adjusted = tierAdjustedPrice(service)
+        val offer = offerFor(service.category) ?: return adjusted
         return offer.applyTo(adjusted)
     }
 
@@ -191,14 +193,14 @@ class ServicesViewModel @Inject constructor(
         private const val TAG = "ServicesVM"
 
         private val FALLBACK_SERVICES = listOf(
-            ServiceTierEntity(id = "tier_nurse", category = "NURSE", displayName = "Nurse", description = "Normal consultations for everyday health concerns", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 1, durationMinutes = 15, features = "Basic health advice,Symptom assessment,Health education"),
-            ServiceTierEntity(id = "tier_clinical_officer", category = "CLINICAL_OFFICER", displayName = "Clinical Officer", description = "Daily medical consultations for common ailments", priceAmount = 7000, currency = "TZS", isActive = true, sortOrder = 2, durationMinutes = 15, features = "Medical diagnosis,Treatment recommendations,Prescription guidance"),
-            ServiceTierEntity(id = "tier_pharmacist", category = "PHARMACIST", displayName = "Pharmacist", description = "Quick medication advice and drug interaction checks", priceAmount = 3000, currency = "TZS", isActive = true, sortOrder = 3, durationMinutes = 5, features = "Medication advice,Drug interaction checks,Dosage guidance"),
-            ServiceTierEntity(id = "tier_gp", category = "GP", displayName = "General Practitioner", description = "Comprehensive care with specialist referrals when needed", priceAmount = 10000, currency = "TZS", isActive = true, sortOrder = 4, durationMinutes = 15, features = "Full medical assessment,Treatment planning,Specialist referrals"),
-            ServiceTierEntity(id = "tier_specialist", category = "SPECIALIST", displayName = "Specialist", description = "Expert consultation in specialized medical fields", priceAmount = 30000, currency = "TZS", isActive = true, sortOrder = 5, durationMinutes = 15, features = "Specialized expertise,Advanced diagnostics,Detailed treatment plans"),
-            ServiceTierEntity(id = "tier_psychologist", category = "PSYCHOLOGIST", displayName = "Psychologist", description = "Professional mental health support and counseling", priceAmount = 50000, currency = "TZS", isActive = true, sortOrder = 6, durationMinutes = 20, features = "Mental health support,Professional counseling,Therapy session"),
-            ServiceTierEntity(id = "tier_herbalist", category = "HERBALIST", displayName = "Herbalist", description = "Traditional and herbal medicine consultation", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 7, durationMinutes = 15, features = "Herbal medicine consultation,Traditional remedy guidance,Natural supplement advice"),
-            ServiceTierEntity(id = "tier_drug_interaction", category = "DRUG_INTERACTION", displayName = "Drug Interaction", description = "Check drug interactions and get safety guidance", priceAmount = 5000, currency = "TZS", isActive = true, sortOrder = 8, durationMinutes = 5, features = "Drug interaction checks,Safety alerts,Dosage guidance"),
+            ServiceTierEntity(id = "tier_nurse", category = "NURSE", displayName = "Nurse", description = "Normal consultations for everyday health concerns", priceAmount = 3000, royalPrice = 322000, currency = "TZS", isActive = true, sortOrder = 1, durationMinutes = 15, features = "Basic health advice,Symptom assessment,Health education"),
+            ServiceTierEntity(id = "tier_clinical_officer", category = "CLINICAL_OFFICER", displayName = "Clinical Officer", description = "Daily medical consultations for common ailments", priceAmount = 5000, royalPrice = 350000, currency = "TZS", isActive = true, sortOrder = 2, durationMinutes = 15, features = "Medical diagnosis,Treatment recommendations,Prescription guidance"),
+            ServiceTierEntity(id = "tier_pharmacist", category = "PHARMACIST", displayName = "Pharmacist", description = "Quick medication advice and drug interaction checks", priceAmount = 3000, royalPrice = 322000, currency = "TZS", isActive = true, sortOrder = 3, durationMinutes = 5, features = "Medication advice,Drug interaction checks,Dosage guidance"),
+            ServiceTierEntity(id = "tier_gp", category = "GP", displayName = "General Practitioner", description = "Comprehensive care with specialist referrals when needed", priceAmount = 10000, royalPrice = 420000, currency = "TZS", isActive = true, sortOrder = 4, durationMinutes = 15, features = "Full medical assessment,Treatment planning,Specialist referrals"),
+            ServiceTierEntity(id = "tier_specialist", category = "SPECIALIST", displayName = "Specialist", description = "Expert consultation in specialized medical fields", priceAmount = 30000, royalPrice = 700000, currency = "TZS", isActive = true, sortOrder = 5, durationMinutes = 15, features = "Specialized expertise,Advanced diagnostics,Detailed treatment plans"),
+            ServiceTierEntity(id = "tier_psychologist", category = "PSYCHOLOGIST", displayName = "Psychologist", description = "Professional mental health support and counseling", priceAmount = 50000, royalPrice = 980000, currency = "TZS", isActive = true, sortOrder = 6, durationMinutes = 20, features = "Mental health support,Professional counseling,Therapy session"),
+            ServiceTierEntity(id = "tier_herbalist", category = "HERBALIST", displayName = "Herbalist", description = "Traditional and herbal medicine consultation", priceAmount = 5000, royalPrice = 350000, currency = "TZS", isActive = true, sortOrder = 7, durationMinutes = 15, features = "Herbal medicine consultation,Traditional remedy guidance,Natural supplement advice"),
+            ServiceTierEntity(id = "tier_drug_interaction", category = "DRUG_INTERACTION", displayName = "Drug Interaction", description = "Check drug interactions and get safety guidance", priceAmount = 5000, royalPrice = 350000, currency = "TZS", isActive = true, sortOrder = 8, durationMinutes = 5, features = "Drug interaction checks,Safety alerts,Dosage guidance"),
         )
     }
 

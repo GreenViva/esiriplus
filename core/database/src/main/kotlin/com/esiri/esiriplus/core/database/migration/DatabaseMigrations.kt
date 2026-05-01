@@ -888,6 +888,32 @@ object DatabaseMigrations {
         }
     }
 
+    /**
+     * Adds royalPrice to service_tiers (2026-05-01: dropped the 10× multiplier
+     * model in favour of explicit per-service Royal pricing). Also corrects two
+     * stale Economy prices that disagreed with app_config — the seed had
+     * lingered from the original tier definitions.
+     */
+    val MIGRATION_33_34 = object : Migration(33, 34) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE `service_tiers` ADD COLUMN `royalPrice` INTEGER NOT NULL DEFAULT 0")
+
+            // Fix stale Economy prices to match app_config source-of-truth.
+            db.execSQL("UPDATE `service_tiers` SET `priceAmount` = 3000 WHERE `category` = 'NURSE'")
+            db.execSQL("UPDATE `service_tiers` SET `priceAmount` = 5000 WHERE `category` = 'CLINICAL_OFFICER'")
+
+            // Backfill Royal prices per service.
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 322000 WHERE `category` = 'NURSE'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 322000 WHERE `category` = 'PHARMACIST'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 350000 WHERE `category` = 'CLINICAL_OFFICER'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 420000 WHERE `category` = 'GP'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 700000 WHERE `category` = 'SPECIALIST'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 980000 WHERE `category` = 'PSYCHOLOGIST'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 350000 WHERE `category` = 'HERBALIST'")
+            db.execSQL("UPDATE `service_tiers` SET `royalPrice` = 350000 WHERE `category` = 'DRUG_INTERACTION'")
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -921,5 +947,6 @@ object DatabaseMigrations {
         MIGRATION_30_31,
         MIGRATION_31_32,
         MIGRATION_32_33,
+        MIGRATION_33_34,
     )
 }

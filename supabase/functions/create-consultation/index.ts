@@ -180,11 +180,26 @@ Deno.serve(async (req: Request) => {
       ? String((body as Record<string, unknown>).service_street).trim() || null
       : null;
 
-    const basePrice = (body as Record<string, unknown>).price
-      ? Number((body as Record<string, unknown>).price)
-      : (serviceTier?.price_amount ?? 0);
-    // Royal tier: 10x multiplier (matches client-side effectivePrice())
-    const tierAdjustedPrice = tier === "ROYAL" ? basePrice * 10 : basePrice;
+    // Pricing source-of-truth (since 2026-05-01):
+    //   Client passes the tier-adjusted price in body.price (Economy or Royal,
+    //   already resolved client-side from ServiceTierEntity.priceAmount /
+    //   royalPrice). When body.price is missing (legacy callers), look up the
+    //   per-tier price from app_config: price_<service> / royal_price_<service>.
+    //   The 10× multiplier model was dropped — Royal prices are now explicit
+    //   per service.
+    let tierAdjustedPrice: number;
+    if ((body as Record<string, unknown>).price !== undefined) {
+      tierAdjustedPrice = Number((body as Record<string, unknown>).price);
+    } else {
+      const serviceKey = String(body.service_type).toLowerCase();
+      const configKey = tier === "ROYAL" ? `royal_price_${serviceKey}` : `price_${serviceKey}`;
+      const { data: priceRow } = await supabase
+        .from("app_config")
+        .select("config_value")
+        .eq("config_key", configKey)
+        .single();
+      tierAdjustedPrice = Number(priceRow?.config_value ?? serviceTier?.price_amount ?? 0);
+    }
     const durationMinutes = (body as Record<string, unknown>).duration
       ? Number((body as Record<string, unknown>).duration)
       : (serviceTier?.duration_minutes ?? 15);

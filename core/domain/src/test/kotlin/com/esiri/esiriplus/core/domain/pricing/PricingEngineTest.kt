@@ -7,59 +7,61 @@ import org.junit.Test
 
 class PricingEngineTest {
 
-    // ── calculatePrice ────────────────────────────────────────────────────────
+    // ── calculatePrice — picks per-tier price (no multiplier) ─────────────────
 
     @Test
-    fun `Economy multiplier is 1 — price unchanged`() {
-        assertEquals(10_000, PricingEngine.calculatePrice(10_000, ConsultationTier.ECONOMY))
+    fun `Economy picks basePrice`() {
+        assertEquals(
+            10_000,
+            PricingEngine.calculatePrice(basePrice = 10_000, royalPrice = 420_000, ConsultationTier.ECONOMY),
+        )
     }
 
     @Test
-    fun `Royal multiplier is 10 — price is 10x base`() {
-        assertEquals(100_000, PricingEngine.calculatePrice(10_000, ConsultationTier.ROYAL))
+    fun `Royal picks royalPrice (not basePrice × 10)`() {
+        // GP: Economy 10,000 / Royal 420,000 — explicit, not multiplied.
+        assertEquals(
+            420_000,
+            PricingEngine.calculatePrice(basePrice = 10_000, royalPrice = 420_000, ConsultationTier.ROYAL),
+        )
     }
 
     @Test
-    fun `calculatePrice handles zero base price`() {
-        assertEquals(0, PricingEngine.calculatePrice(0, ConsultationTier.ROYAL))
-        assertEquals(0, PricingEngine.calculatePrice(0, ConsultationTier.ECONOMY))
+    fun `Nurse Economy is 3000`() {
+        assertEquals(
+            3_000,
+            PricingEngine.calculatePrice(basePrice = 3_000, royalPrice = 322_000, ConsultationTier.ECONOMY),
+        )
     }
 
     @Test
-    fun `Nurse Economy price is 5000`() {
-        assertEquals(5_000, PricingEngine.calculatePrice(5_000, ConsultationTier.ECONOMY))
+    fun `Nurse Royal is 322000 (was 30,000 under old 10× rule)`() {
+        assertEquals(
+            322_000,
+            PricingEngine.calculatePrice(basePrice = 3_000, royalPrice = 322_000, ConsultationTier.ROYAL),
+        )
     }
 
     @Test
-    fun `Nurse Royal price is 50000`() {
-        assertEquals(50_000, PricingEngine.calculatePrice(5_000, ConsultationTier.ROYAL))
+    fun `Specialist Royal is 700000 (was 300,000 under old 10× rule)`() {
+        assertEquals(
+            700_000,
+            PricingEngine.calculatePrice(basePrice = 30_000, royalPrice = 700_000, ConsultationTier.ROYAL),
+        )
     }
 
     @Test
-    fun `GP Economy price is 10000`() {
-        assertEquals(10_000, PricingEngine.calculatePrice(10_000, ConsultationTier.ECONOMY))
+    fun `Psychologist Royal is 980000 (was 500,000 under old 10× rule)`() {
+        assertEquals(
+            980_000,
+            PricingEngine.calculatePrice(basePrice = 50_000, royalPrice = 980_000, ConsultationTier.ROYAL),
+        )
     }
 
     @Test
-    fun `GP Royal price is 100000`() {
-        assertEquals(100_000, PricingEngine.calculatePrice(10_000, ConsultationTier.ROYAL))
-    }
-
-    @Test
-    fun `Specialist Royal price is 300000`() {
-        assertEquals(300_000, PricingEngine.calculatePrice(30_000, ConsultationTier.ROYAL))
-    }
-
-    // ── getMultiplier ─────────────────────────────────────────────────────────
-
-    @Test
-    fun `Economy multiplier value is 1`() {
-        assertEquals(1, PricingEngine.getMultiplier(ConsultationTier.ECONOMY))
-    }
-
-    @Test
-    fun `Royal multiplier value is 10`() {
-        assertEquals(10, PricingEngine.getMultiplier(ConsultationTier.ROYAL))
+    fun `Zero prices are returned as-is`() {
+        assertEquals(0, PricingEngine.calculatePrice(0, 0, ConsultationTier.ROYAL))
+        assertEquals(0, PricingEngine.calculatePrice(0, 0, ConsultationTier.ECONOMY))
     }
 
     // ── getFollowUpWindowDays ─────────────────────────────────────────────────
@@ -90,7 +92,7 @@ class PricingEngineTest {
 
     @Test
     fun `Royal follow-up expiry is 14 days after consultation end`() {
-        val consultationEnd = 1_000_000_000L // arbitrary epoch millis
+        val consultationEnd = 1_000_000_000L
         val expected = consultationEnd + 14L * 24L * 60L * 60L * 1_000L
         assertEquals(expected, PricingEngine.calculateFollowUpExpiry(consultationEnd, ConsultationTier.ROYAL))
     }

@@ -157,7 +157,7 @@ fun ServicesScreen(
         topBar = { ServicesTopBar(onBack = onBack) },
         bottomBar = {
             if (selected != null) {
-                val finalPrice = state.effectivePrice(selected.priceAmount, selected.category)
+                val finalPrice = state.effectivePrice(selected)
                 PayBar(
                     service = selected,
                     finalPriceAmount = finalPrice,
@@ -268,7 +268,7 @@ fun ServicesScreen(
     }
 
     if (showPaymentFlow && selected != null) {
-        val finalPrice = state.effectivePrice(selected.priceAmount, selected.category)
+        val finalPrice = state.effectivePrice(selected)
         PaymentMethodFlow(
             serviceName = selected.displayName,
             priceAmount = finalPrice,
@@ -378,7 +378,7 @@ private fun ServiceGroupSection(
             service = service,
             visuals = visualsFor(service.category),
             isSelected = service.id == selectedId,
-            finalPriceAmount = state.effectivePrice(service.priceAmount, service.category),
+            finalPriceAmount = state.effectivePrice(service),
             onSelect = { onSelect(service.id) },
         )
         Spacer(Modifier.height(8.dp))
