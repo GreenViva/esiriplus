@@ -111,15 +111,21 @@ async function sendFCM(
       },
       android: {
         priority: "high",
-        // For VIDEO_CALL_INCOMING: omit notification block so onMessageReceived()
-        // fires even when app is backgrounded/killed (data-only message).
-        // The Android client builds its own notification in showIncomingCallNotification().
-        ...(notification.type === "VIDEO_CALL_INCOMING" ? {} : {
-          notification: {
-            sound: "default",
-            channel_id: "esiri_main",
-          },
-        }),
+        // Data-only message for incoming-call style flows so onMessageReceived()
+        // fires even when the app is backgrounded/killed. The Android client
+        // builds its own full-screen notification in showIncomingCallNotification().
+        ...(
+          notification.type === "VIDEO_CALL_INCOMING" ||
+          notification.type === "MEDICATION_REMINDER_RING" ||
+          notification.type === "MEDICATION_REMINDER_CALL"
+            ? {}
+            : {
+              notification: {
+                sound: "default",
+                channel_id: "esiri_main",
+              },
+            }
+        ),
       },
     },
   };

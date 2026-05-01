@@ -98,6 +98,11 @@ Deno.serve(async (req: Request) => {
 
     // Verify the caller is a participant in this consultation
     let consultation;
+    // Nurse-via-medication-reminder path: when an assigned nurse calls a Royal
+    // patient on behalf of the consultation's doctor. Specialty lives in
+    // doctor_profiles, so the nurse arrives here with auth.role === "doctor"
+    // but they are NOT consultations.doctor_id — Greenviva (or whoever) is.
+    let isMedReminderNurse = false;
     if (auth.role === "doctor") {
       const { data } = await supabase
         .from("consultations")
@@ -106,6 +111,29 @@ Deno.serve(async (req: Request) => {
         .eq("doctor_id", auth.userId)
         .single();
       consultation = data;
+
+      if (!consultation) {
+        // Try the nurse fallback: is this user the assigned nurse for an
+        // active reminder event tied to this consultation?
+        const { data: ev } = await supabase
+          .from("medication_reminder_events")
+          .select("event_id, status, nurse_id, medication_timetables!inner(consultation_id)")
+          .eq("nurse_id", auth.userId)
+          .in("status", ["nurse_accepted", "nurse_calling"])
+          .eq("medication_timetables.consultation_id", consultation_id)
+          .limit(1)
+          .maybeSingle();
+
+        if (ev) {
+          const { data: full } = await supabase
+            .from("consultations")
+            .select("consultation_id, status, video_room_id, patient_session_id, doctor_id, service_tier, follow_up_expiry")
+            .eq("consultation_id", consultation_id)
+            .single();
+          consultation = full;
+          isMedReminderNurse = true;
+        }
+      }
     } else {
       const { data } = await supabase
         .from("consultations")
@@ -126,7 +154,7 @@ Deno.serve(async (req: Request) => {
       && consultation.status === "completed"
       && (!consultation.follow_up_expiry || new Date(consultation.follow_up_expiry) > new Date());
 
-    if (!CALLABLE_STATUSES.includes(consultation.status) && !isRoyalFollowUp) {
+    if (!CALLABLE_STATUSES.includes(consultation.status) && !isRoyalFollowUp && !isMedReminderNurse) {
       throw new ValidationError(`Video calls are only available for active consultations (current: ${consultation.status})`);
     }
 

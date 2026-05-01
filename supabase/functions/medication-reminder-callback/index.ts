@@ -202,7 +202,7 @@ Deno.serve(async (req: Request) => {
         .select(`
           event_id, nurse_id, status, video_room_id, timetable_id,
           medication_timetables!inner (
-            patient_session_id, medication_name, dosage, form
+            consultation_id, patient_session_id, medication_name, dosage, form
           )
         `)
         .eq("event_id", event_id)
@@ -212,12 +212,29 @@ Deno.serve(async (req: Request) => {
       if (ev.nurse_id !== auth.userId) {
         throw new ValidationError("You are not assigned to this reminder");
       }
+      // Idempotent: if the call has already been started (status=nurse_calling)
+      // — for example, the nurse left the call screen and came back — just
+      // return the existing room info so they can rejoin without seeing an
+      // error. Only reject if the status is unexpected (completed, ringing,
+      // patient_unreachable, etc.).
+      if (ev.status === "nurse_calling") {
+        const tt = (ev as unknown as Record<string, unknown>).medication_timetables as {
+          consultation_id: string; patient_session_id: string;
+        };
+        return successResponse({
+          ok: true,
+          room_id: ev.video_room_id,
+          patient_session_id: tt.patient_session_id,
+          consultation_id: tt.consultation_id,
+          rejoined: true,
+        }, 200, origin);
+      }
       if (ev.status !== "nurse_accepted") {
         throw new ValidationError(`Cannot start call from status ${ev.status}`);
       }
 
       const tt = (ev as unknown as Record<string, unknown>).medication_timetables as {
-        patient_session_id: string; medication_name: string; dosage?: string | null;
+        consultation_id: string; patient_session_id: string; medication_name: string; dosage?: string | null;
       };
       const medLabel = `${tt.medication_name}${tt.dosage ? ` (${tt.dosage})` : ""}`;
 
@@ -229,22 +246,45 @@ Deno.serve(async (req: Request) => {
         })
         .eq("event_id", event_id);
 
-      // Patient now gets the actual incoming call push.
+      // Patient now gets the actual incoming call push. We reuse the existing
+      // VIDEO_CALL_INCOMING route — it's already data-only allowlisted in
+      // send-push-notification and the Android handler already starts the
+      // IncomingCallService + overlay from its data fields. caller_role tags
+      // it so the overlay can show "Medical Reminder request".
+      // Direct fetch (not supabase.functions.invoke) so we can attach
+      // X-Service-Key — send-push-notification's doctor gate would otherwise
+      // reject the nurse, who isn't the consultation's owner doctor.
       try {
-        await supabase.functions.invoke("send-push-notification", {
-          body: {
+        const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+        const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        const BEARER_JWT = Deno.env.get("EDGE_FN_BEARER_JWT") ?? SERVICE_ROLE;
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${BEARER_JWT}`,
+            "X-Service-Key": SERVICE_ROLE,
+          },
+          body: JSON.stringify({
             session_id: tt.patient_session_id,
             title: "Medication Reminder Call",
             body: `A nurse is calling you to remind you about ${medLabel}.`,
-            type: "MEDICATION_REMINDER_INCOMING_CALL",
+            type: "VIDEO_CALL_INCOMING",
             data: {
               event_id,
+              consultation_id: tt.consultation_id,
               room_id: ev.video_room_id,
+              call_type: "AUDIO",
+              caller_role: "medication_reminder_nurse",
               medication_name: tt.medication_name,
               dosage: tt.dosage ?? "",
             },
-          },
+          }),
         });
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          console.error(`[med-callback] send-push-notification ${res.status}: ${txt}`);
+        }
       } catch (e) {
         console.error("[med-callback] Failed to push patient incoming call:", e);
       }
@@ -253,6 +293,7 @@ Deno.serve(async (req: Request) => {
         ok: true,
         room_id: ev.video_room_id,
         patient_session_id: tt.patient_session_id,
+        consultation_id: tt.consultation_id,
       }, 200, origin);
     }
 

@@ -84,10 +84,19 @@ Deno.serve(async (req: Request) => {
     const now = new Date();
     let processed = 0;
 
-    // EAT (Africa/Dar_es_Salaam = UTC+3) — matches what doctors set.
-    const eat = new Date(now.getTime() + 3 * 60 * 60 * 1000);
-    const currentHHMM = eat.toISOString().slice(11, 16);
-    const currentDate = eat.toISOString().slice(0, 10);
+    // EAT (Africa/Dar_es_Salaam) — matches what doctors set. We use Intl with
+    // an explicit timeZone so the conversion is correct regardless of what
+    // the Edge runtime's local clock is set to. (Manually adding 3h to
+    // now.getTime() and toISOString-ing produced "23:38" when EAT was
+    // actually "20:38" because the runtime wasn't on UTC.)
+    const fmt = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Africa/Dar_es_Salaam",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hour12: false,
+    });
+    const eatStr = fmt.format(now); // "2026-05-01 20:38"
+    const currentDate = eatStr.slice(0, 10);
+    const currentHHMM = eatStr.slice(11, 16);
 
     // ── Step 1: Find due timetables and create events ───────────────────
     const { data: dueTimetables } = await supabase
@@ -97,6 +106,8 @@ Deno.serve(async (req: Request) => {
       .lte("start_date", currentDate)
       .gte("end_date", currentDate)
       .contains("scheduled_times", [currentHHMM]);
+
+    console.log(`[med-cron-debug] currentHHMM=${currentHHMM} currentDate=${currentDate} due=${dueTimetables?.length ?? 0}`);
 
     if (dueTimetables && dueTimetables.length > 0) {
       for (const tt of dueTimetables) {
@@ -235,7 +246,21 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    return successResponse({ message: "OK", processed }, 200, origin);
+    return successResponse({
+      message: "OK",
+      processed,
+      debug: {
+        currentHHMM,
+        currentDate,
+        dueCount: dueTimetables?.length ?? 0,
+        runtime_now_iso: new Date().toISOString(),
+        runtime_now_ms: Date.now(),
+        runtime_tz_env: Deno.env.get("TZ") ?? "(unset)",
+        eat_via_intl: eatStr,
+        pushErrors,
+        pushDebug,
+      },
+    }, 200, origin);
   } catch (err) {
     await logEvent({
       function_name: "medication-reminder-cron",
@@ -247,6 +272,40 @@ Deno.serve(async (req: Request) => {
   }
 });
 
+/**
+ * Invokes send-push-notification with the explicit X-Service-Key header so
+ * the push function's role-check (which rejects service_role JWTs) gets
+ * bypassed. The default supabase.functions.invoke() forwards only the JWT
+ * → push function rejects → try/catch swallows the error → event stays in
+ * nurse_ringing but no FCM is actually sent.
+ */
+async function invokeSendPush(args: { body: Record<string, unknown> }): Promise<void> {
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  // SUPABASE_SERVICE_ROLE_KEY is now the new sb_secret_… format (not a JWT).
+  // The Edge Functions gateway only accepts JWTs in Authorization, so we
+  // store the legacy service-role JWT as a custom secret EDGE_FN_BEARER_JWT
+  // and use it just for the gateway pass. X-Service-Key still compares
+  // against SERVICE_ROLE in the receiving function (which is also the new
+  // sb_secret format on its end), so that bypass continues to work.
+  const BEARER_JWT = Deno.env.get("EDGE_FN_BEARER_JWT")!;
+  const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${BEARER_JWT}`,
+      "X-Service-Key": SERVICE_ROLE,
+    },
+    body: JSON.stringify(args.body),
+  });
+  const text = await res.text().catch(() => "");
+  if (!res.ok) {
+    throw new Error(`send-push-notification ${res.status}: ${text}`);
+  }
+  // Log successful response so we can see sent/failed counts in cron debug.
+  pushDebug.push(`OK ${res.status}: ${text.slice(0, 120)}`);
+}
+
 // ── Ring nurse (sets state to nurse_ringing, pushes nurse, NO patient push) ─
 
 interface TimetableRow {
@@ -256,6 +315,11 @@ interface TimetableRow {
   form?: string | null;
   timetable_id?: string;
 }
+
+// Captures push errors / debug across the cron tick so we can surface in the
+// response and stop staring at silent try/catch swallows.
+const pushErrors: string[] = [];
+const pushDebug: string[] = [];
 
 async function ringNurse(
   supabase: ReturnType<typeof getServiceClient>,
@@ -320,7 +384,7 @@ async function ringNurse(
 
   // Push to nurse only. The body is the tagged invitation per spec.
   try {
-    await supabase.functions.invoke("send-push-notification", {
+    await invokeSendPush({
       body: {
         user_id: nurseId,
         title: "Medication Reminder",
@@ -337,7 +401,9 @@ async function ringNurse(
       },
     });
   } catch (e) {
-    console.error(`[med-reminder] Failed to ring nurse ${nurseId}:`, e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[med-reminder] Failed to ring nurse ${nurseId}:`, msg);
+    pushErrors.push(`ring nurse ${nurseId}: ${msg}`);
   }
 
   console.log(`[med-reminder] Ringing nurse=${nurseId} room=${roomId} event=${eventId} med=${medLabel}`);
@@ -353,7 +419,7 @@ async function sendFallbackPushToPatient(
 ): Promise<void> {
   const medLabel = `${tt.medication_name}${tt.dosage ? ` (${tt.dosage})` : ""}`;
   try {
-    await supabase.functions.invoke("send-push-notification", {
+    await invokeSendPush({
       body: {
         session_id: tt.patient_session_id,
         title: "Medication Reminder",
