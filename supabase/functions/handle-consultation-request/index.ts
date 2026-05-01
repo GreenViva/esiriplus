@@ -33,17 +33,28 @@ const SERVICE_DURATIONS: Record<string, number> = {
   gp: 15,
   specialist: 20,
   psychologist: 30,
+  herbalist: 15,
+  drug_interaction: 5,
 };
 
-// Service tier fees (TZS) — must match client-side service_tiers
-const SERVICE_FEES: Record<string, number> = {
-  nurse: 5000,
-  clinical_officer: 7000,
-  pharmacist: 3000,
-  gp: 10000,
-  specialist: 30000,
-  psychologist: 50000,
-};
+// Pricing source-of-truth lives in app_config (`price_<service>` for Economy,
+// `royal_price_<service>` for Royal). Fetched at request time so the edge
+// function never drifts from the admin-tunable values.
+async function lookupConsultationFee(
+  supabase: ReturnType<typeof getServiceClient>,
+  serviceType: string,
+  tier: string,
+): Promise<number> {
+  const key = tier.toUpperCase() === "ROYAL"
+    ? `royal_price_${serviceType.toLowerCase()}`
+    : `price_${serviceType.toLowerCase()}`;
+  const { data } = await supabase
+    .from("app_config")
+    .select("config_value")
+    .eq("config_key", key)
+    .single();
+  return Number(data?.config_value ?? 0);
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -302,7 +313,29 @@ async function handleCreate(
     .select("request_id, status, created_at, expires_at")
     .single();
 
-  if (error) throw error;
+  if (error) {
+    // ROYAL_FU_CAP_REACHED:<hours> bubbles up from validate_followup_reopen
+    // when a Royal patient tries to start a 5th follow-up in the rolling
+    // 24h window. Surface as a structured error the client can format into
+    // the polite "problem on our side, try again in X hours" message.
+    const msg = error.message ?? "";
+    const capMatch = msg.match(/ROYAL_FU_CAP_REACHED:(\d+)/);
+    if (error.code === "P0006" || capMatch) {
+      const hours = capMatch ? Number(capMatch[1]) : 1;
+      return new Response(
+        JSON.stringify({
+          error: "service_temporarily_unavailable",
+          code: "ROYAL_FU_CAP_REACHED",
+          hours_until_reset: hours,
+        }),
+        {
+          status: 503,
+          headers: { "Content-Type": "application/json", ...corsHeaders(origin) },
+        },
+      );
+    }
+    throw error;
+  }
 
   // Best-effort: update patient_sessions.region if provided and currently NULL
   if (body.region && typeof body.region === "string" && body.region.trim()) {
@@ -428,7 +461,21 @@ async function handleAccept(
 
     if (reopenError) {
       console.error("reopen_consultation RPC error:", JSON.stringify(reopenError));
-      consultationError = { message: reopenError.message };
+      // Parse ROYAL_FU_CAP_REACHED:<hours> errors (P0006) into a structured
+      // payload so the patient client can show the polite "problem on our
+      // side, try again in X hours" message — without revealing the cap.
+      const msg = reopenError.message ?? "";
+      const capMatch = msg.match(/ROYAL_FU_CAP_REACHED:(\d+)/);
+      if (reopenError.code === "P0006" || capMatch) {
+        const hours = capMatch ? Number(capMatch[1]) : 1;
+        consultationError = {
+          message: "service_temporarily_unavailable",
+          code: "ROYAL_FU_CAP_REACHED",
+          details: String(hours),
+        };
+      } else {
+        consultationError = { message: reopenError.message };
+      }
     } else {
       // Return the SAME consultation_id — it's been reopened, not created
       consultation = {
@@ -440,9 +487,10 @@ async function handleAccept(
     }
   } else {
     // ── CREATE new consultation (original request) ─────────────────────
-    const baseFee = SERVICE_FEES[request.service_type] ?? 5000;
-    const tierMultiplier = (request.service_tier ?? "ECONOMY").toUpperCase() === "ROYAL" ? 10 : 1;
-    const consultationFee = baseFee * tierMultiplier;
+    // Look up the per-tier price from app_config (source of truth since the
+    // 10× multiplier was dropped 2026-05-01).
+    const tier = (request.service_tier ?? "ECONOMY").toUpperCase();
+    const consultationFee = await lookupConsultationFee(supabase, request.service_type, tier);
 
     const { data: rpcData, error: rpcError } = await supabase.rpc(
       "create_consultation_with_cleanup",
