@@ -421,6 +421,11 @@
     <string name="vm_doctor_no_response">Doctor did not respond. You can try another doctor.</string>
     <string name="vm_waiting_doctor_response">Waiting for doctor response\u2026</string>
     <string name="vm_failed_send_request">Failed to send request</string>
+    <!-- Shown when the Royal 4-per-24h follow-up cap is reached. The cap itself is intentionally not surfaced. -->
+    <plurals name="vm_royal_fu_cap_reached">
+        <item quantity="one">There\'s been a problem on our side and our team are working on it. Try again in %d hour.</item>
+        <item quantity="other">There\'s been a problem on our side and our team are working on it. Try again in %d hours.</item>
+    </plurals>
     <string name="vm_failed_load_appointments">Failed to load appointments</string>
     <string name="vm_failed_cancel_appointment">Failed to cancel</string>
     <string name="vm_failed_load_times">Failed to load available times</string>

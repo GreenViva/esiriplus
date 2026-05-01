@@ -264,16 +264,55 @@ class FollowUpRequestViewModel @Inject constructor(
                     val isDoctorUnavailable = msg.contains("not currently available", ignoreCase = true)
                         || msg.contains("in a session", ignoreCase = true)
                         || msg.contains("doctor_in_session", ignoreCase = true)
+                    val capHours = parseRoyalCapHours(msg)
+                    val capMessage = if (capHours != null) {
+                        application.resources.getQuantityString(
+                            R.plurals.vm_royal_fu_cap_reached,
+                            capHours,
+                            capHours,
+                        )
+                    } else null
                     _uiState.update {
                         it.copy(
                             status = if (isDoctorUnavailable) FollowUpStatus.EXPIRED else FollowUpStatus.ERROR,
-                            errorMessage = if (isDoctorUnavailable) null else msg.ifBlank { "Failed to send follow-up request" },
+                            errorMessage = when {
+                                capMessage != null -> capMessage
+                                isDoctorUnavailable -> null
+                                else -> msg.ifBlank { "Failed to send follow-up request" }
+                            },
                         )
                     }
                 }
                 is Result.Loading -> {}
             }
         }
+    }
+
+    /**
+     * Pulls hours_until_reset from a Royal cap-reached error body.
+     *
+     * The edge function returns `503` with a JSON payload like
+     * `{"error":"service_temporarily_unavailable","code":"ROYAL_FU_CAP_REACHED",
+     *  "hours_until_reset":7}`. Older raw `RAISE EXCEPTION` paths leak the
+     * sentinel string `ROYAL_FU_CAP_REACHED:7` directly. Either form parses.
+     * Returns null when the message isn't a Royal cap error.
+     */
+    private fun parseRoyalCapHours(msg: String): Int? {
+        if (!msg.contains("ROYAL_FU_CAP_REACHED")) return null
+        // Try JSON body first.
+        runCatching {
+            val start = msg.indexOf('{')
+            val end = msg.lastIndexOf('}')
+            if (start in 0 until end) {
+                val obj = JSONObject(msg.substring(start, end + 1))
+                if (obj.has("hours_until_reset")) {
+                    return obj.getInt("hours_until_reset").coerceAtLeast(1)
+                }
+            }
+        }
+        // Fall back to the raw `ROYAL_FU_CAP_REACHED:<hours>` form.
+        val sentinelMatch = Regex("ROYAL_FU_CAP_REACHED:(\\d+)").find(msg)
+        return sentinelMatch?.groupValues?.get(1)?.toIntOrNull()?.coerceAtLeast(1) ?: 1
     }
 
     private suspend fun doCreateFollowUpRequest(): Result<com.esiri.esiriplus.core.domain.model.ConsultationRequest> {
