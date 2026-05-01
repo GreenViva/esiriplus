@@ -75,6 +75,7 @@
     <string name="call_type_video">Video</string>
     <string name="caller_your_doctor">Your doctor</string>
     <string name="caller_your_patient">Your patient</string>
+    <string name="caller_medication_reminder">Medical Reminder request</string>
     <string name="call_incoming_title">Incoming %1$s Call</string>
     <string name="call_incoming_body">%1$s is calling</string>
     <string name="call_in_progress_title">%1$s Call in Progress</string>

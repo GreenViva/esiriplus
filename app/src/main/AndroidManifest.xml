@@ -17,9 +17,23 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Required for setFullScreenIntent to wake the lock screen on Android 14+
+         (call-style ringing UI). Without this the system silently downgrades
+         to a heads-up notification, so the screen never wakes. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Required to launch the system "Ignore battery optimizations" prompt
+         (Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS). Without this
+         declaration the intent is rejected and tapping the button does
+         nothing. We use this for nurses receiving lock-screen reminder rings;
+         the app does not abuse battery — it relies on FCM data-only pushes. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+    <!-- Required to start a phoneCall-typed foreground service on Android 14+
+         without being the system default Dialer. Pairs with the FGS_PHONE_CALL
+         permission for the IncomingCallService. -->
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
 
     <application
         android:name=".EsiriplusApp"

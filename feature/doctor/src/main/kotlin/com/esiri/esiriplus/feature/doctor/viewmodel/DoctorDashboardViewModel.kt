@@ -173,6 +173,7 @@ class DoctorDashboardViewModel @Inject constructor(
     private val fcmTokenRepository: FcmTokenRepository,
     private val logoutUseCase: LogoutUseCase,
     private val tokenManager: TokenManager,
+    private val supabaseApi: com.esiri.esiriplus.core.network.api.SupabaseApi,
 ) : ViewModel() {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -433,8 +434,14 @@ class DoctorDashboardViewModel @Inject constructor(
         when (val result = consultationService.getConsultationsForDoctor(doctorId)) {
             is ApiResult.Success -> {
                 val rows = result.data
+                // Full-replace sync: server is source of truth. Wipe the
+                // doctor's locally-cached consultations first so anything
+                // deleted server-side propagates here. (Without this the
+                // local Room cache could keep stale rows forever.)
+                consultationDao.clearForDoctor(doctorId)
                 if (rows.isEmpty()) {
-                    Log.d(TAG, "No consultations found on Supabase for $doctorId")
+                    Log.d(TAG, "No consultations on Supabase for $doctorId — local cache cleared")
+                    updateDashboardStats(emptyList())
                     return
                 }
 
@@ -1215,6 +1222,23 @@ class DoctorDashboardViewModel @Inject constructor(
     }
 
     // ── Medication Timetable ───────────────────────────────────────────────
+
+    /**
+     * Fetches the prescriptions tied to a consultation. Returns empty list on
+     * any error — caller renders an empty state.
+     */
+    suspend fun fetchPrescriptionsForConsultation(
+        consultationId: String,
+    ): List<com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel> {
+        return try {
+            supabaseApi.getPrescriptionsForConsultation(
+                consultationIdFilter = "eq.$consultationId",
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "fetchPrescriptions failed", e)
+            emptyList()
+        }
+    }
 
     fun createMedicationTimetable(
         consultationId: String,

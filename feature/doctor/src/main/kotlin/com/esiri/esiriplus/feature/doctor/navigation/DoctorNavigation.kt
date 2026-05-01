@@ -57,10 +57,17 @@ fun NavGraphBuilder.doctorGraph(
         composable<MedicalReminderListRoute> {
             MedicalReminderListScreen(
                 onBack = { navController.popBackStack() },
-                onStartCall = { _, roomId, _ ->
-                    // Reuse the existing video call route; consultationId field
-                    // carries the VideoSDK roomId for the patient.
-                    navController.navigate(DoctorVideoCallRoute(consultationId = roomId, callType = "AUDIO", roomId = roomId))
+                onStartCall = { _, roomId, _, consultationId ->
+                    // The video-call screen looks up the consultation by ID,
+                    // so we must pass the real consultation_id (not the room
+                    // id, which had been wrongly reused there before).
+                    navController.navigate(
+                        DoctorVideoCallRoute(
+                            consultationId = consultationId,
+                            callType = "AUDIO",
+                            roomId = roomId,
+                        ),
+                    )
                 },
             )
         }

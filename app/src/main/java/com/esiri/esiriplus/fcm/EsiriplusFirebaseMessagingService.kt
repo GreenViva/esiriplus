@@ -114,6 +114,40 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
+        // Medication reminder RING — 60s ringing invitation to a nurse asking
+        // them to handle a scheduled medication reminder. Reuses the standard
+        // incoming-call UI; on accept MainActivity routes to the Medical
+        // Reminder list (auto-accepts the ring) instead of joining VideoSDK.
+        if (type.equals("MEDICATION_REMINDER_RING", ignoreCase = true)) {
+            val eventId = remoteMessage.data["event_id"] ?: ""
+            val roomId = remoteMessage.data["room_id"] ?: ""
+            val medicationName = remoteMessage.data["medication_name"] ?: ""
+            Log.d(TAG, "Medication reminder RING: event=$eventId room=$roomId med=$medicationName")
+
+            try {
+                IncomingCallService.start(
+                    context = applicationContext,
+                    consultationId = eventId,
+                    callType = "AUDIO",
+                    callerRole = "medication_reminder_ring",
+                    roomId = roomId,
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to start IncomingCallService for med reminder ring", e)
+                showIncomingCallNotification(eventId, "AUDIO", "medication_reminder_ring", roomId)
+            }
+
+            incomingCallStateHolder.showIncomingCall(
+                IncomingCall(
+                    consultationId = eventId,
+                    roomId = roomId,
+                    callType = "AUDIO",
+                    callerRole = "medication_reminder_ring",
+                ),
+            )
+            return
+        }
+
         // Medication reminder call — nurse receives call assignment for patient medication reminder
         if (type.equals("MEDICATION_REMINDER_CALL", ignoreCase = true)) {
             val eventId = remoteMessage.data["event_id"] ?: ""

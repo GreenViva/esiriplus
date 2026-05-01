@@ -313,8 +313,19 @@ class MainActivity : AppCompatActivity() {
                                         NotificationManagerCompat.from(this@MainActivity)
                                             .cancel(com.esiri.esiriplus.service.IncomingCallService.NOTIFICATION_ID)
                                         com.esiri.esiriplus.service.IncomingCallService.stop(this@MainActivity)
-                                        val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
-                                        navigateToVideoCall(navController, call.consultationId, call.callType, role, call.roomId)
+                                        // Medication reminder rings route into the nurse's
+                                        // Medical Reminder list (which auto-accepts the ring
+                                        // server-side). Other rings join the VideoSDK call.
+                                        if (call.callerRole == "medication_reminder_ring") {
+                                            navController.navigate(
+                                                com.esiri.esiriplus.feature.doctor.navigation.MedicalReminderListRoute(
+                                                    autoAcceptEventId = call.consultationId,
+                                                ),
+                                            )
+                                        } else {
+                                            val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
+                                            navigateToVideoCall(navController, call.consultationId, call.callType, role, call.roomId)
+                                        }
                                     },
                                     onDecline = {
                                         incomingCallStateHolder.dismiss()

@@ -56,7 +56,7 @@ import com.esiri.esiriplus.feature.doctor.viewmodel.MedicalReminderListViewModel
 @Composable
 fun MedicalReminderListScreen(
     onBack: () -> Unit,
-    onStartCall: (eventId: String, roomId: String, patientSessionId: String) -> Unit,
+    onStartCall: (eventId: String, roomId: String, patientSessionId: String, consultationId: String) -> Unit,
     viewModel: MedicalReminderListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -66,7 +66,7 @@ fun MedicalReminderListScreen(
         viewModel.events.collect { ev ->
             when (ev) {
                 is MedicalReminderEvent.StartCall ->
-                    onStartCall(ev.eventId, ev.roomId, ev.patientSessionId)
+                    onStartCall(ev.eventId, ev.roomId, ev.patientSessionId, ev.consultationId)
             }
         }
     }

@@ -856,6 +856,14 @@ private fun DashboardContent(
                 onClick = onMedicalRemindersClick,
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
+
+            // Critical permissions banner — auto-hides when the user has
+            // granted full-screen-intent + battery-optimization exemption.
+            // Without these the reminder ring won't wake the lock screen.
+            Spacer(modifier = Modifier.height(8.dp))
+            com.esiri.esiriplus.feature.doctor.ui.CriticalPermissionsCard(
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))

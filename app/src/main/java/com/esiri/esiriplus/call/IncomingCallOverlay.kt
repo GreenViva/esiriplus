@@ -49,10 +49,12 @@ fun IncomingCallOverlay(
     } else {
         stringResource(R.string.call_type_video)
     }
-    val callerLabel = if (incomingCall.callerRole == "doctor") {
-        stringResource(R.string.caller_your_doctor)
-    } else {
-        stringResource(R.string.caller_your_patient)
+    val callerLabel = when {
+        incomingCall.callerRole.startsWith("medication_reminder") ->
+            stringResource(R.string.caller_medication_reminder)
+        incomingCall.callerRole == "doctor" ->
+            stringResource(R.string.caller_your_doctor)
+        else -> stringResource(R.string.caller_your_patient)
     }
 
     // Auto-decline after 60 seconds (aligned with caller WAITING_TIMEOUT_MS)

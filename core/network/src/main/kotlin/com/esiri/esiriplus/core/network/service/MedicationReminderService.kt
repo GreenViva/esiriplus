@@ -46,6 +46,7 @@ data class StartCallResult(
     val ok: Boolean,
     @SerialName("room_id") val roomId: String? = null,
     @SerialName("patient_session_id") val patientSessionId: String? = null,
+    @SerialName("consultation_id") val consultationId: String? = null,
 )
 
 @Serializable

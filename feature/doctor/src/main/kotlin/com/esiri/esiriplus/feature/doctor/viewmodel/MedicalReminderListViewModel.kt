@@ -38,6 +38,7 @@ sealed class MedicalReminderEvent {
         val eventId: String,
         val roomId: String,
         val patientSessionId: String,
+        val consultationId: String,
     ) : MedicalReminderEvent()
 }
 
@@ -144,12 +145,15 @@ class MedicalReminderListViewModel @Inject constructor(
                 is ApiResult.Success -> {
                     val roomId = r.data.roomId
                     val patientSessionId = r.data.patientSessionId
-                    if (r.data.ok && !roomId.isNullOrBlank() && !patientSessionId.isNullOrBlank()) {
+                    val consultationId = r.data.consultationId
+                    if (r.data.ok && !roomId.isNullOrBlank() && !patientSessionId.isNullOrBlank()
+                        && !consultationId.isNullOrBlank()) {
                         _events.tryEmit(
                             MedicalReminderEvent.StartCall(
                                 eventId = reminder.eventId,
                                 roomId = roomId,
                                 patientSessionId = patientSessionId,
+                                consultationId = consultationId,
                             ),
                         )
                     } else {
