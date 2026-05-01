@@ -430,11 +430,14 @@ private fun ServiceCard(
             Row {
                 Text(
                     text = service.displayName,
-                    modifier = Modifier.alignByBaseline(),
+                    modifier = Modifier
+                        .alignByBaseline()
+                        .weight(1f, fill = false),
                     fontFamily = Geist,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Ink,
+                    maxLines = 1,
                 )
                 if (visuals.isPopular) {
                     Spacer(Modifier.width(6.dp))
@@ -442,14 +445,16 @@ private fun ServiceCard(
                         text = stringResource(R.string.services_popular_badge),
                         modifier = Modifier
                             .alignByBaseline()
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(3.dp))
                             .background(PopularBg)
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                            .padding(horizontal = 4.dp, vertical = 0.5.dp),
                         fontFamily = Geist,
-                        fontSize = 10.sp,
+                        fontSize = 8.sp,
                         fontWeight = FontWeight.Bold,
                         color = PopularFg,
-                        letterSpacing = 0.5.sp,
+                        letterSpacing = 0.4.sp,
+                        maxLines = 1,
+                        softWrap = false,
                     )
                 }
             }
