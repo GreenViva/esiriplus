@@ -425,9 +425,12 @@ private fun ServiceCard(
         Spacer(Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Baseline-aligned so the small pill sits on the title's text
+            // baseline instead of drifting against a center-Y line.
+            Row {
                 Text(
                     text = service.displayName,
+                    modifier = Modifier.alignByBaseline(),
                     fontFamily = Geist,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -438,11 +441,12 @@ private fun ServiceCard(
                     Text(
                         text = stringResource(R.string.services_popular_badge),
                         modifier = Modifier
+                            .alignByBaseline()
                             .clip(RoundedCornerShape(4.dp))
                             .background(PopularBg)
-                            .padding(horizontal = 5.dp, vertical = 2.dp),
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
                         fontFamily = Geist,
-                        fontSize = 9.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = PopularFg,
                         letterSpacing = 0.5.sp,
