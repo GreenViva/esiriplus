@@ -74,6 +74,11 @@
     <string name="stats_acceptance_rate">Acceptance Rate</string>
     <string name="stats_appointments">Appointments</string>
 
+    <!-- ═══ Dashboard: Medical Reminder badge (nurse-only) ═══ -->
+    <string name="med_reminder_badge_title">Medical Reminder</string>
+    <string name="med_reminder_badge_subtitle">Tap to view assigned reminders</string>
+    <string name="med_reminder_coming_soon">Coming soon</string>
+
     <!-- ═══ Dashboard: Availability Section ═══ -->
     <string name="availability_today_title">Today\'s Availability</string>
     <string name="availability_available_today">Available today</string>

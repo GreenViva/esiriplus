@@ -13,6 +13,7 @@ import com.esiri.esiriplus.feature.doctor.screen.DoctorNotificationsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorReportScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorUnsubmittedReportsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorVideoCallScreen
+import com.esiri.esiriplus.feature.doctor.screen.MedicalReminderListScreen
 import com.esiri.esiriplus.feature.doctor.screen.RoyalClientsScreen
 import kotlinx.serialization.Serializable
 
@@ -27,6 +28,11 @@ import kotlinx.serialization.Serializable
 @Serializable object DoctorAvailabilitySettingsRoute
 @Serializable object RoyalClientsRoute
 @Serializable object DoctorUnsubmittedReportsRoute
+/**
+ * Nurse Medical Reminder list. [autoAcceptEventId] is non-null when navigated
+ * from a ring push — the screen calls accept_ring on first load.
+ */
+@Serializable data class MedicalReminderListRoute(val autoAcceptEventId: String? = null)
 
 fun NavGraphBuilder.doctorGraph(
     navController: NavController,
@@ -44,7 +50,18 @@ fun NavGraphBuilder.doctorGraph(
                 onNavigateToAppointments = { navController.navigate(DoctorAppointmentsRoute) },
                 onNavigateToAvailabilitySettings = { navController.navigate(DoctorAvailabilitySettingsRoute) },
                 onNavigateToUnsubmittedReports = { navController.navigate(DoctorUnsubmittedReportsRoute) },
+                onNavigateToMedicalReminders = { navController.navigate(MedicalReminderListRoute()) },
                 onSignOut = onSignOut,
+            )
+        }
+        composable<MedicalReminderListRoute> {
+            MedicalReminderListScreen(
+                onBack = { navController.popBackStack() },
+                onStartCall = { _, roomId, _ ->
+                    // Reuse the existing video call route; consultationId field
+                    // carries the VideoSDK roomId for the patient.
+                    navController.navigate(DoctorVideoCallRoute(consultationId = roomId, callType = "AUDIO", roomId = roomId))
+                },
             )
         }
         composable<DoctorUnsubmittedReportsRoute> {

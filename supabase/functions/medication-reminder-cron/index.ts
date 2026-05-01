@@ -1,14 +1,22 @@
 // functions/medication-reminder-cron/index.ts
 //
-// Cron job (every minute): Checks medication timetables for due reminders,
-// assigns an available online nurse, creates a VideoSDK room, and pushes
-// call notifications to both nurse and patient.
+// Cron job (every minute). Two-stage flow (2026-05-01 redesign):
 //
-// Retry: no-nurse events retry up to 3 times (3 minutes).
-// Timeout: nurse_notified events older than 2 min get reassigned (max 2).
-// Fallback: after all retries, patient gets a text-only push reminder.
+//   1. Find due timetables → create medication_reminder_events (status=pending).
+//   2. Ring an online nurse with a 60s window:
+//        nurse_id set, video_room_id created, ring_expires_at = now + 60s,
+//        status = 'nurse_ringing'. Push goes to the nurse only.
+//      The patient does NOT get a heads-up push here — they only get a real
+//      VideoSDK incoming call AFTER the nurse explicitly accepts and taps
+//      Call from their Medical Reminder list (handled in the callback fn).
+//   3. Stale ring (status=nurse_ringing AND ring_expires_at < now): reassign
+//      to a different nurse, up to MAX_REASSIGNS times.
+//   4. After MAX_REASSIGNS exhausted with no acceptance, fall through to
+//      no_nurse retry. After MAX_RETRIES no_nurse cycles, send the patient a
+//      plain text fallback push that NAMES the medicine ("take Amoxicillin
+//      500mg now").
 //
-// Auth: X-Cron-Secret header (same as appointment-reminder).
+// Auth: X-Cron-Secret header.
 
 import { handlePreflight } from "../_shared/cors.ts";
 import { errorResponse, successResponse } from "../_shared/errors.ts";
@@ -18,11 +26,11 @@ import { getServiceClient } from "../_shared/supabase.ts";
 const VIDEOSDK_API_KEY = Deno.env.get("VIDEOSDK_API_KEY")!;
 const VIDEOSDK_SECRET  = Deno.env.get("VIDEOSDK_SECRET")!;
 const TOKEN_EXPIRY_SECS = 7200;
-const MAX_RETRIES = 3;
-const MAX_REASSIGNS = 2;
-const NURSE_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
+const MAX_RETRIES = 3;          // pending → nurse-search retries (no nurse online)
+const MAX_REASSIGNS = 3;        // nurse declined / didn't pick up the ring
+const RING_DURATION_MS = 60 * 1000;  // 60s — nurse's window to accept
 
-// ── VideoSDK helpers (reused from videosdk-token) ────────────────────────────
+// ── VideoSDK helpers ─────────────────────────────────────────────────────────
 
 async function createVideoSDKToken(
   apiKey: string, secret: string, permissions: string[]
@@ -67,7 +75,6 @@ Deno.serve(async (req: Request) => {
   if (preflight) return preflight;
 
   try {
-    // Auth: cron secret
     const cronSecret = req.headers.get("X-Cron-Secret");
     if (!cronSecret || cronSecret !== Deno.env.get("CRON_SECRET")) {
       return new Response("Unauthorized", { status: 401 });
@@ -77,12 +84,12 @@ Deno.serve(async (req: Request) => {
     const now = new Date();
     let processed = 0;
 
-    // Current time in EAT (Africa/Nairobi = UTC+3)
+    // EAT (Africa/Dar_es_Salaam = UTC+3) — matches what doctors set.
     const eat = new Date(now.getTime() + 3 * 60 * 60 * 1000);
-    const currentHHMM = eat.toISOString().slice(11, 16); // "HH:MM"
-    const currentDate = eat.toISOString().slice(0, 10);   // "YYYY-MM-DD"
+    const currentHHMM = eat.toISOString().slice(11, 16);
+    const currentDate = eat.toISOString().slice(0, 10);
 
-    // ── Step 1: Find active timetables with a due scheduled_time ─────────
+    // ── Step 1: Find due timetables and create events ───────────────────
     const { data: dueTimetables } = await supabase
       .from("medication_timetables")
       .select("timetable_id, patient_session_id, doctor_id, medication_name, dosage, form, scheduled_times")
@@ -93,7 +100,6 @@ Deno.serve(async (req: Request) => {
 
     if (dueTimetables && dueTimetables.length > 0) {
       for (const tt of dueTimetables) {
-        // INSERT event — ON CONFLICT DO NOTHING prevents duplicates
         const { data: inserted } = await supabase
           .from("medication_reminder_events")
           .insert({
@@ -105,16 +111,14 @@ Deno.serve(async (req: Request) => {
           .select("event_id")
           .maybeSingle();
 
-        if (!inserted) continue; // Already exists — skip
+        if (!inserted) continue;
 
-        const assigned = await assignNurseAndNotify(
-          supabase, inserted.event_id, tt, origin,
-        );
-        if (assigned) processed++;
+        const ringed = await ringNurse(supabase, inserted.event_id, tt);
+        if (ringed) processed++;
       }
     }
 
-    // ── Step 2: Retry events with status='no_nurse' and retry_count < MAX ─
+    // ── Step 2: Retry pending events that previously had no nurse ────────
     const { data: retryEvents } = await supabase
       .from("medication_reminder_events")
       .select(`
@@ -135,41 +139,29 @@ Deno.serve(async (req: Request) => {
           .update({ retry_count: ev.retry_count + 1 })
           .eq("event_id", ev.event_id);
 
-        const assigned = await assignNurseAndNotify(
+        const ringed = await ringNurse(
           supabase, ev.event_id,
-          { ...tt, timetable_id: ev.timetable_id } as unknown as typeof dueTimetables extends (infer T)[] ? T : never,
-          origin,
+          { ...tt, timetable_id: ev.timetable_id } as TimetableRow,
         );
 
-        // If still no nurse after max retries, send text fallback
-        if (!assigned && ev.retry_count + 1 >= MAX_RETRIES) {
+        // After exhausting nurse retries, fallback push to patient — naming
+        // the medicine so they know what they were supposed to take.
+        if (!ringed && ev.retry_count + 1 >= MAX_RETRIES) {
           await supabase
             .from("medication_reminder_events")
             .update({ status: "failed" })
             .eq("event_id", ev.event_id);
 
-          // Fallback: text-only push to patient
-          try {
-            await supabase.functions.invoke("send-push-notification", {
-              body: {
-                session_id: tt.patient_session_id,
-                title: "Medication Reminder",
-                body: `Time to take your medication: ${tt.medication_name}${tt.dosage ? ` (${tt.dosage})` : ""}. We couldn't reach a nurse — please remember to take it now.`,
-                type: "MEDICATION_REMINDER_PATIENT",
-                data: { event_id: ev.event_id },
-              },
-            });
-          } catch (e) {
-            console.error("Failed to send fallback patient notification:", e);
-          }
+          await sendFallbackPushToPatient(supabase, ev.event_id, tt as TimetableRow);
           processed++;
         }
       }
     }
 
-    // ── Step 3: Timeout stale nurse_notified events (>2 min) ─────────────
-    const timeoutThreshold = new Date(now.getTime() - NURSE_TIMEOUT_MS).toISOString();
-    const { data: staleEvents } = await supabase
+    // ── Step 3: Reassign ringing events whose 60s window has elapsed ─────
+    // (Nurse didn't accept or decline within the window.)
+    const ringExpired = new Date(now.getTime()).toISOString();
+    const { data: staleRings } = await supabase
       .from("medication_reminder_events")
       .select(`
         event_id, timetable_id, nurse_id, reassign_count,
@@ -177,17 +169,16 @@ Deno.serve(async (req: Request) => {
           patient_session_id, medication_name, dosage, form
         )
       `)
-      .eq("status", "nurse_notified")
+      .in("status", ["nurse_ringing", "nurse_notified"])  // legacy state included
       .eq("scheduled_date", currentDate)
-      .lt("nurse_notified_at", timeoutThreshold)
+      .lt("ring_expires_at", ringExpired)
       .lt("reassign_count", MAX_REASSIGNS);
 
-    if (staleEvents) {
-      for (const ev of staleEvents) {
+    if (staleRings) {
+      for (const ev of staleRings) {
         const tt = (ev as unknown as Record<string, unknown>).medication_timetables as Record<string, unknown>;
         const previousNurseId = ev.nurse_id;
 
-        // Reset to pending for reassignment, excluding previous nurse
         await supabase
           .from("medication_reminder_events")
           .update({
@@ -195,16 +186,42 @@ Deno.serve(async (req: Request) => {
             nurse_id: null,
             video_room_id: null,
             nurse_notified_at: null,
+            ring_expires_at: null,
             reassign_count: ev.reassign_count + 1,
           })
           .eq("event_id", ev.event_id);
 
-        await assignNurseAndNotify(
+        await ringNurse(
           supabase, ev.event_id,
-          { ...tt, timetable_id: ev.timetable_id } as unknown as typeof dueTimetables extends (infer T)[] ? T : never,
-          origin,
+          { ...tt, timetable_id: ev.timetable_id } as TimetableRow,
           previousNurseId ?? undefined,
         );
+        processed++;
+      }
+    }
+
+    // ── Step 4: Hard-fail rings that exceeded reassign budget ───────────
+    const { data: deadRings } = await supabase
+      .from("medication_reminder_events")
+      .select(`
+        event_id,
+        medication_timetables!inner (
+          patient_session_id, medication_name, dosage, form
+        )
+      `)
+      .in("status", ["nurse_ringing", "nurse_notified"])
+      .eq("scheduled_date", currentDate)
+      .lt("ring_expires_at", ringExpired)
+      .gte("reassign_count", MAX_REASSIGNS);
+
+    if (deadRings) {
+      for (const ev of deadRings) {
+        const tt = (ev as unknown as Record<string, unknown>).medication_timetables as TimetableRow;
+        await supabase
+          .from("medication_reminder_events")
+          .update({ status: "failed" })
+          .eq("event_id", ev.event_id);
+        await sendFallbackPushToPatient(supabase, ev.event_id, tt);
         processed++;
       }
     }
@@ -230,16 +247,23 @@ Deno.serve(async (req: Request) => {
   }
 });
 
-// ── Assign nurse + notify ────────────────────────────────────────────────────
+// ── Ring nurse (sets state to nurse_ringing, pushes nurse, NO patient push) ─
 
-async function assignNurseAndNotify(
+interface TimetableRow {
+  patient_session_id: string;
+  medication_name: string;
+  dosage?: string | null;
+  form?: string | null;
+  timetable_id?: string;
+}
+
+async function ringNurse(
   supabase: ReturnType<typeof getServiceClient>,
   eventId: string,
-  timetable: { patient_session_id: string; medication_name: string; dosage?: string; form?: string; timetable_id?: string },
-  origin: string | null,
+  timetable: TimetableRow,
   excludeNurseId?: string,
 ): Promise<boolean> {
-  // Find available nurse
+  // Find an online nurse not currently in a session.
   let nurseQuery = supabase
     .from("doctor_profiles")
     .select("doctor_id")
@@ -250,9 +274,7 @@ async function assignNurseAndNotify(
     .eq("is_banned", false)
     .limit(1);
 
-  if (excludeNurseId) {
-    nurseQuery = nurseQuery.neq("doctor_id", excludeNurseId);
-  }
+  if (excludeNurseId) nurseQuery = nurseQuery.neq("doctor_id", excludeNurseId);
 
   const { data: nurses } = await nurseQuery;
 
@@ -267,7 +289,7 @@ async function assignNurseAndNotify(
 
   const nurseId = nurses[0].doctor_id;
 
-  // Create VideoSDK room
+  // Pre-create the room so the nurse-side accept-then-call has it ready.
   let roomId: string;
   try {
     roomId = await createRoom();
@@ -280,63 +302,67 @@ async function assignNurseAndNotify(
     return false;
   }
 
-  // Update event
+  const ringExpiresAt = new Date(Date.now() + RING_DURATION_MS).toISOString();
+  const notifiedAt = new Date().toISOString();
+
   await supabase
     .from("medication_reminder_events")
     .update({
-      status: "nurse_notified",
+      status: "nurse_ringing",
       nurse_id: nurseId,
       video_room_id: roomId,
-      nurse_notified_at: new Date().toISOString(),
+      nurse_notified_at: notifiedAt,
+      ring_expires_at: ringExpiresAt,
     })
     .eq("event_id", eventId);
 
   const medLabel = `${timetable.medication_name}${timetable.dosage ? ` (${timetable.dosage})` : ""}`;
 
-  // Push to nurse: incoming call for medication reminder
+  // Push to nurse only. The body is the tagged invitation per spec.
   try {
     await supabase.functions.invoke("send-push-notification", {
       body: {
         user_id: nurseId,
-        title: "Medication Reminder Call",
-        body: `Please call patient for medication reminder: ${medLabel}`,
-        type: "MEDICATION_REMINDER_CALL",
+        title: "Medication Reminder",
+        body: `We would like if you would help to remind a patient to take their medicines: ${medLabel}`,
+        type: "MEDICATION_REMINDER_RING",
         data: {
           event_id: eventId,
           room_id: roomId,
           patient_session_id: timetable.patient_session_id,
           medication_name: timetable.medication_name,
           dosage: timetable.dosage ?? "",
+          ring_expires_at: ringExpiresAt,
         },
       },
     });
   } catch (e) {
-    console.error(`[med-reminder] Failed to notify nurse ${nurseId}:`, e);
+    console.error(`[med-reminder] Failed to ring nurse ${nurseId}:`, e);
   }
 
-  // Push to patient: heads-up that nurse will call
+  console.log(`[med-reminder] Ringing nurse=${nurseId} room=${roomId} event=${eventId} med=${medLabel}`);
+  return true;
+}
+
+// ── Fallback push to patient when no nurse comes through ───────────────────
+
+async function sendFallbackPushToPatient(
+  supabase: ReturnType<typeof getServiceClient>,
+  eventId: string,
+  tt: TimetableRow,
+): Promise<void> {
+  const medLabel = `${tt.medication_name}${tt.dosage ? ` (${tt.dosage})` : ""}`;
   try {
     await supabase.functions.invoke("send-push-notification", {
       body: {
-        session_id: timetable.patient_session_id,
+        session_id: tt.patient_session_id,
         title: "Medication Reminder",
-        body: `A nurse will call you shortly to remind you about ${medLabel}.`,
+        body: `You are reminded to take these medicines: ${medLabel}.`,
         type: "MEDICATION_REMINDER_PATIENT",
-        data: {
-          event_id: eventId,
-          room_id: roomId,
-          medication_name: timetable.medication_name,
-        },
+        data: { event_id: eventId, medication_name: tt.medication_name },
       },
     });
-    await supabase
-      .from("medication_reminder_events")
-      .update({ patient_notified: true })
-      .eq("event_id", eventId);
   } catch (e) {
-    console.error(`[med-reminder] Failed to notify patient:`, e);
+    console.error("[med-reminder] Fallback push failed:", e);
   }
-
-  console.log(`[med-reminder] Assigned nurse=${nurseId} room=${roomId} for event=${eventId} med=${medLabel}`);
-  return true;
 }

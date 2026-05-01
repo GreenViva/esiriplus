@@ -139,6 +139,7 @@ fun DoctorDashboardScreen(
     onNavigateToAppointments: () -> Unit = {},
     onNavigateToAvailabilitySettings: () -> Unit = {},
     onNavigateToUnsubmittedReports: () -> Unit = {},
+    onNavigateToMedicalReminders: () -> Unit = {},
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoctorDashboardViewModel = hiltViewModel(),
@@ -474,6 +475,7 @@ fun DoctorDashboardScreen(
                     onSetAvailability = { selectedNav = DoctorNavItem.AVAILABILITY },
                     onNotificationsClick = onNavigateToNotifications,
                     onUnsubmittedReportsClick = onNavigateToUnsubmittedReports,
+                    onMedicalRemindersClick = onNavigateToMedicalReminders,
                     onRefresh = viewModel::refresh,
                     onAcknowledgeWarning = viewModel::acknowledgeWarning,
                     onToggleServeAsGp = viewModel::toggleServeAsGp,
@@ -762,12 +764,14 @@ private fun DashboardContent(
     onSetAvailability: () -> Unit,
     onNotificationsClick: () -> Unit = {},
     onUnsubmittedReportsClick: () -> Unit = {},
+    onMedicalRemindersClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onAcknowledgeWarning: () -> Unit = {},
     onToggleServeAsGp: () -> Unit = {},
     onRetryFcmRegistration: () -> Unit = {},
 ) {
     val pullRefreshState = rememberPullToRefreshState()
+    val context = LocalContext.current
 
     val scrollState = rememberScrollState()
     PullToRefreshBox(
@@ -840,6 +844,16 @@ private fun DashboardContent(
             UnsubmittedReportsBadge(
                 count = uiState.unsubmittedReportsCount,
                 onClick = onUnsubmittedReportsClick,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+        }
+
+        // Medical Reminder badge — nurse-only entry point. Tap routes to
+        // the accepted-reminders list (MedicalReminderListScreen).
+        if (uiState.specialty.equals("nurse", ignoreCase = true)) {
+            Spacer(modifier = Modifier.height(8.dp))
+            MedicalReminderBadge(
+                onClick = onMedicalRemindersClick,
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
@@ -1383,6 +1397,51 @@ private fun WarningBadge(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MedicalReminderBadge(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, Color(0xFFA7E5DA), RoundedCornerShape(12.dp))
+            .background(Color(0xFFE7F8F4))
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .background(Color(0xFF14B8A6), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "⚕", fontSize = 14.sp, color = Color.White)
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.med_reminder_badge_title),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF115E59),
+            )
+            Text(
+                text = stringResource(R.string.med_reminder_badge_subtitle),
+                fontSize = 11.sp,
+                color = Color(0xFF0F766E),
+            )
+        }
+        Text(
+            text = "▶",
+            fontSize = 12.sp,
+            color = Color(0xFF115E59),
+        )
     }
 }
 
