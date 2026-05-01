@@ -181,55 +181,91 @@ private fun ReminderRow(
     onCall: () -> Unit,
 ) {
     val tt = reminder.timetable
-    val medication = tt?.medicationName ?: "Medication"
+    val medication = tt?.medicationName?.takeIf { it.isNotBlank() } ?: "Medication"
     val dosage = tt?.dosage?.takeIf { it.isNotBlank() }
+    val form = tt?.form?.takeIf { it.isNotBlank() }
     val patientLabel = (tt?.patientSessionId ?: "")
         .take(8)
         .let { if (it.isNotBlank()) "Patient $it" else "Patient" }
 
-    Row(
+    // Compact "500mg · Tablets" string when both are known.
+    val dosageLine = listOfNotNull(dosage, form).joinToString(" · ").ifBlank { null }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(Color.White)
             .border(1.dp, Color(0xFFE6EEEC), RoundedCornerShape(14.dp))
             .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFE7F8F4), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = "⚕", fontSize = 18.sp, color = Color(0xFF14B8A6))
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = patientLabel,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF6B7C77),
+                )
+                Spacer(Modifier.height(1.dp))
+                Text(
+                    text = "Scheduled ${reminder.scheduledTime}",
+                    fontSize = 11.sp,
+                    color = Color(0xFF94A19D),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // Medicine block — visually distinct so the nurse confirms what to
+        // remind the patient about BEFORE tapping Call.
+        Column(
             modifier = Modifier
-                .size(40.dp)
-                .background(Color(0xFFE7F8F4), CircleShape),
-            contentAlignment = Alignment.Center,
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFFF1FBF8))
+                .padding(horizontal = 12.dp, vertical = 10.dp),
         ) {
-            Text(text = "⚕", fontSize = 18.sp, color = Color(0xFF14B8A6))
-        }
-        Spacer(Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = patientLabel,
-                fontSize = 14.sp,
+                text = "MEDICINE",
+                fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF14201D),
+                color = Color(0xFF0F766E),
+                letterSpacing = 1.2.sp,
             )
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = if (dosage != null) "$medication · $dosage" else medication,
-                fontSize = 12.sp,
-                color = Color(0xFF6B7C77),
-                maxLines = 2,
+                text = medication,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF115E59),
             )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = "Scheduled ${reminder.scheduledTime}",
-                fontSize = 11.sp,
-                color = Color(0xFF94A19D),
-            )
+            if (dosageLine != null) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = dosageLine,
+                    fontSize = 13.sp,
+                    color = Color(0xFF115E59),
+                )
+            }
         }
-        Spacer(Modifier.width(10.dp))
+
+        Spacer(Modifier.height(12.dp))
+
         Button(
             onClick = onCall,
             enabled = !isCalling,
+            modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF14B8A6),
                 contentColor = Color.White,
@@ -242,16 +278,16 @@ private fun ReminderRow(
                     color = Color.White,
                     strokeWidth = 2.dp,
                 )
-                Spacer(Modifier.width(6.dp))
-                Text("Calling…", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.width(8.dp))
+                Text("Calling…", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             } else {
                 Icon(
                     Icons.Outlined.Phone,
                     contentDescription = null,
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(16.dp),
                 )
-                Spacer(Modifier.width(6.dp))
-                Text("Call", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.width(8.dp))
+                Text("Call patient", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
