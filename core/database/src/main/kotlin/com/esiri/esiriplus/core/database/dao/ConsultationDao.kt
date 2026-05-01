@@ -77,6 +77,14 @@ interface ConsultationDao {
     @Query("DELETE FROM consultations")
     suspend fun clearAll()
 
+    /**
+     * Removes every cached consultation for [doctorId]. Used by the dashboard
+     * to fully sync against the remote — any consultation not in the server's
+     * latest response is purged so deletions made server-side propagate.
+     */
+    @Query("DELETE FROM consultations WHERE doctorId = :doctorId")
+    suspend fun clearForDoctor(doctorId: String)
+
     @Transaction
     @Query("SELECT * FROM consultations WHERE consultationId = :id")
     fun getConsultationWithMessages(id: String): Flow<ConsultationWithMessages?>

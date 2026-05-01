@@ -574,6 +574,7 @@ private fun RingtoneRow(
 
 @Composable
 private fun LanguageRow(onDismiss: () -> Unit) {
+    val context = LocalContext.current
     val currentCode = remember {
         val locales = AppCompatDelegate.getApplicationLocales()
         if (locales.isEmpty) java.util.Locale.getDefault().language else locales[0]?.language ?: "en"
@@ -616,6 +617,13 @@ private fun LanguageRow(onDismiss: () -> Unit) {
                                 AppCompatDelegate.setApplicationLocales(
                                     LocaleListCompat.forLanguageTags(code),
                                 )
+                                // Some OEM Android builds (Samsung One UI in
+                                // particular) don't reliably auto-recreate the
+                                // activity after setApplicationLocales — strings
+                                // stay in the previous language until the next
+                                // cold start. Force a recreate so the new locale
+                                // applies immediately.
+                                (context as? android.app.Activity)?.recreate()
                             }
                             onDismiss()
                         },
