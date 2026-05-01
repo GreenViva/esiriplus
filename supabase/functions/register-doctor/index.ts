@@ -27,6 +27,7 @@ const SPECIALTY_TO_ENUM: Record<string, string> = {
   "Specialist": "specialist",
   "Psychologist": "psychologist",
   "Herbalist": "herbalist",
+  "Drug Interaction": "drug_interaction",
 };
 
 Deno.serve(async (req: Request) => {

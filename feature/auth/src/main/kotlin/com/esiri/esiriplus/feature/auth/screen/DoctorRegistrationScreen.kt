@@ -90,6 +90,7 @@ private val Specialties = listOf(
     "Specialist",
     "Psychologist",
     "Herbalist",
+    "Drug Interaction",
 )
 
 private val CommonLanguages = listOf("English", "Swahili")
@@ -169,16 +170,25 @@ private val SpecialtyServices = mapOf(
         "Plant-Based Treatment Plans",
         "Herbal Drug Interaction Advice",
     ),
+    "Drug Interaction" to listOf(
+        "Multi-Drug Interaction Analysis",
+        "Polypharmacy Review",
+        "Medication Safety Assessment",
+        "Herb–Drug Interaction Check",
+        "Dosage Safety Verification",
+        "OTC and Prescription Compatibility Check",
+    ),
 )
 
 private val SpecialtyPrices = mapOf(
     "Nurse" to "TZS 3,000",
     "Clinical Officer" to "TZS 5,000",
-    "Pharmacist" to "TZS 5,000",
+    "Pharmacist" to "TZS 3,000",
     "General Practitioner" to "TZS 10,000",
     "Specialist" to "TZS 30,000",
     "Psychologist" to "TZS 50,000",
     "Herbalist" to "TZS 5,000",
+    "Drug Interaction" to "TZS 5,000",
 )
 
 private val SpecialistFields = listOf(
