@@ -113,4 +113,26 @@
     <!-- Medication Reminder -->
     <string name="notification_medication_reminder_call">\u0926\u0935\u093E \u092F\u093E\u0926 \u0926\u093F\u0932\u093E\u0928\u0947 \u0915\u0940 \u0915\u0949\u0932</string>
     <string name="notification_medication_reminder">\u0926\u0935\u093E \u092F\u093E\u0926 \u0926\u093F\u0932\u093E\u0928\u0947 \u0915\u093E \u0905\u0932\u0930\u094D\u091F</string>
+
+    <!-- Accessibility FAB panel (v1.1.1 localization) -->
+    <string name="accessibility_settings_cd">\u090F\u0915\u094D\u0938\u0947\u0938\u093F\u092C\u093F\u0932\u093F\u091F\u0940 \u0938\u0947\u091F\u093F\u0902\u0917\u094D\u0938</string>
+    <string name="accessibility_panel_title">\u0921\u093F\u0938\u094D\u092A\u094D\u0932\u0947 \u0914\u0930 \u090F\u0915\u094D\u0938\u0947\u0938\u093F\u092C\u093F\u0932\u093F\u091F\u0940</string>
+    <string name="accessibility_panel_subtitle">\u0905\u092A\u0928\u093E \u0905\u0928\u0941\u092D\u0935 \u0905\u0928\u0941\u0915\u0942\u0932\u093F\u0924 \u0915\u0930\u0947\u0902</string>
+    <string name="accessibility_section_theme">\u0925\u0940\u092E</string>
+    <string name="accessibility_theme_auto">\u0911\u091F\u094B</string>
+    <string name="accessibility_theme_light">\u0932\u093E\u0907\u091F</string>
+    <string name="accessibility_theme_dark">\u0921\u093E\u0930\u094D\u0915</string>
+    <string name="accessibility_section_text_size">\u091F\u0947\u0915\u094D\u0938\u094D\u091F \u0915\u093E \u0906\u0915\u093E\u0930</string>
+    <string name="accessibility_high_contrast_label">\u0939\u093E\u0908 \u0915\u0902\u091F\u094D\u0930\u093E\u0938\u094D\u091F</string>
+    <string name="accessibility_high_contrast_subtitle">\u0905\u0927\u093F\u0915 \u0938\u094D\u092A\u0937\u094D\u091F \u091F\u0947\u0915\u094D\u0938\u094D\u091F \u0914\u0930 \u092C\u0949\u0930\u094D\u0921\u0930</string>
+    <string name="accessibility_reduce_motion_label">\u092E\u094B\u0936\u0928 \u0915\u092E \u0915\u0930\u0947\u0902</string>
+    <string name="accessibility_reduce_motion_subtitle">\u090F\u0928\u093F\u092E\u0947\u0936\u0928 \u0915\u092E \u0915\u0930\u0947\u0902</string>
+    <string name="accessibility_section_language">\u092D\u093E\u0937\u093E</string>
+    <string name="accessibility_section_sounds">\u0927\u094D\u0935\u0928\u093F\u092F\u093E\u0901</string>
+    <string name="accessibility_ringtone_call_label">\u0907\u0928\u0915\u092E\u093F\u0902\u0917 \u0915\u0949\u0932</string>
+    <string name="accessibility_ringtone_request_label">\u092A\u0930\u093E\u092E\u0930\u094D\u0936 \u0905\u0928\u0941\u0930\u094B\u0927</string>
+    <string name="accessibility_ringtone_default">\u0938\u093F\u0938\u094D\u091F\u092E \u0921\u093F\u092B\u093C\u0949\u0932\u094D\u091F</string>
+    <string name="accessibility_ringtone_reset">\u0930\u0940\u0938\u0947\u091F</string>
+    <string name="accessibility_ringtone_call_picker_title">\u0907\u0928\u0915\u092E\u093F\u0902\u0917 \u0915\u0949\u0932 \u0930\u093F\u0902\u0917\u091F\u094B\u0928</string>
+    <string name="accessibility_ringtone_request_picker_title">\u0905\u0928\u0941\u0930\u094B\u0927 \u0930\u093F\u0902\u0917\u091F\u094B\u0928</string>
 </resources>

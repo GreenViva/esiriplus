@@ -23,6 +23,10 @@
     <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
     <string name="splash_tagline_en">Your Health, Our Priority</string>
     <string name="splash_tap_to_continue">Appuyez n\'importe o\u00F9 pour continuer</string>
+    <string name="splash_tagline_main">\"Votre sant\u00E9, notre priorit\u00E9.\"</string>
+    <string name="splash_tagline_caps">VOTRE SANT\u00C9  \u00B7  NOTRE PRIORIT\u00C9</string>
+    <string name="splash_status_preparing">PR\u00C9PARATION DE VOTRE ESPACE</string>
+    <string name="splash_status_ready">APPUYEZ POUR CONTINUER</string>
 
     <!-- RoleSelectionScreen -->
     <string name="role_welcome_title">Bienvenue sur eSIRI Plus</string>
@@ -259,4 +263,68 @@
     <string name="error_recovery_failed">\u00C9chec de la r\u00E9cup\u00E9ration. Veuillez r\u00E9essayer.</string>
     <string name="error_patient_id_not_found">Identifiant patient introuvable. Veuillez v\u00E9rifier votre identifiant et r\u00E9essayer.</string>
     <string name="error_pdf_generate_failed">\u00C9chec de la g\u00E9n\u00E9ration du PDF</string>
+
+    <!-- RoleSelectionScreen redesign (v1.1.1 localization) -->
+    <string name="role_hero_title_1">Besoin d\'un m\u00E9decin ?</string>
+    <string name="role_hero_title_2">Nous sommes l\u00E0.</string>
+    <string name="role_hero_subtitle">Parlez \u00E0 un vrai m\u00E9decin depuis votre t\u00E9l\u00E9phone. Priv\u00E9, simple et disponible quand vous en avez besoin.</string>
+    <string name="role_hero_card_title">Obtenez de l\'aide m\u00E9dicale</string>
+    <string name="role_hero_card_subtitle">Discutez avec un m\u00E9decin agr\u00E9\u00E9 en quelques minutes \u2014 sans rendez-vous.</string>
+    <string name="role_continue_as_patient">Continuer comme patient</string>
+    <string name="role_trust_private_combo">100% priv\u00E9</string>
+    <string name="role_trust_private_subtitle">Aucun nom r\u00E9el requis</string>
+    <string name="role_trust_available_combo">Disponible 24/7</string>
+    <string name="role_trust_available_subtitle">Jour ou nuit</string>
+    <string name="role_trust_real_combo">Vrais m\u00E9decins</string>
+    <string name="role_trust_real_subtitle">V\u00E9rifi\u00E9s par le MCT</string>
+    <string name="role_not_a_patient_lc">Pas patient ?</string>
+    <string name="role_im_a_doctor_title">Je suis m\u00E9decin</string>
+    <string name="role_im_a_doctor_subtitle">G\u00E9rer votre cabinet</string>
+    <string name="role_become_agent_title">Devenir agent</string>
+    <string name="role_become_agent_subtitle">Gagnez de l\'argent</string>
+    <string name="role_need_help">Besoin d\'aide ?</string>
+    <string name="role_patient_sheet_title">Continuer comme patient</string>
+    <string name="role_patient_sheet_subtitle">Qu\'est-ce qui vous am\u00E8ne aujourd\'hui ?</string>
+    <string name="role_patient_sheet_new_title">Je suis nouveau sur eSIRI Plus</string>
+    <string name="role_patient_sheet_new_subtitle">D\u00E9marrer une nouvelle consultation</string>
+    <string name="role_patient_sheet_have_id_title">J\'ai mon ID patient</string>
+    <string name="role_patient_sheet_have_id_subtitle">Connectez-vous \u00E0 vos dossiers</string>
+    <string name="role_patient_sheet_forgot_id_title">J\'ai oubli\u00E9 mon ID patient</string>
+    <string name="role_patient_sheet_forgot_id_subtitle">R\u00E9cup\u00E9rer avec les questions de s\u00E9curit\u00E9</string>
+
+    <!-- Terms tab titles (v1.1.1) \u2014 body text remains English until professionally translated. -->
+    <string name="legal_tab_privacy_policy">Politique de confidentialit\u00E9</string>
+    <string name="legal_tab_terms_of_service">Conditions d\'utilisation</string>
+    <string name="legal_tab_data_security">S\u00E9curit\u00E9 des donn\u00E9es</string>
+    <string name="legal_tab_medical_disclaimer">Avertissement m\u00E9dical</string>
+    <string name="legal_tab_informed_consent">Consentement \u00E9clair\u00E9</string>
+    <string name="legal_tab_practice_guidelines">Lignes directrices de pratique</string>
+    <string name="legal_tab_provider_consent">Consentement prestataire</string>
+
+    <!-- PatientSetupScreen (v1.1.1 localization) -->
+    <string name="setup_step_label">Dernière étape</string>
+    <string name="setup_headline_prefix">"Vous y êtes. Voici "</string>
+    <string name="setup_headline_accent">votre clé secrète.</string>
+    <string name="setup_headline_subtitle">C\'est votre seul identifiant sur eSIRI Plus. Pas de nom, pas de téléphone, aucune trace — juste ceci.</string>
+    <string name="setup_id_label">VOTRE ID PATIENT</string>
+    <string name="setup_id_placeholder">—</string>
+    <string name="setup_id_hint">Conservez-le en lieu sûr — comme un code PIN.</string>
+    <string name="setup_id_copy">Copier</string>
+    <string name="setup_id_copied">Copié !</string>
+    <string name="setup_id_save">Enregistrer la carte</string>
+    <string name="setup_id_saving">Enregistrement…</string>
+    <string name="setup_tip_title">Perdez cet ID, perdez vos dossiers</string>
+    <string name="setup_tip_body">Configurez les questions de récupération ci-dessous — 1 minute, accès à vie.</string>
+    <string name="setup_option_recovery_title">Questions de récupération</string>
+    <string name="setup_option_recovery_recommended">Recommandé</string>
+    <string name="setup_option_recovery_done">Terminé</string>
+    <string name="setup_option_recovery_pending">Récupérez votre compte si vous perdez votre ID</string>
+    <string name="setup_option_recovery_completed">Configuré — vous pouvez récupérer votre compte si vous perdez votre ID</string>
+    <string name="setup_option_health_title">Profil santé</string>
+    <string name="setup_option_health_optional">Facultatif</string>
+    <string name="setup_option_health_subtitle">Sexe, âge, allergies — aide les médecins à mieux vous soigner</string>
+    <string name="setup_continue">Continuer</string>
+    <string name="setup_skip_prefix">"Vous avez déjà enregistré votre ID ? "</string>
+    <string name="setup_skip_action">Passer pour l\'instant</string>
+    <string name="setup_health_sheet_done">Terminé</string>
 </resources>

@@ -108,6 +108,78 @@ private val TextSecondary = Color(0xFFB0BEC5)
 private val CardBackground = Color(0x2A1E3A5F)
 private val SheetBackground = Color(0xF00A1628)
 
+/**
+ * Doctor.services entries are persisted as the English strings declared in
+ * SpecialtyServices (DoctorRegistrationScreen.kt). This map lets the patient-side
+ * detail card swap each persisted English value for the user-locale string at
+ * render time without changing what's stored.
+ *
+ * Anything not in the map (custom service entered by a doctor outside the
+ * standard list) falls through to the original English so it still renders.
+ */
+private val DOCTOR_SERVICE_KEYS: Map<String, Int> = mapOf(
+    "Health Education & Wellness Guidance" to R.string.dservice_health_education,
+    "Nutrition & Lifestyle Counseling" to R.string.dservice_nutrition_counseling,
+    "Chronic Disease Monitoring Support" to R.string.dservice_chronic_monitoring,
+    "Post-Operative & Wound Care Guidance" to R.string.dservice_postop_wound,
+    "Maternal & Child Health Education" to R.string.dservice_maternal_child,
+    "Medication Adherence Coaching" to R.string.dservice_medication_adherence,
+    "Basic Symptom Advice (Non-diagnostic)" to R.string.dservice_basic_symptom,
+    "Common Acute Illness Treatment" to R.string.dservice_common_acute,
+    "Minor Infection Management" to R.string.dservice_minor_infection,
+    "Basic Chronic Disease Management" to R.string.dservice_basic_chronic,
+    "Women's Health (Non-Complicated Cases)" to R.string.dservice_womens_basic,
+    "Minor Skin Conditions" to R.string.dservice_minor_skin,
+    "Musculoskeletal Pain (Mild Cases)" to R.string.dservice_musculoskeletal_pain,
+    "Medication Prescription (Basic List Only)" to R.string.dservice_basic_prescription,
+    "Malaria Diagnosis & Treatment (After Test)" to R.string.dservice_malaria,
+    "Medication Counseling" to R.string.dservice_medication_counseling,
+    "Drug Interaction Check" to R.string.dservice_drug_interaction_check,
+    "Prescription Review" to R.string.dservice_prescription_review,
+    "OTC Medication Recommendation" to R.string.dservice_otc_recommendation,
+    "Chronic Medication Support" to R.string.dservice_chronic_support,
+    "Herbal & Traditional Medicine Interaction Advice" to R.string.dservice_herbal_interaction,
+    "Comprehensive Medical Consultation" to R.string.dservice_comprehensive,
+    "Chronic Disease Diagnosis & Management" to R.string.dservice_chronic_diagnosis,
+    "Women's Health (Full Primary Care)" to R.string.dservice_womens_full,
+    "Men's Health Consultation" to R.string.dservice_mens_health,
+    "Mental Health (Mild to Moderate)" to R.string.dservice_mental_mild,
+    "Pediatric Primary Care" to R.string.dservice_pediatric,
+    "Infectious Disease Management" to R.string.dservice_infectious,
+    "Medical Referral & Lab Ordering" to R.string.dservice_referral_lab,
+    "Complex Condition Management" to R.string.dservice_complex_management,
+    "Second Opinion Consultation" to R.string.dservice_second_opinion,
+    "Specialized Chronic Disease Management" to R.string.dservice_specialized_chronic,
+    "Post-Hospital Follow-Up" to R.string.dservice_post_hospital,
+    "Advanced Diagnostic Interpretation" to R.string.dservice_advanced_diagnostic,
+    "Specialty-Specific Consultation" to R.string.dservice_specialty_specific,
+    "Individual Therapy (CBT / Talk Therapy)" to R.string.dservice_individual_therapy,
+    "Depression & Anxiety Counseling" to R.string.dservice_depression_anxiety,
+    "Trauma & PTSD Therapy" to R.string.dservice_trauma_ptsd,
+    "Relationship & Family Therapy" to R.string.dservice_relationship_family,
+    "Stress & Burnout Management" to R.string.dservice_stress_burnout,
+    "Behavioral & Habit Modification" to R.string.dservice_behavioral,
+    "Psychological Assessment" to R.string.dservice_psychological_assessment,
+    "Herbal Medicine Consultation" to R.string.dservice_herbal_consultation,
+    "Traditional Remedy Guidance" to R.string.dservice_traditional_remedy,
+    "Natural Supplement Advice" to R.string.dservice_natural_supplement,
+    "Herbal Wellness Assessment" to R.string.dservice_herbal_wellness,
+    "Plant-Based Treatment Plans" to R.string.dservice_plant_based,
+    "Herbal Drug Interaction Advice" to R.string.dservice_herbal_drug_interaction,
+    "Multi-Drug Interaction Analysis" to R.string.dservice_multidrug,
+    "Polypharmacy Review" to R.string.dservice_polypharmacy,
+    "Medication Safety Assessment" to R.string.dservice_safety_assessment,
+    "Herb–Drug Interaction Check" to R.string.dservice_herb_drug,
+    "Dosage Safety Verification" to R.string.dservice_dosage_safety,
+    "OTC and Prescription Compatibility Check" to R.string.dservice_otc_prescription,
+)
+
+@Composable
+private fun localizedDoctorService(name: String): String {
+    val resId = DOCTOR_SERVICE_KEYS[name]
+    return if (resId != null) stringResource(resId) else name
+}
+
 @Composable
 private fun categoryDisplayName(code: String): String {
     return when (code.lowercase()) {
@@ -993,7 +1065,7 @@ private fun DoctorDetailSheet(
                     // Services
                     if (doctor.services.isNotEmpty()) {
                         Text(
-                            text = "Services",
+                            text = stringResource(R.string.find_doctor_services_label),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = StarGlow,
@@ -1011,7 +1083,7 @@ private fun DoctorDetailSheet(
                                         .border(0.5.dp, GlassBorder, RoundedCornerShape(14.dp)),
                                 ) {
                                     Text(
-                                        text = service,
+                                        text = localizedDoctorService(service),
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                         fontSize = 12.sp,
                                         color = TextPrimary,

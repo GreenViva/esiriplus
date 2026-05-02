@@ -23,6 +23,10 @@
     <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
     <string name="splash_tagline_en">Your Health, Our Priority</string>
     <string name="splash_tap_to_continue">Gusa popote kuendelea</string>
+    <string name="splash_tagline_main">\"Afya yako, kipaumbele chetu.\"</string>
+    <string name="splash_tagline_caps">AFYA YAKO  ·  KIPAUMBELE CHETU</string>
+    <string name="splash_status_preparing">INAANDAA NAFASI YAKO</string>
+    <string name="splash_status_ready">GUSA ILI KUENDELEA</string>
 
     <!-- RoleSelectionScreen -->
     <string name="role_welcome_title">Karibu eSIRI Plus</string>
@@ -291,4 +295,41 @@
     <string name="setup_skip_action">Ruka kwa sasa</string>
 
     <string name="setup_health_sheet_done">Imekamilika</string>
+
+    <!-- RoleSelectionScreen redesign (v1.1.1 localization) -->
+    <string name="role_hero_title_1">Unahitaji daktari?</string>
+    <string name="role_hero_title_2">Tuko hapa.</string>
+    <string name="role_hero_subtitle">Ongea na daktari halisi kutoka kwenye simu yako. Faragha, rahisi, na inapatikana wakati wowote unahitaji.</string>
+    <string name="role_hero_card_title">Pata msaada wa kiafya</string>
+    <string name="role_hero_card_subtitle">Wasiliana na daktari aliye na leseni kwa dakika — bila kuhitaji miadi.</string>
+    <string name="role_continue_as_patient">Endelea kama Mgonjwa</string>
+    <string name="role_trust_private_combo">100% Faragha</string>
+    <string name="role_trust_private_subtitle">Hakuna jina halisi linahitajika</string>
+    <string name="role_trust_available_combo">24/7 Inapatikana</string>
+    <string name="role_trust_available_subtitle">Mchana au usiku</string>
+    <string name="role_trust_real_combo">Madaktari Halisi</string>
+    <string name="role_trust_real_subtitle">Wamehakikiwa na MCT</string>
+    <string name="role_not_a_patient_lc">Si mgonjwa?</string>
+    <string name="role_im_a_doctor_title">Mimi ni Daktari</string>
+    <string name="role_im_a_doctor_subtitle">Simamia kazi yako</string>
+    <string name="role_become_agent_title">Kuwa Wakala</string>
+    <string name="role_become_agent_subtitle">Pata pesa</string>
+    <string name="role_need_help">Unahitaji msaada?</string>
+    <string name="role_patient_sheet_title">Endelea kama Mgonjwa</string>
+    <string name="role_patient_sheet_subtitle">Nini kinakuleta hapa leo?</string>
+    <string name="role_patient_sheet_new_title">Mimi ni mpya kwa eSIRI Plus</string>
+    <string name="role_patient_sheet_new_subtitle">Anza mashauriano mapya</string>
+    <string name="role_patient_sheet_have_id_title">Nina kitambulisho changu cha Mgonjwa</string>
+    <string name="role_patient_sheet_have_id_subtitle">Ingia kwenye rekodi zako</string>
+    <string name="role_patient_sheet_forgot_id_title">Nimesahau kitambulisho changu cha Mgonjwa</string>
+    <string name="role_patient_sheet_forgot_id_subtitle">Pona kwa maswali ya usalama</string>
+
+    <!-- Terms tab titles (v1.1.1) — body text remains English until professionally translated. -->
+    <string name="legal_tab_privacy_policy">Sera ya Faragha</string>
+    <string name="legal_tab_terms_of_service">Masharti ya Huduma</string>
+    <string name="legal_tab_data_security">Usalama wa Data</string>
+    <string name="legal_tab_medical_disclaimer">Onyo la Kimatibabu</string>
+    <string name="legal_tab_informed_consent">Idhini Iliyojulishwa</string>
+    <string name="legal_tab_practice_guidelines">Mwongozo wa Mazoezi</string>
+    <string name="legal_tab_provider_consent">Idhini ya Mtoa Huduma</string>
 </resources>

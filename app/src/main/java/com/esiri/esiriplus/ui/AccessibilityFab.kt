@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -207,7 +208,7 @@ fun AccessibilityFab(
             ) {
                 Icon(
                     imageVector = if (expanded) Icons.Default.Close else Icons.Default.Settings,
-                    contentDescription = "Accessibility settings",
+                    contentDescription = stringResource(R.string.accessibility_settings_cd),
                     modifier = Modifier
                         .size(24.dp)
                         .rotate(rotation),
@@ -264,14 +265,14 @@ private fun AccessibilityPanel(
         ) {
             // Header
             Text(
-                text = "Display & Accessibility",
+                text = stringResource(R.string.accessibility_panel_title),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = onSurface,
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Customize your experience",
+                text = stringResource(R.string.accessibility_panel_subtitle),
                 fontSize = 13.sp,
                 color = onSurfaceVariant,
             )
@@ -279,7 +280,7 @@ private fun AccessibilityPanel(
             Spacer(Modifier.height(16.dp))
 
             // Theme mode
-            SectionLabel("THEME")
+            SectionLabel(stringResource(R.string.accessibility_section_theme))
             Spacer(Modifier.height(8.dp))
             ThemeSelector(
                 selected = themeMode,
@@ -291,7 +292,7 @@ private fun AccessibilityPanel(
             Spacer(Modifier.height(16.dp))
 
             // Font size
-            SectionLabel("TEXT SIZE")
+            SectionLabel(stringResource(R.string.accessibility_section_text_size))
             Spacer(Modifier.height(8.dp))
             FontScaleSelector(
                 selected = fontScale,
@@ -304,8 +305,8 @@ private fun AccessibilityPanel(
 
             // High contrast toggle
             ToggleRow(
-                label = "High contrast",
-                subtitle = "Bolder text & borders",
+                label = stringResource(R.string.accessibility_high_contrast_label),
+                subtitle = stringResource(R.string.accessibility_high_contrast_subtitle),
                 checked = highContrast,
                 onCheckedChange = { preferencesManager.setHighContrast(it) },
             )
@@ -314,8 +315,8 @@ private fun AccessibilityPanel(
 
             // Reduce motion toggle
             ToggleRow(
-                label = "Reduce motion",
-                subtitle = "Minimize animations",
+                label = stringResource(R.string.accessibility_reduce_motion_label),
+                subtitle = stringResource(R.string.accessibility_reduce_motion_subtitle),
                 checked = reduceMotion,
                 onCheckedChange = { preferencesManager.setReduceMotion(it) },
             )
@@ -325,7 +326,7 @@ private fun AccessibilityPanel(
             Spacer(Modifier.height(12.dp))
 
             // Language
-            SectionLabel("LANGUAGE")
+            SectionLabel(stringResource(R.string.accessibility_section_language))
             Spacer(Modifier.height(8.dp))
             LanguageRow(onDismiss = onDismiss)
 
@@ -334,18 +335,21 @@ private fun AccessibilityPanel(
             Spacer(Modifier.height(12.dp))
 
             // Sounds
-            SectionLabel("SOUNDS")
+            SectionLabel(stringResource(R.string.accessibility_section_sounds))
             Spacer(Modifier.height(8.dp))
+
+            val callRingtonePickerTitle = stringResource(R.string.accessibility_ringtone_call_picker_title)
+            val requestRingtonePickerTitle = stringResource(R.string.accessibility_ringtone_request_picker_title)
 
             // Incoming Call Ringtone
             RingtoneRow(
-                label = "Incoming Call",
+                label = stringResource(R.string.accessibility_ringtone_call_label),
                 currentUri = callRingtoneUri,
                 onPick = {
                     callRingtoneLauncher.launch(
                         Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
                             putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE)
-                            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Incoming Call Ringtone")
+                            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, callRingtonePickerTitle)
                             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
                             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
                             if (callRingtoneUri != null) {
@@ -361,13 +365,13 @@ private fun AccessibilityPanel(
 
             // Consultation Request Ringtone
             RingtoneRow(
-                label = "Consultation Request",
+                label = stringResource(R.string.accessibility_ringtone_request_label),
                 currentUri = requestRingtoneUri,
                 onPick = {
                     requestRingtoneLauncher.launch(
                         Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
                             putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE)
-                            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Request Ringtone")
+                            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, requestRingtonePickerTitle)
                             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
                             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
                             if (requestRingtoneUri != null) {
@@ -402,9 +406,9 @@ private fun ThemeSelector(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        ThemeOption("Auto", ThemeMode.SYSTEM, selected, onSelect, Modifier.weight(1f))
-        ThemeOption("Light", ThemeMode.LIGHT, selected, onSelect, Modifier.weight(1f))
-        ThemeOption("Dark", ThemeMode.DARK, selected, onSelect, Modifier.weight(1f))
+        ThemeOption(stringResource(R.string.accessibility_theme_auto), ThemeMode.SYSTEM, selected, onSelect, Modifier.weight(1f))
+        ThemeOption(stringResource(R.string.accessibility_theme_light), ThemeMode.LIGHT, selected, onSelect, Modifier.weight(1f))
+        ThemeOption(stringResource(R.string.accessibility_theme_dark), ThemeMode.DARK, selected, onSelect, Modifier.weight(1f))
     }
 }
 
@@ -564,7 +568,7 @@ private fun RingtoneRow(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = ringtoneName ?: "System Default",
+                    text = ringtoneName ?: stringResource(R.string.accessibility_ringtone_default),
                     fontSize = 11.sp,
                     color = if (currentUri != null) BrandTeal else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -573,7 +577,7 @@ private fun RingtoneRow(
             }
             if (currentUri != null) {
                 TextButton(onClick = onReset) {
-                    Text("Reset", fontSize = 11.sp, color = Color(0xFFDC2626))
+                    Text(stringResource(R.string.accessibility_ringtone_reset), fontSize = 11.sp, color = Color(0xFFDC2626))
                 }
             }
         }

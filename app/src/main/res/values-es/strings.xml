@@ -113,4 +113,26 @@
     <!-- Medication Reminder -->
     <string name="notification_medication_reminder_call">Llamada de recordatorio de medicamento</string>
     <string name="notification_medication_reminder">Recordatorio de medicamento</string>
+
+    <!-- Accessibility FAB panel (v1.1.1 localization) -->
+    <string name="accessibility_settings_cd">Configuración de accesibilidad</string>
+    <string name="accessibility_panel_title">Pantalla y accesibilidad</string>
+    <string name="accessibility_panel_subtitle">Personaliza tu experiencia</string>
+    <string name="accessibility_section_theme">TEMA</string>
+    <string name="accessibility_theme_auto">Auto</string>
+    <string name="accessibility_theme_light">Claro</string>
+    <string name="accessibility_theme_dark">Oscuro</string>
+    <string name="accessibility_section_text_size">TAMAÑO DEL TEXTO</string>
+    <string name="accessibility_high_contrast_label">Alto contraste</string>
+    <string name="accessibility_high_contrast_subtitle">Texto y bordes más marcados</string>
+    <string name="accessibility_reduce_motion_label">Reducir movimiento</string>
+    <string name="accessibility_reduce_motion_subtitle">Minimizar animaciones</string>
+    <string name="accessibility_section_language">IDIOMA</string>
+    <string name="accessibility_section_sounds">SONIDOS</string>
+    <string name="accessibility_ringtone_call_label">Llamada entrante</string>
+    <string name="accessibility_ringtone_request_label">Solicitud de consulta</string>
+    <string name="accessibility_ringtone_default">Predeterminado del sistema</string>
+    <string name="accessibility_ringtone_reset">Restablecer</string>
+    <string name="accessibility_ringtone_call_picker_title">Tono de llamada entrante</string>
+    <string name="accessibility_ringtone_request_picker_title">Tono de solicitud</string>
 </resources>

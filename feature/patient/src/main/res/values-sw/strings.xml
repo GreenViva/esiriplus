@@ -155,6 +155,60 @@
     <string name="category_specialist">Daktari Bingwa</string>
     <string name="category_psychologist">Mtaalamu wa Saikolojia</string>
     <string name="category_herbalist">Mganga wa Mitishamba</string>
+    <string name="category_drug_interaction">Mwingiliano wa Dawa</string>
+
+    <!-- Service descriptions (v1.1.1 localization — used on Services picker) -->
+    <string name="service_desc_nurse">Mashauriano ya kawaida kwa masuala ya kiafya ya kila siku</string>
+    <string name="service_desc_clinical_officer">Mashauriano ya kimatibabu ya kila siku kwa magonjwa ya kawaida</string>
+    <string name="service_desc_pharmacist">Ushauri wa haraka wa dawa na ukaguzi wa mwingiliano wa dawa</string>
+    <string name="service_desc_gp">Huduma kamili na rufaa kwa wataalamu inapohitajika</string>
+    <string name="service_desc_specialist">Mashauriano ya kitaalamu katika nyanja maalum za matibabu</string>
+    <string name="service_desc_psychologist">Msaada wa kitaalamu wa afya ya akili na ushauri</string>
+    <string name="service_desc_herbalist">Mashauriano ya dawa za asili na mitishamba</string>
+    <string name="service_desc_drug_interaction">Kagua mwingiliano wa dawa na pata mwongozo wa usalama</string>
+
+    <!-- Mobile-money payment USSD steps (v1.1.1 localization). Menu items in quotes
+         stay as-is — that's what the phone shows. -->
+    <string-array name="payment_steps_mpesa">
+        <item>Piga *150*00#</item>
+        <item>Chagua \"Lipa kwa M-Pesa\"</item>
+        <item>Chagua \"Malipo ya Kampuni\"</item>
+        <item>Chagua \"Esiri Plus\"</item>
+        <item>Weka Kitambulisho chako cha Mgonjwa kama nambari ya kumbukumbu</item>
+        <item>Weka kiasi halisi kilichoonyeshwa hapo juu</item>
+        <item>Weka PIN yako ya M-Pesa</item>
+        <item>Thibitisha</item>
+    </string-array>
+    <string-array name="payment_steps_airtel">
+        <item>Piga *150*60#</item>
+        <item>Chagua \"Make Payments\"</item>
+        <item>Chagua \"Pay Bill\"</item>
+        <item>Weka jina la biashara \"Esiri Plus\"</item>
+        <item>Weka Kitambulisho chako cha Mgonjwa kama nambari ya kumbukumbu</item>
+        <item>Weka kiasi halisi kilichoonyeshwa hapo juu</item>
+        <item>Weka PIN yako ya Airtel Money</item>
+        <item>Thibitisha malipo</item>
+    </string-array>
+    <string-array name="payment_steps_halopesa">
+        <item>Piga *150*88#</item>
+        <item>Chagua \"Lipa\"</item>
+        <item>Chagua \"Lipa kwa Kampuni\"</item>
+        <item>Weka jina la biashara \"Esiri Plus\"</item>
+        <item>Weka Kitambulisho chako cha Mgonjwa kama nambari ya kumbukumbu</item>
+        <item>Weka kiasi halisi kilichoonyeshwa hapo juu</item>
+        <item>Weka PIN yako ya HaloPesa</item>
+        <item>Thibitisha malipo</item>
+    </string-array>
+    <string-array name="payment_steps_yas">
+        <item>Piga *150*01#</item>
+        <item>Chagua \"Payments\"</item>
+        <item>Chagua \"Pay Business\"</item>
+        <item>Weka jina la biashara \"Esiri Plus\"</item>
+        <item>Weka Kitambulisho chako cha Mgonjwa kama nambari ya kumbukumbu</item>
+        <item>Weka kiasi halisi kilichoonyeshwa hapo juu</item>
+        <item>Weka PIN yako ya Yas</item>
+        <item>Thibitisha malipo</item>
+    </string-array>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Rudi</string>
@@ -502,22 +556,22 @@
     <string name="tier_economy_short_desc">Huduma bora kwa bei ya kawaida — inayofaa matatizo ya kila siku.</string>
     <string name="tier_economy_feature_1">Mashauriano kamili na daktari aliyethibitishwa</string>
     <string name="tier_economy_feature_2">Ufuatiliaji 1 ndani ya siku 14</string>
-    <string name="tier_economy_cta">Endelea na Economy</string>
+    <string name="tier_economy_cta">Endelea na Kawaida</string>
     <string name="tier_economy_badge_chosen">INAYOPENDWA ZAIDI</string>
     <string name="tier_royal_price_from">TSh 322,000</string>
     <string name="tier_royal_short_desc">Huduma ya kipaumbele, ufikiaji wa muda mrefu, ziara nyumbani inapohitajika.</string>
     <string name="tier_royal_feature_1">Siku 14 za ufuatiliaji · bila kikomo</string>
     <string name="tier_royal_feature_2">Foleni ya kipaumbele · ruka kusubiri</string>
     <string name="tier_royal_feature_3">Hadi ziara 2 nyumbani kwa kesi</string>
-    <string name="tier_royal_cta">Endelea na Royal</string>
+    <string name="tier_royal_cta">Endelea na Kifalme</string>
     <string name="tier_royal_badge_premium">YA HALI YA JUU</string>
 
     <!-- Services list v1.3 redesign -->
     <string name="services_headline_prefix">"Unahitaji kuzungumza na "</string>
     <string name="services_headline_accent">nani?</string>
     <string name="services_location_active">Tanzania · kifurushi cha %1$s kinatumika</string>
-    <string name="services_tier_label_economy">Economy</string>
-    <string name="services_tier_label_royal">Royal</string>
+    <string name="services_tier_label_economy">Kawaida</string>
+    <string name="services_tier_label_royal">Kifalme</string>
     <string name="services_royal_pill">Faida za Royal zinatumika · ufuatiliaji wa siku 14</string>
     <string name="services_group_primary_care">Huduma ya msingi</string>
     <string name="services_group_pharmacy">Dawa na duka la dawa</string>
@@ -551,5 +605,68 @@
     <string name="past_chat_detail_subtitle">Kusoma tu · yatakwisha baada ya siku 14</string>
     <string name="past_chat_detail_empty_title">Hakuna kitu hapa</string>
     <string name="past_chat_detail_empty_body">Mazungumzo haya yameisha au hayajawahi kuwa na ujumbe wowote.</string>
+
+    <!-- FindDoctorScreen accented headline + specialist-as-GP labels (v1.1.1 localization) -->
+    <string name="find_doctor_headline_prefix">"Chagua "</string>
+    <string name="find_doctor_headline_accent">Daktari wako</string>
+    <string name="find_doctor_specialist_as_gp">Daktari Bingwa · %1$s (anayehudumia kama Daktari wa Kawaida)</string>
+    <string name="find_doctor_specialist_as_gp_fallback">Daktari Bingwa (anayehudumia kama Daktari wa Kawaida)</string>
+
+    <!-- Doctor service tags (v1.1.1 localization) -->
+    <string name="find_doctor_services_label">Huduma</string>
+    <string name="dservice_health_education">Elimu ya Afya na Mwongozo wa Ustawi</string>
+    <string name="dservice_nutrition_counseling">Ushauri wa Lishe na Mtindo wa Maisha</string>
+    <string name="dservice_chronic_monitoring">Msaada wa Ufuatiliaji wa Magonjwa Sugu</string>
+    <string name="dservice_postop_wound">Mwongozo wa Utunzaji wa Baada ya Upasuaji na Vidonda</string>
+    <string name="dservice_maternal_child">Elimu ya Afya ya Mama na Mtoto</string>
+    <string name="dservice_medication_adherence">Ufundishaji wa Ufuasi wa Dawa</string>
+    <string name="dservice_basic_symptom">Ushauri wa Msingi wa Dalili (Si wa Uchunguzi)</string>
+    <string name="dservice_common_acute">Matibabu ya Magonjwa ya Kawaida ya Ghafla</string>
+    <string name="dservice_minor_infection">Usimamizi wa Maambukizi Madogo</string>
+    <string name="dservice_basic_chronic">Usimamizi wa Msingi wa Magonjwa Sugu</string>
+    <string name="dservice_womens_basic">Afya ya Wanawake (Kesi Zisizo Ngumu)</string>
+    <string name="dservice_minor_skin">Hali Ndogo za Ngozi</string>
+    <string name="dservice_musculoskeletal_pain">Maumivu ya Misuli na Mifupa (Kesi Hafifu)</string>
+    <string name="dservice_basic_prescription">Maagizo ya Dawa (Orodha ya Msingi Pekee)</string>
+    <string name="dservice_malaria">Uchunguzi na Matibabu ya Malaria (Baada ya Kipimo)</string>
+    <string name="dservice_medication_counseling">Ushauri wa Dawa</string>
+    <string name="dservice_drug_interaction_check">Ukaguzi wa Mwingiliano wa Dawa</string>
+    <string name="dservice_prescription_review">Mapitio ya Maagizo</string>
+    <string name="dservice_otc_recommendation">Mapendekezo ya Dawa Bila Maagizo</string>
+    <string name="dservice_chronic_support">Msaada wa Dawa Sugu</string>
+    <string name="dservice_herbal_interaction">Ushauri wa Mwingiliano na Dawa za Asili na za Jadi</string>
+    <string name="dservice_comprehensive">Mashauriano ya Kimatibabu Kamili</string>
+    <string name="dservice_chronic_diagnosis">Uchunguzi na Usimamizi wa Magonjwa Sugu</string>
+    <string name="dservice_womens_full">Afya ya Wanawake (Huduma Kamili ya Msingi)</string>
+    <string name="dservice_mens_health">Mashauriano ya Afya ya Wanaume</string>
+    <string name="dservice_mental_mild">Afya ya Akili (Hafifu hadi Wastani)</string>
+    <string name="dservice_pediatric">Huduma ya Msingi ya Watoto</string>
+    <string name="dservice_infectious">Usimamizi wa Magonjwa ya Kuambukiza</string>
+    <string name="dservice_referral_lab">Rufaa za Kimatibabu na Maagizo ya Maabara</string>
+    <string name="dservice_complex_management">Usimamizi wa Hali Ngumu</string>
+    <string name="dservice_second_opinion">Mashauriano ya Maoni ya Pili</string>
+    <string name="dservice_specialized_chronic">Usimamizi Maalum wa Magonjwa Sugu</string>
+    <string name="dservice_post_hospital">Ufuatiliaji Baada ya Hospitali</string>
+    <string name="dservice_advanced_diagnostic">Tafsiri ya Hali ya Juu ya Uchunguzi</string>
+    <string name="dservice_specialty_specific">Mashauriano Maalum kwa Utaalamu</string>
+    <string name="dservice_individual_therapy">Tiba ya Mtu Binafsi (CBT / Tiba kwa Mazungumzo)</string>
+    <string name="dservice_depression_anxiety">Ushauri wa Unyogovu na Wasiwasi</string>
+    <string name="dservice_trauma_ptsd">Tiba ya Kiwewe na PTSD</string>
+    <string name="dservice_relationship_family">Tiba ya Mahusiano na Familia</string>
+    <string name="dservice_stress_burnout">Usimamizi wa Mfadhaiko na Uchovu</string>
+    <string name="dservice_behavioral">Marekebisho ya Tabia na Mazoea</string>
+    <string name="dservice_psychological_assessment">Tathmini ya Kisaikolojia</string>
+    <string name="dservice_herbal_consultation">Mashauriano ya Dawa za Asili</string>
+    <string name="dservice_traditional_remedy">Mwongozo wa Tiba ya Jadi</string>
+    <string name="dservice_natural_supplement">Ushauri wa Virutubisho vya Asili</string>
+    <string name="dservice_herbal_wellness">Tathmini ya Ustawi kwa Mitishamba</string>
+    <string name="dservice_plant_based">Mipango ya Matibabu kwa Mimea</string>
+    <string name="dservice_herbal_drug_interaction">Ushauri wa Mwingiliano wa Mitishamba na Dawa</string>
+    <string name="dservice_multidrug">Uchambuzi wa Mwingiliano wa Dawa Nyingi</string>
+    <string name="dservice_polypharmacy">Mapitio ya Polifamasia</string>
+    <string name="dservice_safety_assessment">Tathmini ya Usalama wa Dawa</string>
+    <string name="dservice_herb_drug">Ukaguzi wa Mwingiliano wa Mitishamba na Dawa</string>
+    <string name="dservice_dosage_safety">Uthibitisho wa Usalama wa Kipimo</string>
+    <string name="dservice_otc_prescription">Ukaguzi wa Uoanifu wa Dawa za Bure na za Maagizo</string>
 
 </resources>

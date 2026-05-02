@@ -340,7 +340,7 @@ private fun OngoingConsultationCard(
                 // Tier badge
                 if (isRoyal) {
                     Text(
-                        text = "\u2605 Royal",
+                        text = "\u2605 " + stringResource(R.string.services_tier_label_royal),
                         color = RoyalGold,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
@@ -353,7 +353,7 @@ private fun OngoingConsultationCard(
                     )
                 } else if (isFollowUp) {
                     Text(
-                        text = "Economy",
+                        text = stringResource(R.string.services_tier_label_economy),
                         color = Color(0xFF0D6EFD),
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,

@@ -213,6 +213,121 @@
     <string name="category_specialist">Specialist</string>
     <string name="category_psychologist">Psychologist</string>
     <string name="category_herbalist">Herbalist</string>
+    <string name="category_drug_interaction">Drug Interaction</string>
+
+    <!-- Service descriptions (v1.1.1 localization — used on Services picker) -->
+    <string name="service_desc_nurse">Normal consultations for everyday health concerns</string>
+    <string name="service_desc_clinical_officer">Daily medical consultations for common ailments</string>
+    <string name="service_desc_pharmacist">Quick medication advice and drug interaction checks</string>
+    <string name="service_desc_gp">Comprehensive care with specialist referrals when needed</string>
+    <string name="service_desc_specialist">Expert consultation in specialized medical fields</string>
+    <string name="service_desc_psychologist">Professional mental health support and counseling</string>
+    <string name="service_desc_herbalist">Traditional and herbal medicine consultation</string>
+    <string name="service_desc_drug_interaction">Check drug interactions and get safety guidance</string>
+
+    <!-- Mobile-money payment USSD steps (v1.1.1 localization).
+         Quoted menu items (e.g. "Lipa kwa M-Pesa") are intentionally NOT translated —
+         they're literal labels that appear on the user's phone screen as-is. -->
+    <string-array name="payment_steps_mpesa">
+        <item>Dial *150*00#</item>
+        <item>Choose \"Lipa kwa M-Pesa\"</item>
+        <item>Choose \"Malipo ya Kampuni\"</item>
+        <item>Choose \"Esiri Plus\"</item>
+        <item>Enter your Patient ID as reference number</item>
+        <item>Enter the exact amount shown above</item>
+        <item>Enter your M-Pesa PIN</item>
+        <item>Confirm (Thibitisha)</item>
+    </string-array>
+    <string-array name="payment_steps_airtel">
+        <item>Dial *150*60#</item>
+        <item>Choose \"Make Payments\"</item>
+        <item>Choose \"Pay Bill\"</item>
+        <item>Enter business name \"Esiri Plus\"</item>
+        <item>Enter your Patient ID as reference number</item>
+        <item>Enter the exact amount shown above</item>
+        <item>Enter your Airtel Money PIN</item>
+        <item>Confirm payment</item>
+    </string-array>
+    <string-array name="payment_steps_halopesa">
+        <item>Dial *150*88#</item>
+        <item>Choose \"Lipa\"</item>
+        <item>Choose \"Lipa kwa Kampuni\"</item>
+        <item>Enter business name \"Esiri Plus\"</item>
+        <item>Enter your Patient ID as reference number</item>
+        <item>Enter the exact amount shown above</item>
+        <item>Enter your HaloPesa PIN</item>
+        <item>Confirm payment</item>
+    </string-array>
+    <string-array name="payment_steps_yas">
+        <item>Dial *150*01#</item>
+        <item>Choose \"Payments\"</item>
+        <item>Choose \"Pay Business\"</item>
+        <item>Enter business name \"Esiri Plus\"</item>
+        <item>Enter your Patient ID as reference number</item>
+        <item>Enter the exact amount shown above</item>
+        <item>Enter your Yas PIN</item>
+        <item>Confirm payment</item>
+    </string-array>
+
+    <!-- Doctor service tags shown on FindDoctorScreen detail (v1.1.1 localization).
+         The doctor's services are persisted as English strings keyed off
+         SpecialtyServices in DoctorRegistrationScreen.kt. The screen looks each
+         one up at render time via DOCTOR_SERVICE_KEYS to swap to the user's locale. -->
+    <string name="find_doctor_services_label">Services</string>
+    <string name="dservice_health_education">Health Education &amp; Wellness Guidance</string>
+    <string name="dservice_nutrition_counseling">Nutrition &amp; Lifestyle Counseling</string>
+    <string name="dservice_chronic_monitoring">Chronic Disease Monitoring Support</string>
+    <string name="dservice_postop_wound">Post-Operative &amp; Wound Care Guidance</string>
+    <string name="dservice_maternal_child">Maternal &amp; Child Health Education</string>
+    <string name="dservice_medication_adherence">Medication Adherence Coaching</string>
+    <string name="dservice_basic_symptom">Basic Symptom Advice (Non-diagnostic)</string>
+    <string name="dservice_common_acute">Common Acute Illness Treatment</string>
+    <string name="dservice_minor_infection">Minor Infection Management</string>
+    <string name="dservice_basic_chronic">Basic Chronic Disease Management</string>
+    <string name="dservice_womens_basic">Women\'s Health (Non-Complicated Cases)</string>
+    <string name="dservice_minor_skin">Minor Skin Conditions</string>
+    <string name="dservice_musculoskeletal_pain">Musculoskeletal Pain (Mild Cases)</string>
+    <string name="dservice_basic_prescription">Medication Prescription (Basic List Only)</string>
+    <string name="dservice_malaria">Malaria Diagnosis &amp; Treatment (After Test)</string>
+    <string name="dservice_medication_counseling">Medication Counseling</string>
+    <string name="dservice_drug_interaction_check">Drug Interaction Check</string>
+    <string name="dservice_prescription_review">Prescription Review</string>
+    <string name="dservice_otc_recommendation">OTC Medication Recommendation</string>
+    <string name="dservice_chronic_support">Chronic Medication Support</string>
+    <string name="dservice_herbal_interaction">Herbal &amp; Traditional Medicine Interaction Advice</string>
+    <string name="dservice_comprehensive">Comprehensive Medical Consultation</string>
+    <string name="dservice_chronic_diagnosis">Chronic Disease Diagnosis &amp; Management</string>
+    <string name="dservice_womens_full">Women\'s Health (Full Primary Care)</string>
+    <string name="dservice_mens_health">Men\'s Health Consultation</string>
+    <string name="dservice_mental_mild">Mental Health (Mild to Moderate)</string>
+    <string name="dservice_pediatric">Pediatric Primary Care</string>
+    <string name="dservice_infectious">Infectious Disease Management</string>
+    <string name="dservice_referral_lab">Medical Referral &amp; Lab Ordering</string>
+    <string name="dservice_complex_management">Complex Condition Management</string>
+    <string name="dservice_second_opinion">Second Opinion Consultation</string>
+    <string name="dservice_specialized_chronic">Specialized Chronic Disease Management</string>
+    <string name="dservice_post_hospital">Post-Hospital Follow-Up</string>
+    <string name="dservice_advanced_diagnostic">Advanced Diagnostic Interpretation</string>
+    <string name="dservice_specialty_specific">Specialty-Specific Consultation</string>
+    <string name="dservice_individual_therapy">Individual Therapy (CBT / Talk Therapy)</string>
+    <string name="dservice_depression_anxiety">Depression &amp; Anxiety Counseling</string>
+    <string name="dservice_trauma_ptsd">Trauma &amp; PTSD Therapy</string>
+    <string name="dservice_relationship_family">Relationship &amp; Family Therapy</string>
+    <string name="dservice_stress_burnout">Stress &amp; Burnout Management</string>
+    <string name="dservice_behavioral">Behavioral &amp; Habit Modification</string>
+    <string name="dservice_psychological_assessment">Psychological Assessment</string>
+    <string name="dservice_herbal_consultation">Herbal Medicine Consultation</string>
+    <string name="dservice_traditional_remedy">Traditional Remedy Guidance</string>
+    <string name="dservice_natural_supplement">Natural Supplement Advice</string>
+    <string name="dservice_herbal_wellness">Herbal Wellness Assessment</string>
+    <string name="dservice_plant_based">Plant-Based Treatment Plans</string>
+    <string name="dservice_herbal_drug_interaction">Herbal Drug Interaction Advice</string>
+    <string name="dservice_multidrug">Multi-Drug Interaction Analysis</string>
+    <string name="dservice_polypharmacy">Polypharmacy Review</string>
+    <string name="dservice_safety_assessment">Medication Safety Assessment</string>
+    <string name="dservice_herb_drug">Herb–Drug Interaction Check</string>
+    <string name="dservice_dosage_safety">Dosage Safety Verification</string>
+    <string name="dservice_otc_prescription">OTC and Prescription Compatibility Check</string>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Back</string>

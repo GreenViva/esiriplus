@@ -181,14 +181,15 @@ private fun WelcomeTopBar() {
 private fun HeadlineBlock() {
     Text(
         text = buildAnnotatedString {
-            append("Need a doctor?\n")
+            append(stringResource(R.string.role_hero_title_1))
+            append("\n")
             withStyle(
                 SpanStyle(
                     color = TealDeep,
                     fontStyle = FontStyle.Italic,
                     fontFamily = InstrumentSerif,
                 ),
-            ) { append("We're here.") }
+            ) { append(stringResource(R.string.role_hero_title_2)) }
         },
         fontFamily = InstrumentSerif,
         fontSize = 24.sp,

@@ -23,6 +23,10 @@
     <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
     <string name="splash_tagline_en">Su salud, nuestra prioridad</string>
     <string name="splash_tap_to_continue">Toque en cualquier lugar para continuar</string>
+    <string name="splash_tagline_main">\"Tu salud, nuestra prioridad.\"</string>
+    <string name="splash_tagline_caps">TU SALUD  ·  NUESTRA PRIORIDAD</string>
+    <string name="splash_status_preparing">PREPARANDO TU ESPACIO</string>
+    <string name="splash_status_ready">TOCA PARA CONTINUAR</string>
 
     <!-- RoleSelectionScreen -->
     <string name="role_welcome_title">Bienvenido a eSIRI Plus</string>
@@ -259,4 +263,68 @@
     <string name="error_recovery_failed">Error de recuperaci\u00F3n. Int\u00E9ntelo de nuevo.</string>
     <string name="error_patient_id_not_found">ID de paciente no encontrado. Verifique su ID e int\u00E9ntelo de nuevo.</string>
     <string name="error_pdf_generate_failed">Error al generar el PDF</string>
+
+    <!-- RoleSelectionScreen redesign (v1.1.1 localization) -->
+    <string name="role_hero_title_1">¿Necesitas un médico?</string>
+    <string name="role_hero_title_2">Estamos aquí.</string>
+    <string name="role_hero_subtitle">Habla con un médico real desde tu teléfono. Privado, sencillo y disponible cuando lo necesites.</string>
+    <string name="role_hero_card_title">Obtén ayuda médica</string>
+    <string name="role_hero_card_subtitle">Chatea con un médico licenciado en minutos — sin necesidad de cita.</string>
+    <string name="role_continue_as_patient">Continuar como paciente</string>
+    <string name="role_trust_private_combo">100% privado</string>
+    <string name="role_trust_private_subtitle">Sin nombre real</string>
+    <string name="role_trust_available_combo">Disponible 24/7</string>
+    <string name="role_trust_available_subtitle">Día o noche</string>
+    <string name="role_trust_real_combo">Médicos reales</string>
+    <string name="role_trust_real_subtitle">Verificados por el MCT</string>
+    <string name="role_not_a_patient_lc">¿No eres paciente?</string>
+    <string name="role_im_a_doctor_title">Soy médico</string>
+    <string name="role_im_a_doctor_subtitle">Gestionar tu práctica</string>
+    <string name="role_become_agent_title">Conviértete en agente</string>
+    <string name="role_become_agent_subtitle">Gana dinero</string>
+    <string name="role_need_help">¿Necesitas ayuda?</string>
+    <string name="role_patient_sheet_title">Continuar como paciente</string>
+    <string name="role_patient_sheet_subtitle">¿Qué te trae hoy?</string>
+    <string name="role_patient_sheet_new_title">Soy nuevo en eSIRI Plus</string>
+    <string name="role_patient_sheet_new_subtitle">Iniciar una nueva consulta</string>
+    <string name="role_patient_sheet_have_id_title">Tengo mi ID de paciente</string>
+    <string name="role_patient_sheet_have_id_subtitle">Accede a tus registros</string>
+    <string name="role_patient_sheet_forgot_id_title">Olvidé mi ID de paciente</string>
+    <string name="role_patient_sheet_forgot_id_subtitle">Recuperar con preguntas de seguridad</string>
+
+    <!-- Terms tab titles (v1.1.1) — body text remains English until professionally translated. -->
+    <string name="legal_tab_privacy_policy">Política de privacidad</string>
+    <string name="legal_tab_terms_of_service">Términos del servicio</string>
+    <string name="legal_tab_data_security">Seguridad de datos</string>
+    <string name="legal_tab_medical_disclaimer">Aviso médico</string>
+    <string name="legal_tab_informed_consent">Consentimiento informado</string>
+    <string name="legal_tab_practice_guidelines">Pautas de práctica</string>
+    <string name="legal_tab_provider_consent">Consentimiento del proveedor</string>
+
+    <!-- PatientSetupScreen (v1.1.1 localization) -->
+    <string name="setup_step_label">Último paso</string>
+    <string name="setup_headline_prefix">"Listo. Aquí tienes "</string>
+    <string name="setup_headline_accent">tu clave secreta.</string>
+    <string name="setup_headline_subtitle">Este es tu único ID en eSIRI Plus. Sin nombre, sin teléfono, sin rastro — solo esto.</string>
+    <string name="setup_id_label">TU ID DE PACIENTE</string>
+    <string name="setup_id_placeholder">—</string>
+    <string name="setup_id_hint">Guárdalo en un lugar seguro — como un PIN de cajero.</string>
+    <string name="setup_id_copy">Copiar</string>
+    <string name="setup_id_copied">¡Copiado!</string>
+    <string name="setup_id_save">Guardar tarjeta</string>
+    <string name="setup_id_saving">Guardando…</string>
+    <string name="setup_tip_title">Si pierdes este ID, pierdes tus registros</string>
+    <string name="setup_tip_body">Configura las preguntas de recuperación abajo — toma 1 minuto, te da acceso de por vida.</string>
+    <string name="setup_option_recovery_title">Preguntas de recuperación</string>
+    <string name="setup_option_recovery_recommended">Recomendado</string>
+    <string name="setup_option_recovery_done">Listo</string>
+    <string name="setup_option_recovery_pending">Recupera tu cuenta si pierdes tu ID</string>
+    <string name="setup_option_recovery_completed">Configurado — puedes recuperar tu cuenta si pierdes tu ID</string>
+    <string name="setup_option_health_title">Perfil de salud</string>
+    <string name="setup_option_health_optional">Opcional</string>
+    <string name="setup_option_health_subtitle">Sexo, edad, alergias — ayuda a los médicos a atenderte más rápido</string>
+    <string name="setup_continue">Continuar</string>
+    <string name="setup_skip_prefix">"¿Ya guardaste tu ID? "</string>
+    <string name="setup_skip_action">Omitir por ahora</string>
+    <string name="setup_health_sheet_done">Listo</string>
 </resources>

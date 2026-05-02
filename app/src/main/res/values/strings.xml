@@ -114,4 +114,26 @@
     <!-- Medication Reminder -->
     <string name="notification_medication_reminder_call">Medication Reminder Call</string>
     <string name="notification_medication_reminder">Medication Reminder</string>
+
+    <!-- Accessibility FAB panel (v1.1.1 localization) -->
+    <string name="accessibility_settings_cd">Accessibility settings</string>
+    <string name="accessibility_panel_title">Display &amp; Accessibility</string>
+    <string name="accessibility_panel_subtitle">Customize your experience</string>
+    <string name="accessibility_section_theme">THEME</string>
+    <string name="accessibility_theme_auto">Auto</string>
+    <string name="accessibility_theme_light">Light</string>
+    <string name="accessibility_theme_dark">Dark</string>
+    <string name="accessibility_section_text_size">TEXT SIZE</string>
+    <string name="accessibility_high_contrast_label">High contrast</string>
+    <string name="accessibility_high_contrast_subtitle">Bolder text &amp; borders</string>
+    <string name="accessibility_reduce_motion_label">Reduce motion</string>
+    <string name="accessibility_reduce_motion_subtitle">Minimize animations</string>
+    <string name="accessibility_section_language">LANGUAGE</string>
+    <string name="accessibility_section_sounds">SOUNDS</string>
+    <string name="accessibility_ringtone_call_label">Incoming Call</string>
+    <string name="accessibility_ringtone_request_label">Consultation Request</string>
+    <string name="accessibility_ringtone_default">System Default</string>
+    <string name="accessibility_ringtone_reset">Reset</string>
+    <string name="accessibility_ringtone_call_picker_title">Incoming Call Ringtone</string>
+    <string name="accessibility_ringtone_request_picker_title">Request Ringtone</string>
 </resources>

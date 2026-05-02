@@ -145,6 +145,59 @@
     <string name="category_specialist">أخصائي</string>
     <string name="category_psychologist">أخصائي نفسي</string>
     <string name="category_herbalist">معالج بالأعشاب</string>
+    <string name="category_drug_interaction">تداخل الأدوية</string>
+
+    <!-- Service descriptions (v1.1.1 localization — used on Services picker) -->
+    <string name="service_desc_nurse">استشارات عادية لمخاوف الصحة اليومية</string>
+    <string name="service_desc_clinical_officer">استشارات طبية يومية للأمراض الشائعة</string>
+    <string name="service_desc_pharmacist">نصائح سريعة بشأن الأدوية وفحص تداخلاتها</string>
+    <string name="service_desc_gp">رعاية شاملة مع إحالة إلى الأخصائي عند الحاجة</string>
+    <string name="service_desc_specialist">استشارة خبراء في المجالات الطبية المتخصصة</string>
+    <string name="service_desc_psychologist">دعم احترافي للصحة النفسية والإرشاد</string>
+    <string name="service_desc_herbalist">استشارة الطب التقليدي والأعشاب</string>
+    <string name="service_desc_drug_interaction">تحقق من تداخل الأدوية واحصل على إرشادات السلامة</string>
+
+    <!-- Mobile-money payment USSD steps (v1.1.1). Menu items in quotes stay as-is. -->
+    <string-array name="payment_steps_mpesa">
+        <item>اطلب *150*00#</item>
+        <item>اختر «Lipa kwa M-Pesa»</item>
+        <item>اختر «Malipo ya Kampuni»</item>
+        <item>اختر «Esiri Plus»</item>
+        <item>أدخل معرّف المريض الخاص بك كرقم مرجعي</item>
+        <item>أدخل المبلغ المطلوب بالضبط الموضّح أعلاه</item>
+        <item>أدخل رمز PIN الخاص بـ M-Pesa</item>
+        <item>أكّد (Thibitisha)</item>
+    </string-array>
+    <string-array name="payment_steps_airtel">
+        <item>اطلب *150*60#</item>
+        <item>اختر «Make Payments»</item>
+        <item>اختر «Pay Bill»</item>
+        <item>أدخل اسم الشركة «Esiri Plus»</item>
+        <item>أدخل معرّف المريض الخاص بك كرقم مرجعي</item>
+        <item>أدخل المبلغ المطلوب بالضبط الموضّح أعلاه</item>
+        <item>أدخل رمز PIN الخاص بـ Airtel Money</item>
+        <item>أكّد الدفع</item>
+    </string-array>
+    <string-array name="payment_steps_halopesa">
+        <item>اطلب *150*88#</item>
+        <item>اختر «Lipa»</item>
+        <item>اختر «Lipa kwa Kampuni»</item>
+        <item>أدخل اسم الشركة «Esiri Plus»</item>
+        <item>أدخل معرّف المريض الخاص بك كرقم مرجعي</item>
+        <item>أدخل المبلغ المطلوب بالضبط الموضّح أعلاه</item>
+        <item>أدخل رمز PIN الخاص بـ HaloPesa</item>
+        <item>أكّد الدفع</item>
+    </string-array>
+    <string-array name="payment_steps_yas">
+        <item>اطلب *150*01#</item>
+        <item>اختر «Payments»</item>
+        <item>اختر «Pay Business»</item>
+        <item>أدخل اسم الشركة «Esiri Plus»</item>
+        <item>أدخل معرّف المريض الخاص بك كرقم مرجعي</item>
+        <item>أدخل المبلغ المطلوب بالضبط الموضّح أعلاه</item>
+        <item>أدخل رمز PIN الخاص بـ Yas</item>
+        <item>أكّد الدفع</item>
+    </string-array>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">رجوع</string>
@@ -419,5 +472,193 @@
     <string name="med_schedule_active">نشط</string>
     <string name="med_schedule_ended">انتهى</string>
     <string name="med_schedule_date_range">%1$s إلى %2$s (%3$d أيام)</string>
+
+    <!-- PatientHomeScreen / Settings (v1.1.1 localization) -->
+    <string name="home_greeting">مرحباً 👋</string>
+    <string name="home_help_email">info\@esiri.africa</string>
+    <string name="home_help_need">"هل تحتاج مساعدة؟ "</string>
+    <string name="home_help_phone">+255 663 582 994</string>
+    <string name="home_hero_cta">بدء الاستشارة</string>
+    <string name="home_hero_eyebrow">جاهز عندما تكون مستعداً</string>
+    <string name="home_hero_headline_accent">الآن.</string>
+    <string name="home_hero_headline_main">تحدث إلى طبيب</string>
+    <string name="home_hero_subtitle">اختر خدمة · ادفع · اتصل. عادة في أقل من 5 دقائق.</string>
+    <string name="home_id_prefix">"المعرّف: "</string>
+    <string name="home_pending_empty">لا شيء ينتظرك الآن</string>
+    <string name="home_pending_many">%1$d استشارات تحتاج إلى متابعة</string>
+    <string name="home_pending_one">استشارة واحدة تحتاج إلى متابعة</string>
+    <string name="home_pending_resume">استئناف</string>
+    <string name="home_pending_title">معلق</string>
+    <string name="home_records_label">سجلاتك</string>
+    <string name="home_settings">الإعدادات</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_logout">تسجيل الخروج</string>
+    <string name="settings_sounds">الأصوات</string>
+    <string name="settings_sounds_off">الوضع الصامت</string>
+    <string name="settings_sounds_on">أصوات الإشعارات مُفعّلة</string>
+    <string name="settings_delete_account">حذف الحساب</string>
+    <string name="settings_delete_account_subtitle">دائم — فترة سماح 30 يوماً</string>
+    <string name="delete_account_cancel">إلغاء</string>
+    <string name="delete_account_confirm">حذف نهائي</string>
+    <string name="delete_account_dialog_body">ستُحذف جميع بياناتك بشكل دائم بعد 30 يوماً. سجّل الدخول خلال هذه المدة للإلغاء.</string>
+    <string name="delete_account_dialog_prompt">اكتب \"%1$s\" للتأكيد:</string>
+    <string name="delete_account_dialog_title">حذف حسابك؟</string>
+    <string name="delete_account_phrase">حذف حسابي</string>
+    <string name="deletion_feedback_comment_label">هل تريد إضافة شيء؟</string>
+    <string name="deletion_feedback_comment_placeholder">اختياري</string>
+    <string name="deletion_feedback_skip">تخطي والحذف</string>
+    <string name="deletion_feedback_submit">إرسال وحذف</string>
+    <string name="deletion_feedback_subtitle">إذا كان لديك لحظة، أخبرنا لماذا. إنه اختياري ومجهول.</string>
+    <string name="deletion_feedback_title">نأسف لرحيلك</string>
+    <string name="deletion_in_progress">جارٍ حذف حسابك…</string>
+
+    <!-- Past chats + common (v1.1.1 localization) -->
+    <string name="common_back">رجوع</string>
+    <string name="past_chats_title">المحادثات السابقة</string>
+    <string name="past_chats_subtitle">محفوظة لمدة 14 يوماً</string>
+    <string name="past_chats_empty_title">لا توجد محادثات</string>
+    <string name="past_chats_empty_body">عند التحدث إلى طبيب، تظهر المحادثة هنا لمدة 14 يوماً.</string>
+    <string name="past_chats_chat_with">محادثة مع %1$s</string>
+    <string name="past_chats_followup_with">متابعة مع %1$s</string>
+    <string name="past_chat_detail_subtitle">للقراءة فقط · تنتهي بعد 14 يوماً</string>
+    <string name="past_chat_detail_empty_title">لا شيء هنا</string>
+    <string name="past_chat_detail_empty_body">ربما انتهت صلاحية هذه المحادثة أو لم تحتوِ على رسائل.</string>
+
+    <!-- Home dashboard quick-card tiles (v1.1.1 localization) -->
+    <string name="home_card_past_chats">المحادثات</string>
+    <string name="home_card_past_chats_subtitle">عرض السجل</string>
+    <string name="home_card_reports">التقارير</string>
+    <string name="home_card_reports_subtitle">اضغط للعرض</string>
+    <string name="home_card_reports_unread">تقرير جديد جاهز</string>
+    <string name="home_card_appointments">المواعيد</string>
+    <string name="home_card_appointments_subtitle">عرض القادم</string>
+    <string name="home_card_my_health">صحتي</string>
+    <string name="home_card_my_health_subtitle">تعديل الملف</string>
+
+    <!-- Services / Tier / Payment / Extension / Deletion-feedback (v1.1.1 localization) -->
+    <string name="deletion_feedback_reason_bad_experience">كانت لدي تجربة سيئة</string>
+    <string name="deletion_feedback_reason_no_longer_needed">لم أعد بحاجة إلى الخدمة</string>
+    <string name="deletion_feedback_reason_other">شيء آخر</string>
+    <string name="deletion_feedback_reason_privacy">لدي مخاوف بشأن الخصوصية</string>
+    <string name="deletion_feedback_reason_too_slow">كانت الخدمة بطيئة جداً</string>
+    <string name="extension_done_headline_accent">تم تمديدها.</string>
+    <string name="extension_done_headline_prefix">"الجلسة "</string>
+    <string name="extension_headline_accent">بعض الوقت.</string>
+    <string name="extension_headline_prefix">"مدّد لـ "</string>
+    <string name="past_chats_default_doctor">الطبيب</string>
+    <string name="payment_amount_label">المبلغ المستحق</string>
+    <string name="payment_check_phone_subtitle">وافق على TSh %1$s في طلب المحفظة. لا تغلق التطبيق.</string>
+    <string name="payment_check_phone_title">تحقق من هاتفك</string>
+    <string name="payment_done_headline_accent">أنت جاهز.</string>
+    <string name="payment_done_headline_prefix">"تم الدفع. "</string>
+    <string name="payment_done_subtitle">TSh %1$s · تم الاستلام. جارٍ توصيلك بطبيبك…</string>
+    <string name="payment_headline_accent_pay">الدفع.</string>
+    <string name="payment_headline_prefix">"حان وقت "</string>
+    <string name="payment_phone_headline_accent">رقمك؟</string>
+    <string name="payment_phone_headline_prefix">"ما هو "</string>
+    <string name="services_approve_on_wallet">وافق على TSh %1$s في طلب المحفظة للتأكيد.</string>
+    <string name="services_check_your_phone">تحقق من هاتفك</string>
+    <string name="services_currency_amount">TSh %1$s</string>
+    <string name="services_enter_mobile_number">أدخل رقم الجوال</string>
+    <string name="services_group_mental_traditional">الصحة النفسية والطب التقليدي</string>
+    <string name="services_group_pharmacy">الأدوية والصيدلة</string>
+    <string name="services_group_primary_care">الرعاية الأولية</string>
+    <string name="services_headline_accent">التحدث؟</string>
+    <string name="services_headline_prefix">"إلى من تحتاج "</string>
+    <string name="services_location_active">تنزانيا · المستوى %1$s نشط</string>
+    <string name="services_minutes_format">%1$d دقيقة</string>
+    <string name="services_pay_by_number">ادفع برقم الجوال</string>
+    <string name="services_pay_by_number_subtitle">وافق على طلب المحفظة على أي رقم</string>
+    <string name="services_pay_continue">ادفع وتابع</string>
+    <string name="services_payment_method_title_accent">الدفع.</string>
+    <string name="services_payment_method_title_prefix">"اختر طريقة "</string>
+    <string name="services_popular_badge">شائع</string>
+    <string name="services_provider_title_accent">مقدّم خدمة.</string>
+    <string name="services_provider_title_prefix">"اختر "</string>
+    <string name="services_royal_pill">مزايا Royal مفعّلة · متابعة 14 يوماً</string>
+    <string name="services_selected_template">مُختار · %1$s</string>
+    <string name="services_send_prompt">إرسال طلب المحفظة</string>
+    <string name="services_tier_label_economy">اقتصادي</string>
+    <string name="services_tier_label_royal">ملكي</string>
+    <string name="tier_economy_badge_chosen">الأكثر اختياراً</string>
+    <string name="tier_economy_cta">متابعة مع اقتصادي</string>
+    <string name="tier_economy_feature_1">استشارة كاملة مع طبيب معتمد</string>
+    <string name="tier_economy_feature_2">متابعة واحدة خلال 14 يوماً</string>
+    <string name="tier_economy_price_from">TSh 3,000</string>
+    <string name="tier_economy_short_desc">رعاية عالية الجودة بأسعار قياسية — مثالية للمخاوف اليومية.</string>
+    <string name="tier_headline_accent">تحصل على رعايتك؟</string>
+    <string name="tier_headline_prefix">"كيف تريد أن "</string>
+    <string name="tier_price_from_label">ابتداءً من</string>
+    <string name="tier_royal_badge_premium">بريميوم</string>
+    <string name="tier_royal_cta">متابعة مع ملكي</string>
+    <string name="tier_royal_feature_1">نافذة متابعة 14 يوماً · غير محدودة</string>
+    <string name="tier_royal_feature_2">طابور أولوية · تخطّى الانتظار</string>
+    <string name="tier_royal_feature_3">حتى زيارتين منزليتين لكل حالة</string>
+    <string name="tier_royal_price_from">TSh 322,000</string>
+    <string name="tier_royal_short_desc">تعامل أولوي، وصول موسّع، زيارات منزلية عند الحاجة.</string>
+    <string name="tier_subtitle_short">نفس الأطباء، تجربة مختلفة.</string>
+
+    <!-- FindDoctorScreen accented headline + specialist-as-GP labels (v1.1.1 localization) -->
+    <string name="find_doctor_headline_prefix">"اختر "</string>
+    <string name="find_doctor_headline_accent">طبيبك</string>
+    <string name="find_doctor_specialist_as_gp">أخصائي · %1$s (يعمل كطبيب عام)</string>
+    <string name="find_doctor_specialist_as_gp_fallback">أخصائي (يعمل كطبيب عام)</string>
+
+    <!-- Doctor service tags (v1.1.1 localization) -->
+    <string name="find_doctor_services_label">الخدمات</string>
+    <string name="dservice_health_education">التثقيف الصحي وإرشاد العافية</string>
+    <string name="dservice_nutrition_counseling">إرشاد التغذية وأسلوب الحياة</string>
+    <string name="dservice_chronic_monitoring">دعم متابعة الأمراض المزمنة</string>
+    <string name="dservice_postop_wound">إرشاد العناية بعد الجراحة والجروح</string>
+    <string name="dservice_maternal_child">تثقيف صحة الأم والطفل</string>
+    <string name="dservice_medication_adherence">تدريب على الالتزام بالدواء</string>
+    <string name="dservice_basic_symptom">نصائح أساسية للأعراض (غير تشخيصية)</string>
+    <string name="dservice_common_acute">علاج الأمراض الحادة الشائعة</string>
+    <string name="dservice_minor_infection">إدارة العدوى البسيطة</string>
+    <string name="dservice_basic_chronic">إدارة الأمراض المزمنة الأساسية</string>
+    <string name="dservice_womens_basic">صحة المرأة (الحالات غير المعقدة)</string>
+    <string name="dservice_minor_skin">حالات الجلد البسيطة</string>
+    <string name="dservice_musculoskeletal_pain">الألم العضلي الهيكلي (الحالات الخفيفة)</string>
+    <string name="dservice_basic_prescription">وصف الأدوية (القائمة الأساسية فقط)</string>
+    <string name="dservice_malaria">تشخيص وعلاج الملاريا (بعد الفحص)</string>
+    <string name="dservice_medication_counseling">إرشاد الأدوية</string>
+    <string name="dservice_drug_interaction_check">فحص تداخل الأدوية</string>
+    <string name="dservice_prescription_review">مراجعة الوصفة</string>
+    <string name="dservice_otc_recommendation">توصية أدوية بدون وصفة</string>
+    <string name="dservice_chronic_support">دعم الأدوية المزمنة</string>
+    <string name="dservice_herbal_interaction">إرشاد التداخل مع الأعشاب والطب التقليدي</string>
+    <string name="dservice_comprehensive">استشارة طبية شاملة</string>
+    <string name="dservice_chronic_diagnosis">تشخيص وإدارة الأمراض المزمنة</string>
+    <string name="dservice_womens_full">صحة المرأة (رعاية أولية كاملة)</string>
+    <string name="dservice_mens_health">استشارة صحة الرجل</string>
+    <string name="dservice_mental_mild">الصحة النفسية (خفيفة إلى متوسطة)</string>
+    <string name="dservice_pediatric">رعاية أولية للأطفال</string>
+    <string name="dservice_infectious">إدارة الأمراض المعدية</string>
+    <string name="dservice_referral_lab">الإحالة الطبية وطلب الفحوصات</string>
+    <string name="dservice_complex_management">إدارة الحالات المعقدة</string>
+    <string name="dservice_second_opinion">استشارة رأي ثانٍ</string>
+    <string name="dservice_specialized_chronic">إدارة متخصصة للأمراض المزمنة</string>
+    <string name="dservice_post_hospital">متابعة بعد المستشفى</string>
+    <string name="dservice_advanced_diagnostic">تفسير تشخيصي متقدم</string>
+    <string name="dservice_specialty_specific">استشارة خاصة بالتخصص</string>
+    <string name="dservice_individual_therapy">علاج فردي (CBT / علاج بالحديث)</string>
+    <string name="dservice_depression_anxiety">إرشاد الاكتئاب والقلق</string>
+    <string name="dservice_trauma_ptsd">علاج الصدمة واضطراب ما بعد الصدمة</string>
+    <string name="dservice_relationship_family">علاج العلاقات والأسرة</string>
+    <string name="dservice_stress_burnout">إدارة التوتر والإرهاق</string>
+    <string name="dservice_behavioral">تعديل السلوك والعادات</string>
+    <string name="dservice_psychological_assessment">تقييم نفسي</string>
+    <string name="dservice_herbal_consultation">استشارة الطب العشبي</string>
+    <string name="dservice_traditional_remedy">إرشاد العلاج التقليدي</string>
+    <string name="dservice_natural_supplement">نصيحة المكملات الطبيعية</string>
+    <string name="dservice_herbal_wellness">تقييم العافية بالأعشاب</string>
+    <string name="dservice_plant_based">خطط علاج نباتية</string>
+    <string name="dservice_herbal_drug_interaction">إرشاد تداخل الأعشاب مع الأدوية</string>
+    <string name="dservice_multidrug">تحليل تداخل الأدوية المتعددة</string>
+    <string name="dservice_polypharmacy">مراجعة تعدد الأدوية</string>
+    <string name="dservice_safety_assessment">تقييم سلامة الدواء</string>
+    <string name="dservice_herb_drug">فحص تداخل العشبة-الدواء</string>
+    <string name="dservice_dosage_safety">التحقق من سلامة الجرعة</string>
+    <string name="dservice_otc_prescription">فحص توافق الأدوية بدون وصفة والموصوفة</string>
 
 </resources>

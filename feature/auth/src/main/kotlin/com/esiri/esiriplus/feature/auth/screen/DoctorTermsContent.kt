@@ -1,10 +1,13 @@
 package com.esiri.esiriplus.feature.auth.screen
 
-enum class DoctorLegalTab(val title: String) {
-    PRIVACY_POLICY("Privacy Policy"),
-    TERMS_OF_SERVICE("Terms of Service"),
-    PRACTICE_GUIDELINES("Practice Guidelines"),
-    PROVIDER_CONSENT("Provider Consent"),
+import androidx.annotation.StringRes
+import com.esiri.esiriplus.feature.auth.R
+
+enum class DoctorLegalTab(@StringRes val titleResId: Int) {
+    PRIVACY_POLICY(R.string.legal_tab_privacy_policy),
+    TERMS_OF_SERVICE(R.string.legal_tab_terms_of_service),
+    PRACTICE_GUIDELINES(R.string.legal_tab_practice_guidelines),
+    PROVIDER_CONSENT(R.string.legal_tab_provider_consent),
 }
 
 object DoctorTermsContent {

@@ -111,4 +111,26 @@
     <!-- Medication Reminder -->
     <string name="notification_medication_reminder_call">Simu ya Ukumbusho wa Dawa</string>
     <string name="notification_medication_reminder">Ukumbusho wa Dawa</string>
+
+    <!-- Accessibility FAB panel (v1.1.1 localization) -->
+    <string name="accessibility_settings_cd">Mipangilio ya ufikivu</string>
+    <string name="accessibility_panel_title">Onyesho na Ufikivu</string>
+    <string name="accessibility_panel_subtitle">Pendelea uzoefu wako</string>
+    <string name="accessibility_section_theme">MANDHARI</string>
+    <string name="accessibility_theme_auto">Kiotomatiki</string>
+    <string name="accessibility_theme_light">Mwepesi</string>
+    <string name="accessibility_theme_dark">Giza</string>
+    <string name="accessibility_section_text_size">UKUBWA WA MAANDISHI</string>
+    <string name="accessibility_high_contrast_label">Tofauti ya juu</string>
+    <string name="accessibility_high_contrast_subtitle">Maandishi na mipaka iliyokoza</string>
+    <string name="accessibility_reduce_motion_label">Punguza mwendo</string>
+    <string name="accessibility_reduce_motion_subtitle">Punguza uhuishaji</string>
+    <string name="accessibility_section_language">LUGHA</string>
+    <string name="accessibility_section_sounds">SAUTI</string>
+    <string name="accessibility_ringtone_call_label">Simu Inayoingia</string>
+    <string name="accessibility_ringtone_request_label">Ombi la Mashauriano</string>
+    <string name="accessibility_ringtone_default">Chaguo-msingi la Mfumo</string>
+    <string name="accessibility_ringtone_reset">Weka upya</string>
+    <string name="accessibility_ringtone_call_picker_title">Mlio wa Simu Inayoingia</string>
+    <string name="accessibility_ringtone_request_picker_title">Mlio wa Ombi</string>
 </resources>

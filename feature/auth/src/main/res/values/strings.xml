@@ -23,6 +23,11 @@
     <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
     <string name="splash_tagline_en">Your Health, Our Priority</string>
     <string name="splash_tap_to_continue">Tap anywhere to continue</string>
+    <!-- v1.1.1 splash strings (in use) -->
+    <string name="splash_tagline_main">\"Your health, our priority.\"</string>
+    <string name="splash_tagline_caps">YOUR HEALTH  ·  OUR PRIORITY</string>
+    <string name="splash_status_preparing">PREPARING YOUR SPACE</string>
+    <string name="splash_status_ready">TAP TO CONTINUE</string>
 
     <!-- RoleSelectionScreen -->
     <string name="role_welcome_title">Welcome to eSIRI Plus</string>
@@ -196,6 +201,15 @@
     <string name="doctor_terms_checkbox_text">I have read, understood, and agree to the Provider Terms of Service, Privacy Policy, Practice Guidelines, and Informed Consent</string>
     <string name="doctor_terms_agree_button">I Agree &amp; Continue</string>
     <string name="doctor_terms_back_content_desc">Back</string>
+
+    <!-- Terms tab titles (LegalTab / DoctorLegalTab) — chrome only; document body text remains English until professionally translated. -->
+    <string name="legal_tab_privacy_policy">Privacy Policy</string>
+    <string name="legal_tab_terms_of_service">Terms of Service</string>
+    <string name="legal_tab_data_security">Data Security</string>
+    <string name="legal_tab_medical_disclaimer">Medical Disclaimer</string>
+    <string name="legal_tab_informed_consent">Informed Consent</string>
+    <string name="legal_tab_practice_guidelines">Practice Guidelines</string>
+    <string name="legal_tab_provider_consent">Provider Consent</string>
 
     <!-- SecurityQuestionsSetupScreen -->
     <string name="security_setup_topbar_title">Recovery Questions</string>

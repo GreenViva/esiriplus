@@ -1,16 +1,19 @@
 package com.esiri.esiriplus.feature.auth.screen
 
+import androidx.annotation.StringRes
+import com.esiri.esiriplus.feature.auth.R
+
 data class LegalSection(
     val heading: String? = null,
     val body: String,
 )
 
-enum class LegalTab(val title: String) {
-    PRIVACY_POLICY("Privacy Policy"),
-    DATA_SECURITY("Data Security"),
-    TERMS_OF_SERVICE("Terms of Service"),
-    MEDICAL_DISCLAIMER("Medical Disclaimer"),
-    INFORMED_CONSENT("Informed Consent"),
+enum class LegalTab(@StringRes val titleResId: Int) {
+    PRIVACY_POLICY(R.string.legal_tab_privacy_policy),
+    DATA_SECURITY(R.string.legal_tab_data_security),
+    TERMS_OF_SERVICE(R.string.legal_tab_terms_of_service),
+    MEDICAL_DISCLAIMER(R.string.legal_tab_medical_disclaimer),
+    INFORMED_CONSENT(R.string.legal_tab_informed_consent),
 }
 
 object TermsContent {

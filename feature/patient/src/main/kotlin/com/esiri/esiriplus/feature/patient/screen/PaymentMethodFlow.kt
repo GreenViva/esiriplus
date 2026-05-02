@@ -79,12 +79,18 @@ private val ProviderAirtel = Color(0xFFE53935)
 private val ProviderHalo = Color(0xFF2E7D32)
 private val ProviderYas = Color(0xFF43A047)
 
+/**
+ * USSD-based mobile-money provider. [stepsArrayRes] points at a string-array
+ * resource so the per-step instructions follow the user's locale; quoted
+ * menu labels inside each step (e.g. "Lipa kwa M-Pesa") stay in their
+ * original Swahili because that's what the carrier shows on the phone.
+ */
 private data class MobileProvider(
     val name: String,
     val letter: String,
     val color: Color,
     val ussdCode: String,
-    val steps: List<String>,
+    @androidx.annotation.ArrayRes val stepsArrayRes: Int,
 )
 
 private val mobileProviders = listOf(
@@ -93,64 +99,28 @@ private val mobileProviders = listOf(
         letter = "M",
         color = ProviderMpesa,
         ussdCode = "*150*00#",
-        steps = listOf(
-            "Dial *150*00#",
-            "Choose \"Lipa kwa M-Pesa\"",
-            "Choose \"Malipo ya Kampuni\"",
-            "Choose \"Esiri Plus\"",
-            "Enter your Patient ID as reference number",
-            "Enter the exact amount shown above",
-            "Enter your M-Pesa PIN",
-            "Confirm (Thibitisha)",
-        ),
+        stepsArrayRes = R.array.payment_steps_mpesa,
     ),
     MobileProvider(
         name = "Airtel Money",
         letter = "A",
         color = ProviderAirtel,
         ussdCode = "*150*60#",
-        steps = listOf(
-            "Dial *150*60#",
-            "Choose \"Make Payments\"",
-            "Choose \"Pay Bill\"",
-            "Enter business name \"Esiri Plus\"",
-            "Enter your Patient ID as reference number",
-            "Enter the exact amount shown above",
-            "Enter your Airtel Money PIN",
-            "Confirm payment",
-        ),
+        stepsArrayRes = R.array.payment_steps_airtel,
     ),
     MobileProvider(
         name = "HaloPesa",
         letter = "H",
         color = ProviderHalo,
         ussdCode = "*150*88#",
-        steps = listOf(
-            "Dial *150*88#",
-            "Choose \"Lipa\"",
-            "Choose \"Lipa kwa Kampuni\"",
-            "Enter business name \"Esiri Plus\"",
-            "Enter your Patient ID as reference number",
-            "Enter the exact amount shown above",
-            "Enter your HaloPesa PIN",
-            "Confirm payment",
-        ),
+        stepsArrayRes = R.array.payment_steps_halopesa,
     ),
     MobileProvider(
         name = "Yas",
         letter = "Y",
         color = ProviderYas,
         ussdCode = "*150*01#",
-        steps = listOf(
-            "Dial *150*01#",
-            "Choose \"Payments\"",
-            "Choose \"Pay Business\"",
-            "Enter business name \"Esiri Plus\"",
-            "Enter your Patient ID as reference number",
-            "Enter the exact amount shown above",
-            "Enter your Yas PIN",
-            "Confirm payment",
-        ),
+        stepsArrayRes = R.array.payment_steps_yas,
     ),
 )
 
@@ -320,7 +290,10 @@ private fun PaymentMethodPickerDialog(
         DialogHeader(
             titlePrefix = stringResource(R.string.services_payment_method_title_prefix),
             titleAccent = stringResource(R.string.services_payment_method_title_accent),
-            subtitle = "$serviceName · TSh ${formatTzsFlow(priceAmount)}",
+            subtitle = "$serviceName · " + stringResource(
+                R.string.services_currency_amount,
+                formatTzsFlow(priceAmount),
+            ),
             onClose = onDismiss,
         )
 
@@ -667,7 +640,8 @@ private fun PaymentInstructionsDialog(
 
         Spacer(Modifier.height(8.dp))
 
-        provider.steps.forEachIndexed { index, stepText ->
+        val steps = androidx.compose.ui.res.stringArrayResource(provider.stepsArrayRes)
+        steps.forEachIndexed { index, stepText ->
             StepRow(number = index + 1, text = stepText)
             Spacer(Modifier.height(6.dp))
         }
@@ -785,9 +759,12 @@ private fun PayByNumberDialog(
 ) {
     FlowDialog(onDismiss = onDismiss) {
         DialogHeader(
-            titlePrefix = "Your ",
-            titleAccent = "number?",
-            subtitle = "TSh ${formatTzsFlow(priceAmount)}",
+            titlePrefix = stringResource(R.string.payment_phone_headline_prefix),
+            titleAccent = stringResource(R.string.payment_phone_headline_accent),
+            subtitle = stringResource(
+                R.string.services_currency_amount,
+                formatTzsFlow(priceAmount),
+            ),
             onClose = onDismiss,
         )
         Spacer(Modifier.height(8.dp))

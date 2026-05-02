@@ -145,6 +145,59 @@
     <string name="category_specialist">विशेषज्ञ</string>
     <string name="category_psychologist">मनोवैज्ञानिक</string>
     <string name="category_herbalist">जड़ी-बूटी विशेषज्ञ</string>
+    <string name="category_drug_interaction">ड्रग इंटरैक्शन</string>
+
+    <!-- Service descriptions (v1.1.1 localization — used on Services picker) -->
+    <string name="service_desc_nurse">रोज़मर्रा की स्वास्थ्य चिंताओं के लिए सामान्य परामर्श</string>
+    <string name="service_desc_clinical_officer">सामान्य रोगों के लिए दैनिक चिकित्सीय परामर्श</string>
+    <string name="service_desc_pharmacist">दवा सलाह और इंटरैक्शन जाँच जल्दी</string>
+    <string name="service_desc_gp">ज़रूरत होने पर विशेषज्ञ रेफरल के साथ व्यापक देखभाल</string>
+    <string name="service_desc_specialist">विशेष चिकित्सीय क्षेत्रों में विशेषज्ञ परामर्श</string>
+    <string name="service_desc_psychologist">पेशेवर मानसिक स्वास्थ्य सहायता और परामर्श</string>
+    <string name="service_desc_herbalist">पारंपरिक और हर्बल चिकित्सा परामर्श</string>
+    <string name="service_desc_drug_interaction">दवा इंटरैक्शन जाँचें और सुरक्षा मार्गदर्शन पाएँ</string>
+
+    <!-- Mobile-money payment USSD steps (v1.1.1). Menu items in quotes stay as-is. -->
+    <string-array name="payment_steps_mpesa">
+        <item>*150*00# डायल करें</item>
+        <item>\"Lipa kwa M-Pesa\" चुनें</item>
+        <item>\"Malipo ya Kampuni\" चुनें</item>
+        <item>\"Esiri Plus\" चुनें</item>
+        <item>संदर्भ संख्या के रूप में अपनी रोगी ID दर्ज करें</item>
+        <item>ऊपर दिखाई गई सटीक राशि दर्ज करें</item>
+        <item>अपना M-Pesa PIN दर्ज करें</item>
+        <item>पुष्टि करें (Thibitisha)</item>
+    </string-array>
+    <string-array name="payment_steps_airtel">
+        <item>*150*60# डायल करें</item>
+        <item>\"Make Payments\" चुनें</item>
+        <item>\"Pay Bill\" चुनें</item>
+        <item>व्यवसाय का नाम \"Esiri Plus\" दर्ज करें</item>
+        <item>संदर्भ संख्या के रूप में अपनी रोगी ID दर्ज करें</item>
+        <item>ऊपर दिखाई गई सटीक राशि दर्ज करें</item>
+        <item>अपना Airtel Money PIN दर्ज करें</item>
+        <item>भुगतान की पुष्टि करें</item>
+    </string-array>
+    <string-array name="payment_steps_halopesa">
+        <item>*150*88# डायल करें</item>
+        <item>\"Lipa\" चुनें</item>
+        <item>\"Lipa kwa Kampuni\" चुनें</item>
+        <item>व्यवसाय का नाम \"Esiri Plus\" दर्ज करें</item>
+        <item>संदर्भ संख्या के रूप में अपनी रोगी ID दर्ज करें</item>
+        <item>ऊपर दिखाई गई सटीक राशि दर्ज करें</item>
+        <item>अपना HaloPesa PIN दर्ज करें</item>
+        <item>भुगतान की पुष्टि करें</item>
+    </string-array>
+    <string-array name="payment_steps_yas">
+        <item>*150*01# डायल करें</item>
+        <item>\"Payments\" चुनें</item>
+        <item>\"Pay Business\" चुनें</item>
+        <item>व्यवसाय का नाम \"Esiri Plus\" दर्ज करें</item>
+        <item>संदर्भ संख्या के रूप में अपनी रोगी ID दर्ज करें</item>
+        <item>ऊपर दिखाई गई सटीक राशि दर्ज करें</item>
+        <item>अपना Yas PIN दर्ज करें</item>
+        <item>भुगतान की पुष्टि करें</item>
+    </string-array>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">वापस</string>
@@ -419,5 +472,193 @@
     <string name="med_schedule_active">सक्रिय</string>
     <string name="med_schedule_ended">समाप्त</string>
     <string name="med_schedule_date_range">%1$s से %2$s (%3$d दिन)</string>
+
+    <!-- PatientHomeScreen / Settings (v1.1.1 localization) -->
+    <string name="home_greeting">नमस्ते 👋</string>
+    <string name="home_help_email">info\@esiri.africa</string>
+    <string name="home_help_need">"सहायता चाहिए? "</string>
+    <string name="home_help_phone">+255 663 582 994</string>
+    <string name="home_hero_cta">परामर्श शुरू करें</string>
+    <string name="home_hero_eyebrow">जब आप तैयार हों</string>
+    <string name="home_hero_headline_accent">अभी।</string>
+    <string name="home_hero_headline_main">डॉक्टर से बात करें</string>
+    <string name="home_hero_subtitle">एक सेवा चुनें · भुगतान करें · जुड़ें। आमतौर पर 5 मिनट से कम।</string>
+    <string name="home_id_prefix">"ID: "</string>
+    <string name="home_pending_empty">अभी कुछ भी प्रतीक्षित नहीं</string>
+    <string name="home_pending_many">%1$d परामर्शों को फॉलो-अप की ज़रूरत है</string>
+    <string name="home_pending_one">1 परामर्श को फॉलो-अप की ज़रूरत है</string>
+    <string name="home_pending_resume">फिर से शुरू करें</string>
+    <string name="home_pending_title">लंबित</string>
+    <string name="home_records_label">आपके रिकॉर्ड</string>
+    <string name="home_settings">सेटिंग्स</string>
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_logout">लॉग आउट</string>
+    <string name="settings_sounds">ध्वनियाँ</string>
+    <string name="settings_sounds_off">मौन मोड</string>
+    <string name="settings_sounds_on">सूचना ध्वनियाँ चालू</string>
+    <string name="settings_delete_account">खाता हटाएँ</string>
+    <string name="settings_delete_account_subtitle">स्थायी — 30 दिन की छूट अवधि</string>
+    <string name="delete_account_cancel">रद्द करें</string>
+    <string name="delete_account_confirm">हमेशा के लिए हटाएँ</string>
+    <string name="delete_account_dialog_body">आपका सारा डेटा 30 दिनों के बाद स्थायी रूप से हटा दिया जाएगा। उस अवधि में फिर से साइन इन करके रद्द करें।</string>
+    <string name="delete_account_dialog_prompt">पुष्टि के लिए \"%1$s\" टाइप करें:</string>
+    <string name="delete_account_dialog_title">अपना खाता हटाएँ?</string>
+    <string name="delete_account_phrase">मेरा खाता हटाएँ</string>
+    <string name="deletion_feedback_comment_label">क्या आप कुछ जोड़ना चाहेंगे?</string>
+    <string name="deletion_feedback_comment_placeholder">वैकल्पिक</string>
+    <string name="deletion_feedback_skip">छोड़ें और हटाएँ</string>
+    <string name="deletion_feedback_submit">सबमिट करें और हटाएँ</string>
+    <string name="deletion_feedback_subtitle">यदि आपके पास एक पल है, तो हमें बताएं क्यों। यह वैकल्पिक और गुमनाम है।</string>
+    <string name="deletion_feedback_title">आपको जाते देख दुख है</string>
+    <string name="deletion_in_progress">आपका खाता हटाया जा रहा है…</string>
+
+    <!-- Past chats + common (v1.1.1 localization) -->
+    <string name="common_back">वापस</string>
+    <string name="past_chats_title">पिछली चैट्स</string>
+    <string name="past_chats_subtitle">14 दिनों के लिए संरक्षित</string>
+    <string name="past_chats_empty_title">अभी तक कोई चैट नहीं</string>
+    <string name="past_chats_empty_body">जब आप डॉक्टर से बात करेंगे, तो चैट 14 दिनों तक यहाँ दिखेगी।</string>
+    <string name="past_chats_chat_with">%1$s के साथ चैट</string>
+    <string name="past_chats_followup_with">%1$s के साथ फॉलो-अप</string>
+    <string name="past_chat_detail_subtitle">केवल पढ़ने के लिए · 14 दिनों के बाद समाप्त</string>
+    <string name="past_chat_detail_empty_title">यहाँ कुछ नहीं</string>
+    <string name="past_chat_detail_empty_body">यह चैट समाप्त हो चुकी हो सकती है या इसमें कभी कोई संदेश नहीं था।</string>
+
+    <!-- Home dashboard quick-card tiles (v1.1.1 localization) -->
+    <string name="home_card_past_chats">चैट्स</string>
+    <string name="home_card_past_chats_subtitle">इतिहास देखें</string>
+    <string name="home_card_reports">रिपोर्ट</string>
+    <string name="home_card_reports_subtitle">देखने के लिए टैप करें</string>
+    <string name="home_card_reports_unread">नई रिपोर्ट तैयार</string>
+    <string name="home_card_appointments">अपॉइंटमेंट</string>
+    <string name="home_card_appointments_subtitle">आगामी देखें</string>
+    <string name="home_card_my_health">मेरा स्वास्थ्य</string>
+    <string name="home_card_my_health_subtitle">प्रोफ़ाइल संपादित करें</string>
+
+    <!-- Services / Tier / Payment / Extension / Deletion-feedback (v1.1.1 localization) -->
+    <string name="deletion_feedback_reason_bad_experience">मेरा अनुभव खराब रहा</string>
+    <string name="deletion_feedback_reason_no_longer_needed">अब मुझे इस सेवा की ज़रूरत नहीं</string>
+    <string name="deletion_feedback_reason_other">कुछ और</string>
+    <string name="deletion_feedback_reason_privacy">मुझे गोपनीयता की चिंताएँ हैं</string>
+    <string name="deletion_feedback_reason_too_slow">सेवा बहुत धीमी थी</string>
+    <string name="extension_done_headline_accent">बढ़ा दिया गया।</string>
+    <string name="extension_done_headline_prefix">"सत्र "</string>
+    <string name="extension_headline_accent">थोड़ा और।</string>
+    <string name="extension_headline_prefix">"बढ़ाएँ "</string>
+    <string name="past_chats_default_doctor">डॉक्टर</string>
+    <string name="payment_amount_label">भुगतान राशि</string>
+    <string name="payment_check_phone_subtitle">वॉलेट प्रॉम्प्ट पर TSh %1$s को मंज़ूरी दें। ऐप बंद न करें।</string>
+    <string name="payment_check_phone_title">अपना फ़ोन देखें</string>
+    <string name="payment_done_headline_accent">आप तैयार हैं।</string>
+    <string name="payment_done_headline_prefix">"भुगतान हो गया। "</string>
+    <string name="payment_done_subtitle">TSh %1$s · प्राप्त। आपको आपके डॉक्टर से जोड़ा जा रहा है…</string>
+    <string name="payment_headline_accent_pay">भुगतान।</string>
+    <string name="payment_headline_prefix">"अब समय है "</string>
+    <string name="payment_phone_headline_accent">नंबर?</string>
+    <string name="payment_phone_headline_prefix">"आपका "</string>
+    <string name="services_approve_on_wallet">पुष्टि के लिए वॉलेट प्रॉम्प्ट पर TSh %1$s को मंज़ूरी दें।</string>
+    <string name="services_check_your_phone">अपना फ़ोन देखें</string>
+    <string name="services_currency_amount">TSh %1$s</string>
+    <string name="services_enter_mobile_number">मोबाइल नंबर दर्ज करें</string>
+    <string name="services_group_mental_traditional">मानसिक स्वास्थ्य &amp; पारंपरिक</string>
+    <string name="services_group_pharmacy">दवा &amp; फ़ार्मेसी</string>
+    <string name="services_group_primary_care">प्राथमिक देखभाल</string>
+    <string name="services_headline_accent">बात करनी है?</string>
+    <string name="services_headline_prefix">"किससे "</string>
+    <string name="services_location_active">तंजानिया · %1$s स्तर सक्रिय</string>
+    <string name="services_minutes_format">%1$d मिनट</string>
+    <string name="services_pay_by_number">मोबाइल नंबर से भुगतान</string>
+    <string name="services_pay_by_number_subtitle">किसी भी नंबर पर वॉलेट प्रॉम्प्ट को मंज़ूरी दें</string>
+    <string name="services_pay_continue">भुगतान &amp; जारी रखें</string>
+    <string name="services_payment_method_title_accent">भुगतान।</string>
+    <string name="services_payment_method_title_prefix">"तरीका चुनें "</string>
+    <string name="services_popular_badge">लोकप्रिय</string>
+    <string name="services_provider_title_accent">प्रदाता।</string>
+    <string name="services_provider_title_prefix">"एक "</string>
+    <string name="services_royal_pill">Royal लाभ सक्रिय · 14 दिन फॉलो-अप</string>
+    <string name="services_selected_template">चुना गया · %1$s</string>
+    <string name="services_send_prompt">वॉलेट प्रॉम्प्ट भेजें</string>
+    <string name="services_tier_label_economy">इकॉनमी</string>
+    <string name="services_tier_label_royal">रॉयल</string>
+    <string name="tier_economy_badge_chosen">सबसे अधिक चुना</string>
+    <string name="tier_economy_cta">इकॉनमी के साथ जारी रखें</string>
+    <string name="tier_economy_feature_1">सत्यापित डॉक्टर के साथ पूर्ण परामर्श</string>
+    <string name="tier_economy_feature_2">14 दिनों के भीतर 1 फॉलो-अप</string>
+    <string name="tier_economy_price_from">TSh 3,000</string>
+    <string name="tier_economy_short_desc">मानक दरों पर गुणवत्तापूर्ण देखभाल — रोज़मर्रा की चिंताओं के लिए उपयुक्त।</string>
+    <string name="tier_headline_accent">देखभाल पाना चाहेंगे?</string>
+    <string name="tier_headline_prefix">"आप कैसे "</string>
+    <string name="tier_price_from_label">से शुरू</string>
+    <string name="tier_royal_badge_premium">प्रीमियम</string>
+    <string name="tier_royal_cta">रॉयल के साथ जारी रखें</string>
+    <string name="tier_royal_feature_1">14 दिन फॉलो-अप · असीमित</string>
+    <string name="tier_royal_feature_2">प्राथमिकता क्यू · प्रतीक्षा छोड़ें</string>
+    <string name="tier_royal_feature_3">प्रति केस तक 2 घर पर विज़िट</string>
+    <string name="tier_royal_price_from">TSh 322,000</string>
+    <string name="tier_royal_short_desc">प्राथमिक देखभाल, विस्तारित पहुँच, ज़रूरत पर घर पर विज़िट।</string>
+    <string name="tier_subtitle_short">वही डॉक्टर, अलग अनुभव।</string>
+
+    <!-- FindDoctorScreen accented headline + specialist-as-GP labels (v1.1.1 localization) -->
+    <string name="find_doctor_headline_prefix">"अपना "</string>
+    <string name="find_doctor_headline_accent">डॉक्टर चुनें</string>
+    <string name="find_doctor_specialist_as_gp">विशेषज्ञ · %1$s (सामान्य चिकित्सक के रूप में)</string>
+    <string name="find_doctor_specialist_as_gp_fallback">विशेषज्ञ (सामान्य चिकित्सक के रूप में)</string>
+
+    <!-- Doctor service tags (v1.1.1 localization) -->
+    <string name="find_doctor_services_label">सेवाएँ</string>
+    <string name="dservice_health_education">स्वास्थ्य शिक्षा और कल्याण मार्गदर्शन</string>
+    <string name="dservice_nutrition_counseling">पोषण और जीवनशैली परामर्श</string>
+    <string name="dservice_chronic_monitoring">क्रोनिक रोग निगरानी सहायता</string>
+    <string name="dservice_postop_wound">पोस्ट-ऑपरेटिव और घाव देखभाल मार्गदर्शन</string>
+    <string name="dservice_maternal_child">मातृ और शिशु स्वास्थ्य शिक्षा</string>
+    <string name="dservice_medication_adherence">दवा अनुपालन कोचिंग</string>
+    <string name="dservice_basic_symptom">बुनियादी लक्षण सलाह (गैर-निदान)</string>
+    <string name="dservice_common_acute">सामान्य तीव्र बीमारी उपचार</string>
+    <string name="dservice_minor_infection">मामूली संक्रमण प्रबंधन</string>
+    <string name="dservice_basic_chronic">बुनियादी क्रोनिक रोग प्रबंधन</string>
+    <string name="dservice_womens_basic">महिला स्वास्थ्य (गैर-जटिल मामले)</string>
+    <string name="dservice_minor_skin">मामूली त्वचा स्थिति</string>
+    <string name="dservice_musculoskeletal_pain">मस्कुलोस्केलेटल दर्द (हल्के मामले)</string>
+    <string name="dservice_basic_prescription">दवा प्रिस्क्रिप्शन (बुनियादी सूची)</string>
+    <string name="dservice_malaria">मलेरिया निदान और उपचार (परीक्षण के बाद)</string>
+    <string name="dservice_medication_counseling">दवा परामर्श</string>
+    <string name="dservice_drug_interaction_check">ड्रग इंटरैक्शन जाँच</string>
+    <string name="dservice_prescription_review">नुस्खा समीक्षा</string>
+    <string name="dservice_otc_recommendation">OTC दवा अनुशंसा</string>
+    <string name="dservice_chronic_support">क्रोनिक दवा सहायता</string>
+    <string name="dservice_herbal_interaction">हर्बल और पारंपरिक चिकित्सा इंटरैक्शन सलाह</string>
+    <string name="dservice_comprehensive">व्यापक चिकित्सा परामर्श</string>
+    <string name="dservice_chronic_diagnosis">क्रोनिक रोग निदान और प्रबंधन</string>
+    <string name="dservice_womens_full">महिला स्वास्थ्य (पूर्ण प्राथमिक देखभाल)</string>
+    <string name="dservice_mens_health">पुरुष स्वास्थ्य परामर्श</string>
+    <string name="dservice_mental_mild">मानसिक स्वास्थ्य (हल्का से मध्यम)</string>
+    <string name="dservice_pediatric">बाल चिकित्सा प्राथमिक देखभाल</string>
+    <string name="dservice_infectious">संक्रामक रोग प्रबंधन</string>
+    <string name="dservice_referral_lab">चिकित्सा रेफरल और लैब ऑर्डरिंग</string>
+    <string name="dservice_complex_management">जटिल स्थिति प्रबंधन</string>
+    <string name="dservice_second_opinion">द्वितीय राय परामर्श</string>
+    <string name="dservice_specialized_chronic">विशेष क्रोनिक रोग प्रबंधन</string>
+    <string name="dservice_post_hospital">पोस्ट-हॉस्पिटल फॉलो-अप</string>
+    <string name="dservice_advanced_diagnostic">उन्नत निदान व्याख्या</string>
+    <string name="dservice_specialty_specific">विशेषज्ञता-विशिष्ट परामर्श</string>
+    <string name="dservice_individual_therapy">व्यक्तिगत थेरेपी (CBT / टॉक थेरेपी)</string>
+    <string name="dservice_depression_anxiety">अवसाद और चिंता परामर्श</string>
+    <string name="dservice_trauma_ptsd">ट्रॉमा और PTSD थेरेपी</string>
+    <string name="dservice_relationship_family">रिश्ते और पारिवारिक थेरेपी</string>
+    <string name="dservice_stress_burnout">तनाव और बर्नआउट प्रबंधन</string>
+    <string name="dservice_behavioral">व्यवहारिक और आदत संशोधन</string>
+    <string name="dservice_psychological_assessment">मनोवैज्ञानिक मूल्यांकन</string>
+    <string name="dservice_herbal_consultation">हर्बल दवा परामर्श</string>
+    <string name="dservice_traditional_remedy">पारंपरिक उपचार मार्गदर्शन</string>
+    <string name="dservice_natural_supplement">प्राकृतिक पूरक सलाह</string>
+    <string name="dservice_herbal_wellness">हर्बल कल्याण मूल्यांकन</string>
+    <string name="dservice_plant_based">पौधा-आधारित उपचार योजना</string>
+    <string name="dservice_herbal_drug_interaction">हर्बल ड्रग इंटरैक्शन सलाह</string>
+    <string name="dservice_multidrug">मल्टी-ड्रग इंटरैक्शन विश्लेषण</string>
+    <string name="dservice_polypharmacy">पॉलीफार्मेसी समीक्षा</string>
+    <string name="dservice_safety_assessment">दवा सुरक्षा मूल्यांकन</string>
+    <string name="dservice_herb_drug">जड़ी-दवा इंटरैक्शन जाँच</string>
+    <string name="dservice_dosage_safety">खुराक सुरक्षा सत्यापन</string>
+    <string name="dservice_otc_prescription">OTC और प्रिस्क्रिप्शन संगतता जाँच</string>
 
 </resources>

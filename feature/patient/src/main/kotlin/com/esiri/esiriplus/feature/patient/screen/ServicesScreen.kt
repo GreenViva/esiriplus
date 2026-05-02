@@ -130,6 +130,42 @@ private fun visualsFor(category: String): ServiceVisuals = when (category.upperc
 private fun formatTzs(amount: Int): String =
     java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format(amount.toLong())
 
+/**
+ * Localized display name for a service category. The DB seeds [ServiceTierEntity.displayName]
+ * in English; this helper translates it at render time so the user sees their locale.
+ */
+@Composable
+private fun localizedServiceName(category: String, fallback: String): String =
+    when (category.uppercase()) {
+        "NURSE" -> stringResource(R.string.category_nurse)
+        "CLINICAL_OFFICER" -> stringResource(R.string.category_clinical_officer)
+        "PHARMACIST" -> stringResource(R.string.category_pharmacist)
+        "GP" -> stringResource(R.string.category_gp)
+        "SPECIALIST" -> stringResource(R.string.category_specialist)
+        "PSYCHOLOGIST" -> stringResource(R.string.category_psychologist)
+        "HERBALIST" -> stringResource(R.string.category_herbalist)
+        "DRUG_INTERACTION" -> stringResource(R.string.category_drug_interaction)
+        else -> fallback
+    }
+
+/**
+ * Localized blurb for a service category. Falls back to the (English) seeded
+ * description so unknown categories don't break the row.
+ */
+@Composable
+private fun localizedServiceDescription(category: String, fallback: String): String =
+    when (category.uppercase()) {
+        "NURSE" -> stringResource(R.string.service_desc_nurse)
+        "CLINICAL_OFFICER" -> stringResource(R.string.service_desc_clinical_officer)
+        "PHARMACIST" -> stringResource(R.string.service_desc_pharmacist)
+        "GP" -> stringResource(R.string.service_desc_gp)
+        "SPECIALIST" -> stringResource(R.string.service_desc_specialist)
+        "PSYCHOLOGIST" -> stringResource(R.string.service_desc_psychologist)
+        "HERBALIST" -> stringResource(R.string.service_desc_herbalist)
+        "DRUG_INTERACTION" -> stringResource(R.string.service_desc_drug_interaction)
+        else -> fallback
+    }
+
 @Composable
 fun ServicesScreen(
     onServiceSelected: (serviceCategory: String, priceAmount: Int, durationMinutes: Int, serviceTier: String) -> Unit,
@@ -270,7 +306,7 @@ fun ServicesScreen(
     if (showPaymentFlow && selected != null) {
         val finalPrice = state.effectivePrice(selected)
         PaymentMethodFlow(
-            serviceName = selected.displayName,
+            serviceName = localizedServiceName(selected.category, selected.displayName),
             priceAmount = finalPrice,
             patientId = state.patientId,
             onPaid = {
@@ -426,7 +462,7 @@ private fun ServiceCard(
             // baseline instead of drifting against a center-Y line.
             Row {
                 Text(
-                    text = service.displayName,
+                    text = localizedServiceName(service.category, service.displayName),
                     modifier = Modifier
                         .alignByBaseline()
                         .weight(1f, fill = false),
@@ -457,7 +493,7 @@ private fun ServiceCard(
             }
             Spacer(Modifier.height(1.dp))
             Text(
-                text = service.description,
+                text = localizedServiceDescription(service.category, service.description),
                 fontFamily = Geist,
                 fontSize = 11.sp,
                 color = Muted,
@@ -510,7 +546,7 @@ private fun PayBar(
                 Text(
                     text = stringResource(
                         R.string.services_selected_template,
-                        service.displayName.uppercase(),
+                        localizedServiceName(service.category, service.displayName).uppercase(),
                     ),
                     fontFamily = Geist,
                     fontSize = 10.sp,

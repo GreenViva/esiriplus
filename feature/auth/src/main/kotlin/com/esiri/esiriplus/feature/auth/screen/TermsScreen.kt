@@ -129,7 +129,7 @@ fun TermsScreen(
                         },
                         text = {
                             Text(
-                                text = tab.title,
+                                text = stringResource(tab.titleResId),
                                 fontSize = 13.sp,
                                 fontWeight = if (selectedTabIndex == index) FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (selectedTabIndex == index) BrandTeal else SubtitleGray,
@@ -168,7 +168,7 @@ fun TermsScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = currentTab.title,
+                            text = stringResource(currentTab.titleResId),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkText,

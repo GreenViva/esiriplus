@@ -145,6 +145,59 @@
     <string name="category_specialist">Especialista</string>
     <string name="category_psychologist">Psic\u00F3logo/a</string>
     <string name="category_herbalist">Herbolario/a</string>
+    <string name="category_drug_interaction">Interacción farmacológica</string>
+
+    <!-- Service descriptions (v1.1.1 localization — used on Services picker) -->
+    <string name="service_desc_nurse">Consultas normales para preocupaciones de salud cotidianas</string>
+    <string name="service_desc_clinical_officer">Consultas médicas diarias para dolencias comunes</string>
+    <string name="service_desc_pharmacist">Consejos rápidos sobre medicamentos y verificación de interacciones</string>
+    <string name="service_desc_gp">Atención integral con derivaciones a especialistas cuando sea necesario</string>
+    <string name="service_desc_specialist">Consulta experta en campos médicos especializados</string>
+    <string name="service_desc_psychologist">Apoyo profesional de salud mental y consejería</string>
+    <string name="service_desc_herbalist">Consulta de medicina tradicional y herbal</string>
+    <string name="service_desc_drug_interaction">Verifica interacciones de medicamentos y obtén orientación de seguridad</string>
+
+    <!-- Mobile-money payment USSD steps (v1.1.1). Menu items in quotes stay as-is. -->
+    <string-array name="payment_steps_mpesa">
+        <item>Marca *150*00#</item>
+        <item>Elige \"Lipa kwa M-Pesa\"</item>
+        <item>Elige \"Malipo ya Kampuni\"</item>
+        <item>Elige \"Esiri Plus\"</item>
+        <item>Ingresa tu ID de paciente como número de referencia</item>
+        <item>Ingresa el monto exacto mostrado arriba</item>
+        <item>Ingresa tu PIN de M-Pesa</item>
+        <item>Confirma (Thibitisha)</item>
+    </string-array>
+    <string-array name="payment_steps_airtel">
+        <item>Marca *150*60#</item>
+        <item>Elige \"Make Payments\"</item>
+        <item>Elige \"Pay Bill\"</item>
+        <item>Ingresa el nombre de la empresa \"Esiri Plus\"</item>
+        <item>Ingresa tu ID de paciente como número de referencia</item>
+        <item>Ingresa el monto exacto mostrado arriba</item>
+        <item>Ingresa tu PIN de Airtel Money</item>
+        <item>Confirma el pago</item>
+    </string-array>
+    <string-array name="payment_steps_halopesa">
+        <item>Marca *150*88#</item>
+        <item>Elige \"Lipa\"</item>
+        <item>Elige \"Lipa kwa Kampuni\"</item>
+        <item>Ingresa el nombre de la empresa \"Esiri Plus\"</item>
+        <item>Ingresa tu ID de paciente como número de referencia</item>
+        <item>Ingresa el monto exacto mostrado arriba</item>
+        <item>Ingresa tu PIN de HaloPesa</item>
+        <item>Confirma el pago</item>
+    </string-array>
+    <string-array name="payment_steps_yas">
+        <item>Marca *150*01#</item>
+        <item>Elige \"Payments\"</item>
+        <item>Elige \"Pay Business\"</item>
+        <item>Ingresa el nombre de la empresa \"Esiri Plus\"</item>
+        <item>Ingresa tu ID de paciente como número de referencia</item>
+        <item>Ingresa el monto exacto mostrado arriba</item>
+        <item>Ingresa tu PIN de Yas</item>
+        <item>Confirma el pago</item>
+    </string-array>
 
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Atr\u00E1s</string>
@@ -419,5 +472,193 @@
     <string name="med_schedule_active">Activo</string>
     <string name="med_schedule_ended">Finalizado</string>
     <string name="med_schedule_date_range">%1$s al %2$s (%3$d días)</string>
+
+    <!-- PatientHomeScreen / Settings (v1.1.1 localization) -->
+    <string name="home_greeting">Hola 👋</string>
+    <string name="home_help_email">info\@esiri.africa</string>
+    <string name="home_help_need">"¿Necesitas ayuda? "</string>
+    <string name="home_help_phone">+255 663 582 994</string>
+    <string name="home_hero_cta">Iniciar consulta</string>
+    <string name="home_hero_eyebrow">LISTO CUANDO TÚ LO ESTÉS</string>
+    <string name="home_hero_headline_accent">ahora.</string>
+    <string name="home_hero_headline_main">Habla con un médico</string>
+    <string name="home_hero_subtitle">Elige un servicio · paga · conéctate. Normalmente en menos de 5 minutos.</string>
+    <string name="home_id_prefix">"ID: "</string>
+    <string name="home_pending_empty">Nada pendiente por ahora</string>
+    <string name="home_pending_many">%1$d consultas necesitan seguimiento</string>
+    <string name="home_pending_one">1 consulta necesita seguimiento</string>
+    <string name="home_pending_resume">Reanudar</string>
+    <string name="home_pending_title">Pendiente</string>
+    <string name="home_records_label">TUS REGISTROS</string>
+    <string name="home_settings">Configuración</string>
+    <string name="settings_title">Configuración</string>
+    <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_sounds">Sonidos</string>
+    <string name="settings_sounds_off">Modo silencio</string>
+    <string name="settings_sounds_on">Sonidos de notificación activados</string>
+    <string name="settings_delete_account">Eliminar cuenta</string>
+    <string name="settings_delete_account_subtitle">Permanente — período de gracia de 30 días</string>
+    <string name="delete_account_cancel">Cancelar</string>
+    <string name="delete_account_confirm">Eliminar para siempre</string>
+    <string name="delete_account_dialog_body">Todos tus datos se eliminarán permanentemente después de 30 días. Vuelve a iniciar sesión dentro de ese plazo para cancelar.</string>
+    <string name="delete_account_dialog_prompt">Escribe \"%1$s\" para confirmar:</string>
+    <string name="delete_account_dialog_title">¿Eliminar tu cuenta?</string>
+    <string name="delete_account_phrase">eliminar mi cuenta</string>
+    <string name="deletion_feedback_comment_label">¿Quieres agregar algo?</string>
+    <string name="deletion_feedback_comment_placeholder">Opcional</string>
+    <string name="deletion_feedback_skip">Omitir y eliminar</string>
+    <string name="deletion_feedback_submit">Enviar y eliminar</string>
+    <string name="deletion_feedback_subtitle">Si tienes un momento, dinos por qué. Es opcional y anónimo.</string>
+    <string name="deletion_feedback_title">Lamentamos verte partir</string>
+    <string name="deletion_in_progress">Eliminando tu cuenta…</string>
+
+    <!-- Past chats + common (v1.1.1 localization) -->
+    <string name="common_back">Atrás</string>
+    <string name="past_chats_title">Conversaciones pasadas</string>
+    <string name="past_chats_subtitle">Conservadas durante 14 días</string>
+    <string name="past_chats_empty_title">Sin conversaciones</string>
+    <string name="past_chats_empty_body">Cuando hables con un médico, la conversación aparecerá aquí durante 14 días.</string>
+    <string name="past_chats_chat_with">Conversación con %1$s</string>
+    <string name="past_chats_followup_with">Seguimiento con %1$s</string>
+    <string name="past_chat_detail_subtitle">Solo lectura · expira en 14 días</string>
+    <string name="past_chat_detail_empty_title">Nada aquí</string>
+    <string name="past_chat_detail_empty_body">Esta conversación puede haber expirado o nunca tuvo mensajes.</string>
+
+    <!-- Home dashboard quick-card tiles (v1.1.1 localization) -->
+    <string name="home_card_past_chats">Conversaciones</string>
+    <string name="home_card_past_chats_subtitle">Ver historial</string>
+    <string name="home_card_reports">Informes</string>
+    <string name="home_card_reports_subtitle">Toca para ver</string>
+    <string name="home_card_reports_unread">Nuevo informe disponible</string>
+    <string name="home_card_appointments">Citas</string>
+    <string name="home_card_appointments_subtitle">Ver próximas</string>
+    <string name="home_card_my_health">Mi salud</string>
+    <string name="home_card_my_health_subtitle">Editar perfil</string>
+
+    <!-- Services / Tier / Payment / Extension / Deletion-feedback (v1.1.1 localization) -->
+    <string name="deletion_feedback_reason_bad_experience">Tuve una mala experiencia</string>
+    <string name="deletion_feedback_reason_no_longer_needed">Ya no necesito el servicio</string>
+    <string name="deletion_feedback_reason_other">Otra cosa</string>
+    <string name="deletion_feedback_reason_privacy">Tengo preocupaciones de privacidad</string>
+    <string name="deletion_feedback_reason_too_slow">El servicio fue muy lento</string>
+    <string name="extension_done_headline_accent">extendida.</string>
+    <string name="extension_done_headline_prefix">"Sesión "</string>
+    <string name="extension_headline_accent">un poco más.</string>
+    <string name="extension_headline_prefix">"Extender "</string>
+    <string name="past_chats_default_doctor">Médico</string>
+    <string name="payment_amount_label">MONTO A PAGAR</string>
+    <string name="payment_check_phone_subtitle">Aprueba TSh %1$s en la solicitud de la billetera. No cierres la aplicación.</string>
+    <string name="payment_check_phone_title">Revisa tu teléfono</string>
+    <string name="payment_done_headline_accent">Todo listo.</string>
+    <string name="payment_done_headline_prefix">"Pagado. "</string>
+    <string name="payment_done_subtitle">TSh %1$s · recibido. Conectándote con tu médico…</string>
+    <string name="payment_headline_accent_pay">pagar.</string>
+    <string name="payment_headline_prefix">"Hora de "</string>
+    <string name="payment_phone_headline_accent">¿número?</string>
+    <string name="payment_phone_headline_prefix">"Tu "</string>
+    <string name="services_approve_on_wallet">Aprueba TSh %1$s en la solicitud de la billetera para confirmar.</string>
+    <string name="services_check_your_phone">Revisa tu teléfono</string>
+    <string name="services_currency_amount">TSh %1$s</string>
+    <string name="services_enter_mobile_number">Ingresa el número de móvil</string>
+    <string name="services_group_mental_traditional">Salud mental &amp; tradicional</string>
+    <string name="services_group_pharmacy">Medicamentos &amp; farmacia</string>
+    <string name="services_group_primary_care">Atención primaria</string>
+    <string name="services_headline_accent">¿con quién hablar?</string>
+    <string name="services_headline_prefix">"¿Con quién necesitas "</string>
+    <string name="services_location_active">Tanzania · nivel %1$s activo</string>
+    <string name="services_minutes_format">%1$d min</string>
+    <string name="services_pay_by_number">Pagar por número móvil</string>
+    <string name="services_pay_by_number_subtitle">Aprueba una solicitud de billetera en cualquier número</string>
+    <string name="services_pay_continue">Pagar &amp; continuar</string>
+    <string name="services_payment_method_title_accent">pagar.</string>
+    <string name="services_payment_method_title_prefix">"Elige cómo "</string>
+    <string name="services_popular_badge">POPULAR</string>
+    <string name="services_provider_title_accent">proveedor.</string>
+    <string name="services_provider_title_prefix">"Elige un "</string>
+    <string name="services_royal_pill">Beneficios Royal activos · seguimiento de 14 días</string>
+    <string name="services_selected_template">SELECCIONADO · %1$s</string>
+    <string name="services_send_prompt">Enviar solicitud de billetera</string>
+    <string name="services_tier_label_economy">Económico</string>
+    <string name="services_tier_label_royal">Real</string>
+    <string name="tier_economy_badge_chosen">MÁS ELEGIDO</string>
+    <string name="tier_economy_cta">Continuar con Económico</string>
+    <string name="tier_economy_feature_1">Consulta completa con un médico verificado</string>
+    <string name="tier_economy_feature_2">1 seguimiento dentro de 14 días</string>
+    <string name="tier_economy_price_from">TSh 3,000</string>
+    <string name="tier_economy_short_desc">Atención de calidad a tarifas estándar — perfecto para preocupaciones diarias.</string>
+    <string name="tier_headline_accent">ser atendido?</string>
+    <string name="tier_headline_prefix">"¿Cómo te gustaría "</string>
+    <string name="tier_price_from_label">DESDE</string>
+    <string name="tier_royal_badge_premium">PREMIUM</string>
+    <string name="tier_royal_cta">Continuar con Real</string>
+    <string name="tier_royal_feature_1">Ventana de seguimiento de 14 días · ilimitada</string>
+    <string name="tier_royal_feature_2">Cola prioritaria · sin esperas</string>
+    <string name="tier_royal_feature_3">Hasta 2 visitas a domicilio por caso</string>
+    <string name="tier_royal_price_from">TSh 322,000</string>
+    <string name="tier_royal_short_desc">Atención prioritaria, acceso extendido, visitas a domicilio cuando sea necesario.</string>
+    <string name="tier_subtitle_short">Mismos médicos, experiencia diferente.</string>
+
+    <!-- FindDoctorScreen accented headline + specialist-as-GP labels (v1.1.1 localization) -->
+    <string name="find_doctor_headline_prefix">"Elige "</string>
+    <string name="find_doctor_headline_accent">tu médico</string>
+    <string name="find_doctor_specialist_as_gp">Especialista · %1$s (como médico general)</string>
+    <string name="find_doctor_specialist_as_gp_fallback">Especialista (como médico general)</string>
+
+    <!-- Doctor service tags (v1.1.1 localization) -->
+    <string name="find_doctor_services_label">Servicios</string>
+    <string name="dservice_health_education">Educación sanitaria y orientación de bienestar</string>
+    <string name="dservice_nutrition_counseling">Asesoramiento nutricional y de estilo de vida</string>
+    <string name="dservice_chronic_monitoring">Apoyo en monitoreo de enfermedades crónicas</string>
+    <string name="dservice_postop_wound">Orientación postoperatoria y cuidado de heridas</string>
+    <string name="dservice_maternal_child">Educación en salud materna e infantil</string>
+    <string name="dservice_medication_adherence">Coaching de adherencia a la medicación</string>
+    <string name="dservice_basic_symptom">Consejos básicos de síntomas (no diagnósticos)</string>
+    <string name="dservice_common_acute">Tratamiento de enfermedades agudas comunes</string>
+    <string name="dservice_minor_infection">Manejo de infecciones menores</string>
+    <string name="dservice_basic_chronic">Manejo básico de enfermedades crónicas</string>
+    <string name="dservice_womens_basic">Salud femenina (casos no complicados)</string>
+    <string name="dservice_minor_skin">Afecciones cutáneas menores</string>
+    <string name="dservice_musculoskeletal_pain">Dolor musculoesquelético (casos leves)</string>
+    <string name="dservice_basic_prescription">Prescripción de medicamentos (lista básica)</string>
+    <string name="dservice_malaria">Diagnóstico y tratamiento de malaria (tras prueba)</string>
+    <string name="dservice_medication_counseling">Asesoramiento sobre medicamentos</string>
+    <string name="dservice_drug_interaction_check">Verificación de interacciones medicamentosas</string>
+    <string name="dservice_prescription_review">Revisión de recetas</string>
+    <string name="dservice_otc_recommendation">Recomendación de medicamentos sin receta</string>
+    <string name="dservice_chronic_support">Apoyo en medicación crónica</string>
+    <string name="dservice_herbal_interaction">Asesoramiento sobre interacciones con medicina tradicional</string>
+    <string name="dservice_comprehensive">Consulta médica integral</string>
+    <string name="dservice_chronic_diagnosis">Diagnóstico y manejo de enfermedades crónicas</string>
+    <string name="dservice_womens_full">Salud femenina (atención primaria completa)</string>
+    <string name="dservice_mens_health">Consulta de salud masculina</string>
+    <string name="dservice_mental_mild">Salud mental (leve a moderada)</string>
+    <string name="dservice_pediatric">Atención primaria pediátrica</string>
+    <string name="dservice_infectious">Manejo de enfermedades infecciosas</string>
+    <string name="dservice_referral_lab">Referencia médica y solicitud de laboratorio</string>
+    <string name="dservice_complex_management">Manejo de afecciones complejas</string>
+    <string name="dservice_second_opinion">Consulta de segunda opinión</string>
+    <string name="dservice_specialized_chronic">Manejo especializado de enfermedades crónicas</string>
+    <string name="dservice_post_hospital">Seguimiento post-hospitalario</string>
+    <string name="dservice_advanced_diagnostic">Interpretación diagnóstica avanzada</string>
+    <string name="dservice_specialty_specific">Consulta específica de especialidad</string>
+    <string name="dservice_individual_therapy">Terapia individual (TCC / terapia de habla)</string>
+    <string name="dservice_depression_anxiety">Asesoramiento de depresión y ansiedad</string>
+    <string name="dservice_trauma_ptsd">Terapia de trauma y TEPT</string>
+    <string name="dservice_relationship_family">Terapia de pareja y familiar</string>
+    <string name="dservice_stress_burnout">Manejo de estrés y agotamiento</string>
+    <string name="dservice_behavioral">Modificación conductual y de hábitos</string>
+    <string name="dservice_psychological_assessment">Evaluación psicológica</string>
+    <string name="dservice_herbal_consultation">Consulta de medicina herbal</string>
+    <string name="dservice_traditional_remedy">Orientación de remedios tradicionales</string>
+    <string name="dservice_natural_supplement">Consejo sobre suplementos naturales</string>
+    <string name="dservice_herbal_wellness">Evaluación de bienestar herbal</string>
+    <string name="dservice_plant_based">Planes de tratamiento basados en plantas</string>
+    <string name="dservice_herbal_drug_interaction">Consejo sobre interacciones hierba-medicamento</string>
+    <string name="dservice_multidrug">Análisis de interacciones múltiples</string>
+    <string name="dservice_polypharmacy">Revisión de polifarmacia</string>
+    <string name="dservice_safety_assessment">Evaluación de seguridad de medicamentos</string>
+    <string name="dservice_herb_drug">Verificación interacción hierba-medicamento</string>
+    <string name="dservice_dosage_safety">Verificación de seguridad de dosis</string>
+    <string name="dservice_otc_prescription">Compatibilidad de medicamentos libres y recetados</string>
 
 </resources>

@@ -113,4 +113,26 @@
     <!-- Medication Reminder -->
     <string name="notification_medication_reminder_call">Appel de rappel de m\u00E9dicament</string>
     <string name="notification_medication_reminder">Rappel de m\u00E9dicament</string>
+
+    <!-- Accessibility FAB panel (v1.1.1 localization) -->
+    <string name="accessibility_settings_cd">Param\u00E8tres d\'accessibilit\u00E9</string>
+    <string name="accessibility_panel_title">Affichage et accessibilit\u00E9</string>
+    <string name="accessibility_panel_subtitle">Personnalisez votre exp\u00E9rience</string>
+    <string name="accessibility_section_theme">TH\u00C8ME</string>
+    <string name="accessibility_theme_auto">Auto</string>
+    <string name="accessibility_theme_light">Clair</string>
+    <string name="accessibility_theme_dark">Sombre</string>
+    <string name="accessibility_section_text_size">TAILLE DU TEXTE</string>
+    <string name="accessibility_high_contrast_label">Contraste \u00E9lev\u00E9</string>
+    <string name="accessibility_high_contrast_subtitle">Texte et bordures plus marqu\u00E9s</string>
+    <string name="accessibility_reduce_motion_label">R\u00E9duire les animations</string>
+    <string name="accessibility_reduce_motion_subtitle">Minimiser les animations</string>
+    <string name="accessibility_section_language">LANGUE</string>
+    <string name="accessibility_section_sounds">SONS</string>
+    <string name="accessibility_ringtone_call_label">Appel entrant</string>
+    <string name="accessibility_ringtone_request_label">Demande de consultation</string>
+    <string name="accessibility_ringtone_default">Par d\u00E9faut du syst\u00E8me</string>
+    <string name="accessibility_ringtone_reset">R\u00E9initialiser</string>
+    <string name="accessibility_ringtone_call_picker_title">Sonnerie d\'appel entrant</string>
+    <string name="accessibility_ringtone_request_picker_title">Sonnerie de demande</string>
 </resources>

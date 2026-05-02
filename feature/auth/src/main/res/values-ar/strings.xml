@@ -24,6 +24,10 @@
     <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
     <string name="splash_tagline_en">Your Health, Our Priority</string>
     <string name="splash_tap_to_continue">انقر في أي مكان للمتابعة</string>
+    <string name="splash_tagline_main">\"صحتك، أولويتنا.\"</string>
+    <string name="splash_tagline_caps">صحتك  ·  أولويتنا</string>
+    <string name="splash_status_preparing">جارٍ تجهيز مساحتك</string>
+    <string name="splash_status_ready">اضغط للمتابعة</string>
 
     <!-- RoleSelectionScreen -->
     <string name="role_welcome_title">مرحبًا بك في eSIRI Plus</string>
@@ -260,4 +264,68 @@
     <string name="error_recovery_failed">فشل الاسترداد. يرجى المحاولة مرة أخرى.</string>
     <string name="error_patient_id_not_found">رقم المريض غير موجود. يرجى التحقق من الرقم والمحاولة مرة أخرى.</string>
     <string name="error_pdf_generate_failed">فشل إنشاء ملف PDF</string>
+
+    <!-- RoleSelectionScreen redesign (v1.1.1 localization) -->
+    <string name="role_hero_title_1">تحتاج طبيباً؟</string>
+    <string name="role_hero_title_2">نحن هنا.</string>
+    <string name="role_hero_subtitle">تحدث إلى طبيب حقيقي من هاتفك. خاص وبسيط ومتاح وقتما تحتاج.</string>
+    <string name="role_hero_card_title">احصل على مساعدة طبية</string>
+    <string name="role_hero_card_subtitle">تواصل مع طبيب معتمد في دقائق — دون الحاجة إلى موعد.</string>
+    <string name="role_continue_as_patient">المتابعة كمريض</string>
+    <string name="role_trust_private_combo">خصوصية 100٪</string>
+    <string name="role_trust_private_subtitle">لا حاجة لاسم حقيقي</string>
+    <string name="role_trust_available_combo">متاح 24/7</string>
+    <string name="role_trust_available_subtitle">ليلاً أو نهاراً</string>
+    <string name="role_trust_real_combo">أطباء حقيقيون</string>
+    <string name="role_trust_real_subtitle">معتمدون من MCT</string>
+    <string name="role_not_a_patient_lc">لست مريضاً؟</string>
+    <string name="role_im_a_doctor_title">أنا طبيب</string>
+    <string name="role_im_a_doctor_subtitle">إدارة عيادتك</string>
+    <string name="role_become_agent_title">كن وكيلاً</string>
+    <string name="role_become_agent_subtitle">اكسب المال</string>
+    <string name="role_need_help">هل تحتاج مساعدة؟</string>
+    <string name="role_patient_sheet_title">المتابعة كمريض</string>
+    <string name="role_patient_sheet_subtitle">ما الذي يجلبك إلى هنا اليوم؟</string>
+    <string name="role_patient_sheet_new_title">أنا جديد على eSIRI Plus</string>
+    <string name="role_patient_sheet_new_subtitle">ابدأ استشارة جديدة</string>
+    <string name="role_patient_sheet_have_id_title">لدي معرّف المريض الخاص بي</string>
+    <string name="role_patient_sheet_have_id_subtitle">سجل الدخول إلى سجلاتك</string>
+    <string name="role_patient_sheet_forgot_id_title">نسيت معرّف المريض الخاص بي</string>
+    <string name="role_patient_sheet_forgot_id_subtitle">استعادة باستخدام أسئلة الأمان</string>
+
+    <!-- Terms tab titles (v1.1.1) — body text remains English until professionally translated. -->
+    <string name="legal_tab_privacy_policy">سياسة الخصوصية</string>
+    <string name="legal_tab_terms_of_service">شروط الخدمة</string>
+    <string name="legal_tab_data_security">أمان البيانات</string>
+    <string name="legal_tab_medical_disclaimer">الإخلاء الطبي</string>
+    <string name="legal_tab_informed_consent">الموافقة المستنيرة</string>
+    <string name="legal_tab_practice_guidelines">إرشادات الممارسة</string>
+    <string name="legal_tab_provider_consent">موافقة مقدّم الخدمة</string>
+
+    <!-- PatientSetupScreen (v1.1.1 localization) -->
+    <string name="setup_step_label">الخطوة الأخيرة</string>
+    <string name="setup_headline_prefix">"تم. هذا هو "</string>
+    <string name="setup_headline_accent">مفتاحك السري.</string>
+    <string name="setup_headline_subtitle">هذا هو معرّفك الوحيد على eSIRI Plus. لا اسم ولا هاتف ولا أثر — فقط هذا.</string>
+    <string name="setup_id_label">معرّف المريض الخاص بك</string>
+    <string name="setup_id_placeholder">—</string>
+    <string name="setup_id_hint">احفظه في مكان آمن — مثل رمز PIN لبطاقة الصراف.</string>
+    <string name="setup_id_copy">نسخ</string>
+    <string name="setup_id_copied">تم النسخ!</string>
+    <string name="setup_id_save">حفظ البطاقة</string>
+    <string name="setup_id_saving">جارٍ الحفظ…</string>
+    <string name="setup_tip_title">إذا فقدت هذا المعرّف، فقدت سجلاتك</string>
+    <string name="setup_tip_body">إعداد أسئلة الاستعادة أدناه — دقيقة واحدة، وصول مدى الحياة.</string>
+    <string name="setup_option_recovery_title">أسئلة الاستعادة</string>
+    <string name="setup_option_recovery_recommended">موصى به</string>
+    <string name="setup_option_recovery_done">تم</string>
+    <string name="setup_option_recovery_pending">استعادة حسابك إذا فقدت معرّفك</string>
+    <string name="setup_option_recovery_completed">تم الإعداد — يمكنك استعادة حسابك إذا فقدت معرّفك</string>
+    <string name="setup_option_health_title">الملف الصحي</string>
+    <string name="setup_option_health_optional">اختياري</string>
+    <string name="setup_option_health_subtitle">الجنس والعمر والحساسية — يساعد الأطباء على خدمتك بسرعة</string>
+    <string name="setup_continue">متابعة</string>
+    <string name="setup_skip_prefix">"هل حفظت معرّفك بالفعل؟ "</string>
+    <string name="setup_skip_action">تخطي الآن</string>
+    <string name="setup_health_sheet_done">تم</string>
 </resources>

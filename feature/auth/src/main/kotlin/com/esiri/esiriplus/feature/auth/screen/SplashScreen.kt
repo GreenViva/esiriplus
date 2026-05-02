@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -453,7 +454,7 @@ private fun wordmarkText() = buildAnnotatedString {
 private fun Tagline() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = "\"Afya yako, kipaumbele chetu.\"",
+            text = stringResource(R.string.splash_tagline_main),
             style = TextStyle(
                 fontFamily = EditorialSerif,
                 fontStyle = FontStyle.Italic,
@@ -475,7 +476,7 @@ private fun Tagline() {
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = "YOUR HEALTH  ·  OUR PRIORITY",
+            text = stringResource(R.string.splash_tagline_caps),
             style = TextStyle(
                 fontFamily = EditorialSans,
                 fontSize = 11.sp,
@@ -501,7 +502,11 @@ private fun BottomBlock(ready: Boolean) {
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = if (ready) "TAP TO CONTINUE" else "PREPARING YOUR SPACE",
+            text = if (ready) {
+                stringResource(R.string.splash_status_ready)
+            } else {
+                stringResource(R.string.splash_status_preparing)
+            },
             style = TextStyle(
                 fontFamily = EditorialSans,
                 fontSize = 11.sp,

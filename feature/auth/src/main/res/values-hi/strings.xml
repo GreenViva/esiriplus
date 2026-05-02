@@ -23,6 +23,10 @@
     <string name="splash_tagline_sw">Afya yako, Kipaumbele chetu</string>
     <string name="splash_tagline_en">Your Health, Our Priority</string>
     <string name="splash_tap_to_continue">जारी रखने के लिए कहीं भी टैप करें</string>
+    <string name="splash_tagline_main">\"आपका स्वास्थ्य, हमारी प्राथमिकता।\"</string>
+    <string name="splash_tagline_caps">आपका स्वास्थ्य  ·  हमारी प्राथमिकता</string>
+    <string name="splash_status_preparing">आपका स्थान तैयार किया जा रहा है</string>
+    <string name="splash_status_ready">जारी रखने के लिए टैप करें</string>
 
     <!-- RoleSelectionScreen -->
     <string name="role_welcome_title">eSIRI Plus में आपका स्वागत है</string>
@@ -259,4 +263,68 @@
     <string name="error_recovery_failed">पुनर्प्राप्ति विफल। कृपया पुनः प्रयास करें।</string>
     <string name="error_patient_id_not_found">मरीज़ आईडी नहीं मिली। कृपया अपनी आईडी जाँचें और पुनः प्रयास करें।</string>
     <string name="error_pdf_generate_failed">PDF बनाने में विफल</string>
+
+    <!-- RoleSelectionScreen redesign (v1.1.1 localization) -->
+    <string name="role_hero_title_1">डॉक्टर चाहिए?</string>
+    <string name="role_hero_title_2">हम यहाँ हैं।</string>
+    <string name="role_hero_subtitle">अपने फ़ोन से असली डॉक्टर से बात करें। निजी, सरल, और जब भी आवश्यकता हो उपलब्ध।</string>
+    <string name="role_hero_card_title">चिकित्सीय सहायता प्राप्त करें</string>
+    <string name="role_hero_card_subtitle">मिनटों में लाइसेंस प्राप्त डॉक्टर से चैट करें — कोई अपॉइंटमेंट की ज़रूरत नहीं।</string>
+    <string name="role_continue_as_patient">मरीज़ के रूप में जारी रखें</string>
+    <string name="role_trust_private_combo">100% निजी</string>
+    <string name="role_trust_private_subtitle">असली नाम नहीं चाहिए</string>
+    <string name="role_trust_available_combo">24/7 उपलब्ध</string>
+    <string name="role_trust_available_subtitle">दिन या रात</string>
+    <string name="role_trust_real_combo">असली डॉक्टर</string>
+    <string name="role_trust_real_subtitle">MCT सत्यापित</string>
+    <string name="role_not_a_patient_lc">मरीज़ नहीं हैं?</string>
+    <string name="role_im_a_doctor_title">मैं डॉक्टर हूँ</string>
+    <string name="role_im_a_doctor_subtitle">प्रैक्टिस प्रबंधित करें</string>
+    <string name="role_become_agent_title">एजेंट बनें</string>
+    <string name="role_become_agent_subtitle">पैसा कमाएँ</string>
+    <string name="role_need_help">सहायता चाहिए?</string>
+    <string name="role_patient_sheet_title">मरीज़ के रूप में जारी रखें</string>
+    <string name="role_patient_sheet_subtitle">आज आप यहाँ क्यों आए हैं?</string>
+    <string name="role_patient_sheet_new_title">मैं eSIRI Plus में नया हूँ</string>
+    <string name="role_patient_sheet_new_subtitle">नई परामर्श शुरू करें</string>
+    <string name="role_patient_sheet_have_id_title">मेरे पास मेरा रोगी ID है</string>
+    <string name="role_patient_sheet_have_id_subtitle">अपने रिकॉर्ड में साइन इन करें</string>
+    <string name="role_patient_sheet_forgot_id_title">मैं अपना रोगी ID भूल गया</string>
+    <string name="role_patient_sheet_forgot_id_subtitle">सुरक्षा प्रश्नों से पुनर्प्राप्त करें</string>
+
+    <!-- Terms tab titles (v1.1.1) — body text remains English until professionally translated. -->
+    <string name="legal_tab_privacy_policy">गोपनीयता नीति</string>
+    <string name="legal_tab_terms_of_service">सेवा की शर्तें</string>
+    <string name="legal_tab_data_security">डेटा सुरक्षा</string>
+    <string name="legal_tab_medical_disclaimer">चिकित्सीय अस्वीकरण</string>
+    <string name="legal_tab_informed_consent">सूचित सहमति</string>
+    <string name="legal_tab_practice_guidelines">अभ्यास दिशानिर्देश</string>
+    <string name="legal_tab_provider_consent">प्रदाता सहमति</string>
+
+    <!-- PatientSetupScreen (v1.1.1 localization) -->
+    <string name="setup_step_label">अंतिम चरण</string>
+    <string name="setup_headline_prefix">"आप तैयार हैं। यह रहा "</string>
+    <string name="setup_headline_accent">आपका गुप्त कुंजी।</string>
+    <string name="setup_headline_subtitle">यह eSIRI Plus पर आपकी एकमात्र ID है। कोई नाम, फ़ोन या पहचान नहीं — बस यह।</string>
+    <string name="setup_id_label">आपकी रोगी ID</string>
+    <string name="setup_id_placeholder">—</string>
+    <string name="setup_id_hint">इसे सुरक्षित जगह पर रखें — ATM PIN की तरह।</string>
+    <string name="setup_id_copy">कॉपी करें</string>
+    <string name="setup_id_copied">कॉपी हो गया!</string>
+    <string name="setup_id_save">कार्ड सहेजें</string>
+    <string name="setup_id_saving">सहेजा जा रहा है…</string>
+    <string name="setup_tip_title">यह ID खो दिया तो आपके रिकॉर्ड खो जाएँगे</string>
+    <string name="setup_tip_body">नीचे रिकवरी प्रश्न सेट करें — 1 मिनट लगते हैं, जीवन भर पहुँच सुरक्षित।</string>
+    <string name="setup_option_recovery_title">रिकवरी प्रश्न</string>
+    <string name="setup_option_recovery_recommended">अनुशंसित</string>
+    <string name="setup_option_recovery_done">हो गया</string>
+    <string name="setup_option_recovery_pending">अगर आप अपनी ID खो दें तो खाते में वापस आएँ</string>
+    <string name="setup_option_recovery_completed">सेट — अगर आप अपनी ID खो दें तो खाता पुनर्प्राप्त कर सकते हैं</string>
+    <string name="setup_option_health_title">स्वास्थ्य प्रोफ़ाइल</string>
+    <string name="setup_option_health_optional">वैकल्पिक</string>
+    <string name="setup_option_health_subtitle">लिंग, उम्र, एलर्जी — डॉक्टरों को आपकी मदद तेज़ी से करने में सहायक</string>
+    <string name="setup_continue">जारी रखें</string>
+    <string name="setup_skip_prefix">"क्या आपने अपनी ID पहले से सहेज ली है? "</string>
+    <string name="setup_skip_action">अभी छोड़ें</string>
+    <string name="setup_health_sheet_done">हो गया</string>
 </resources>
