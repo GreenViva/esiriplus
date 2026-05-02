@@ -92,7 +92,6 @@ fun TierSelectionScreen(
                 featureResIds = listOf(
                     R.string.tier_economy_feature_1,
                     R.string.tier_economy_feature_2,
-                    R.string.tier_economy_feature_3,
                 ),
                 badgeRes = R.string.tier_economy_badge_chosen,
                 ctaRes = R.string.tier_economy_cta,
@@ -196,19 +195,16 @@ private fun ServiceTierTopBar(onBack: () -> Unit) {
                 }
             }
         },
-        title = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.foundation.Image(
-                    painter = painterResource(R.drawable.ic_stethoscope),
-                    contentDescription = "eSIRI Plus",
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape),
-                )
-            }
+        title = {},
+        actions = {
+            androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.ic_stethoscope),
+                contentDescription = "eSIRI Plus",
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(34.dp)
+                    .clip(CircleShape),
+            )
         },
     )
 }

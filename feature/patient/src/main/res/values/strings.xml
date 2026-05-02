@@ -33,7 +33,6 @@
     <string name="tier_economy_short_desc">Quality care at standard rates — perfect for everyday concerns.</string>
     <string name="tier_economy_feature_1">Full consultation with a verified doctor</string>
     <string name="tier_economy_feature_2">1 follow-up within 14 days</string>
-    <string name="tier_economy_feature_3">AI-assisted consultation report</string>
     <string name="tier_economy_cta">Continue with Economy</string>
     <string name="tier_economy_badge_chosen">MOST CHOSEN</string>
     <string name="tier_royal_price_from">TSh 322,000</string>
@@ -176,6 +175,8 @@
     <!-- ===== FindDoctorScreen ===== -->
     <string name="find_doctor_back">Back</string>
     <string name="find_doctor_title">Find a Doctor</string>
+    <string name="find_doctor_headline_prefix">"Choose your "</string>
+    <string name="find_doctor_headline_accent">Doctor</string>
     <string name="find_doctor_subtitle">Browse our verified healthcare professionals</string>
     <string name="find_doctor_tanzania">Tanzania</string>
     <string name="find_doctor_search_placeholder">Search by name, specialty, or rating\u2026</string>

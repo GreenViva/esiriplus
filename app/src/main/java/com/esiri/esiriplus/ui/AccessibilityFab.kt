@@ -137,6 +137,14 @@ fun AccessibilityFab(
             )
         }
 
+        // FAB + drag-arrow colors driven by MaterialTheme so they adapt to
+        // Light/Dark. Theme primary is Teal40 (≈ BrandTeal) in light mode
+        // and Teal80 (lighter teal) in dark mode, which reads cleanly
+        // against the dark surface roles.
+        val fabContainer = MaterialTheme.colorScheme.primary
+        val fabContent = MaterialTheme.colorScheme.onPrimary
+        val arrowColor = fabContainer.copy(alpha = 0.5f)
+
         // Draggable FAB with directional arrows (↑↓←→)
         Box(
             modifier = Modifier
@@ -160,28 +168,28 @@ fun AccessibilityFab(
             Text(
                 text = "\u25B2",
                 fontSize = 8.sp,
-                color = BrandTeal.copy(alpha = 0.5f),
+                color = arrowColor,
                 modifier = Modifier.offset(y = (-30).dp),
             )
             // Bottom arrow
             Text(
                 text = "\u25BC",
                 fontSize = 8.sp,
-                color = BrandTeal.copy(alpha = 0.5f),
+                color = arrowColor,
                 modifier = Modifier.offset(y = 30.dp),
             )
             // Left arrow
             Text(
                 text = "\u25C0",
                 fontSize = 8.sp,
-                color = BrandTeal.copy(alpha = 0.5f),
+                color = arrowColor,
                 modifier = Modifier.offset(x = (-30).dp),
             )
             // Right arrow
             Text(
                 text = "\u25B6",
                 fontSize = 8.sp,
-                color = BrandTeal.copy(alpha = 0.5f),
+                color = arrowColor,
                 modifier = Modifier.offset(x = 30.dp),
             )
 
@@ -190,8 +198,8 @@ fun AccessibilityFab(
                 onClick = { expanded = !expanded },
                 modifier = Modifier.size(52.dp),
                 shape = CircleShape,
-                containerColor = BrandTeal,
-                contentColor = Color.White,
+                containerColor = fabContainer,
+                contentColor = fabContent,
                 elevation = FloatingActionButtonDefaults.elevation(
                     defaultElevation = 6.dp,
                     pressedElevation = 10.dp,
@@ -512,9 +520,9 @@ private fun ToggleRow(
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
-                checkedTrackColor = BrandTeal,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
                 uncheckedThumbColor = Color.White,
-                uncheckedTrackColor = Color(0xFFD1D5DB),
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 uncheckedBorderColor = Color.Transparent,
             ),
         )

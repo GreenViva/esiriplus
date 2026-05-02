@@ -69,9 +69,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
@@ -82,6 +86,7 @@ import coil3.request.crossfade
 import com.esiri.esiriplus.core.database.entity.DoctorProfileEntity
 import com.esiri.esiriplus.core.ui.ScrollIndicatorBox
 import com.esiri.esiriplus.core.domain.model.ConsultationRequestStatus
+import com.esiri.esiriplus.core.ui.theme.InstrumentSerif
 import com.esiri.esiriplus.feature.patient.R
 import com.esiri.esiriplus.feature.patient.viewmodel.AvailabilityFilter
 import com.esiri.esiriplus.feature.patient.viewmodel.ConsultationRequestViewModel
@@ -209,9 +214,21 @@ fun FindDoctorScreen(
                         )
                     }
                     Text(
-                        text = stringResource(R.string.find_doctor_title),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = buildAnnotatedString {
+                            append(stringResource(R.string.find_doctor_headline_prefix))
+                            withStyle(
+                                SpanStyle(
+                                    color = SuccessGreen,
+                                    fontStyle = FontStyle.Italic,
+                                    fontFamily = InstrumentSerif,
+                                ),
+                            ) {
+                                append(stringResource(R.string.find_doctor_headline_accent))
+                            }
+                        },
+                        fontFamily = InstrumentSerif,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Normal,
                         color = TextPrimary,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,

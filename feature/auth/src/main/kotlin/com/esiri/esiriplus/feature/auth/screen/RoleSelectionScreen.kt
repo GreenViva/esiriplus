@@ -25,7 +25,6 @@ import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Key
-import androidx.compose.material.icons.outlined.LocalHospital
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PersonAddAlt1
 import androidx.compose.material.icons.outlined.Schedule
@@ -45,6 +44,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -374,34 +374,40 @@ private fun AlternateRoleRow(onDoctorClick: () -> Unit, onAgentClick: () -> Unit
     ) {
         AltCard(
             modifier = Modifier.weight(1f),
-            icon = Icons.Outlined.LocalHospital,
             iconBg = TealSoft,
-            iconTint = TealDeep,
             title = stringResource(R.string.role_im_a_doctor_title),
             subtitle = stringResource(R.string.role_im_a_doctor_subtitle),
             onClick = onDoctorClick,
-        )
+        ) {
+            // Lab-coat emoji — Material Icons doesn't ship a coat glyph, and
+            // the previous medical-cross looked clinical, not personal.
+            Text(text = "🥼", fontSize = 16.sp)
+        }
         AltCard(
             modifier = Modifier.weight(1f),
-            icon = Icons.Outlined.AttachMoney,
             iconBg = WarmOrangeBg,
-            iconTint = WarmOrange,
             title = stringResource(R.string.role_become_agent_title),
             subtitle = stringResource(R.string.role_become_agent_subtitle),
             onClick = onAgentClick,
-        )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AttachMoney,
+                contentDescription = null,
+                tint = WarmOrange,
+                modifier = Modifier.size(14.dp),
+            )
+        }
     }
 }
 
 @Composable
 private fun AltCard(
     modifier: Modifier,
-    icon: ImageVector,
     iconBg: Color,
-    iconTint: Color,
     title: String,
     subtitle: String,
     onClick: () -> Unit,
+    iconContent: @Composable () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -418,12 +424,7 @@ private fun AltCard(
                 .clip(RoundedCornerShape(7.dp))
                 .background(iconBg),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(14.dp),
-            )
+            iconContent()
         }
         Spacer(Modifier.height(7.dp))
         Text(title, fontFamily = Geist, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Ink)
@@ -437,6 +438,13 @@ private fun HelpFooter(
     onPhoneClick: () -> Unit,
     onEmailClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val versionName = remember(context) {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrNull().orEmpty()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -469,6 +477,15 @@ private fun HelpFooter(
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.clickable(onClick = onEmailClick),
         )
+        if (versionName.isNotBlank()) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "v$versionName",
+                fontFamily = Geist,
+                fontSize = 10.sp,
+                color = Muted,
+            )
+        }
     }
 }
 

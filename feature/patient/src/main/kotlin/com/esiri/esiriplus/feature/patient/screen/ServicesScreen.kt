@@ -311,19 +311,16 @@ private fun ServicesTopBar(onBack: () -> Unit) {
                 }
             }
         },
-        title = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.foundation.Image(
-                    painter = painterResource(R.drawable.ic_stethoscope),
-                    contentDescription = "eSIRI Plus",
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape),
-                )
-            }
+        title = {},
+        actions = {
+            androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.ic_stethoscope),
+                contentDescription = "eSIRI Plus",
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(34.dp)
+                    .clip(CircleShape),
+            )
         },
     )
 }

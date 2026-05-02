@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -275,7 +276,8 @@ class MainActivity : AppCompatActivity() {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .statusBarsPadding(),
+                                .statusBarsPadding()
+                                .navigationBarsPadding(),
                         ) {
                             OfflineBanner(isOffline = !isOnline)
 
