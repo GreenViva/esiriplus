@@ -246,47 +246,63 @@ Deno.serve(async (req: Request) => {
         })
         .eq("event_id", event_id);
 
-      // Patient now gets the actual incoming call push. We reuse the existing
-      // VIDEO_CALL_INCOMING route — it's already data-only allowlisted in
-      // send-push-notification and the Android handler already starts the
-      // IncomingCallService + overlay from its data fields. caller_role tags
-      // it so the overlay can show "Medical Reminder request".
+      // Patient now gets the actual incoming call push. Fire-and-forget via
+      // EdgeRuntime.waitUntil so the nurse's start_call response returns
+      // immediately — she can issue videosdk-token and start joining the
+      // VideoSDK room in parallel with the FCM trip to Google. The push lands
+      // on the patient device around the same time the nurse joins, instead
+      // of adding ~2s of OAuth2+FCM latency to the nurse's connect time.
+      //
+      // We reuse VIDEO_CALL_INCOMING (already data-only allowlisted in
+      // send-push-notification and handled by the Android IncomingCallService
+      // + overlay). caller_role tags it so the overlay shows
+      // "Medical Reminder request".
+      //
       // Direct fetch (not supabase.functions.invoke) so we can attach
       // X-Service-Key — send-push-notification's doctor gate would otherwise
       // reject the nurse, who isn't the consultation's owner doctor.
-      try {
-        const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-        const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const BEARER_JWT = Deno.env.get("EDGE_FN_BEARER_JWT") ?? SERVICE_ROLE;
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${BEARER_JWT}`,
-            "X-Service-Key": SERVICE_ROLE,
+      const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+      const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const BEARER_JWT = Deno.env.get("EDGE_FN_BEARER_JWT") ?? SERVICE_ROLE;
+      const pushPromise = fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${BEARER_JWT}`,
+          "X-Service-Key": SERVICE_ROLE,
+        },
+        body: JSON.stringify({
+          session_id: tt.patient_session_id,
+          title: "Medication Reminder Call",
+          body: `A nurse is calling you to remind you about ${medLabel}.`,
+          type: "VIDEO_CALL_INCOMING",
+          data: {
+            event_id,
+            consultation_id: tt.consultation_id,
+            room_id: ev.video_room_id,
+            call_type: "AUDIO",
+            caller_role: "medication_reminder_nurse",
+            medication_name: tt.medication_name,
+            dosage: tt.dosage ?? "",
           },
-          body: JSON.stringify({
-            session_id: tt.patient_session_id,
-            title: "Medication Reminder Call",
-            body: `A nurse is calling you to remind you about ${medLabel}.`,
-            type: "VIDEO_CALL_INCOMING",
-            data: {
-              event_id,
-              consultation_id: tt.consultation_id,
-              room_id: ev.video_room_id,
-              call_type: "AUDIO",
-              caller_role: "medication_reminder_nurse",
-              medication_name: tt.medication_name,
-              dosage: tt.dosage ?? "",
-            },
-          }),
+        }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            console.error(`[med-callback] send-push-notification ${res.status}: ${txt}`);
+          }
+        })
+        .catch((e) => {
+          console.error("[med-callback] Failed to push patient incoming call:", e);
         });
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          console.error(`[med-callback] send-push-notification ${res.status}: ${txt}`);
-        }
-      } catch (e) {
-        console.error("[med-callback] Failed to push patient incoming call:", e);
+
+      // Keep the runtime alive until the push completes (otherwise Deno
+      // cancels in-flight fetches when the response is sent).
+      // EdgeRuntime is a Supabase-specific global — guard for type-checkers.
+      const er = (globalThis as unknown as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+      if (er && typeof er.waitUntil === "function") {
+        er.waitUntil(pushPromise);
       }
 
       return successResponse({
