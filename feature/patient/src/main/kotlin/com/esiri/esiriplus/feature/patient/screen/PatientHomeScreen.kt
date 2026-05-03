@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -129,6 +130,7 @@ fun PatientHomeScreen(
     onNavigateToConsultationHistory: () -> Unit,
     onNavigateToAppointments: () -> Unit,
     onNavigateToOngoingConsultations: () -> Unit,
+    onNavigateToMissedConsultations: () -> Unit,
     @Suppress("UNUSED_PARAMETER") onResumeConsultation: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientHomeViewModel = hiltViewModel(),
@@ -220,7 +222,7 @@ fun PatientHomeScreen(
     val pullRefreshState = rememberPullToRefreshState()
 
     val ctx = LocalContext.current
-    val quickCards = remember(uiState.hasUnreadReports) {
+    val quickCards = remember(uiState.hasUnreadReports, uiState.missedCount) {
         listOf(
             QuickCard(
                 icon = Icons.Outlined.ChatBubbleOutline,
@@ -253,6 +255,17 @@ fun PatientHomeScreen(
                 subtitle = ctx.getString(R.string.home_card_my_health_subtitle),
                 showBadge = false,
                 onClick = onNavigateToProfile,
+            ),
+            QuickCard(
+                icon = Icons.Outlined.AccessTime,
+                title = ctx.getString(R.string.home_card_missed),
+                subtitle = if (uiState.missedCount > 0) {
+                    ctx.getString(R.string.home_card_missed_count, uiState.missedCount)
+                } else {
+                    ctx.getString(R.string.home_card_missed_subtitle)
+                },
+                showBadge = uiState.missedCount > 0,
+                onClick = onNavigateToMissedConsultations,
             ),
         )
     }

@@ -99,6 +99,16 @@ class ConsultationRequestViewModel @Inject constructor(
     private val appointmentId: String? =
         savedStateHandle.get<String>("appointmentId")
 
+    /**
+     * Missed-bucket reconnect context — when the patient reached this screen
+     * by tapping a missed-consultation entry on the dashboard. The server
+     * uses these to consume the source row when this request is created.
+     */
+    private val reconnectSourceKind: String? =
+        savedStateHandle.get<String>("reconnectSourceKind")
+    private val reconnectSourceId: String? =
+        savedStateHandle.get<String>("reconnectSourceId")
+
     // Location is GPS-resolved at app start by LocationResolver and lives on
     // the patient session — read at request-build time via patientSessionDao.
 
@@ -469,6 +479,8 @@ class ConsultationRequestViewModel @Inject constructor(
             serviceWard = session?.serviceWard?.takeIf { it.isNotBlank() },
             serviceStreet = session?.serviceStreet?.takeIf { it.isNotBlank() },
             appointmentId = appointmentId,
+            reconnectSourceKind = reconnectSourceKind,
+            reconnectSourceId = reconnectSourceId,
         )
     }
 

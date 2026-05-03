@@ -82,6 +82,11 @@ interface CreateRequest {
   service_ward?: string;
   service_street?: string;
   appointment_id?: string;
+  // Missed-bucket reconnect: when set, this request retries a previous
+  // missed consultation and consumes the source so it disappears from the
+  // patient's "Missed" tile.
+  reconnect_source_kind?: "request_expired" | "no_engagement" | "paid_no_request";
+  reconnect_source_id?: string;
 }
 
 interface RespondRequest {
@@ -335,6 +340,37 @@ async function handleCreate(
       );
     }
     throw error;
+  }
+
+  // ── Missed-bucket reconnect ──────────────────────────────────────────────
+  // If this create-request is a retry from the dashboard's "Missed" tile,
+  // stamp the source linkage onto the new request row. We DO NOT consume
+  // the source yet — that happens in handleAccept the moment a doctor
+  // actually accepts and serves the patient. Otherwise an expired retry
+  // would churn the missed entry into a fresh one and the patient would
+  // see the bucket flicker without ever having been served.
+  if (body.reconnect_source_kind && body.reconnect_source_id) {
+    const validKind = body.reconnect_source_kind === "request_expired"
+      || body.reconnect_source_kind === "no_engagement"
+      || body.reconnect_source_kind === "paid_no_request";
+    if (validKind) {
+      const { error: stampErr } = await supabase
+        .from("consultation_requests")
+        .update({
+          reconnect_source_kind: body.reconnect_source_kind,
+          reconnect_source_id: body.reconnect_source_id,
+        })
+        .eq("request_id", request.request_id);
+      if (stampErr) {
+        console.warn(
+          `[handle-consultation-request] reconnect stamp failed (${request.request_id}):`,
+          stampErr.message,
+        );
+        // Non-fatal — request still exists, just won't be filtered out as a
+        // retry in list_missed_for_patient. Worst case: patient sees a
+        // duplicate entry until the underlying source is consumed elsewhere.
+      }
+    }
   }
 
   // Best-effort: update patient_sessions.region if provided and currently NULL
@@ -665,6 +701,46 @@ async function handleAccept(
     .eq("status", "pending"); // Optimistic lock
 
   if (updateError) throw updateError;
+
+  // ── Missed-bucket: consume the source NOW that the doctor has actually
+  // accepted. Per product spec 2026-05-03, missed entries only retire when
+  // a doctor serves the patient — not when the patient merely fires a
+  // retry. If the request stamped a reconnect_source_kind/id, mark the
+  // matching source row's reconnect_consumed_at so it disappears from the
+  // patient's Missed dashboard tile.
+  if (request.reconnect_source_kind && request.reconnect_source_id) {
+    const sourceTable = request.reconnect_source_kind === "request_expired"
+      ? "consultation_requests"
+      : request.reconnect_source_kind === "no_engagement"
+      ? "consultations"
+      : request.reconnect_source_kind === "paid_no_request"
+      ? "service_access_payments"
+      : null;
+    const idColumn = request.reconnect_source_kind === "request_expired"
+      ? "request_id"
+      : request.reconnect_source_kind === "no_engagement"
+      ? "consultation_id"
+      : request.reconnect_source_kind === "paid_no_request"
+      ? "payment_id"
+      : null;
+    if (sourceTable && idColumn) {
+      const { error: consumeErr } = await supabase
+        .from(sourceTable)
+        .update({ reconnect_consumed_at: new Date().toISOString() })
+        .eq(idColumn, request.reconnect_source_id)
+        .eq("patient_session_id", request.patient_session_id)
+        .is("reconnect_consumed_at", null);
+      if (consumeErr) {
+        console.warn(
+          `[handle-consultation-request] reconnect consume on accept failed (${sourceTable}/${request.reconnect_source_id}):`,
+          consumeErr.message,
+        );
+        // Non-fatal — consultation already accepted; the missed entry will
+        // simply linger in the patient's bucket. The patient can dismiss
+        // by re-attempting once more.
+      }
+    }
+  }
 
   // Link appointment to consultation (if this request came from an appointment)
   if (request.appointment_id) {

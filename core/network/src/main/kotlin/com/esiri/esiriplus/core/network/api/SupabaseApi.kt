@@ -2,6 +2,8 @@ package com.esiri.esiriplus.core.network.api
 
 import com.esiri.esiriplus.core.network.api.model.AgentEarningApiModel
 import com.esiri.esiriplus.core.network.api.model.ConsultationApiModel
+import com.esiri.esiriplus.core.network.api.model.ListMissedRpcBody
+import com.esiri.esiriplus.core.network.api.model.MissedConsultationApiModel
 import com.esiri.esiriplus.core.network.api.model.PaymentApiModel
 import com.esiri.esiriplus.core.network.api.model.PrescriptionApiModel
 import com.esiri.esiriplus.core.network.api.model.UpdateConsultationStatusBody
@@ -92,6 +94,14 @@ interface SupabaseApi {
         @Body body: Map<String, String>,
         @Header("Prefer") prefer: String = "resolution=merge-duplicates",
     ): Response<Unit>
+
+    // Missed-consultations RPC — returns the patient's active "missed" bucket
+    // (expired requests, no-engagement consultations, paid-but-no-request
+    // payments). Server-defined function unions the three live sources.
+    @POST("rest/v1/rpc/list_missed_for_patient")
+    suspend fun listMissedConsultations(
+        @Body body: ListMissedRpcBody,
+    ): Response<List<MissedConsultationApiModel>>
 
     // Agent earnings — RLS (agents_read_own_earnings) restricts rows to the
     // agent's own UUID automatically when the request carries their JWT.

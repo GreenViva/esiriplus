@@ -661,4 +661,18 @@
     <string name="dservice_dosage_safety">التحقق من سلامة الجرعة</string>
     <string name="dservice_otc_prescription">فحص توافق الأدوية بدون وصفة والموصوفة</string>
 
+    <!-- Missed-consultations bucket (v1.1.1) -->
+    <string name="home_card_missed">الفائتة</string>
+    <string name="home_card_missed_subtitle">أعد الاتصال بخدمتك</string>
+    <string name="home_card_missed_count">%1$d في الانتظار · اضغط للاتصال مجدداً</string>
+    <string name="missed_title">الاستشارات الفائتة</string>
+    <string name="missed_subtitle">استشارات مدفوعة لم تكتمل. اختر طبيباً لاستخدام دفعتك.</string>
+    <string name="missed_empty_title">كل شيء على ما يرام</string>
+    <string name="missed_empty_body">لا شيء هنا. أي استشارة مدفوعة لا تتصل ستظهر في هذه القائمة حتى لا تخسر دفعتك.</string>
+    <string name="missed_with_doctor">كانت مع %1$s</string>
+    <string name="missed_reconnect_cta">ابحث عن طبيب</string>
+    <string name="missed_reason_request_expired">انتهت صلاحية الطلب قبل أن يقبله طبيب</string>
+    <string name="missed_reason_no_engagement">قبل الطبيب لكن لم يتصل أبداً</string>
+    <string name="missed_reason_paid_no_request">دفعت لكن لم تكمل الحجز</string>
+
 </resources>

@@ -13,6 +13,7 @@ import com.esiri.esiriplus.feature.patient.screen.FollowUpWaitingScreen
 import com.esiri.esiriplus.feature.patient.screen.OngoingConsultationsScreen
 import com.esiri.esiriplus.feature.patient.screen.PastChatDetailScreen
 import com.esiri.esiriplus.feature.patient.screen.MedicationScheduleScreen
+import com.esiri.esiriplus.feature.patient.screen.MissedConsultationsScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientAppointmentsScreen
 import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientConsultationScreen
@@ -52,6 +53,10 @@ import kotlinx.serialization.Serializable
     val serviceDurationMinutes: Int,
     val serviceTier: String = "ECONOMY",
     val appointmentId: String? = null,
+    /** Set when navigated from MissedConsultationsScreen so the create-request
+     *  call can include the missed source for server-side consumption. */
+    val reconnectSourceKind: String? = null,
+    val reconnectSourceId: String? = null,
 )
 @Serializable data class BookAppointmentRoute(
     val doctorId: String,
@@ -70,6 +75,7 @@ import kotlinx.serialization.Serializable
 @Serializable object ConsultationHistoryRoute
 @Serializable data class PastChatDetailRoute(val consultationId: String)
 @Serializable object OngoingConsultationsRoute
+@Serializable object MissedConsultationsRoute
 @Serializable object ReportsRoute
 @Serializable data class ReportDetailRoute(val reportId: String)
 @Serializable object AgentDashboardRoute
@@ -119,6 +125,7 @@ fun NavGraphBuilder.patientGraph(
                     onNavigateToConsultationHistory = { navController.navigate(ConsultationHistoryRoute) },
                     onNavigateToAppointments = { navController.navigate(PatientAppointmentsRoute) },
                     onNavigateToOngoingConsultations = { navController.navigate(OngoingConsultationsRoute) },
+                    onNavigateToMissedConsultations = { navController.navigate(MissedConsultationsRoute) },
                     onResumeConsultation = { consultationId ->
                         navController.navigate(PatientConsultationRoute(consultationId))
                     },
@@ -289,6 +296,28 @@ fun NavGraphBuilder.patientGraph(
         composable<MedicationScheduleRoute> {
             MedicationScheduleScreen(
                 onBack = { navController.popBackStack() },
+            )
+        }
+
+        // ── Missed consultations ──────────────────────────────────────────
+        composable<MissedConsultationsRoute> {
+            MissedConsultationsScreen(
+                onBack = { navController.popBackStack() },
+                onReconnect = { item ->
+                    // Mirror substitute-follow-up: jump straight to FindDoctor
+                    // for the missed entry's specialty, carrying the source
+                    // identifiers so the request-create call can consume them.
+                    navController.navigate(
+                        FindDoctorRoute(
+                            serviceCategory = item.serviceType,
+                            servicePriceAmount = item.consultationFee,
+                            serviceDurationMinutes = 15,
+                            serviceTier = item.serviceTier,
+                            reconnectSourceKind = item.sourceKind,
+                            reconnectSourceId = item.sourceId,
+                        ),
+                    )
+                },
             )
         }
 

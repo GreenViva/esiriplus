@@ -329,6 +329,20 @@
     <string name="dservice_dosage_safety">Dosage Safety Verification</string>
     <string name="dservice_otc_prescription">OTC and Prescription Compatibility Check</string>
 
+    <!-- Missed-consultations bucket (v1.1.1) -->
+    <string name="home_card_missed">Missed</string>
+    <string name="home_card_missed_subtitle">Reconnect to your service</string>
+    <string name="home_card_missed_count">%1$d waiting · tap to reconnect</string>
+    <string name="missed_title">Missed consultations</string>
+    <string name="missed_subtitle">Paid consultations that didn\'t go through. Pick a doctor to use your payment.</string>
+    <string name="missed_empty_title">All caught up</string>
+    <string name="missed_empty_body">Nothing here. Any paid consultation that doesn\'t connect will land in this list so you don\'t lose your payment.</string>
+    <string name="missed_with_doctor">Was with %1$s</string>
+    <string name="missed_reconnect_cta">Find a Doctor</string>
+    <string name="missed_reason_request_expired">Request expired before a doctor accepted</string>
+    <string name="missed_reason_no_engagement">Doctor accepted but never connected</string>
+    <string name="missed_reason_paid_no_request">Paid but didn\'t finish booking</string>
+
     <!-- ===== BookAppointmentScreen ===== -->
     <string name="book_appointment_back">Back</string>
     <string name="book_appointment_title">Book Appointment</string>

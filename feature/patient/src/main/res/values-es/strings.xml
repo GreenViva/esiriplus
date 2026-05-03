@@ -661,4 +661,18 @@
     <string name="dservice_dosage_safety">Verificación de seguridad de dosis</string>
     <string name="dservice_otc_prescription">Compatibilidad de medicamentos libres y recetados</string>
 
+    <!-- Missed-consultations bucket (v1.1.1) -->
+    <string name="home_card_missed">Perdidas</string>
+    <string name="home_card_missed_subtitle">Reconéctate a tu servicio</string>
+    <string name="home_card_missed_count">%1$d en espera · toca para reconectar</string>
+    <string name="missed_title">Consultas perdidas</string>
+    <string name="missed_subtitle">Consultas pagadas que no se completaron. Elige un médico para usar tu pago.</string>
+    <string name="missed_empty_title">Todo al día</string>
+    <string name="missed_empty_body">Nada aquí. Cualquier consulta pagada que no se conecte aparecerá en esta lista para que no pierdas tu pago.</string>
+    <string name="missed_with_doctor">Era con %1$s</string>
+    <string name="missed_reconnect_cta">Buscar médico</string>
+    <string name="missed_reason_request_expired">Solicitud expiró antes de que un médico aceptara</string>
+    <string name="missed_reason_no_engagement">Médico aceptó pero no se conectó</string>
+    <string name="missed_reason_paid_no_request">Pagado pero sin terminar la reserva</string>
+
 </resources>

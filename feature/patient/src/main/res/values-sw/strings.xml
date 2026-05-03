@@ -669,4 +669,18 @@
     <string name="dservice_dosage_safety">Uthibitisho wa Usalama wa Kipimo</string>
     <string name="dservice_otc_prescription">Ukaguzi wa Uoanifu wa Dawa za Bure na za Maagizo</string>
 
+    <!-- Missed-consultations bucket (v1.1.1) -->
+    <string name="home_card_missed">Yaliyokosa</string>
+    <string name="home_card_missed_subtitle">Unganisha tena na huduma yako</string>
+    <string name="home_card_missed_count">%1$d yanasubiri · gusa kuunganisha tena</string>
+    <string name="missed_title">Mashauriano yaliyokosa</string>
+    <string name="missed_subtitle">Mashauriano uliyolipia ambayo hayakukamilika. Chagua daktari ili kutumia malipo yako.</string>
+    <string name="missed_empty_title">Yote yamekamilika</string>
+    <string name="missed_empty_body">Hakuna kitu hapa. Mashauriano yoyote uliyolipia ambayo hayakuunganishwa yatatokea hapa ili usipoteze malipo yako.</string>
+    <string name="missed_with_doctor">Yalikuwa na %1$s</string>
+    <string name="missed_reconnect_cta">Tafuta Daktari</string>
+    <string name="missed_reason_request_expired">Ombi limeisha kabla ya daktari kukubali</string>
+    <string name="missed_reason_no_engagement">Daktari alikubali lakini hakuwasiliana</string>
+    <string name="missed_reason_paid_no_request">Umelipa lakini hujamaliza ombi</string>
+
 </resources>

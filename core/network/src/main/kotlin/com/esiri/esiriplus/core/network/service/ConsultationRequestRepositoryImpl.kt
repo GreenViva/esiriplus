@@ -35,6 +35,8 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
         serviceWard: String?,
         serviceStreet: String?,
         appointmentId: String?,
+        reconnectSourceKind: String?,
+        reconnectSourceId: String?,
     ): Result<ConsultationRequest> {
         return service.createRequest(
             doctorId = doctorId,
@@ -58,6 +60,8 @@ class ConsultationRequestRepositoryImpl @Inject constructor(
             serviceWard = serviceWard,
             serviceStreet = serviceStreet,
             appointmentId = appointmentId,
+            reconnectSourceKind = reconnectSourceKind,
+            reconnectSourceId = reconnectSourceId,
         ).map { it.toDomain() }
             .toDomainResult()
     }

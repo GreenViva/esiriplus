@@ -42,6 +42,8 @@ data class PatientHomeUiState(
     val ongoingConsultations: List<ConsultationEntity> = emptyList(),
     val hasUnreadReports: Boolean = false,
     val isDeletingAccount: Boolean = false,
+    /** Active count from the missed-consultations RPC; 0 hides the dot. */
+    val missedCount: Int = 0,
 )
 
 // TODO: Localize hardcoded user-facing strings (error messages).
@@ -58,6 +60,8 @@ class PatientHomeViewModel @Inject constructor(
     private val doctorRatingRepository: DoctorRatingRepository,
     private val patientReportRepository: PatientReportRepository,
     private val locationResolver: LocationResolver,
+    private val supabaseApi: com.esiri.esiriplus.core.network.api.SupabaseApi,
+    private val tokenManager: com.esiri.esiriplus.core.network.TokenManager,
 ) : ViewModel() {
 
     private val prefs = application.getSharedPreferences("patient_prefs", Context.MODE_PRIVATE)
@@ -67,12 +71,14 @@ class PatientHomeViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     private val _hasUnreadReports = MutableStateFlow(false)
     private val _isDeletingAccount = MutableStateFlow(false)
+    private val _missedCount = MutableStateFlow(0)
 
     init {
         checkPendingRatings()
         syncUnsyncedRatings()
         checkUnreadReports()
         backfillLocationIfMissing()
+        refreshMissedCount()
     }
 
     /**
@@ -151,6 +157,7 @@ class PatientHomeViewModel @Inject constructor(
         _pendingRating,
         combine(ongoingConsultations, _isRefreshing, _hasUnreadReports) { ongoing, refreshing, unread -> Triple(ongoing, refreshing, unread) },
         _isDeletingAccount,
+        _missedCount,
     ) { values: Array<Any?> ->
         @Suppress("UNCHECKED_CAST")
         val session = values[0] as com.esiri.esiriplus.core.domain.model.Session?
@@ -165,6 +172,8 @@ class PatientHomeViewModel @Inject constructor(
         val (ongoing, refreshing, hasUnread) = triple
         @Suppress("UNCHECKED_CAST")
         val deleting = values[5] as Boolean
+        @Suppress("UNCHECKED_CAST")
+        val missed = values[6] as Int
         if (session != null) {
             val id = session.user.id
             PatientHomeUiState(
@@ -178,6 +187,7 @@ class PatientHomeViewModel @Inject constructor(
                 ongoingConsultations = ongoing,
                 hasUnreadReports = hasUnread,
                 isDeletingAccount = deleting,
+                missedCount = missed,
             )
         } else {
             PatientHomeUiState(isLoading = false, isDeletingAccount = deleting)
@@ -194,9 +204,45 @@ class PatientHomeViewModel @Inject constructor(
             checkPendingRatings()
             syncUnsyncedRatings()
             checkUnreadReports()
+            refreshMissedCount()
             // Allow the combined flow to re-emit with updated data
             kotlinx.coroutines.delay(500)
             _isRefreshing.value = false
+        }
+    }
+
+    /**
+     * Refreshes the missed-bucket badge count. Called on pull-to-refresh and
+     * once on first emission of the home screen state. Failures are silent
+     * (the badge just stays at its previous value).
+     */
+    fun refreshMissedCount() {
+        viewModelScope.launch {
+            try {
+                val sessionId = sessionIdFromToken() ?: return@launch
+                val resp = supabaseApi.listMissedConsultations(
+                    com.esiri.esiriplus.core.network.api.model.ListMissedRpcBody(sessionId),
+                )
+                if (resp.isSuccessful) {
+                    _missedCount.value = resp.body()?.size ?: 0
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "refreshMissedCount failed", e)
+            }
+        }
+    }
+
+    private fun sessionIdFromToken(): String? {
+        val token = tokenManager.getAccessTokenSync() ?: return null
+        return try {
+            val parts = token.split(".")
+            if (parts.size < 2) return null
+            val payload = String(
+                android.util.Base64.decode(parts[1], android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING),
+            )
+            org.json.JSONObject(payload).optString("session_id", null)
+        } catch (_: Exception) {
+            null
         }
     }
 

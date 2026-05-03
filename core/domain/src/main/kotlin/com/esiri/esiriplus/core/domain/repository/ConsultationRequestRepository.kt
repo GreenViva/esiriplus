@@ -27,6 +27,8 @@ interface ConsultationRequestRepository {
         serviceWard: String? = null,
         serviceStreet: String? = null,
         appointmentId: String? = null,
+        reconnectSourceKind: String? = null,
+        reconnectSourceId: String? = null,
     ): Result<ConsultationRequest>
 
     /** Doctor accepts a pending request. Returns request with consultationId. */

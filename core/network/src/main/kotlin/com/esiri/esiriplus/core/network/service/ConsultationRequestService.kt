@@ -48,6 +48,8 @@ class ConsultationRequestService @Inject constructor(
         serviceWard: String? = null,
         serviceStreet: String? = null,
         appointmentId: String? = null,
+        reconnectSourceKind: String? = null,
+        reconnectSourceId: String? = null,
     ): ApiResult<ConsultationRequestRow> {
         val body = buildJsonObject {
             put("action", "create")
@@ -76,6 +78,10 @@ class ConsultationRequestService @Inject constructor(
             }
             if (!region.isNullOrBlank()) put("region", region)
             if (!appointmentId.isNullOrBlank()) put("appointment_id", appointmentId)
+            if (!reconnectSourceKind.isNullOrBlank() && !reconnectSourceId.isNullOrBlank()) {
+                put("reconnect_source_kind", reconnectSourceKind)
+                put("reconnect_source_id", reconnectSourceId)
+            }
         }
         return decodeEdgeFunctionResult(edgeFunctionClient.invoke(FUNCTION_NAME, body, patientAuth = true))
     }

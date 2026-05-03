@@ -661,4 +661,18 @@
     <string name="dservice_dosage_safety">खुराक सुरक्षा सत्यापन</string>
     <string name="dservice_otc_prescription">OTC और प्रिस्क्रिप्शन संगतता जाँच</string>
 
+    <!-- Missed-consultations bucket (v1.1.1) -->
+    <string name="home_card_missed">छूटे</string>
+    <string name="home_card_missed_subtitle">अपनी सेवा से फिर से जुड़ें</string>
+    <string name="home_card_missed_count">%1$d प्रतीक्षित · टैप करें</string>
+    <string name="missed_title">छूटे परामर्श</string>
+    <string name="missed_subtitle">भुगतान किए गए परामर्श जो पूरे नहीं हुए। डॉक्टर चुनें और अपना भुगतान उपयोग करें।</string>
+    <string name="missed_empty_title">सब ठीक है</string>
+    <string name="missed_empty_body">यहाँ कुछ नहीं। कोई भी भुगतान किया गया परामर्श जो कनेक्ट नहीं होता वह यहाँ दिखेगा ताकि आपका भुगतान नष्ट न हो।</string>
+    <string name="missed_with_doctor">%1$s के साथ था</string>
+    <string name="missed_reconnect_cta">डॉक्टर खोजें</string>
+    <string name="missed_reason_request_expired">डॉक्टर के स्वीकार करने से पहले अनुरोध समाप्त हो गया</string>
+    <string name="missed_reason_no_engagement">डॉक्टर ने स्वीकार किया लेकिन कभी जुड़ा नहीं</string>
+    <string name="missed_reason_paid_no_request">भुगतान किया लेकिन बुकिंग पूरी नहीं की</string>
+
 </resources>
