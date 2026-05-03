@@ -23,6 +23,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.esiri.esiriplus.call.IncomingCallOverlay
@@ -49,6 +50,7 @@ import com.esiri.esiriplus.viewmodel.AppInitState
 import com.esiri.esiriplus.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,6 +67,10 @@ class MainActivity : AppCompatActivity() {
     private data class PendingCallNav(val consultationId: String, val callType: String, val roomId: String = "")
     private val pendingCallNavigation = MutableStateFlow<PendingCallNav?>(null)
 
+    private data class PendingRoyalCheckin(val slotDate: String, val slotHour: Int)
+    private val pendingRoyalCheckin = MutableStateFlow<PendingRoyalCheckin?>(null)
+    @Inject lateinit var edgeFunctionClient: com.esiri.esiriplus.core.network.EdgeFunctionClient
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleCallIntent(intent)
@@ -79,6 +85,21 @@ class MainActivity : AppCompatActivity() {
         if (intent?.action == com.esiri.esiriplus.service.IncomingCallService.ACTION_SHOW_INCOMING_CALL) {
             Log.d("MainActivity", "Show incoming call overlay (full-screen intent)")
             showOverLockScreen()
+            return
+        }
+
+        if (intent?.action == EsiriplusFirebaseMessagingService.ACTION_OPEN_ROYAL_CHECKIN) {
+            val slotDate = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_ROYAL_SLOT_DATE).orEmpty()
+            val slotHour = intent.getStringExtra(EsiriplusFirebaseMessagingService.EXTRA_ROYAL_SLOT_HOUR)
+                ?.toIntOrNull() ?: 0
+            Log.d("MainActivity", "Open Royal check-in: date=$slotDate hour=$slotHour")
+            // Cancel the per-slot notification immediately — the doctor has
+            // already acted, no point keeping it in the tray.
+            try {
+                NotificationManagerCompat.from(this)
+                    .cancel(EsiriplusFirebaseMessagingService.ROYAL_CHECKIN_NOTIFICATION_ID + slotHour)
+            } catch (_: Exception) { }
+            pendingRoyalCheckin.value = PendingRoyalCheckin(slotDate, slotHour)
             return
         }
 
@@ -115,6 +136,26 @@ class MainActivity : AppCompatActivity() {
             )
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    /**
+     * Fire-and-forget call to the acknowledge-royal-checkin edge function so
+     * the cron stops retrying that slot for the day. Failures are silent —
+     * worst case the doctor gets one more attempt at +5 minutes.
+     */
+    private fun acknowledgeRoyalCheckin(slotDate: String, slotHour: Int) {
+        if (slotDate.isBlank() || slotHour !in listOf(8, 13, 18)) return
+        lifecycleScope.launch {
+            try {
+                val body = kotlinx.serialization.json.buildJsonObject {
+                    put("slot_date", kotlinx.serialization.json.JsonPrimitive(slotDate))
+                    put("slot_hour", kotlinx.serialization.json.JsonPrimitive(slotHour))
+                }
+                edgeFunctionClient.invoke("acknowledge-royal-checkin", body)
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Royal check-in acknowledge failed", e)
+            }
+        }
     }
 
     /** Restore normal lock screen behavior after the call ends. */
@@ -249,6 +290,8 @@ class MainActivity : AppCompatActivity() {
                             .collectAsStateWithLifecycle()
                         val pendingNav by pendingCallNavigation
                             .collectAsStateWithLifecycle()
+                        val pendingRoyal by pendingRoyalCheckin
+                            .collectAsStateWithLifecycle()
 
                         // Handle pending call navigation (from notification accept action)
                         // Key on both pendingNav AND authState so it re-fires when auth becomes Authenticated.
@@ -267,6 +310,26 @@ class MainActivity : AppCompatActivity() {
                                 // has time to mount; the video call keeps the screen on itself.
                                 kotlinx.coroutines.delay(3000)
                                 clearLockScreenOverride()
+                            }
+                        }
+
+                        // Royal check-in tap from FCM notification → fire-and-forget
+                        // acknowledge to suppress remaining attempts at this slot,
+                        // then navigate to the doctor's Royal Clients list.
+                        LaunchedEffect(pendingRoyal, currentAuth) {
+                            val royal = pendingRoyal ?: return@LaunchedEffect
+                            val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
+                            if (role == UserRole.DOCTOR) {
+                                acknowledgeRoyalCheckin(royal.slotDate, royal.slotHour)
+                                kotlinx.coroutines.delay(400)
+                                try {
+                                    navController.navigate(
+                                        com.esiri.esiriplus.feature.doctor.navigation.RoyalClientsRoute,
+                                    )
+                                } catch (e: Exception) {
+                                    Log.w("MainActivity", "Royal check-in nav failed", e)
+                                }
+                                pendingRoyalCheckin.value = null
                             }
                         }
 

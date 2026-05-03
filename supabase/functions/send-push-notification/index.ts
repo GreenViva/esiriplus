@@ -117,7 +117,8 @@ async function sendFCM(
         ...(
           notification.type === "VIDEO_CALL_INCOMING" ||
           notification.type === "MEDICATION_REMINDER_RING" ||
-          notification.type === "MEDICATION_REMINDER_CALL"
+          notification.type === "MEDICATION_REMINDER_CALL" ||
+          notification.type === "ROYAL_CHECKIN"
             ? {}
             : {
               notification: {

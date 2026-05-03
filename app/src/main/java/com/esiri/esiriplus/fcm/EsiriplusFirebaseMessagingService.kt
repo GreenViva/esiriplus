@@ -114,6 +114,33 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             return
         }
 
+        // Royal client check-in — fires 3×/day at 08:00/13:00/18:00 EAT for
+        // doctors with active-window Royal patients. Up to 3 attempts per
+        // slot (+0/+5/+10 min) until the doctor taps the notification, which
+        // opens RoyalClients and calls acknowledge-royal-checkin server-side
+        // to suppress remaining attempts.
+        if (type.equals("ROYAL_CHECKIN", ignoreCase = true)) {
+            val slotDate = remoteMessage.data["slot_date"] ?: ""
+            val slotHour = remoteMessage.data["slot_hour"] ?: ""
+            val slotLabel = remoteMessage.data["slot_label"] ?: ""
+            val royalCount = remoteMessage.data["royal_client_count"]?.toIntOrNull() ?: 1
+            val titleFromPayload = remoteMessage.notification?.title
+                ?: remoteMessage.data["title"]
+                ?: "Royal client check-in"
+            val bodyFromPayload = remoteMessage.notification?.body
+                ?: remoteMessage.data["body"]
+                ?: "Tap to check in on your Royal clients."
+            Log.d(TAG, "Royal check-in: slot=$slotHour@$slotDate count=$royalCount")
+            showRoyalCheckinNotification(
+                title = titleFromPayload,
+                body = bodyFromPayload,
+                slotDate = slotDate,
+                slotHour = slotHour,
+                slotLabel = slotLabel,
+            )
+            return
+        }
+
         // Medication reminder RING — 60s ringing invitation to a nurse asking
         // them to handle a scheduled medication reminder. Reuses the standard
         // incoming-call UI; on accept MainActivity routes to the Medical
@@ -415,6 +442,54 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
+    /**
+     * Royal-client check-in notification. Tapping the notification opens the
+     * doctor's Royal Clients screen via [MainActivity.ACTION_OPEN_ROYAL_CHECKIN]
+     * and the activity then fires the acknowledge endpoint, suppressing any
+     * remaining attempts at that slot for the day.
+     */
+    private fun showRoyalCheckinNotification(
+        title: String,
+        body: String,
+        slotDate: String,
+        slotHour: String,
+        slotLabel: String,
+    ) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            action = ACTION_OPEN_ROYAL_CHECKIN
+            putExtra(EXTRA_ROYAL_SLOT_DATE, slotDate)
+            putExtra(EXTRA_ROYAL_SLOT_HOUR, slotHour)
+            putExtra(EXTRA_ROYAL_SLOT_LABEL, slotLabel)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            ROYAL_CHECKIN_NOTIFICATION_ID + (slotHour.toIntOrNull() ?: 0),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val notification = NotificationCompat.Builder(this, EsiriplusApp.CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stethoscope_notif)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setDefaults(NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_VIBRATE)
+            .build()
+
+        try {
+            // Per-slot id so multiple slots in a day stack rather than
+            // replacing each other on the lockscreen.
+            val notifId = ROYAL_CHECKIN_NOTIFICATION_ID + (slotHour.toIntOrNull() ?: 0)
+            NotificationManagerCompat.from(this).notify(notifId, notification)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "POST_NOTIFICATIONS permission not granted", e)
+        }
+    }
+
     private fun showNotification(title: String, body: String, notificationId: String, type: String? = null) {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -475,9 +550,14 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         private const val TAG = "EsiriplusFCM"
         const val ACTION_ACCEPT_CALL = "com.esiri.esiriplus.ACCEPT_CALL"
         const val ACTION_DECLINE_CALL = "com.esiri.esiriplus.DECLINE_CALL"
+        const val ACTION_OPEN_ROYAL_CHECKIN = "com.esiri.esiriplus.OPEN_ROYAL_CHECKIN"
         const val EXTRA_CONSULTATION_ID = "consultation_id"
         const val EXTRA_CALL_TYPE = "call_type"
         const val EXTRA_ROOM_ID = "room_id"
+        const val EXTRA_ROYAL_SLOT_DATE = "royal_slot_date"
+        const val EXTRA_ROYAL_SLOT_HOUR = "royal_slot_hour"
+        const val EXTRA_ROYAL_SLOT_LABEL = "royal_slot_label"
         const val CALL_NOTIFICATION_ID = 9999
+        const val ROYAL_CHECKIN_NOTIFICATION_ID = 9970
     }
 }

@@ -22,6 +22,7 @@ PUBLIC_FUNCTIONS=(
   "login-doctor"
   "medication-reminder-cron"
   "mpesa-callback"
+  "royal-checkin-cron"
   "register-agent"
   "recover-by-id"
   "recover-by-questions"
