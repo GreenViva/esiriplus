@@ -140,6 +140,7 @@ fun DoctorDashboardScreen(
     onNavigateToAvailabilitySettings: () -> Unit = {},
     onNavigateToUnsubmittedReports: () -> Unit = {},
     onNavigateToMedicalReminders: () -> Unit = {},
+    onNavigateToCheckIns: () -> Unit = {},
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DoctorDashboardViewModel = hiltViewModel(),
@@ -476,6 +477,7 @@ fun DoctorDashboardScreen(
                     onNotificationsClick = onNavigateToNotifications,
                     onUnsubmittedReportsClick = onNavigateToUnsubmittedReports,
                     onMedicalRemindersClick = onNavigateToMedicalReminders,
+                    onCheckInsClick = onNavigateToCheckIns,
                     onRefresh = viewModel::refresh,
                     onAcknowledgeWarning = viewModel::acknowledgeWarning,
                     onToggleServeAsGp = viewModel::toggleServeAsGp,
@@ -765,6 +767,7 @@ private fun DashboardContent(
     onNotificationsClick: () -> Unit = {},
     onUnsubmittedReportsClick: () -> Unit = {},
     onMedicalRemindersClick: () -> Unit = {},
+    onCheckInsClick: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onAcknowledgeWarning: () -> Unit = {},
     onToggleServeAsGp: () -> Unit = {},
@@ -856,12 +859,27 @@ private fun DashboardContent(
                 onClick = onMedicalRemindersClick,
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
+        }
+
+        // Check-Ins badge — clinical-officer-only entry point for Royal
+        // check-in coverage. Tap routes to RoyalCheckinCoverageScreen which
+        // lists escalations the CO has been rung for, plus the doctor's
+        // Royal patients to call.
+        if (uiState.specialty.equals("clinical_officer", ignoreCase = true)) {
+            Spacer(modifier = Modifier.height(8.dp))
+            CheckInsBadge(
+                onClick = onCheckInsClick,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+        }
+
+        if (uiState.specialty.equals("nurse", ignoreCase = true)) {
 
             // Critical permissions banner — auto-hides when the user has
             // granted full-screen-intent + battery-optimization exemption.
             // Without these the reminder ring won't wake the lock screen.
             Spacer(modifier = Modifier.height(8.dp))
-            com.esiri.esiriplus.feature.doctor.ui.CriticalPermissionsCard(
+            com.esiri.esiriplus.core.ui.permission.PermissionHealthCard(
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
@@ -1405,6 +1423,51 @@ private fun WarningBadge(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CheckInsBadge(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, Color(0xFFA7E5DA), RoundedCornerShape(12.dp))
+            .background(Color(0xFFE7F8F4))
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .background(Color(0xFF14B8A6), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "✓", fontSize = 14.sp, color = Color.White)
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.checkins_badge_title),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF115E59),
+            )
+            Text(
+                text = stringResource(R.string.checkins_badge_subtitle),
+                fontSize = 11.sp,
+                color = Color(0xFF0F766E),
+            )
+        }
+        Text(
+            text = "▶",
+            fontSize = 12.sp,
+            color = Color(0xFF115E59),
+        )
     }
 }
 

@@ -79,6 +79,10 @@
     <string name="med_reminder_badge_subtitle">Tap to view assigned reminders</string>
     <string name="med_reminder_coming_soon">Coming soon</string>
 
+    <!-- ═══ Dashboard: Check-Ins badge (clinical-officer-only) ═══ -->
+    <string name="checkins_badge_title">Check-Ins</string>
+    <string name="checkins_badge_subtitle">Tap to cover Royal client check-ins</string>
+
     <!-- ═══ Dashboard: Availability Section ═══ -->
     <string name="availability_today_title">Today\'s Availability</string>
     <string name="availability_available_today">Available today</string>

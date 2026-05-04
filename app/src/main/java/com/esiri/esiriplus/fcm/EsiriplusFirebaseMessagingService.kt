@@ -76,6 +76,23 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
         val notificationId = remoteMessage.data["notification_id"]
         val type = remoteMessage.data["type"] ?: "GENERAL"
 
+        // Archive every typed push into Room so the in-app notification
+        // feed (and bell badge/animation) stays in sync — call rings,
+        // medication-reminder rings, royal check-ins, etc. previously
+        // returned early before the secure-fetch path ran, leaving the
+        // local DB empty even though Supabase had the row. Fire-and-forget
+        // — the type-specific handlers below still run to drive the
+        // foreground service / overlay.
+        if (!notificationId.isNullOrBlank()) {
+            serviceScope.launch {
+                try {
+                    notificationRepository.fetchAndStoreNotification(notificationId)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Notification archive failed for $notificationId", e)
+                }
+            }
+        }
+
         // Consultation request — always emit to IncomingRequestViewModel so the dialog
         // shows reliably even when Realtime is slow/unauthenticated.
         if (type.equals("CONSULTATION_REQUEST", ignoreCase = true)) {
@@ -137,6 +154,38 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
                 slotDate = slotDate,
                 slotHour = slotHour,
                 slotLabel = slotLabel,
+            )
+            return
+        }
+
+        // Royal check-in CO escalation RING — 60s ringing invitation to a
+        // clinical officer asking them to cover a doctor's missed Royal
+        // check-in. Same incoming-call UX as the nurse med-reminder ring; on
+        // accept MainActivity routes to RoyalCheckinCoverageRoute which
+        // auto-accepts and shows the patient list to call.
+        if (type.equals("ROYAL_CHECKIN_ESCALATION_RING", ignoreCase = true)) {
+            val escalationId = remoteMessage.data["escalation_id"] ?: ""
+            val slotLabel = remoteMessage.data["slot_label"] ?: ""
+            Log.d(TAG, "Royal check-in escalation RING: escalation=$escalationId slot=$slotLabel")
+            try {
+                IncomingCallService.start(
+                    context = applicationContext,
+                    consultationId = escalationId,
+                    callType = "AUDIO",
+                    callerRole = "royal_checkin_escalation_ring",
+                    roomId = "",
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to start IncomingCallService for royal escalation ring", e)
+                showIncomingCallNotification(escalationId, "AUDIO", "royal_checkin_escalation_ring", "")
+            }
+            incomingCallStateHolder.showIncomingCall(
+                IncomingCall(
+                    consultationId = escalationId,
+                    roomId = "",
+                    callType = "AUDIO",
+                    callerRole = "royal_checkin_escalation_ring",
+                ),
             )
             return
         }
@@ -213,6 +262,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
             val roomId = remoteMessage.data["room_id"] ?: ""
             val callType = remoteMessage.data["call_type"] ?: "VIDEO"
             val callerRole = remoteMessage.data["caller_role"] ?: "doctor"
+            val medReminderEventId = remoteMessage.data["event_id"]?.takeIf { callerRole == "medication_reminder_nurse" }
             Log.d(TAG, "Incoming call: consultation=$consultationId room=$roomId type=$callType caller=$callerRole allData=${remoteMessage.data}")
 
             // Start foreground service FIRST — this keeps the process alive on aggressive
@@ -239,6 +289,7 @@ class EsiriplusFirebaseMessagingService : FirebaseMessagingService() {
                     roomId = roomId,
                     callType = callType,
                     callerRole = callerRole,
+                    medReminderEventId = medReminderEventId,
                 ),
             )
             return

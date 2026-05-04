@@ -14,6 +14,7 @@ import com.esiri.esiriplus.feature.doctor.screen.DoctorReportScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorUnsubmittedReportsScreen
 import com.esiri.esiriplus.feature.doctor.screen.DoctorVideoCallScreen
 import com.esiri.esiriplus.feature.doctor.screen.MedicalReminderListScreen
+import com.esiri.esiriplus.feature.doctor.screen.RoyalCheckinCoverageScreen
 import com.esiri.esiriplus.feature.doctor.screen.RoyalClientsScreen
 import kotlinx.serialization.Serializable
 
@@ -34,6 +35,13 @@ import kotlinx.serialization.Serializable
  */
 @Serializable data class MedicalReminderListRoute(val autoAcceptEventId: String? = null)
 
+/**
+ * Clinical-officer Royal check-in coverage list. [autoAcceptEscalationId] is
+ * non-null when navigated from a ring push — the screen calls accept_ring on
+ * first load.
+ */
+@Serializable data class RoyalCheckinCoverageRoute(val autoAcceptEscalationId: String? = null)
+
 fun NavGraphBuilder.doctorGraph(
     navController: NavController,
     onSignOut: () -> Unit = {},
@@ -51,6 +59,7 @@ fun NavGraphBuilder.doctorGraph(
                 onNavigateToAvailabilitySettings = { navController.navigate(DoctorAvailabilitySettingsRoute) },
                 onNavigateToUnsubmittedReports = { navController.navigate(DoctorUnsubmittedReportsRoute) },
                 onNavigateToMedicalReminders = { navController.navigate(MedicalReminderListRoute()) },
+                onNavigateToCheckIns = { navController.navigate(RoyalCheckinCoverageRoute()) },
                 onSignOut = onSignOut,
             )
         }
@@ -61,6 +70,20 @@ fun NavGraphBuilder.doctorGraph(
                     // The video-call screen looks up the consultation by ID,
                     // so we must pass the real consultation_id (not the room
                     // id, which had been wrongly reused there before).
+                    navController.navigate(
+                        DoctorVideoCallRoute(
+                            consultationId = consultationId,
+                            callType = "AUDIO",
+                            roomId = roomId,
+                        ),
+                    )
+                },
+            )
+        }
+        composable<RoyalCheckinCoverageRoute> {
+            RoyalCheckinCoverageScreen(
+                onBack = { navController.popBackStack() },
+                onStartCall = { _, roomId, consultationId, _ ->
                     navController.navigate(
                         DoctorVideoCallRoute(
                             consultationId = consultationId,

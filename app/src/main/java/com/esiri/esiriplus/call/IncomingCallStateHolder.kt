@@ -11,6 +11,8 @@ data class IncomingCall(
     val roomId: String,
     val callType: String,
     val callerRole: String,
+    /** Medication-reminder event id (only set for caller_role=medication_reminder_nurse). */
+    val medReminderEventId: String? = null,
     val timestamp: Long = System.currentTimeMillis(),
 )
 

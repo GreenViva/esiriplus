@@ -143,6 +143,26 @@ class MainActivity : AppCompatActivity() {
      * the cron stops retrying that slot for the day. Failures are silent —
      * worst case the doctor gets one more attempt at +5 minutes.
      */
+    /**
+     * Patient acknowledged the medication reminder call. Stamps
+     * patient_joined_at on the event so the server's auto-complete
+     * validator credits the nurse only on a real connection.
+     */
+    private fun notifyPatientJoined(eventId: String) {
+        if (eventId.isBlank()) return
+        lifecycleScope.launch {
+            try {
+                val body = kotlinx.serialization.json.buildJsonObject {
+                    put("action", kotlinx.serialization.json.JsonPrimitive("patient_joined"))
+                    put("event_id", kotlinx.serialization.json.JsonPrimitive(eventId))
+                }
+                edgeFunctionClient.invoke("medication-reminder-callback", body)
+            } catch (e: Exception) {
+                Log.w("MainActivity", "patient_joined notify failed", e)
+            }
+        }
+    }
+
     private fun acknowledgeRoyalCheckin(slotDate: String, slotHour: Int) {
         if (slotDate.isBlank() || slotHour !in listOf(8, 13, 18)) return
         lifecycleScope.launch {
@@ -277,10 +297,6 @@ class MainActivity : AppCompatActivity() {
                                     WindowManager.LayoutParams.FLAG_SECURE,
                                     WindowManager.LayoutParams.FLAG_SECURE,
                                 )
-                                // After login/registration the doctor just authenticated
-                                // (password + optional biometric enrollment). Don't show
-                                // the biometric lock screen again immediately.
-                                biometricLockStateHolder.unlock()
                             } else {
                                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                             }
@@ -380,16 +396,31 @@ class MainActivity : AppCompatActivity() {
                                         com.esiri.esiriplus.service.IncomingCallService.stop(this@MainActivity)
                                         // Medication reminder rings route into the nurse's
                                         // Medical Reminder list (which auto-accepts the ring
-                                        // server-side). Other rings join the VideoSDK call.
-                                        if (call.callerRole == "medication_reminder_ring") {
-                                            navController.navigate(
+                                        // server-side). Royal check-in escalation rings route
+                                        // into the CO's coverage list. Other rings join the
+                                        // VideoSDK call.
+                                        when (call.callerRole) {
+                                            "medication_reminder_ring" -> navController.navigate(
                                                 com.esiri.esiriplus.feature.doctor.navigation.MedicalReminderListRoute(
                                                     autoAcceptEventId = call.consultationId,
                                                 ),
                                             )
-                                        } else {
-                                            val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
-                                            navigateToVideoCall(navController, call.consultationId, call.callType, role, call.roomId)
+                                            "royal_checkin_escalation_ring" -> navController.navigate(
+                                                com.esiri.esiriplus.feature.doctor.navigation.RoyalCheckinCoverageRoute(
+                                                    autoAcceptEscalationId = call.consultationId,
+                                                ),
+                                            )
+                                            else -> {
+                                                // Patient accepting a nurse-initiated medication
+                                                // reminder call — stamp patient_joined_at on the
+                                                // event so the server's auto-complete validator
+                                                // can credit the nurse on a real connection.
+                                                call.medReminderEventId?.let { eventId ->
+                                                    notifyPatientJoined(eventId)
+                                                }
+                                                val role = (currentAuth as? AuthState.Authenticated)?.session?.user?.role
+                                                navigateToVideoCall(navController, call.consultationId, call.callType, role, call.roomId)
+                                            }
                                         }
                                     },
                                     onDecline = {

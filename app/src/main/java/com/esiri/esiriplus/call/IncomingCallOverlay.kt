@@ -52,6 +52,8 @@ fun IncomingCallOverlay(
     val callerLabel = when {
         incomingCall.callerRole.startsWith("medication_reminder") ->
             stringResource(R.string.caller_medication_reminder)
+        incomingCall.callerRole.startsWith("royal_checkin") ->
+            stringResource(R.string.caller_royal_checkin)
         incomingCall.callerRole == "doctor" ->
             stringResource(R.string.caller_your_doctor)
         else -> stringResource(R.string.caller_your_patient)
