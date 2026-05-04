@@ -14,6 +14,7 @@ import com.esiri.esiriplus.feature.patient.screen.OngoingConsultationsScreen
 import com.esiri.esiriplus.feature.patient.screen.PastChatDetailScreen
 import com.esiri.esiriplus.feature.patient.screen.MedicationScheduleScreen
 import com.esiri.esiriplus.feature.patient.screen.MissedConsultationsScreen
+import com.esiri.esiriplus.feature.patient.screen.PatientNotificationsScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientAppointmentsScreen
 import com.esiri.esiriplus.feature.patient.screen.FindDoctorScreen
 import com.esiri.esiriplus.feature.patient.screen.PatientConsultationScreen
@@ -76,6 +77,7 @@ import kotlinx.serialization.Serializable
 @Serializable data class PastChatDetailRoute(val consultationId: String)
 @Serializable object OngoingConsultationsRoute
 @Serializable object MissedConsultationsRoute
+@Serializable object PatientNotificationsRoute
 @Serializable object ReportsRoute
 @Serializable data class ReportDetailRoute(val reportId: String)
 @Serializable object AgentDashboardRoute
@@ -126,6 +128,7 @@ fun NavGraphBuilder.patientGraph(
                     onNavigateToAppointments = { navController.navigate(PatientAppointmentsRoute) },
                     onNavigateToOngoingConsultations = { navController.navigate(OngoingConsultationsRoute) },
                     onNavigateToMissedConsultations = { navController.navigate(MissedConsultationsRoute) },
+                    onNavigateToNotifications = { navController.navigate(PatientNotificationsRoute) },
                     onResumeConsultation = { consultationId ->
                         navController.navigate(PatientConsultationRoute(consultationId))
                     },
@@ -319,6 +322,10 @@ fun NavGraphBuilder.patientGraph(
                     )
                 },
             )
+        }
+
+        composable<PatientNotificationsRoute> {
+            PatientNotificationsScreen(onBack = { navController.popBackStack() })
         }
 
         composable<OngoingConsultationsRoute> {

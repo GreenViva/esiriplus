@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -131,11 +132,13 @@ fun PatientHomeScreen(
     onNavigateToAppointments: () -> Unit,
     onNavigateToOngoingConsultations: () -> Unit,
     onNavigateToMissedConsultations: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     @Suppress("UNUSED_PARAMETER") onResumeConsultation: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PatientHomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val unreadNotificationCount by viewModel.unreadNotificationCount.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
@@ -278,6 +281,8 @@ fun PatientHomeScreen(
         topBar = {
             HomeTopBar(
                 maskedId = uiState.maskedPatientId,
+                unreadNotificationCount = unreadNotificationCount,
+                onNotificationsClick = onNavigateToNotifications,
                 onSettingsClick = { showSettingsSheet = true },
             )
         },
@@ -312,6 +317,14 @@ fun PatientHomeScreen(
                 Spacer(Modifier.height(2.dp))
 
                 HomeHeroCard(onStartConsultation = { onStartConsultation("") })
+
+                Spacer(Modifier.height(8.dp))
+
+                // Surface OEM-specific permission gaps that block FCM
+                // delivery. Auto-hides when nothing is missing.
+                com.esiri.esiriplus.core.ui.permission.PermissionHealthCard(
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
                 Spacer(Modifier.height(8.dp))
 
@@ -378,6 +391,8 @@ private fun DeletingAccountOverlay() {
 @Composable
 private fun HomeTopBar(
     maskedId: String,
+    unreadNotificationCount: Int,
+    onNotificationsClick: () -> Unit,
     onSettingsClick: () -> Unit,
 ) {
     TopAppBar(
@@ -406,6 +421,60 @@ private fun HomeTopBar(
             }
         },
         actions = {
+            // Ring the bell while there's any unread notification: a tight
+            // back-and-forth rotation that loops with a brief rest beat
+            // between rings, like a hand bell. When count drops to 0 the
+            // animation stops at neutral.
+            val bellTransition = rememberInfiniteTransition(label = "bell")
+            val bellRotation = if (unreadNotificationCount > 0) {
+                bellTransition.animateFloat(
+                    initialValue = -15f,
+                    targetValue = 15f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(180, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                    label = "bellRotation",
+                ).value
+            } else 0f
+
+            IconButton(onClick = onNotificationsClick) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Hairline, CircleShape),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Notifications,
+                        contentDescription = "Notifications",
+                        tint = InkSoft,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .graphicsLayer { rotationZ = bellRotation },
+                    )
+                    if (unreadNotificationCount > 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 4.dp, y = (-4).dp)
+                                .size(if (unreadNotificationCount >= 10) 16.dp else 14.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFDC2626)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = if (unreadNotificationCount > 9) "9+" else "$unreadNotificationCount",
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
+            }
             IconButton(onClick = onSettingsClick) {
                 Box(
                     contentAlignment = Alignment.Center,

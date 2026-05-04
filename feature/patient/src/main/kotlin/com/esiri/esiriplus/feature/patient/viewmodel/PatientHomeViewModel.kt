@@ -9,7 +9,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.esiri.esiriplus.core.database.dao.ConsultationDao
+import com.esiri.esiriplus.core.database.dao.NotificationDao
 import com.esiri.esiriplus.core.database.dao.PatientSessionDao
+import com.esiri.esiriplus.core.database.entity.NotificationEntity
+import com.esiri.esiriplus.core.network.model.ApiResult
+import com.esiri.esiriplus.core.network.service.NotificationSyncService
 import com.esiri.esiriplus.core.domain.repository.AuthRepository
 import com.esiri.esiriplus.core.domain.repository.DoctorRatingRepository
 import com.esiri.esiriplus.core.domain.repository.PatientReportRepository
@@ -57,6 +61,8 @@ class PatientHomeViewModel @Inject constructor(
     private val submitDeletionFeedbackUseCase: SubmitDeletionFeedbackUseCase,
     private val consultationDao: ConsultationDao,
     private val patientSessionDao: PatientSessionDao,
+    private val notificationDao: NotificationDao,
+    private val notificationSyncService: NotificationSyncService,
     private val doctorRatingRepository: DoctorRatingRepository,
     private val patientReportRepository: PatientReportRepository,
     private val locationResolver: LocationResolver,
@@ -79,6 +85,43 @@ class PatientHomeViewModel @Inject constructor(
         checkUnreadReports()
         backfillLocationIfMissing()
         refreshMissedCount()
+        syncNotifications()
+    }
+
+    /**
+     * One-shot pull of recent notifications from Supabase into Room so the
+     * bell badge reflects server state immediately on home load — without
+     * waiting for the user to open the notifications list.
+     */
+    private fun syncNotifications() {
+        viewModelScope.launch {
+            val sessionId = patientSessionDao.getSession().first()?.sessionId ?: return@launch
+            try {
+                when (val r = notificationSyncService.fetchRecentNotifications(sessionId)) {
+                    is ApiResult.Success -> {
+                        val entities = r.data.map { row ->
+                            NotificationEntity(
+                                notificationId = row.notificationId,
+                                userId = row.userId,
+                                title = row.title,
+                                body = row.body,
+                                type = row.type,
+                                data = row.data,
+                                readAt = row.readAt?.let {
+                                    try { java.time.Instant.parse(it).toEpochMilli() } catch (_: Exception) { null }
+                                },
+                                createdAt = try { java.time.Instant.parse(row.createdAt).toEpochMilli() }
+                                    catch (_: Exception) { System.currentTimeMillis() },
+                            )
+                        }
+                        if (entities.isNotEmpty()) notificationDao.insertAll(entities)
+                    }
+                    else -> Log.w(TAG, "Notification sync skipped: $r")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Notification sync failed", e)
+            }
+        }
     }
 
     /**
@@ -149,6 +192,13 @@ class PatientHomeViewModel @Inject constructor(
             flowOf(emptyList())
         }
     }
+
+    /** Unread notification count keyed on the patient's session_id. */
+    val unreadNotificationCount: StateFlow<Int> = patientSessionDao.getSession()
+        .flatMapLatest { session ->
+            if (session != null) notificationDao.getUnreadCount(session.sessionId) else flowOf(0)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val uiState: StateFlow<PatientHomeUiState> = combine(
         authRepository.currentSession,
