@@ -108,6 +108,10 @@ class MedicalReminderListViewModel @Inject constructor(
         }
     }
 
+    /** Event id whose call screen is currently in flight; cleared once
+     *  the call screen unwinds and the auto-complete attempt has been made. */
+    private var activeCallEventId: String? = null
+
     fun onCall(reminder: AcceptedReminder) {
         viewModelScope.launch {
             _uiState.update { it.copy(callingEventId = reminder.eventId) }
@@ -148,6 +152,7 @@ class MedicalReminderListViewModel @Inject constructor(
                     val consultationId = r.data.consultationId
                     if (r.data.ok && !roomId.isNullOrBlank() && !patientSessionId.isNullOrBlank()
                         && !consultationId.isNullOrBlank()) {
+                        activeCallEventId = reminder.eventId
                         _events.tryEmit(
                             MedicalReminderEvent.StartCall(
                                 eventId = reminder.eventId,
@@ -195,6 +200,36 @@ class MedicalReminderListViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun onDismiss(eventId: String) {
+        viewModelScope.launch {
+            service.dismiss(eventId)
+            load()
+        }
+    }
+
+    /**
+     * Server-validated auto-complete: fires when the call screen unwinds.
+     * The server only credits earnings when patient_joined_at is set AND
+     * the call lasted >= 60s. If validation fails, the row stays in
+     * nurse_calling so the UI can offer "Couldn't reach".
+     */
+    fun onCallScreenResumed() {
+        val eventId = activeCallEventId ?: return
+        activeCallEventId = null
+        viewModelScope.launch {
+            service.markCompleted(eventId)
+            load()
+        }
+    }
+
+    /** Nurse hits "Couldn't reach" — patient gets a fallback push, no earnings. */
+    fun onMarkUnreachable(eventId: String) {
+        viewModelScope.launch {
+            service.markPatientUnreachable(eventId)
+            load()
+        }
     }
 
     companion object {

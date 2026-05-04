@@ -28,7 +28,72 @@ const VIDEOSDK_SECRET  = Deno.env.get("VIDEOSDK_SECRET")!;
 const TOKEN_EXPIRY_SECS = 7200;
 const MAX_RETRIES = 3;          // pending → nurse-search retries (no nurse online)
 const MAX_REASSIGNS = 3;        // nurse declined / didn't pick up the ring
-const RING_DURATION_MS = 60 * 1000;  // 60s — nurse's window to accept
+const RING_DURATION_MS = 10 * 60 * 1000;  // 10 min — covers OEM battery-batching delivery delays. The phone's incoming-call overlay still self-dismisses at 60s, but the event row stays acceptable for 10 min so a tray-notification tap minutes later still lands on a live event.
+const ACCEPT_TIMEOUT_MS = 5 * 60 * 1000; // 5 min — nurse's window to actually call after accepting
+
+// At-scale tuning. Each per-event task is dominated by 2 HTTP round trips
+// (VideoSDK room create + send-push-notification), each ~300-500 ms. With
+// CONCURRENCY=20 the cron drains 100 due timetables in ~1-2 batches × ~1 s
+// instead of ~100 × ~1 s sequentially.
+const CONCURRENCY = 50;
+
+// Future scale (>~7,500 events/min): introduce 4-shard sharding by adding
+// `shard_idx` + `shard_count` to req body, filter due-timetable queries by
+// `substring(timetable_id::text, 1, 1) IN (<hex bucket>)`, and register 4
+// pg_cron jobs each passing a different shard_idx. UUIDs are uniformly
+// random so a hex-prefix split partitions evenly. Not done yet — premature
+// at current load; revisit when one tick's processed_count breaches ~5k.
+
+/** Limited-parallelism runner. Spawns at most `limit` workers that drain a
+ *  shared queue, so we never exceed VideoSDK / FCM concurrency budgets. */
+async function runWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  if (items.length === 0) return;
+  let i = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (true) {
+        const idx = i++;
+        if (idx >= items.length) return;
+        try {
+          await fn(items[idx]);
+        } catch (e) {
+          console.error("[med-cron] worker iteration failed:", e);
+        }
+      }
+    },
+  );
+  await Promise.all(workers);
+}
+
+/**
+ * Atomic nurse claim. Calls a SECURITY DEFINER Postgres function that
+ * picks an eligible nurse with `SELECT ... FOR UPDATE SKIP LOCKED`,
+ * verifies they have no active event via NOT EXISTS, and stamps the
+ * supplied event row's nurse_id + status='nurse_ringing' all in one
+ * transaction. Concurrent edge-function invocations safely fan out across
+ * distinct rows — replaces the previous in-memory pool which broke down
+ * when pg_cron's tick exceeded 60 s and a second tick fired in parallel.
+ */
+async function claimNurseAtomic(
+  supabase: ReturnType<typeof getServiceClient>,
+  eventId: string,
+  excludeNurseId?: string,
+): Promise<string | null> {
+  const { data, error } = await supabase.rpc("claim_nurse_for_med_event", {
+    p_event_id: eventId,
+    p_exclude_nurse_id: excludeNurseId ?? null,
+  });
+  if (error) {
+    console.error("[med-cron] claim_nurse_for_med_event failed:", error.message);
+    return null;
+  }
+  return (data as string | null) ?? null;
+}
 
 // ── VideoSDK helpers ─────────────────────────────────────────────────────────
 
@@ -109,8 +174,13 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[med-cron-debug] currentHHMM=${currentHHMM} currentDate=${currentDate} due=${dueTimetables?.length ?? 0}`);
 
+    // No more in-memory nurse pool — each ringNurse call now does an
+    // atomic Postgres claim via FOR UPDATE SKIP LOCKED, safe across any
+    // number of overlapping pg_cron invocations.
+
     if (dueTimetables && dueTimetables.length > 0) {
-      for (const tt of dueTimetables) {
+      let processedHere = 0;
+      await runWithConcurrency(dueTimetables, CONCURRENCY, async (tt) => {
         const { data: inserted } = await supabase
           .from("medication_reminder_events")
           .insert({
@@ -121,19 +191,23 @@ Deno.serve(async (req: Request) => {
           })
           .select("event_id")
           .maybeSingle();
-
-        if (!inserted) continue;
-
-        const ringed = await ringNurse(supabase, inserted.event_id, tt);
-        if (ringed) processed++;
-      }
+        if (!inserted) return;
+        const ringed = await ringNurse(supabase, inserted.event_id, tt as TimetableRow);
+        if (ringed) processedHere++;
+      });
+      processed += processedHere;
     }
 
     // ── Step 2: Retry pending events that previously had no nurse ────────
+    // Read nurse_id off the event (kept by step 3 as "last attempted") and
+    // pass it as exclude so we don't re-ring a nurse who already failed to
+    // pick up. With only one nurse on the system, this keeps retry_count
+    // climbing (toward MAX_RETRIES → fallback push) without spamming them
+    // with fresh rings every minute.
     const { data: retryEvents } = await supabase
       .from("medication_reminder_events")
       .select(`
-        event_id, timetable_id, retry_count,
+        event_id, timetable_id, retry_count, nurse_id,
         medication_timetables!inner (
           patient_session_id, medication_name, dosage, form
         )
@@ -142,8 +216,9 @@ Deno.serve(async (req: Request) => {
       .eq("scheduled_date", currentDate)
       .lt("retry_count", MAX_RETRIES);
 
-    if (retryEvents) {
-      for (const ev of retryEvents) {
+    if (retryEvents && retryEvents.length > 0) {
+      let processedHere = 0;
+      await runWithConcurrency(retryEvents, CONCURRENCY, async (ev) => {
         const tt = (ev as unknown as Record<string, unknown>).medication_timetables as Record<string, unknown>;
         await supabase
           .from("medication_reminder_events")
@@ -151,22 +226,22 @@ Deno.serve(async (req: Request) => {
           .eq("event_id", ev.event_id);
 
         const ringed = await ringNurse(
-          supabase, ev.event_id,
+          supabase,
+          ev.event_id,
           { ...tt, timetable_id: ev.timetable_id } as TimetableRow,
+          ev.nurse_id ?? undefined,
         );
 
-        // After exhausting nurse retries, fallback push to patient — naming
-        // the medicine so they know what they were supposed to take.
         if (!ringed && ev.retry_count + 1 >= MAX_RETRIES) {
           await supabase
             .from("medication_reminder_events")
             .update({ status: "failed" })
             .eq("event_id", ev.event_id);
-
           await sendFallbackPushToPatient(supabase, ev.event_id, tt as TimetableRow);
-          processed++;
+          processedHere++;
         }
-      }
+      });
+      processed += processedHere;
     }
 
     // ── Step 3: Reassign ringing events whose 60s window has elapsed ─────
@@ -185,16 +260,19 @@ Deno.serve(async (req: Request) => {
       .lt("ring_expires_at", ringExpired)
       .lt("reassign_count", MAX_REASSIGNS);
 
-    if (staleRings) {
-      for (const ev of staleRings) {
+    if (staleRings && staleRings.length > 0) {
+      let processedHere = 0;
+      await runWithConcurrency(staleRings, CONCURRENCY, async (ev) => {
         const tt = (ev as unknown as Record<string, unknown>).medication_timetables as Record<string, unknown>;
         const previousNurseId = ev.nurse_id;
 
+        // Keep nurse_id on the row as the "last attempted" marker so step
+        // 2's retry path can also exclude this nurse. ringNurse overwrites
+        // nurse_id when it picks a fresh nurse, so this is safe.
         await supabase
           .from("medication_reminder_events")
           .update({
             status: "pending",
-            nurse_id: null,
             video_room_id: null,
             nurse_notified_at: null,
             ring_expires_at: null,
@@ -203,12 +281,14 @@ Deno.serve(async (req: Request) => {
           .eq("event_id", ev.event_id);
 
         await ringNurse(
-          supabase, ev.event_id,
+          supabase,
+          ev.event_id,
           { ...tt, timetable_id: ev.timetable_id } as TimetableRow,
           previousNurseId ?? undefined,
         );
-        processed++;
-      }
+        processedHere++;
+      });
+      processed += processedHere;
     }
 
     // ── Step 4: Hard-fail rings that exceeded reassign budget ───────────
@@ -225,16 +305,79 @@ Deno.serve(async (req: Request) => {
       .lt("ring_expires_at", ringExpired)
       .gte("reassign_count", MAX_REASSIGNS);
 
-    if (deadRings) {
-      for (const ev of deadRings) {
+    if (deadRings && deadRings.length > 0) {
+      let processedHere = 0;
+      await runWithConcurrency(deadRings, CONCURRENCY, async (ev) => {
         const tt = (ev as unknown as Record<string, unknown>).medication_timetables as TimetableRow;
         await supabase
           .from("medication_reminder_events")
           .update({ status: "failed" })
           .eq("event_id", ev.event_id);
         await sendFallbackPushToPatient(supabase, ev.event_id, tt);
-        processed++;
-      }
+        processedHere++;
+      });
+      processed += processedHere;
+    }
+
+    // ── Step 5: Accept-timeout sweep ─────────────────────────────────────
+    // Nurses have 5 minutes after accepting to actually start the call.
+    // If they don't, mark the event failed and push the medicine name
+    // straight to the patient. The callback's start_call rejects on any
+    // non-nurse_accepted status, so the nurse will see "took too long".
+    const acceptCutoff = new Date(now.getTime() - ACCEPT_TIMEOUT_MS).toISOString();
+    const { data: stalledAccepts } = await supabase
+      .from("medication_reminder_events")
+      .select(`
+        event_id,
+        medication_timetables!inner (
+          patient_session_id, medication_name, dosage, form
+        )
+      `)
+      .eq("status", "nurse_accepted")
+      .lt("nurse_accepted_at", acceptCutoff);
+
+    if (stalledAccepts && stalledAccepts.length > 0) {
+      let processedHere = 0;
+      await runWithConcurrency(stalledAccepts, CONCURRENCY, async (ev) => {
+        const tt = (ev as unknown as Record<string, unknown>).medication_timetables as TimetableRow;
+        await supabase
+          .from("medication_reminder_events")
+          .update({ status: "failed" })
+          .eq("event_id", ev.event_id);
+        await sendFallbackPushToPatient(supabase, ev.event_id, tt);
+        processedHere++;
+      });
+      processed += processedHere;
+    }
+
+    // ── Step 6: nurse_calling stuck sweep ────────────────────────────────
+    // Calls that started but never settled (neither completed nor manual
+    // unreachable) get auto-failed after 5 minutes. Without this they'd
+    // sit forever blocking the "one nurse one patient" assignment.
+    const callingCutoff = new Date(now.getTime() - ACCEPT_TIMEOUT_MS).toISOString();
+    const { data: stalledCalls } = await supabase
+      .from("medication_reminder_events")
+      .select(`
+        event_id,
+        medication_timetables!inner (
+          patient_session_id, medication_name, dosage, form
+        )
+      `)
+      .eq("status", "nurse_calling")
+      .lt("call_started_at", callingCutoff);
+
+    if (stalledCalls && stalledCalls.length > 0) {
+      let processedHere = 0;
+      await runWithConcurrency(stalledCalls, CONCURRENCY, async (ev) => {
+        const tt = (ev as unknown as Record<string, unknown>).medication_timetables as TimetableRow;
+        await supabase
+          .from("medication_reminder_events")
+          .update({ status: "failed" })
+          .eq("event_id", ev.event_id);
+        await sendFallbackPushToPatient(supabase, ev.event_id, tt);
+        processedHere++;
+      });
+      processed += processedHere;
     }
 
     if (processed > 0) {
@@ -327,31 +470,17 @@ async function ringNurse(
   timetable: TimetableRow,
   excludeNurseId?: string,
 ): Promise<boolean> {
-  // Find an online nurse not currently in a session.
-  let nurseQuery = supabase
-    .from("doctor_profiles")
-    .select("doctor_id")
-    .eq("specialty", "nurse")
-    .eq("is_verified", true)
-    .eq("is_available", true)
-    .eq("in_session", false)
-    .eq("is_banned", false)
-    .limit(1);
-
-  if (excludeNurseId) nurseQuery = nurseQuery.neq("doctor_id", excludeNurseId);
-
-  const { data: nurses } = await nurseQuery;
-
-  if (!nurses || nurses.length === 0) {
+  // Atomic DB-level claim — no in-memory pool. Postgres' FOR UPDATE
+  // SKIP LOCKED guarantees no two concurrent invocations claim the same
+  // nurse, even when pg_cron's ticks overlap.
+  const nurseId = await claimNurseAtomic(supabase, eventId, excludeNurseId);
+  if (!nurseId) {
     await supabase
       .from("medication_reminder_events")
       .update({ status: "no_nurse" })
       .eq("event_id", eventId);
-    console.warn(`[med-reminder] No nurse available for event ${eventId}`);
     return false;
   }
-
-  const nurseId = nurses[0].doctor_id;
 
   // Pre-create the room so the nurse-side accept-then-call has it ready.
   let roomId: string;
@@ -369,11 +498,11 @@ async function ringNurse(
   const ringExpiresAt = new Date(Date.now() + RING_DURATION_MS).toISOString();
   const notifiedAt = new Date().toISOString();
 
+  // claim_nurse_for_med_event already wrote nurse_id + status='nurse_ringing'
+  // atomically, so this update only fills in the post-VideoSDK details.
   await supabase
     .from("medication_reminder_events")
     .update({
-      status: "nurse_ringing",
-      nurse_id: nurseId,
       video_room_id: roomId,
       nurse_notified_at: notifiedAt,
       ring_expires_at: ringExpiresAt,

@@ -103,7 +103,7 @@ import com.esiri.esiriplus.core.database.entity.VitalSignEntity
         AppointmentEntity::class,
         DoctorAvailabilitySlotEntity::class,
     ],
-    version = 34,
+    version = 35,
     exportSchema = true,
 )
 @TypeConverters(
@@ -115,7 +115,7 @@ abstract class EsiriplusDatabase : RoomDatabase() {
 
     companion object {
         /** Must match the @Database(version = …) annotation above. */
-        const val VERSION = 34
+        const val VERSION = 35
     }
 
     /**

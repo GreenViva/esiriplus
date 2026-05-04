@@ -95,7 +95,7 @@ async function sendFCM(
   fcmToken: string,
   notification: PushRequest,
   accessToken: string
-): Promise<boolean> {
+): Promise<{ ok: boolean; error?: string }> {
   const message = {
     message: {
       token: fcmToken,
@@ -118,7 +118,8 @@ async function sendFCM(
           notification.type === "VIDEO_CALL_INCOMING" ||
           notification.type === "MEDICATION_REMINDER_RING" ||
           notification.type === "MEDICATION_REMINDER_CALL" ||
-          notification.type === "ROYAL_CHECKIN"
+          notification.type === "ROYAL_CHECKIN" ||
+          notification.type === "ROYAL_CHECKIN_ESCALATION_RING"
             ? {}
             : {
               notification: {
@@ -143,9 +144,10 @@ async function sendFCM(
   if (!res.ok) {
     const errBody = await res.text();
     console.error(`FCM send failed (${res.status}): ${errBody}`);
+    return { ok: false, error: `${res.status}: ${errBody.slice(0, 240)}` };
   }
 
-  return res.ok;
+  return { ok: true };
 }
 
 interface PushRequest {
@@ -304,12 +306,43 @@ Deno.serve(async (req: Request) => {
     // Send to all tokens (in parallel, max 20)
     // Medical privacy: push payload contains no patient data —
     // only notification_id and type for secure server-side fetch.
+    const sliced = fcmTokens.slice(0, 20);
     const results = await Promise.allSettled(
-      fcmTokens.slice(0, 20).map((token) => sendFCM(token, { ...notification, notification_id: notificationId }, accessToken))
+      sliced.map((token) => sendFCM(token, { ...notification, notification_id: notificationId }, accessToken))
     );
 
-    const sent = results.filter((r) => r.status === "fulfilled" && r.value).length;
+    let sent = 0;
+    const failureRows: Array<{ user_id: string; fcm_token: string; notification_type: string; error: string }> = [];
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.status === "fulfilled" && r.value.ok) {
+        sent++;
+      } else {
+        const err = r.status === "fulfilled"
+          ? (r.value.error ?? "unknown")
+          : (r.reason instanceof Error ? r.reason.message : String(r.reason));
+        if (targetUserId) {
+          failureRows.push({
+            user_id: targetUserId,
+            fcm_token: sliced[i],
+            notification_type: notification.type,
+            error: err.slice(0, 240),
+          });
+        }
+      }
+    }
     const failed = results.length - sent;
+
+    // Dead-letter logging for delivery failures so the client can detect
+    // chronically-unreachable users (3+ failures in 24h via the
+    // fcm_delivery_health RPC) and prompt them to re-grant permissions.
+    if (failureRows.length > 0) {
+      try {
+        await supabase.from("fcm_delivery_failures").insert(failureRows);
+      } catch (e) {
+        console.warn("Failed to log fcm delivery failures:", e);
+      }
+    }
 
     // Record in notification_history
     await supabase.from("notification_history").insert({

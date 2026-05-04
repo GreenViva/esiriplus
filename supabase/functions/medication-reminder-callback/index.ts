@@ -24,6 +24,41 @@ import { getServiceClient } from "../_shared/supabase.ts";
 
 const NURSE_REMINDER_EARNING = 2000;  // TZS per completed nurse reminder
 
+// Direct fetch helper — supabase.functions.invoke() sends the new
+// sb_secret_* key the gateway can't validate as JWT, so cross-function
+// calls die at the gateway. Using EDGE_FN_BEARER_JWT for the gateway pass
+// + X-Service-Key for send-push-notification's role bypass works.
+async function pushFallbackToPatient(
+  patientSessionId: string,
+  title: string,
+  body: string,
+  eventId: string,
+  medicationName: string,
+): Promise<void> {
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const BEARER_JWT = Deno.env.get("EDGE_FN_BEARER_JWT") ?? SERVICE_ROLE;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${BEARER_JWT}`,
+      "X-Service-Key": SERVICE_ROLE,
+    },
+    body: JSON.stringify({
+      session_id: patientSessionId,
+      title,
+      body,
+      type: "MEDICATION_REMINDER_PATIENT",
+      data: { event_id: eventId, medication_name: medicationName },
+    }),
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    console.error(`[med-callback] fallback push failed ${res.status}: ${txt}`);
+  }
+}
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   const preflight = handlePreflight(req);
@@ -133,15 +168,20 @@ Deno.serve(async (req: Request) => {
       if (ev.nurse_id !== auth.userId) {
         throw new ValidationError("You are not the nurse rung for this reminder");
       }
-      if (!["nurse_ringing", "nurse_notified"].includes(ev.status)) {
-        // Already accepted / declined / expired — no-op for idempotency.
+      if (ev.status === "nurse_accepted" || ev.status === "nurse_calling") {
+        // Idempotent for already-progressed states.
         return successResponse({ ok: true, status: ev.status }, 200, origin);
       }
-      if (ev.ring_expires_at && new Date(ev.ring_expires_at) < new Date()) {
-        // Ring window already elapsed — cron will reassign.
-        return successResponse({ ok: false, reason: "ring_expired" }, 200, origin);
+      if (ev.status === "completed" || ev.status === "patient_unreachable" || ev.status === "failed") {
+        // Truly settled — can't revive.
+        return successResponse({ ok: false, reason: `status=${ev.status}` }, 200, origin);
       }
-
+      // For nurse_ringing / nurse_notified / no_nurse / pending where the
+      // nurse_id still matches the requester, accept regardless of
+      // ring_expires_at. This handles single-nurse setups where the cron
+      // bounces the event through no_nurse during reassign attempts but the
+      // ring genuinely belongs to this nurse — a slow tap shouldn't lose
+      // the reminder.
       await supabase
         .from("medication_reminder_events")
         .update({
@@ -149,6 +189,58 @@ Deno.serve(async (req: Request) => {
           nurse_accepted_at: new Date().toISOString(),
         })
         .eq("event_id", event_id);
+
+      return successResponse({ ok: true }, 200, origin);
+    }
+
+    // ── Action: dismiss (nurse) ─────────────────────────────────────────
+    // Lets the nurse clear an accepted reminder off their list without
+    // calling the patient. Marks the event failed (so it disappears from
+    // list_accepted_reminders) and pushes the medicine name straight to
+    // the patient so they aren't left waiting for a call that won't come.
+    if (action === "dismiss") {
+      if (!auth.userId) throw new ValidationError("Authentication required");
+      const event_id = body.event_id;
+      if (!event_id) throw new ValidationError("event_id is required");
+
+      const { data: ev } = await supabase
+        .from("medication_reminder_events")
+        .select(`
+          event_id, nurse_id, timetable_id, status,
+          medication_timetables!inner (
+            patient_session_id, medication_name, dosage, form
+          )
+        `)
+        .eq("event_id", event_id)
+        .single();
+      if (!ev) throw new ValidationError("Event not found");
+      if (ev.nurse_id !== auth.userId) {
+        throw new ValidationError("You are not assigned to this reminder");
+      }
+      if (ev.status === "completed" || ev.status === "failed") {
+        return successResponse({ ok: true, already_settled: true }, 200, origin);
+      }
+
+      await supabase
+        .from("medication_reminder_events")
+        .update({ status: "failed" })
+        .eq("event_id", event_id);
+
+      const tt = (ev as unknown as Record<string, unknown>).medication_timetables as {
+        patient_session_id: string; medication_name: string; dosage?: string | null;
+      };
+      const medLabel = `${tt.medication_name}${tt.dosage ? ` (${tt.dosage})` : ""}`;
+      try {
+        await pushFallbackToPatient(
+          tt.patient_session_id,
+          "Medication Reminder",
+          `Please take ${medLabel} now.`,
+          event_id,
+          tt.medication_name,
+        );
+      } catch (e) {
+        console.warn("[med-callback] dismiss fallback push failed:", e);
+      }
 
       return successResponse({ ok: true }, 200, origin);
     }
@@ -212,22 +304,15 @@ Deno.serve(async (req: Request) => {
       if (ev.nurse_id !== auth.userId) {
         throw new ValidationError("You are not assigned to this reminder");
       }
-      // Idempotent: if the call has already been started (status=nurse_calling)
-      // — for example, the nurse left the call screen and came back — just
-      // return the existing room info so they can rejoin without seeing an
-      // error. Only reject if the status is unexpected (completed, ringing,
-      // patient_unreachable, etc.).
+      if (ev.status === "failed") {
+        throw new ValidationError(
+          "You took too long to start the call — this reminder has expired and the patient has already been notified directly.",
+        );
+      }
       if (ev.status === "nurse_calling") {
-        const tt = (ev as unknown as Record<string, unknown>).medication_timetables as {
-          consultation_id: string; patient_session_id: string;
-        };
-        return successResponse({
-          ok: true,
-          room_id: ev.video_room_id,
-          patient_session_id: tt.patient_session_id,
-          consultation_id: tt.consultation_id,
-          rejoined: true,
-        }, 200, origin);
+        throw new ValidationError(
+          "You've already called this patient. Mark the call complete or as patient unreachable.",
+        );
       }
       if (ev.status !== "nurse_accepted") {
         throw new ValidationError(`Cannot start call from status ${ev.status}`);
@@ -313,6 +398,39 @@ Deno.serve(async (req: Request) => {
       }, 200, origin);
     }
 
+    // ── Action: patient_joined ──────────────────────────────────────────
+    // Patient app fires this when they tap Accept on a medication-reminder
+    // call. Auth identity must match the timetable's patient_session_id.
+    // The stamp is what proves the call connected — used by the completed
+    // action's auto-credit guard.
+    if (action === "patient_joined") {
+      const event_id = body.event_id;
+      if (!event_id) throw new ValidationError("event_id is required");
+      if (!auth.sessionId) throw new ValidationError("Patient session required");
+
+      const { data: ev } = await supabase
+        .from("medication_reminder_events")
+        .select(`
+          event_id, status, patient_joined_at, timetable_id,
+          medication_timetables!inner ( patient_session_id )
+        `)
+        .eq("event_id", event_id)
+        .single();
+      if (!ev) throw new ValidationError("Event not found");
+      const tt = (ev as unknown as Record<string, unknown>).medication_timetables as { patient_session_id: string };
+      if (tt.patient_session_id !== auth.sessionId) {
+        throw new ValidationError("Not your reminder");
+      }
+      if (ev.patient_joined_at) {
+        return successResponse({ ok: true, already_recorded: true }, 200, origin);
+      }
+      await supabase
+        .from("medication_reminder_events")
+        .update({ patient_joined_at: new Date().toISOString() })
+        .eq("event_id", event_id);
+      return successResponse({ ok: true }, 200, origin);
+    }
+
     // ── Action: completed / patient_unreachable (call ended) ────────────
     const event_id = body.event_id;
     const status = action;
@@ -322,14 +440,14 @@ Deno.serve(async (req: Request) => {
     }
     if (!["completed", "patient_unreachable"].includes(status)) {
       throw new ValidationError(
-        "Invalid action. Use: create_timetable, get_schedules, list_accepted_reminders, accept_ring, decline_ring, start_call, completed, patient_unreachable"
+        "Invalid action. Use: create_timetable, get_schedules, list_accepted_reminders, accept_ring, decline_ring, start_call, completed, patient_unreachable, patient_joined, dismiss"
       );
     }
     if (!auth.userId) throw new ValidationError("Authentication required");
 
     const { data: event } = await supabase
       .from("medication_reminder_events")
-      .select("event_id, nurse_id, timetable_id, status, nurse_notified_at")
+      .select("event_id, nurse_id, timetable_id, status, nurse_notified_at, call_started_at, patient_joined_at")
       .eq("event_id", event_id)
       .single();
 
@@ -339,13 +457,36 @@ Deno.serve(async (req: Request) => {
       return successResponse({ ok: true, already_completed: true }, 200, origin);
     }
 
+    // Server-validated auto-complete: only credit on a real connected call.
+    // - patient_joined_at must be stamped (patient tapped Accept)
+    // - call must have lasted >= 60s wall-clock since start_call fired
+    // Any failure here keeps the row in nurse_calling so the nurse's UI
+    // shows only "Couldn't reach" — no Mark Complete fraud path.
+    if (status === "completed") {
+      const callStartedAt = event.call_started_at as string | null;
+      const startedMs = callStartedAt ? new Date(callStartedAt).getTime() : 0;
+      const durationMs = startedMs > 0 ? Date.now() - startedMs : 0;
+      const patientJoined = event.patient_joined_at != null;
+      const longEnough = durationMs >= 60_000;
+      if (!patientJoined || !longEnough) {
+        return successResponse(
+          {
+            ok: false,
+            reason: !patientJoined ? "patient_did_not_join" : "call_too_short",
+            duration_ms: durationMs,
+          },
+          200,
+          origin,
+        );
+      }
+    }
+
     const now = new Date().toISOString();
     await supabase
       .from("medication_reminder_events")
       .update({
         status,
         call_ended_at: now,
-        ...(status === "completed" ? { call_started_at: event.nurse_notified_at } : {}),
       })
       .eq("event_id", event_id);
 
@@ -386,15 +527,13 @@ Deno.serve(async (req: Request) => {
       if (tt) {
         const medLabel = `${tt.medication_name}${tt.dosage ? ` (${tt.dosage})` : ""}`;
         try {
-          await supabase.functions.invoke("send-push-notification", {
-            body: {
-              session_id: tt.patient_session_id,
-              title: "Medication Reminder",
-              body: `You missed a nurse call for your medication reminder. Please take ${medLabel} now.`,
-              type: "MEDICATION_REMINDER_PATIENT",
-              data: { event_id },
-            },
-          });
+          await pushFallbackToPatient(
+            tt.patient_session_id,
+            "Medication Reminder",
+            `You missed a nurse call for your medication reminder. Please take ${medLabel} now.`,
+            event_id,
+            tt.medication_name,
+          );
         } catch (e) {
           console.error("Failed to send missed-call notification:", e);
         }

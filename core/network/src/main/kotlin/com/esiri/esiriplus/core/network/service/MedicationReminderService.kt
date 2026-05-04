@@ -119,6 +119,15 @@ class MedicationReminderService @Inject constructor(
         return mapOk(edgeFunctionClient.invoke(FUNCTION_NAME, body))
     }
 
+    /** Nurse clears the reminder off their list. Fallback push goes to the patient. */
+    suspend fun dismiss(eventId: String): ApiResult<Unit> {
+        val body = buildJsonObject {
+            put("action", "dismiss")
+            put("event_id", eventId)
+        }
+        return mapOk(edgeFunctionClient.invoke(FUNCTION_NAME, body))
+    }
+
     private fun mapOk(r: ApiResult<String>): ApiResult<Unit> = when (r) {
         is ApiResult.Success -> ApiResult.Success(Unit)
         is ApiResult.Error -> r

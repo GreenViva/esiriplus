@@ -914,6 +914,58 @@ object DatabaseMigrations {
         }
     }
 
+    /**
+     * Drop the consultations FK from doctor_earnings.
+     *
+     * The FK was blocking sync of `medication_reminder` and
+     * `royal_checkin_escalation` earnings into the local Room cache: those
+     * earnings reference the *patient's* consultation with their primary
+     * doctor, not the nurse/CO's own consultation, so the parent row never
+     * exists in the nurse's local DB and the insert silently fails.
+     *
+     * SQLite doesn't support ALTER TABLE DROP CONSTRAINT, so we recreate
+     * the table without the FK and copy rows over.
+     */
+    val MIGRATION_34_35 = object : Migration(34, 35) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `doctor_earnings_new` (
+                    `earningId` TEXT NOT NULL,
+                    `doctorId` TEXT NOT NULL,
+                    `consultationId` TEXT NOT NULL,
+                    `amount` INTEGER NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `earningType` TEXT NOT NULL,
+                    `paidAt` INTEGER,
+                    `createdAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`earningId`),
+                    FOREIGN KEY(`doctorId`) REFERENCES `doctor_profiles`(`doctorId`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                INSERT INTO `doctor_earnings_new`
+                    (earningId, doctorId, consultationId, amount, status, earningType, paidAt, createdAt)
+                SELECT earningId, doctorId, consultationId, amount, status, earningType, paidAt, createdAt
+                  FROM `doctor_earnings`
+                """.trimIndent(),
+            )
+            db.execSQL("DROP TABLE `doctor_earnings`")
+            db.execSQL("ALTER TABLE `doctor_earnings_new` RENAME TO `doctor_earnings`")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_doctor_earnings_doctorId_status` " +
+                    "ON `doctor_earnings` (`doctorId`, `status`)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_doctor_earnings_consultationId` " +
+                    "ON `doctor_earnings` (`consultationId`)",
+            )
+        }
+    }
+
     val ALL_MIGRATIONS: Array<Migration> = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
@@ -948,5 +1000,6 @@ object DatabaseMigrations {
         MIGRATION_31_32,
         MIGRATION_32_33,
         MIGRATION_33_34,
+        MIGRATION_34_35,
     )
 }

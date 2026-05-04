@@ -14,12 +14,12 @@ import androidx.room.PrimaryKey
             childColumns = ["doctorId"],
             onDelete = ForeignKey.CASCADE,
         ),
-        ForeignKey(
-            entity = ConsultationEntity::class,
-            parentColumns = ["consultationId"],
-            childColumns = ["consultationId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
+        // No FK on consultationId — medication_reminder and
+        // royal_checkin_escalation earnings reference *another* doctor's
+        // consultation (e.g. a nurse earning for ringing a Royal patient
+        // whose consultation belongs to the patient's primary doctor).
+        // The earning is its own audit row; the consultation linkage is
+        // informational and shouldn't gate insertion into the local cache.
     ],
     indices = [
         Index("doctorId", "status"),

@@ -71,6 +71,17 @@ fun MedicalReminderListScreen(
         }
     }
 
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.onCallScreenResumed()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     LaunchedEffect(state.autoAcceptError) {
         state.autoAcceptError?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
@@ -106,6 +117,8 @@ fun MedicalReminderListScreen(
             else -> ReminderList(
                 state = state,
                 onCall = viewModel::onCall,
+                onDismiss = viewModel::onDismiss,
+                onMarkUnreachable = viewModel::onMarkUnreachable,
                 contentPadding = padding,
             )
         }
@@ -153,6 +166,8 @@ private fun EmptyState(modifier: Modifier = Modifier) {
 private fun ReminderList(
     state: com.esiri.esiriplus.feature.doctor.viewmodel.MedicalReminderListUiState,
     onCall: (AcceptedReminder) -> Unit,
+    onDismiss: (eventId: String) -> Unit,
+    onMarkUnreachable: (eventId: String) -> Unit,
     contentPadding: PaddingValues,
 ) {
     LazyColumn(
@@ -169,6 +184,8 @@ private fun ReminderList(
                 reminder = reminder,
                 isCalling = state.callingEventId == reminder.eventId,
                 onCall = { onCall(reminder) },
+                onDismiss = { onDismiss(reminder.eventId) },
+                onMarkUnreachable = { onMarkUnreachable(reminder.eventId) },
             )
         }
     }
@@ -179,7 +196,34 @@ private fun ReminderRow(
     reminder: AcceptedReminder,
     isCalling: Boolean,
     onCall: () -> Unit,
+    onDismiss: () -> Unit,
+    onMarkUnreachable: () -> Unit,
 ) {
+    val confirmDismiss = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    if (confirmDismiss.value) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { confirmDismiss.value = false },
+            title = { Text("Remove this reminder?") },
+            text = {
+                Text(
+                    "The patient will be notified directly to take their medicine. " +
+                        "You won't earn this reminder.",
+                    fontSize = 13.sp,
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    confirmDismiss.value = false
+                    onDismiss()
+                }) { Text("Remove", color = Color(0xFFDC2626)) }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { confirmDismiss.value = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
+    }
     val tt = reminder.timetable
     val medication = tt?.medicationName?.takeIf { it.isNotBlank() } ?: "Medication"
     val dosage = tt?.dosage?.takeIf { it.isNotBlank() }
@@ -223,6 +267,13 @@ private fun ReminderRow(
                     color = Color(0xFF94A19D),
                 )
             }
+            IconButton(onClick = { confirmDismiss.value = true }) {
+                Text(
+                    text = "✕",
+                    fontSize = 16.sp,
+                    color = Color(0xFF94A19D),
+                )
+            }
         }
 
         Spacer(Modifier.height(12.dp))
@@ -262,32 +313,51 @@ private fun ReminderRow(
 
         Spacer(Modifier.height(12.dp))
 
-        Button(
-            onClick = onCall,
-            enabled = !isCalling,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF14B8A6),
-                contentColor = Color.White,
-            ),
-            shape = RoundedCornerShape(10.dp),
-        ) {
-            if (isCalling) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(14.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp,
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Calling…", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-            } else {
-                Icon(
-                    Icons.Outlined.Phone,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Call patient", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        // After start_call the event is nurse_calling. The screen tries
+        // an auto-complete on resume; if the server rejects (no patient
+        // join, or call <60s), the row stays nurse_calling and only the
+        // "Couldn't reach" path is offered — the nurse can never claim a
+        // call that didn't actually connect.
+        if (reminder.status == "nurse_calling") {
+            Button(
+                onClick = onMarkUnreachable,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFEA580C),
+                    contentColor = Color.White,
+                ),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text("Couldn't reach", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        } else {
+            Button(
+                onClick = onCall,
+                enabled = !isCalling,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF14B8A6),
+                    contentColor = Color.White,
+                ),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                if (isCalling) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Calling…", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                } else {
+                    Icon(
+                        Icons.Outlined.Phone,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Call patient", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                }
             }
         }
     }
